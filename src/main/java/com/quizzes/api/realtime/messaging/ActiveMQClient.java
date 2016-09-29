@@ -51,7 +51,6 @@ public class ActiveMQClient {
     }
 
     public void sendMessage(String message) {
-        System.out.println("Esta raro...");
         logger.debug("Sending message: {}", message);
         try {
             JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
