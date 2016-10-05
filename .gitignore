@@ -1,5 +1,5 @@
-.gradle/
-gradle/
-gradlew
-gradlew.bat
 build/
+.gradle
+*.jar
+*.tar.gz
+s3.artifact

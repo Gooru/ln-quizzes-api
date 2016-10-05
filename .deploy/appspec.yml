@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+files:
+  - source: quizzes-api.service
+    destination: /etc/systemd/system/
+  - source: quizzes-api.jar
+    destination: /opt/quizzes-api/
+permissions:
+  - object: /opt/quizzes-api
+    pattern: "*"
+    owner: quizzes
+    group: quizzes
+    mode: 644
+    type:
+      - file
+hooks:
+  ApplicationStart:
+    - location: start.sh
+      timeout: 180
+  ValidateService:
+    - location: check.sh
+      timeout: 180
