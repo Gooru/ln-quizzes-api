@@ -22,7 +22,7 @@ public class Event {
     @Id
     @GenericGenerator(name = "uuid-gen", strategy = "uuid2")
     @GeneratedValue(generator = "uuid-gen")
-    @org.hibernate.annotations.Type(type="pg-uuid")
+    @Type(type="pg-uuid")
     private UUID id;
 //    private UUID eventIndexId;
 

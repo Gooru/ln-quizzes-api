@@ -1,5 +1,6 @@
 package com.quizzes.api.common.model;
 
+
 import org.hibernate.dialect.PostgreSQL9Dialect;
 
 import java.sql.Types;
