@@ -1,0 +1,11 @@
+[Unit]
+Description=Gooru Quizzes API
+
+[Service]
+EnvironmentFile=/opt/quizzes-api/config.env
+User=quizzes
+Restart=always
+ExecStart=/usr/bin/java -jar /opt/quizzes-api/quizzes-api.jar
+
+[Install]
+WantedBy=default.target
