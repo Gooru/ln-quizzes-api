@@ -1,5 +1,6 @@
 package com.quizzes.api.common.model;
 
+
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -22,12 +23,12 @@ public class Context {
     @Id
     @GenericGenerator(name = "uuid-gen", strategy = "uuid2")
     @GeneratedValue(generator = "uuid-gen")
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     @Type(type = "pg-uuid")
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "collection_id")
+    @JoinColumn(name = "collection_id", nullable = false)
     private Collection collection;
 
     @Column(name = "context_body", columnDefinition = "jsonb")

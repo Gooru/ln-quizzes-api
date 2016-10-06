@@ -1,6 +1,6 @@
 package com.quizzes.api.common.model;
 
-import com.quizzes.api.common.model.StringJsonType;
+
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;

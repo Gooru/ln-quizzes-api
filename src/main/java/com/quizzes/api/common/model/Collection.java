@@ -1,5 +1,6 @@
 package com.quizzes.api.common.model;
 
+
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -33,10 +34,10 @@ public class Collection {
     private boolean isCollection;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_profile_id")
+    @JoinColumn(name = "owner_profile_id", nullable = false)
     private Profile owner;
 
-    @Column(name = "lms_id")
+    @Column(name = "lms_id", nullable = false)
     private String lmsId;
 
     @Column(name = "collection_body", columnDefinition = "jsonb")
