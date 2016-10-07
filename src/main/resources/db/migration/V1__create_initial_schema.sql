@@ -88,6 +88,7 @@ CREATE TABLE collection_on_air
 
 -- Filling temporal data
 Insert Into profile (id) values(uuid_generate_v1mc());
+Insert Into profile (id, external_id) values('1399e9bf-075d-43ee-8742-f8f00657fe49', '1100');
 Insert Into collection (id, owner_profile_id) values(uuid_generate_v1mc(), (Select id From profile Limit 1));
 Insert Into collection (id, owner_profile_id) values(uuid_generate_v1mc(), (Select id From profile Limit 1));
 Insert Into collection (id, owner_profile_id) values(uuid_generate_v1mc(), (Select id From profile Limit 1));

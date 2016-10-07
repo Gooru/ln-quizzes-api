@@ -8,6 +8,8 @@ import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -38,7 +40,8 @@ public class Collection {
     private Profile owner;
 
     @Column(name = "lms_id", nullable = false)
-    private String lmsId;
+    @Enumerated(EnumType.STRING)
+    private Lms lmsId;
 
     @Column(name = "collection_body", columnDefinition = "jsonb")
     @Type(type = "StringJsonType")
@@ -84,11 +87,11 @@ public class Collection {
         this.owner = owner;
     }
 
-    public String getLmsId() {
+    public Lms getLmsId() {
         return lmsId;
     }
 
-    public void setLmsId(String lmsId) {
+    public void setLmsId(Lms lmsId) {
         this.lmsId = lmsId;
     }
 

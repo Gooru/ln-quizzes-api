@@ -4,7 +4,6 @@ import com.quizzes.api.realtime.model.EventIndex;
 import com.quizzes.api.realtime.model.Event;
 import com.quizzes.api.realtime.repository.EventIndexRepository;
 import com.quizzes.api.realtime.repository.EventRepository;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ public class EventService {
         return eventIndexRepository.findByCollectionUniqueIdOrderByUserIdAsc(collectionUniqueId);
     }
 
-    public Event saveEvent(String collectionUniqueId, String userId, String body) throws ParseException {
+    public Event saveEvent(String collectionUniqueId, String userId, String body){
         // Broadcast the event message
         broadcastService.broadcastEvent(collectionUniqueId, userId, body);
 
