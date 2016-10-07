@@ -1,9 +1,16 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.1.RELEASE")
+        classpath('nu.studer:gradle-jooq-plugin:1.0.5')
+        classpath("org.postgresql:postgresql:9.4.1211")
+        classpath("gradle.plugin.com.boxfuse.client:flyway-release:4.0.3")
     }
 }
 
@@ -11,6 +18,8 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'spring-boot'
+apply plugin: 'org.flywaydb.flyway'
+apply plugin: 'nu.studer.jooq'
 
 jar {
     baseName = 'quizzes-api'
@@ -23,6 +32,55 @@ repositories {
     mavenCentral()
 }
 
+flyway {
+    driver = datasourceDriver
+    url = datasourceUrl
+    user = datasourceUsername
+    password = datasourcePassword
+    schemas = [datasourceSchema]
+    baselineOnMigrate = true
+    baselineDescription = true
+}
+
+jooq {
+    quizzes(sourceSets.main) {
+        jdbc {
+            driver = datasourceDriver
+            url = datasourceUrl
+            user = datasourceUsername
+            password = datasourcePassword
+            schema = datasourceSchema
+        }
+        generator {
+            name = 'org.jooq.util.DefaultGenerator'
+            strategy {
+                name = 'org.jooq.util.DefaultGeneratorStrategy'
+                // ...
+            }
+            database {
+                name = 'org.jooq.util.postgres.PostgresDatabase'
+                inputSchema = 'public'
+                excludes = 'public.schema_version'
+                // ...
+            }
+            generate {
+                relations = false
+                deprecated = false
+                records = false
+                pojos = true
+                // ...
+            }
+            target {
+                packageName = 'com.quizzes.api.common'
+                // directory = ...
+            }
+        }
+    }
+}
+
+generateQuizzesJooqSchemaSource.onlyIf { !project.hasProperty('skipJooq') }
+
+
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE") {
         exclude module: "org.springframework.boot:spring-boot-starter-logging"
@@ -30,6 +88,9 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-log4j2")
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-websocket")
+    compile("org.springframework.boot:spring-boot-starter-data-rest")
+    compile("org.springframework.boot:spring-boot-starter-jooq:1.4.1.RELEASE")
+
     compile("org.springframework:spring-messaging")
     compile("org.springframework:spring-jms")
     compile("org.apache.activemq:activemq-broker")
@@ -43,14 +104,12 @@ dependencies {
     }
     compile("org.springframework.data:spring-data-jpa:1.10.4.RELEASE")
 
-
-    compile("org.springframework.boot:spring-boot-starter-data-rest")
     compile("org.postgresql:postgresql:9.4.1211")
 
     compile("io.springfox:springfox-swagger2:2.0.2")
     compile("io.springfox:springfox-swagger-ui:2.0.2")
 
-    compile("org.flywaydb:flyway-core")
+    compile("org.flywaydb:flyway-core:4.0.3")
 
     testCompile("junit:junit")
     testCompile('org.springframework:spring-test');
@@ -64,4 +123,3 @@ configurations {
 task wrapper(type: Wrapper) {
     gradleVersion = '2.6'
 }
-
