@@ -78,12 +78,8 @@ jooq {
     }
 }
 
-generateQuizzesJooqSchemaSource.dependsOn = ['flywayMigrate']
-generateQuizzesJooqSchemaSource {
-    onlyIf {
-        dependsOnTaskDidWork()
-    }
-}
+generateQuizzesJooqSchemaSource.onlyIf { !project.hasProperty('skipJooq') }
+
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:1.4.1.RELEASE") {
