@@ -71,7 +71,7 @@ jooq {
                 // ...
             }
             target {
-                packageName = 'com.quizzes.api.common.model'
+                packageName = 'com.quizzes.api.common'
                 // directory = ...
             }
         }
@@ -107,6 +107,8 @@ dependencies {
 
     compile("io.springfox:springfox-swagger2:2.0.2")
     compile("io.springfox:springfox-swagger-ui:2.0.2")
+
+    compile("org.flywaydb:flyway-core:4.0.3")
 
     testCompile("junit:junit")
     testCompile('org.springframework:spring-test');
