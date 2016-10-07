@@ -12,7 +12,6 @@ CREATE TABLE profile
     profile_body    JSONB,
     created_at      TIMESTAMP   DEFAULT current_timestamp
 );
-
 CREATE INDEX profile_external_id_md5_idx ON profile (DECODE(MD5(external_id), 'HEX') NULLS LAST);
 
 CREATE TABLE collection
@@ -26,13 +25,11 @@ CREATE TABLE collection
     is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at          TIMESTAMP   DEFAULT current_timestamp
 );
-
+CREATE INDEX collection_external_id_md5_idx ON collection (DECODE(MD5(external_id), 'HEX') NULLS LAST);
 -- To use this index you have to do something like this
 -- SELECT * From collection
 -- WHERE DECODE(MD5(external_id), 'HEX') = DECODE(MD5('given-external-id'), 'HEX')
 -- AND external_id = given-external-id -- who knows when do we get a collision?
-
-CREATE INDEX collection_external_id_md5_idx ON collection (DECODE(MD5(external_id), 'HEX') NULLS LAST);
 
 CREATE TABLE resource
 (
@@ -46,7 +43,6 @@ CREATE TABLE resource
     is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at          TIMESTAMP   DEFAULT current_timestamp
 );
-
 CREATE INDEX resource_external_id_md5_idx ON resource (DECODE(MD5(external_id), 'HEX') NULLS LAST);
 
 CREATE TABLE context
@@ -56,8 +52,7 @@ CREATE TABLE context
     context_body        JSONB,
     created_at          TIMESTAMP   DEFAULT current_timestamp
 );
-
-CREATE INDEX context_collection_id_idx ON context (collection_id);
+CREATE UNIQUE INDEX context_collection_id_idx ON context (collection_id);
 
 -- These table are deprecated.
 CREATE TABLE event_index
@@ -92,4 +87,4 @@ Insert Into collection (id, owner_profile_id) values(uuid_generate_v1mc(), (Sele
 Insert Into collection (id, owner_profile_id) values(uuid_generate_v1mc(), (Select id From profile Limit 1));
 Insert Into collection (id, owner_profile_id) values(uuid_generate_v1mc(), (Select id From profile Limit 1));
 Insert Into context(id, collection_id, context_body) values(uuid_generate_v1mc(), (Select id From collection Limit 1), '{ "courseId": "abc", "classId": "def", "unitId": "ghi", "lessonId": "jkl" }');
-Insert Into context(id, collection_id, context_body) values(uuid_generate_v1mc(), (Select id From collection Limit 1), '{ "courseId": "a123", "classId": "b123", "unitId": "c123", "lessonId": "d123" }');
+--Insert Into context(id, collection_id, context_body) values(uuid_generate_v1mc(), (Select id From collection Limit 1), '{ "courseId": "a123", "classId": "b123", "unitId": "c123", "lessonId": "d123" }');
