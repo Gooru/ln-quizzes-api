@@ -72,7 +72,6 @@ jooq {
             }
             target {
                 packageName = 'com.quizzes.api.common'
-                // directory = ...
             }
         }
     }

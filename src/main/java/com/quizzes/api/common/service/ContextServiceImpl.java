@@ -11,14 +11,14 @@ import org.springframework.http.ResponseEntity;
 public class ContextServiceImpl implements ContextService {
 
     @Autowired
-    CollectionNewService collectionNewService;
+    CollectionService collectionService;
 
     @Autowired
     ContextRepository contextRepository;
 
     @Override
     public ResponseEntity<Context> getContext(String externalCollectionId, ContextDTO contextDTO) {
-        Collection collection = collectionNewService.getOrCreateCollection(externalCollectionId);
+        Collection collection = collectionService.getOrCreateCollection(externalCollectionId);
         Context context = contextRepository.findByCollectionId(collection.getId());
         if (context != null) {
             return new ResponseEntity<>(context, HttpStatus.OK);

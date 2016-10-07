@@ -1,6 +1,7 @@
 package com.quizzes.api.common.model;
 
 
+import com.quizzes.api.common.model.Enum.LmsEnumType;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -8,8 +9,6 @@ import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -17,7 +16,12 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.util.UUID;
 
-@TypeDefs({@TypeDef(name = "StringJsonType", typeClass = StringJsonType.class)})
+@TypeDefs(
+        {
+                @TypeDef(name = "StringJsonType", typeClass = StringJsonType.class),
+                @TypeDef(name = "LmsEnumType", typeClass = LmsEnumType.class)
+        }
+)
 
 @Entity
 public class Collection {
@@ -40,8 +44,8 @@ public class Collection {
     private Profile owner;
 
     @Column(name = "lms_id", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private Lms lmsId;
+    @Type(type = "LmsEnumType")
+    private Lms lmsId = Lms.quizzes;
 
     @Column(name = "collection_body", columnDefinition = "jsonb")
     @Type(type = "StringJsonType")
@@ -57,6 +61,10 @@ public class Collection {
     public Collection(String externalId, Profile owner) {
         this.externalId = externalId;
         this.owner = owner;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public UUID getId() {

@@ -1,8 +1,8 @@
 package com.quizzes.api.realtime.controller;
 
 import io.swagger.annotations.ApiOperation;
+import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
-import com.quizzes.api.realtime.service.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CrossOrigin;

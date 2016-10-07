@@ -3,7 +3,7 @@ package com.quizzes.api.gooru.service;
 import com.quizzes.api.common.dto.controller.ContextDTO;
 import com.quizzes.api.common.model.Collection;
 import com.quizzes.api.common.model.Context;
-import com.quizzes.api.common.service.CollectionNewService;
+import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.common.service.ContextServiceImpl;
 import com.quizzes.api.gooru.repository.GooruContextRepository;
 import org.json.simple.JSONObject;
@@ -25,19 +25,19 @@ class GooruContextServiceImpl extends ContextServiceImpl {
     private final static String COURSE_ID = "courseId";
 
     @Autowired
-    CollectionNewService collectionNewService;
+    CollectionService collectionService;
 
     @Autowired
     GooruContextRepository gooruContextRepository;
 
     @Override
     public ResponseEntity<Context> getContext(String externalCollectionId, ContextDTO contextDTO) {
-        Collection collection = collectionNewService.getOrCreateCollection(externalCollectionId);
+        Collection collection = collectionService.getOrCreateCollection(externalCollectionId);
         Context context = gooruContextRepository.findByCollectionIdAndContext(collection.getId(),
+                contextDTO.getContext().get(COURSE_ID),
                 contextDTO.getContext().get(CLASS_ID),
-                contextDTO.getContext().get(LESSON_ID),
                 contextDTO.getContext().get(UNIT_ID),
-                contextDTO.getContext().get(COURSE_ID));
+                contextDTO.getContext().get(LESSON_ID));
         if (context != null) {
             return new ResponseEntity<>(context, HttpStatus.OK);
         }

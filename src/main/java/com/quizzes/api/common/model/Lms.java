@@ -2,18 +2,18 @@ package com.quizzes.api.common.model;
 
 public enum Lms {
 
-        Gooru("gooru"),
-        Quizzes("quizzes"),
-        ItsLearning("its-learning");
+    gooru("gooru"),
+    quizzes("quizzes"),
+    itsLearning("its-learning");
 
-        private String name;
+    private String value;
 
-        Lms(String name) {
-            this.name = name;
-        }
+    Lms(String name) {
+        this.value = name;
+    }
 
-        public String getName() {
-            return name;
-        }
+    public String getValue() {
+        return value;
+    }
 
 }
