@@ -4,7 +4,7 @@ set -e
 
 source .ci/common.sh
 
-./gradlew clean build -PskipJooq -x test
+./gradlew clean build -x test
 
 #if [ -z "$ARTIFACTORY_USERNAME" ] || [ -z "$ARTIFACTORY_PASSWORD" ]; then
 #  error "No Artifactory credentials provided."
