@@ -1,4 +1,4 @@
-package com.quizzes.api.common.model.Enum;
+package com.quizzes.api.common.model.enums;
 
 import com.quizzes.api.common.model.Lms;
 import org.hibernate.HibernateException;

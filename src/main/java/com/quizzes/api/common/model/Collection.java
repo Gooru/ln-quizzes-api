@@ -1,7 +1,7 @@
 package com.quizzes.api.common.model;
 
 
-import com.quizzes.api.common.model.Enum.LmsEnumType;
+import com.quizzes.api.common.model.enums.LmsEnumType;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
