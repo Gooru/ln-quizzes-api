@@ -1,77 +1,29 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.model.Collection;
-import com.quizzes.api.common.repository.CollectionRepository;
 import com.quizzes.api.realtime.model.CollectionOnAir;
-import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
-import com.quizzes.api.realtime.service.EventService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
-import java.util.UUID;
-
 @Service
-public class CollectionService {
+public interface CollectionService {
 
-    @Autowired
-    CollectionRepository collectionRepository;
+    Collection findByExternalId(String externalId);
 
-    @Autowired
-    ProfileService profileService;
-
-    public Collection findByExternalId(String externalId) {
-        return collectionRepository.findByExternalId(externalId);
-    }
-
-    public Collection getOrCreateCollection(String id) {
-        Collection collection = collectionRepository.findByExternalId(id);
-        if (collection == null) {
-            //TODO: Go to gooru to verify the profile id
-            collection = new Collection(id, profileService.findById(UUID.fromString("1399e9bf-075d-43ee-8742-f8f00657fe49")));
-            collection = collectionRepository.save(collection);
-        }
-        return collection;
-    }
+    Collection getOrCreateCollection(String id);
 
 
     //TODO: WE NEED TO REMOVE THIS OLD METHODS - OLD REAL TIME METHODS
-    @Autowired
-    private EventService eventService;
 
-    @Autowired
-    private CollectionOnAirRepository collectionOnAirRepository;
+    CollectionOnAir findCollectionOnAir(String classId, String collectionId);
 
+    Iterable<CollectionOnAir> findCollectionsOnAirByClass(String classId);
 
-    public CollectionOnAir findCollectionOnAir(String classId, String collectionId) {
-        return collectionOnAirRepository.findFirstByClassIdAndCollectionId(classId, collectionId);
-    }
+    CollectionOnAir addCollectionOnAir(String classId, String collectionId);
 
-    public Iterable<CollectionOnAir> findCollectionsOnAirByClass(String classId) {
-        return collectionOnAirRepository.findByClassId(classId);
-    }
+    void removeCollectionOnAir(String classId, String collectionId);
 
-    public CollectionOnAir addCollectionOnAir(String classId, String collectionId) {
-        CollectionOnAir collectionOnAir = findCollectionOnAir(classId, collectionId);
-        if (Objects.isNull(collectionOnAir)) {
-            collectionOnAir = collectionOnAirRepository.save(new CollectionOnAir(classId, collectionId));
-        }
-        return collectionOnAir;
-    }
+    void completeCollectionForUser(String collectionUniqueId, String userId);
 
-    public void removeCollectionOnAir(String classId, String collectionId) {
-        CollectionOnAir collectionOnAir = findCollectionOnAir(classId, collectionId);
-        if (Objects.nonNull(collectionOnAir)) {
-            collectionOnAirRepository.delete(collectionOnAir);
-        }
-    }
-
-    public void completeCollectionForUser(String collectionUniqueId, String userId) {
-        eventService.completeEventIndexByUser(collectionUniqueId, userId);
-    }
-
-    public void resetCollectionForUser(String collectionUniqueId, String userId) {
-        eventService.deleteCollectionEventsByUser(collectionUniqueId, userId);
-    }
+    void resetCollectionForUser(String collectionUniqueId, String userId);
 
 }

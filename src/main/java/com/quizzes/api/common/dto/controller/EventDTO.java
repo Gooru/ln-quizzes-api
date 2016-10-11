@@ -3,6 +3,10 @@ package com.quizzes.api.common.dto.controller;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * This class is used to set the specific response for endpoints with this format.
+ * This object will be converted in json format
+ */
 public class EventDTO {
 
     private String contextId;

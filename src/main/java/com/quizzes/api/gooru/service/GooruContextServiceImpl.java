@@ -4,20 +4,16 @@ import com.quizzes.api.common.dto.controller.ContextDTO;
 import com.quizzes.api.common.model.Collection;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.service.CollectionService;
-import com.quizzes.api.common.service.ContextServiceImpl;
+import com.quizzes.api.common.service.ContextService;
 import com.quizzes.api.gooru.repository.GooruContextRepository;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("Gooru")
-@Primary
-class GooruContextServiceImpl extends ContextServiceImpl {
+public class GooruContextServiceImpl implements ContextService {
 
     private final static String CLASS_ID = "classId";
     private final static String LESSON_ID = "lessonId";

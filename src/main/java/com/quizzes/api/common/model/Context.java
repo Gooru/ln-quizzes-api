@@ -46,7 +46,7 @@ public class Context {
     }
 
     public void setId(UUID id) {
-        this.id =  id;
+        this.id = id;
     }
 
     public UUID getId() {

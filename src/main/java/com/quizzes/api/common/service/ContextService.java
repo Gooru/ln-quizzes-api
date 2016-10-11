@@ -5,8 +5,6 @@ import com.quizzes.api.common.model.Context;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public interface ContextService {
 

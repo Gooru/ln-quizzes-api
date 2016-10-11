@@ -1,5 +1,9 @@
 package com.quizzes.api;
 
+import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.ContextServiceImpl;
+import com.quizzes.api.gooru.service.GooruContextServiceImpl;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +21,17 @@ public class AppConfig {
     @Bean
     public JsonParser jsonParser() {
         return new GsonJsonParser();
+    }
+
+    @Bean
+    public ContextService contextService() {
+        return new GooruContextServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(ContextService.class)
+    public ContextService defaultContextService() {
+        return new ContextServiceImpl();
     }
 
     @Bean

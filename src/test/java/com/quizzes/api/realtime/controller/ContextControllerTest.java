@@ -3,7 +3,6 @@ package com.quizzes.api.realtime.controller;
 import com.quizzes.api.common.dto.controller.ContextDTO;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.service.ContextService;
-import com.quizzes.api.realtime.model.CollectionOnAir;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

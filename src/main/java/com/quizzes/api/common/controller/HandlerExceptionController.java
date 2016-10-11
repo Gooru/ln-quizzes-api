@@ -12,12 +12,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class HandlerExceptionController {
 
+    /**
+     * Handles exceptions with incorrect properties in json
+     * @return Missing properties and status 500
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = MissingJsonPropertiesException.class)
     public ExceptionMessage handleInvalidJsonPropertiesException(MissingJsonPropertiesException e){
         return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(), MissingJsonPropertiesException.class.getSimpleName());
     }
 
+    /**
+     * Handles basic exceptions
+     * @return Message exception and status 500
+     */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = Exception.class)
     public ExceptionMessage handleException(Exception e){
