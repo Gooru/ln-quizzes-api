@@ -2,6 +2,8 @@
 
 function fail {
   echo $1 >&2
+  #Print journald logs
+  journalctl -xe -u quizzes-api | cat
   exit 1
 }
 

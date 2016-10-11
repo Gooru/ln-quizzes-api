@@ -12,23 +12,38 @@ fi
 
 set -e
 
+RED="\e[31m"
+GREEN="\e[32m"
+NORMAL="\e[0m"
+
+function error() {
+  echo -e "\n$RED-------> $1 $NORMAL"
+}
+
+function info() {
+  echo -e "\n$GREEN-------> $1 $NORMAL"
+}
+
 function wait_for_deployment() {
 
   local deployment_id=$1
   local deployment_status_cmd="aws deploy get-deployment --deployment-id ${deployment_id} --query deploymentInfo.status"
   local deployment_status=$($deployment_status_cmd | tr -d '"')
 
-  echo "Checking status of deployment \"$deployment_id\""
+  info "Checking status of deployment \"$deployment_id\""
 
   while true; do
-    echo "Current deployment status \"$deployment_status\""
+    info "Current deployment status \"$deployment_status\""
     if [ "$deployment_status" == "Succeeded" ]; then
-      echo "Deployment successful"
+      info "Deployment successful"
       return 0
     fi
 
     if [ "$deployment_status" == "Failed" ]; then
-      echo "Deployment failed"
+      error "Deployment failed"
+      echo "---------------------"
+      error "For more info check: https://console.aws.amazon.com/codedeploy/home?region=${AWS_DEFAULT_REGION}#/deployments/${deployment_id}"
+      echo "---------------------"
       return 1
     fi
 
@@ -38,17 +53,17 @@ function wait_for_deployment() {
 }
 
 if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ] || [ -z "$AWS_DEFAULT_REGION" ]; then
-  echo "No AWS credentials provided"
+  error "No AWS credentials provided"
   exit 1
 fi
 
 if [ -z "$S3_BUCKET" ]; then
-  echo "No S3 bucket provided"
+  error "No S3 bucket provided"
   exit 1
 fi
 
 if [ -z "$DEPLOYMENT_GROUP" ] || [ -z "$CODE_DEPLOY_APP_NAME" ]; then
-  echo "No deployment group or application name provided"
+  error "No deployment group or application name provided"
   exit 1
 fi
 
@@ -59,6 +74,6 @@ DEPLOYMENT_ID=$(aws deploy create-deployment \
   --s3-location "bucket=${S3_BUCKET},key=${S3_ARTIFACT_KEY},bundleType=tar" \
   --deployment-group-name "${DEPLOYMENT_GROUP}" --query deploymentId | tr -d '"')
 
-echo "Deployment \"$DEPLOYMENT_ID\" created"
+info "Deployment \"$DEPLOYMENT_ID\" created"
 
 wait_for_deployment $DEPLOYMENT_ID
