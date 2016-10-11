@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 public class CollectionServiceImplTest {
 
     @InjectMocks
-    private CollectionServiceImpl collectionServiceImpl = Mockito.spy(CollectionServiceImpl.class);
+    private CollectionService collectionService = Mockito.spy(CollectionServiceImpl.class);
 
     @Mock
     private EventService eventService;
@@ -43,29 +43,29 @@ public class CollectionServiceImplTest {
     @Test
     public void removeCollectionOnAir() throws Exception {
         CollectionOnAir mockCollection = new CollectionOnAir("classId", "collectionId");
-        doReturn(mockCollection).when(collectionServiceImpl).findCollectionOnAir("classId", "collectionId");
+        doReturn(mockCollection).when(collectionService).findCollectionOnAir("classId", "collectionId");
 
-        collectionServiceImpl.removeCollectionOnAir("classId", "collectionId");
+        collectionService.removeCollectionOnAir("classId", "collectionId");
         verify(collectionOnAirRepository, times(1)).delete(Mockito.eq(mockCollection));
     }
 
     @Test
     public void removeCollectionOnAirWhenNotExist() throws Exception {
-        doReturn(null).when(collectionServiceImpl).findCollectionOnAir("classId", "collectionId");
+        doReturn(null).when(collectionService).findCollectionOnAir("classId", "collectionId");
 
-        collectionServiceImpl.removeCollectionOnAir("classId", "collectionId");
+        collectionService.removeCollectionOnAir("classId", "collectionId");
         verify(collectionOnAirRepository, times(0)).delete(any(CollectionOnAir.class));
     }
 
     @Test
     public void completeCollectionForUser() throws Exception {
-        collectionServiceImpl.completeCollectionForUser("collectionUniqueId", "userId");
+        collectionService.completeCollectionForUser("collectionUniqueId", "userId");
         verify(eventService, times(1)).completeEventIndexByUser(Mockito.eq("collectionUniqueId"), Mockito.eq("userId"));
     }
 
     @Test
     public void resetCollectionForUser() throws Exception {
-        collectionServiceImpl.resetCollectionForUser("collectionUniqueId", "userId");
+        collectionService.resetCollectionForUser("collectionUniqueId", "userId");
         verify(eventService, times(1)).deleteCollectionEventsByUser(Mockito.eq("collectionUniqueId"), Mockito.eq("userId"));
     }
 
@@ -74,7 +74,7 @@ public class CollectionServiceImplTest {
         CollectionOnAir mockCollection = new CollectionOnAir("classId", "collectionId");
         when(collectionOnAirRepository.findFirstByClassIdAndCollectionId("classId", "collectionId")).thenReturn(mockCollection);
 
-        CollectionOnAir result = collectionServiceImpl.findCollectionOnAir("classId", "collectionId");
+        CollectionOnAir result = collectionService.findCollectionOnAir("classId", "collectionId");
         verify(collectionOnAirRepository, times(1)).findFirstByClassIdAndCollectionId(Mockito.eq("classId"), Mockito.eq("collectionId"));
         assertEquals(mockCollection.getClassId(), "classId");
         assertEquals(mockCollection.getCollectionId(), "collectionId");
@@ -83,12 +83,12 @@ public class CollectionServiceImplTest {
 
     @Test
     public void addCollectionOnAirWhenNotExist() throws Exception {
-        doReturn(null).when(collectionServiceImpl).findCollectionOnAir("classId", "collectionId");
+        doReturn(null).when(collectionService).findCollectionOnAir("classId", "collectionId");
         when(collectionOnAirRepository.save(any(CollectionOnAir.class))).thenReturn(new CollectionOnAir("classId", "collectionId"));
 
-        CollectionOnAir result = collectionServiceImpl.addCollectionOnAir("classId", "collectionId");
+        CollectionOnAir result = collectionService.addCollectionOnAir("classId", "collectionId");
 
-        verify(collectionServiceImpl, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
+        verify(collectionService, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
         verify(collectionOnAirRepository, times(1)).save(any(CollectionOnAir.class));
         assertEquals(result.getClassId(), "classId");
         assertEquals(result.getCollectionId(), "collectionId");
@@ -98,11 +98,11 @@ public class CollectionServiceImplTest {
     @Test
     public void addCollectionOnAir() throws Exception {
         CollectionOnAir mockCollection = new CollectionOnAir("classId", "collectionId");
-        doReturn(mockCollection).when(collectionServiceImpl).findCollectionOnAir("classId", "collectionId");
+        doReturn(mockCollection).when(collectionService).findCollectionOnAir("classId", "collectionId");
 
-        CollectionOnAir result = collectionServiceImpl.addCollectionOnAir("classId", "collectionId");
+        CollectionOnAir result = collectionService.addCollectionOnAir("classId", "collectionId");
 
-        verify(collectionServiceImpl, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
+        verify(collectionService, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
         verify(collectionOnAirRepository, times(0)).save(any(CollectionOnAir.class));
         assertEquals(result.getClassId(), "classId");
         assertEquals(result.getCollectionId(), "collectionId");
@@ -116,7 +116,7 @@ public class CollectionServiceImplTest {
         collections.add(new CollectionOnAir("classId", "secondCollection"));
         when(collectionOnAirRepository.findByClassId("classId")).thenReturn(collections);
 
-        Iterable<CollectionOnAir> result = collectionServiceImpl.findCollectionsOnAirByClass("classId");
+        Iterable<CollectionOnAir> result = collectionService.findCollectionsOnAirByClass("classId");
         verify(collectionOnAirRepository, times(1)).findByClassId(Mockito.eq("classId"));
 
         // Creating the list to verify the size
@@ -131,7 +131,6 @@ public class CollectionServiceImplTest {
 
         assertNotNull(result);
     }
-
 
 
 }

@@ -3,7 +3,9 @@ package com.quizzes.api.gooru.service;
 import com.quizzes.api.common.dto.controller.ContextDTO;
 import com.quizzes.api.common.model.Collection;
 import com.quizzes.api.common.model.Context;
-import com.quizzes.api.common.service.CollectionServiceImpl;
+import com.quizzes.api.common.service.CollectionService;
+import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.ProfileServiceImpl;
 import com.quizzes.api.gooru.repository.GooruContextRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,10 +30,10 @@ import static org.mockito.Mockito.when;
 public class GooruContextServiceImplTest {
 
     @InjectMocks
-    private GooruContextServiceImpl gooruServiceImpl = new GooruContextServiceImpl();
+    private ContextService gooruService = Mockito.spy(GooruContextServiceImpl.class);
 
     @Mock
-    CollectionServiceImpl collectionServiceImpl;
+    CollectionService collectionService;
 
     @Mock
     GooruContextRepository gooruContextRepository;
@@ -52,7 +54,7 @@ public class GooruContextServiceImplTest {
         Collection collection = new Collection();
         collection.setId(UUID.fromString("21111111-1111-1111-1111-111111111111"));
 
-        when(collectionServiceImpl.getOrCreateCollection("externalId")).thenReturn(collection);
+        when(collectionService.getOrCreateCollection("externalId")).thenReturn(collection);
         when(gooruContextRepository.save(any(Context.class))).thenReturn(contextMock);
         when(gooruContextRepository.findByCollectionIdAndContext(collection.getId(),
                 contextDTO.getContext().get("courseId"),
@@ -60,8 +62,8 @@ public class GooruContextServiceImplTest {
                 contextDTO.getContext().get("unitId"),
                 contextDTO.getContext().get("lessonId"))).thenReturn(null);
 
-        ResponseEntity<?> result = gooruServiceImpl.getContext("externalId", contextDTO);
-        verify(collectionServiceImpl, times(1)).getOrCreateCollection(Mockito.eq("externalId"));
+        ResponseEntity<?> result = gooruService.getContext("externalId", contextDTO);
+        verify(collectionService, times(1)).getOrCreateCollection(Mockito.eq("externalId"));
         verify(gooruContextRepository, times(1)).findByCollectionIdAndContext(Mockito.eq(collection.getId()),
                 Mockito.eq(contextDTO.getContext().get("courseId")),
                 Mockito.eq(contextDTO.getContext().get("classId")),
@@ -90,7 +92,7 @@ public class GooruContextServiceImplTest {
         Collection collection = new Collection();
         collection.setId(UUID.fromString("21111111-1111-1111-1111-111111111111"));
 
-        when(collectionServiceImpl.getOrCreateCollection("externalId")).thenReturn(collection);
+        when(collectionService.getOrCreateCollection("externalId")).thenReturn(collection);
         when(gooruContextRepository.save(any(Context.class))).thenReturn(contextMock);
         when(gooruContextRepository.findByCollectionIdAndContext(collection.getId(),
                 contextDTO.getContext().get("courseId"),
@@ -98,8 +100,8 @@ public class GooruContextServiceImplTest {
                 contextDTO.getContext().get("unitId"),
                 contextDTO.getContext().get("lessonId"))).thenReturn(contextMock);
 
-        ResponseEntity<?> result = gooruServiceImpl.getContext("externalId", contextDTO);
-        verify(collectionServiceImpl, times(1)).getOrCreateCollection(Mockito.eq("externalId"));
+        ResponseEntity<?> result = gooruService.getContext("externalId", contextDTO);
+        verify(collectionService, times(1)).getOrCreateCollection(Mockito.eq("externalId"));
         verify(gooruContextRepository, times(1)).findByCollectionIdAndContext(Mockito.eq(collection.getId()),
                 Mockito.eq(contextDTO.getContext().get("courseId")),
                 Mockito.eq(contextDTO.getContext().get("classId")),
