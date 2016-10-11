@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("gooruLms")
+@Profile("gooru-lms")
 public class GooruContextServiceImpl implements ContextService {
 
     private final static String CLASS_ID = "classId";

@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("default")
+@Profile("standalone-lms")
 public class ContextServiceImpl implements ContextService {
 
     @Autowired
