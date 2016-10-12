@@ -42,7 +42,7 @@ function wait_for_deployment() {
     if [ "$deployment_status" == "Failed" ]; then
       error "Deployment failed"
       echo "---------------------"
-      error "For more info check: https://console.aws.amazon.com/codedeploy/home?region=${AWS_DEFAULT_REGION}#/deployments/${deployment_id}"
+      error "For more info check: https://console.aws.amazon.com/cloudwatch/home?region=${AWS_DEFAULT_REGION}#logStream:group=quizzes-api-qa-codedeploy-deployments-log"
       echo "---------------------"
       return 1
     fi
