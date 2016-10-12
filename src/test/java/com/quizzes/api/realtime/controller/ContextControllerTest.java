@@ -1,6 +1,8 @@
 package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.ContextDTO;
+import com.quizzes.api.common.dto.controller.EventDTO;
+import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.service.ContextService;
 import org.junit.Test;
@@ -41,7 +43,7 @@ public class ContextControllerTest {
         properties.put("classId", "1");
         contextDTO.setContext(properties);
 
-        when(contextService.getContext("externalId", contextDTO)).thenReturn(new ResponseEntity<> (contextMock, HttpStatus.CREATED));
+        when(contextService.getContext("externalId", contextDTO)).thenReturn(new ResponseEntity<>(contextMock, HttpStatus.CREATED));
 
         ResponseEntity<?> result = controller.mapContext("externalId", contextDTO);
         verify(contextService, times(1)).getContext(Mockito.eq("externalId"), Mockito.eq(contextDTO));
@@ -60,13 +62,46 @@ public class ContextControllerTest {
         properties.put("classId", "1");
         contextDTO.setContext(properties);
 
-        when(contextService.getContext("externalId", contextDTO)).thenReturn(new ResponseEntity<> (contextMock, HttpStatus.OK));
+        when(contextService.getContext("externalId", contextDTO)).thenReturn(new ResponseEntity<>(contextMock, HttpStatus.OK));
 
         ResponseEntity<?> result = controller.mapContext("externalId", contextDTO);
         verify(contextService, times(1)).getContext(Mockito.eq("externalId"), Mockito.eq(contextDTO));
         assertNotNull(result);
         assertEquals(result.getStatusCode().value(), 200);
         assertEquals(result.getBody().toString(), "{contextId=8dc0dddb-f6c2-4884-97ed-66318a9958db}");
+    }
+
+    @Test
+    public void startContextEvent() throws Exception {
+        ProfileIdDTO requestBody = new ProfileIdDTO();
+        requestBody.setProfileId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
+
+        ResponseEntity<?> result = controller.startContextEvent("externalId", requestBody);
+        assertNotNull(result);
+        assertEquals(result.getStatusCode().value(), 200);
+        assertEquals(result.getBody().getClass(), EventDTO.class);
+    }
+
+    @Test
+    public void registerResource() throws Exception {
+        ProfileIdDTO requestBody = new ProfileIdDTO();
+        requestBody.setProfileId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
+
+        ResponseEntity<?> result = controller.onResourceEvent("resourceId", "externalId", requestBody);
+        assertNotNull(result);
+        assertEquals(result.getStatusCode().value(), 200);
+        assertEquals(result.getBody(), null);
+    }
+
+    @Test
+    public void finishContextEvent() throws Exception {
+        ProfileIdDTO requestBody = new ProfileIdDTO();
+        requestBody.setProfileId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
+
+        ResponseEntity<?> result = controller.finishContextEvent("externalId", requestBody);
+        assertNotNull(result);
+        assertEquals(result.getStatusCode().value(), 200);
+        assertEquals(result.getBody(), null);
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 public class EventDTO {
 
     private String contextId;
-    private String currentStatus;
+    private String currenteResourceId;
     private ArrayList<Map<String, String>> collectionStatus;
 
     public EventDTO() {
@@ -24,12 +24,12 @@ public class EventDTO {
         this.contextId = contextId;
     }
 
-    public String getCurrentStatus() {
-        return currentStatus;
+    public String getCurrenteResourceId() {
+        return currenteResourceId;
     }
 
-    public void setCurrentStatus(String currentStatus) {
-        this.currentStatus = currentStatus;
+    public void setCurrenteResourceId(String currenteResourceId) {
+        this.currenteResourceId = currenteResourceId;
     }
 
     public ArrayList<Map<String, String>> getCollectionStatus() {
