@@ -1,11 +1,13 @@
 package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.ContextDTO;
+import com.quizzes.api.common.dto.controller.EventDTO;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 
 @CrossOrigin
@@ -41,31 +43,44 @@ public class ContextController {
 
 
     @ApiOperation(value = "Start collection", notes = "Return the collection if exists, otherwise it will create one")
-    @RequestMapping(path = "/event/start/context/{contextId}",
+    @RequestMapping(path = "/v1/event/start/context/{contextId}",
             method = RequestMethod.POST)
-    public void startEvent(@PathVariable UUID context,
-                           @RequestBody String body) throws ParseException {
-//        ResponseEntity<Context> contextResponse = contextService.startEvent(context);
-//        return new ResponseEntity<>(null, HttpStatus.OK);
+    public ResponseEntity<EventDTO> startEvent(@PathVariable String contextId,
+                                               @RequestBody String body) throws ParseException {
+        EventDTO eventDTO = new EventDTO();
+        eventDTO.setContextId(contextId);
+        eventDTO.setCurrenteResourceId("1");
+
+        ArrayList<Map<String, String>> list = new ArrayList<>();
+        Map<String, String> item = new HashMap<>();
+        item.put("resourceId", "1");
+        item.put("timeSpent", "2452454351");
+        item.put("answer", "answer-object");
+        item.put("reaction", "2");
+        item.put("score", "80");
+
+        list.add(item);
+        eventDTO.setCollectionStatus(list);
+        return new ResponseEntity<>(eventDTO, HttpStatus.OK);
     }
 
 
     @ApiOperation(value = "Register resource", notes = "Register resource")
-    @RequestMapping(path = "/on-resource/{resourceId}/context/{contextId}",
+    @RequestMapping(path = "/v1/event/on-resource/{resourceId}/context/{contextId}",
             method = RequestMethod.POST)
-    public void registerResource(@PathVariable String resourceId,
-                                 @PathVariable String contextId,
-                                 @RequestBody String body) throws Exception {
-//        return new ResponseEntity<>(null, HttpStatus.OK);
+    public ResponseEntity<Object> registerResource(@PathVariable String resourceId,
+                                                   @PathVariable String contextId,
+                                                   @RequestBody String body) throws Exception {
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Register an event", notes = "Register an event")
-    @RequestMapping(path = "/end/context/{contextId}",
+    @RequestMapping(path = "/v1/end/context/{contextId}",
             method = RequestMethod.POST)
-    public void registerContextEvent(@PathVariable String contextId,
-                                     @RequestBody String body) throws Exception {
+    public ResponseEntity<Object> registerContextEvent(@PathVariable String contextId,
+                                                       @RequestBody String body) throws Exception {
 //        contextService.endContext();
-//        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
 }
