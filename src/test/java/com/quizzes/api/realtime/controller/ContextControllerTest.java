@@ -2,6 +2,7 @@ package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.ContextDTO;
 import com.quizzes.api.common.dto.controller.EventDTO;
+import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.service.ContextService;
 import org.junit.Test;
@@ -71,8 +72,11 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void startEvent() throws Exception {
-        ResponseEntity<?> result = controller.startEvent("externalId", "{body}");
+    public void startContextEvent() throws Exception {
+        ProfileIdDTO requestBody = new ProfileIdDTO();
+        requestBody.setProfileId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
+
+        ResponseEntity<?> result = controller.startContextEvent("externalId", requestBody);
         assertNotNull(result);
         assertEquals(result.getStatusCode().value(), 200);
         assertEquals(result.getBody().getClass(), EventDTO.class);
@@ -80,15 +84,21 @@ public class ContextControllerTest {
 
     @Test
     public void registerResource() throws Exception {
-        ResponseEntity<?> result = controller.registerResource("resourceId", "externalId", "{body}");
+        ProfileIdDTO requestBody = new ProfileIdDTO();
+        requestBody.setProfileId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
+
+        ResponseEntity<?> result = controller.onResourceEvent("resourceId", "externalId", requestBody);
         assertNotNull(result);
         assertEquals(result.getStatusCode().value(), 200);
         assertEquals(result.getBody(), null);
     }
 
     @Test
-    public void registerContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.registerContextEvent("externalId", "{body}");
+    public void finishContextEvent() throws Exception {
+        ProfileIdDTO requestBody = new ProfileIdDTO();
+        requestBody.setProfileId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
+
+        ResponseEntity<?> result = controller.finishContextEvent("externalId", requestBody);
         assertNotNull(result);
         assertEquals(result.getStatusCode().value(), 200);
         assertEquals(result.getBody(), null);

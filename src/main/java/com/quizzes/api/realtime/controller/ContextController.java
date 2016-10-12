@@ -2,6 +2,7 @@ package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.ContextDTO;
 import com.quizzes.api.common.dto.controller.EventDTO;
+import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
@@ -45,8 +46,8 @@ public class ContextController {
     @ApiOperation(value = "Start collection", notes = "Return the collection if exists, otherwise it will create one")
     @RequestMapping(path = "/v1/event/start/context/{contextId}",
             method = RequestMethod.POST)
-    public ResponseEntity<EventDTO> startEvent(@PathVariable String contextId,
-                                               @RequestBody String body) throws ParseException {
+    public ResponseEntity<?> startContextEvent(@PathVariable String contextId,
+                                               @RequestBody ProfileIdDTO requestBody) throws ParseException {
         EventDTO eventDTO = new EventDTO();
         eventDTO.setContextId(contextId);
         eventDTO.setCurrenteResourceId("1");
@@ -68,17 +69,17 @@ public class ContextController {
     @ApiOperation(value = "Register resource", notes = "Register resource")
     @RequestMapping(path = "/v1/event/on-resource/{resourceId}/context/{contextId}",
             method = RequestMethod.POST)
-    public ResponseEntity<Object> registerResource(@PathVariable String resourceId,
-                                                   @PathVariable String contextId,
-                                                   @RequestBody String body) throws Exception {
+    public ResponseEntity<?> onResourceEvent(@PathVariable String resourceId,
+                                             @PathVariable String contextId,
+                                             @RequestBody ProfileIdDTO requestBody) throws Exception {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Register an event", notes = "Register an event")
     @RequestMapping(path = "/v1/end/context/{contextId}",
             method = RequestMethod.POST)
-    public ResponseEntity<Object> registerContextEvent(@PathVariable String contextId,
-                                                       @RequestBody String body) throws Exception {
+    public ResponseEntity<?> finishContextEvent(@PathVariable String contextId,
+                                                @RequestBody ProfileIdDTO requestBody) throws Exception {
 //        contextService.endContext();
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
