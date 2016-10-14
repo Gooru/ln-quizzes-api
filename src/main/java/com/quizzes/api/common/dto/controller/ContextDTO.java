@@ -1,22 +1,20 @@
 package com.quizzes.api.common.dto.controller;
 
-import java.util.Map;
-
 /**
- * This class is used to get the specific body context (json) in the endpoints
+ * This would be the specific context for its-learning, it could change in the future
  */
 public class ContextDTO {
 
-    private Map<String, String> context;
+    private String classId;
 
     public ContextDTO() {
     }
 
-    public Map<String, String> getContext() {
-        return context;
+    public String getClassId() {
+        return classId;
     }
 
-    public void setContext(Map<String, String> context) {
-        this.context = context;
+    public void setClassId(String classId) {
+        this.classId = classId;
     }
 }

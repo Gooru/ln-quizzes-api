@@ -1,6 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.dto.controller.ContextDTO;
+import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.model.Collection;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.repository.ContextRepository;
@@ -37,7 +37,7 @@ public class ContextServiceImplTest {
     public void getContextGet() throws Exception {
         Context contextMock = new Context();
         contextMock.setId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
-        ContextDTO contextDTO = new ContextDTO();
+        AssignmentDTO assignmentDTO = new AssignmentDTO();
 
         Collection collection = new Collection();
         collection.setId(UUID.fromString("21111111-1111-1111-1111-111111111111"));
@@ -46,7 +46,7 @@ public class ContextServiceImplTest {
         when(contextRepository.save(any(Context.class))).thenReturn(contextMock);
         when(contextRepository.findByCollectionId(collection.getId())).thenReturn(contextMock);
 
-        ResponseEntity<?> result = contextService.getContext("externalId", contextDTO);
+        ResponseEntity<?> result = contextService.getContext("externalId", assignmentDTO);
         verify(collectionService, times(1)).getOrCreateCollection(Mockito.eq("externalId"));
         verify(contextRepository, times(1)).findByCollectionId(Mockito.eq(collection.getId()));
         verify(contextRepository, times(0)).save(any(Context.class));
@@ -60,7 +60,7 @@ public class ContextServiceImplTest {
     public void getContextCreate() throws Exception {
         Context contextMock = new Context();
         contextMock.setId(UUID.fromString("8dc0dddb-f6c2-4884-97ed-66318a9958db"));
-        ContextDTO contextDTO = new ContextDTO();
+        AssignmentDTO assignmentDTO = new AssignmentDTO();
 
         Collection collection = new Collection();
         collection.setId(UUID.fromString("21111111-1111-1111-1111-111111111111"));
@@ -69,7 +69,7 @@ public class ContextServiceImplTest {
         when(contextRepository.save(any(Context.class))).thenReturn(contextMock);
         when(contextRepository.findByCollectionId(collection.getId())).thenReturn(null);
 
-        ResponseEntity<?> result = contextService.getContext("externalId", contextDTO);
+        ResponseEntity<?> result = contextService.getContext("externalId", assignmentDTO);
         verify(collectionService, times(1)).getOrCreateCollection(Mockito.eq("externalId"));
         verify(contextRepository, times(1)).findByCollectionId(Mockito.eq(collection.getId()));
         verify(contextRepository, times(1)).save(any(Context.class));

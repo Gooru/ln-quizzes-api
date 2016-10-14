@@ -1,6 +1,6 @@
 package com.quizzes.api.realtime.controller;
 
-import com.quizzes.api.common.dto.controller.ContextDTO;
+import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.EventDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.Context;
@@ -34,7 +34,7 @@ public class ContextController {
     @RequestMapping(path = "/v1/map/context/collection/{externalCollectionId}",
             method = RequestMethod.POST)
     public ResponseEntity<?> mapContext(@PathVariable String externalCollectionId,
-                                        @RequestBody ContextDTO body) throws ParseException {
+                                        @RequestBody AssignmentDTO body) throws ParseException {
         ResponseEntity<Context> contextResponse = contextService.getContext(externalCollectionId, body);
 
         Map<String, String> result = new HashMap<String, String>();
