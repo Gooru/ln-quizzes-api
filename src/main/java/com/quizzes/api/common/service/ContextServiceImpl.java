@@ -1,6 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.dto.controller.ContextDTO;
+import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.model.Collection;
 import com.quizzes.api.common.model.Context;
 import com.quizzes.api.common.repository.ContextRepository;
@@ -21,7 +21,7 @@ public class ContextServiceImpl implements ContextService {
     ContextRepository contextRepository;
 
     @Override
-    public ResponseEntity<Context> getContext(String externalCollectionId, ContextDTO contextDTO) {
+    public ResponseEntity<Context> getContext(String externalCollectionId, AssignmentDTO assignmentDTO) {
         Collection collection = collectionService.getOrCreateCollection(externalCollectionId);
         Context context = contextRepository.findByCollectionId(collection.getId());
         if (context != null) {
