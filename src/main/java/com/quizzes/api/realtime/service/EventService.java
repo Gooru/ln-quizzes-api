@@ -1,5 +1,6 @@
 package com.quizzes.api.realtime.service;
 
+
 import com.quizzes.api.realtime.model.EventIndex;
 import com.quizzes.api.realtime.model.Event;
 import com.quizzes.api.realtime.repository.EventIndexRepository;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-
 
 @Service
 public class EventService {
@@ -32,7 +32,7 @@ public class EventService {
         return eventIndexRepository.findByCollectionUniqueIdOrderByUserIdAsc(collectionUniqueId);
     }
 
-    public Event saveEvent(String collectionUniqueId, String userId, String body){
+    public Event saveEvent(String collectionUniqueId, String userId, String body) {
         // Broadcast the event message
         broadcastService.broadcastEvent(collectionUniqueId, userId, body);
 

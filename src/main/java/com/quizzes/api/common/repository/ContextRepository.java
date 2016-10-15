@@ -1,12 +1,16 @@
 package com.quizzes.api.common.repository;
 
-import com.quizzes.api.common.model.Context;
-import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.quizzes.api.common.model.tables.pojos.Context;
 
 import java.util.UUID;
 
-public interface ContextRepository extends JpaRepository<Context, UUID> {
+public interface ContextRepository {
 
-    Context findByCollectionId(UUID id);
+    Context save(Context context);
+
+    Context findById(UUID id);
+
+    Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId);
 
 }

@@ -1,17 +1,13 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.dto.controller.ContextDTO;
-import com.quizzes.api.common.model.Collection;
-import com.quizzes.api.common.model.Context;
+import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
-@Profile("standalone-lms")
 public class ContextServiceImpl implements ContextService {
 
     @Autowired
@@ -21,14 +17,11 @@ public class ContextServiceImpl implements ContextService {
     ContextRepository contextRepository;
 
     @Override
-    public ResponseEntity<Context> getContext(String externalCollectionId, ContextDTO contextDTO) {
-        Collection collection = collectionService.getOrCreateCollection(externalCollectionId);
-        Context context = contextRepository.findByCollectionId(collection.getId());
-        if (context != null) {
-            return new ResponseEntity<>(context, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(contextRepository.save(new Context(collection)), HttpStatus.CREATED);
+    public Context createContext() {
+        // Temporal implementation
+        Context context = new Context();
+        context.setId(UUID.randomUUID());
+        return context;
     }
 
 }

@@ -66,7 +66,7 @@ jooq {
             generate {
                 relations = false
                 deprecated = false
-                records = false
+                records = true
                 pojos = true
                 generatedAnnotation = false
                 // ...
@@ -95,7 +95,6 @@ dependencies {
     compile("org.springframework:spring-messaging")
     compile("org.springframework:spring-jms")
     compile("org.apache.activemq:activemq-broker")
-    compile("com.googlecode.json-simple:json-simple")
     compile('com.google.code.gson:gson:2.7')
 
     // Define JPA Configuration using Hibernate implementation by default

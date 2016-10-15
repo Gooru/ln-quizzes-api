@@ -1,7 +1,7 @@
 package com.quizzes.api.common.model;
 
 
-import com.quizzes.api.common.model.enums.LmsEnumType;
+import com.quizzes.api.common.model.enums.Lms;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @TypeDefs(
         {
                 @TypeDef(name = "StringJsonType", typeClass = StringJsonType.class),
-                @TypeDef(name = "LmsEnumType", typeClass = LmsEnumType.class)
+                @TypeDef(name = "LmsEnumType", typeClass = Lms.class)
         }
 )
 
