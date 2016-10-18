@@ -3,11 +3,12 @@ package com.quizzes.api.realtime.controller;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.EventDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.model.Context;
+import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
-import org.json.simple.parser.ParseException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,11 +36,11 @@ public class ContextController {
             method = RequestMethod.POST)
     public ResponseEntity<?> mapContext(@PathVariable String externalCollectionId,
                                         @RequestBody AssignmentDTO body) throws ParseException {
-        ResponseEntity<Context> contextResponse = contextService.getContext(externalCollectionId, body);
 
-        Map<String, String> result = new HashMap<String, String>();
-        result.put("contextId", contextResponse.getBody().getId().toString());
-        return new ResponseEntity<>(result, contextResponse.getStatusCode());
+//        Map<String, String> result = new HashMap<String, String>();
+//        result.put("contextId", contextResponse.getBody().getId().toString());
+        Context context = contextService.createContext();
+        return new ResponseEntity<>(context.getId(), HttpStatus.OK);
     }
 
 
@@ -47,7 +48,7 @@ public class ContextController {
     @RequestMapping(path = "/v1/event/start/context/{contextId}",
             method = RequestMethod.POST)
     public ResponseEntity<?> startContextEvent(@PathVariable String contextId,
-                                               @RequestBody ProfileIdDTO requestBody) throws ParseException {
+                                               @RequestBody ProfileIdDTO requestBody) {
         EventDTO eventDTO = new EventDTO();
         eventDTO.setContextId(contextId);
         eventDTO.setCurrenteResourceId("1");

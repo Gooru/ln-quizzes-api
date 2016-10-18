@@ -41,9 +41,13 @@ The most important functionalities with Flyway are:
 * `gradle flywayMigrate` runs the migrations to build the DB schema.
 
 ## How to build the application?
-To build the application you have can do the following steps:
+To build the application you can do the following steps:
 * `gradle clean` to delete any previous distribution.
 * `gradle build` to build a new application distribution.
+
+## How to generate JOOQ models?
+To use JOOQ code generator you can do this:
+* `gradle clean build -PgenerateJooq` to clean, build and generate JOOQ models.
 
 ## Start up RESTful API server
 To start up the server there are several options:

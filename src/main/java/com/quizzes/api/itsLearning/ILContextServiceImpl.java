@@ -1,25 +1,20 @@
-package com.quizzes.api.common.service;
+package com.quizzes.api.itsLearning;
 
 import com.quizzes.api.common.model.tables.pojos.Context;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.quizzes.api.common.service.ContextService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+//TODO: We need to change this implementation to be its learning profile
 @Service
-@Profile("standalone-lms")
-public class ContextServiceImpl implements ContextService {
-
-    @Autowired
-    CollectionService collectionService;
-
+@Profile("gooru-lms")
+public class ILContextServiceImpl implements ContextService {
     @Override
     public Context createContext() {
-        // Temporal implementation
         Context context = new Context();
         context.setId(UUID.randomUUID());
         return context;
     }
-
 }
