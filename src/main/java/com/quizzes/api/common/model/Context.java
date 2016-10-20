@@ -20,7 +20,7 @@ import java.util.UUID;
 @TypeDefs({@TypeDef(name = "StringJsonType", typeClass = StringJsonType.class)})
 
 @Entity
-public class Context extends com.quizzes.api.common.model.tables.pojos.Context {
+public class Context {
 
     @Id
     @GenericGenerator(name = "uuid-gen", strategy = "uuid2")
