@@ -1,5 +1,13 @@
 package com.quizzes.api;
 
+import com.quizzes.api.common.repository.ContextRepository;
+import com.quizzes.api.common.repository.ContextRepositoryImpl;
+import com.quizzes.api.common.repository.ProfileRepository;
+import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.ContextServiceImpl;
+import com.quizzes.api.common.service.ProfileService;
+import com.quizzes.api.common.service.ProfileServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +25,16 @@ public class AppConfig {
     @Bean
     public JsonParser jsonParser() {
         return new GsonJsonParser();
+    }
+
+    @Bean
+    public ProfileService profileService(){
+        return new ProfileServiceImpl();
+    }
+
+    @Bean
+    public ContextRepository contextRepository(){
+        return new ContextRepositoryImpl();
     }
 
     @Bean

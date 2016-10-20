@@ -12,9 +12,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-/**
- * Created by fperez on 9/23/16.
- */
 @RunWith(MockitoJUnitRunner.class)
 public class BroadcastServiceTest {
     @InjectMocks

@@ -17,9 +17,6 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by fperez on 9/21/16.
- */
 @RunWith(MockitoJUnitRunner.class)
 public class EventServiceTest {
     @InjectMocks

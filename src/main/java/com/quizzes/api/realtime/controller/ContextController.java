@@ -35,11 +35,11 @@ public class ContextController {
     @RequestMapping(path = "/v1/map/context/collection/{externalCollectionId}",
             method = RequestMethod.POST)
     public ResponseEntity<?> mapContext(@RequestBody AssignmentDTO body) throws ParseException {
-        Context context = contextService.createContext();
-
+        Context context = contextService.createContext(body);
 
         Map<String, String> result = new HashMap<String, String>();
         result.put("contextId", context.getId().toString());
+
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

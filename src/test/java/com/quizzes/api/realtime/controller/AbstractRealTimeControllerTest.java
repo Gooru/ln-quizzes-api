@@ -4,9 +4,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by fperez on 9/19/16.
- */
 public class AbstractRealTimeControllerTest {
     @Test
     public void buildCollectionUniqueId() throws Exception {

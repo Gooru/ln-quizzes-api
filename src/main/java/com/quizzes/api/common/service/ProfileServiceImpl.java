@@ -1,19 +1,28 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.model.Profile;
-import com.quizzes.api.common.repository.ProfileRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.quizzes.api.common.dto.controller.StudentDTO;
+import com.quizzes.api.common.dto.controller.TeacherDTO;
+import com.quizzes.api.common.model.tables.pojos.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
 @Service
-public class ProfileServiceImpl {
+public class ProfileServiceImpl implements ProfileService {
 
-    @Autowired
-    ProfileRepository profileRepository;
+    @Override
+    public Profile findById(UUID id) {
+        return null;
+    }
 
-    Profile findById(UUID id){
-        return profileRepository.findById(id);
+    @Override
+    public Profile findOrCreateStudent(StudentDTO student) {
+        return null;
+    }
+
+
+    @Override
+    public Profile findOrCreateTeacher(TeacherDTO teacher) {
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.model.Collection;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.repository.CollectionRepository;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
@@ -9,10 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
-public class CollectionServiceImpl implements CollectionService{
+public class CollectionServiceImpl implements CollectionService {
 
     @Autowired
     CollectionRepository collectionRepository;
@@ -24,13 +24,8 @@ public class CollectionServiceImpl implements CollectionService{
         return collectionRepository.findByExternalId(externalId);
     }
 
-    public Collection getOrCreateCollection(String id) {
-        Collection collection = collectionRepository.findByExternalId(id);
-        if (collection == null) {
-            collection = new Collection(id, profileServiceImpl.findById(UUID.fromString("1399e9bf-075d-43ee-8742-f8f00657fe49")));
-            collection = collectionRepository.save(collection);
-        }
-        return collection;
+    public Collection findOrCreateCollection(CollectionDTO id) {
+        return null;
     }
 
 

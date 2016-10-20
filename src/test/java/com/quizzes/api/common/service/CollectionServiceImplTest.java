@@ -1,6 +1,10 @@
 package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.TeacherDTO;
+import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
 import com.quizzes.api.realtime.service.EventService;
@@ -17,6 +21,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -36,8 +41,12 @@ public class CollectionServiceImplTest {
     private CollectionOnAirRepository collectionOnAirRepository;
 
     @Test
-    public void getOrCreateCollection() throws Exception {
+    public void findOrCreateCollection() throws Exception {
+        CollectionDTO collectionDTO = new CollectionDTO();
 
+        Collection result = collectionService.findOrCreateCollection(collectionDTO);
+        verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
+        assertNull(result);
     }
 
     @Test

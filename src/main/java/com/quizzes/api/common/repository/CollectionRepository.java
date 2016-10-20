@@ -9,6 +9,6 @@ import java.util.UUID;
 @RepositoryRestResource(collectionResourceRel = "collection", path = "collection")
 public interface CollectionRepository extends JpaRepository<Collection, UUID> {
 
-    Collection findByExternalId(String id);
+    com.quizzes.api.common.model.tables.pojos.Collection findByExternalId(String id);
 
 }
