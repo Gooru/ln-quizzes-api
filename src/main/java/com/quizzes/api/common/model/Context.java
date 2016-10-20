@@ -14,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @TypeDefs({@TypeDef(name = "StringJsonType", typeClass = StringJsonType.class)})
@@ -36,7 +37,6 @@ public class Context {
     @Column(name = "context_body", columnDefinition = "jsonb")
     @Type(type = "StringJsonType")
     private String contextBody;
-
 
     public Context() {
     }

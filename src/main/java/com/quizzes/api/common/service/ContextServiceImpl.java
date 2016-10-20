@@ -1,5 +1,6 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -15,7 +16,7 @@ public class ContextServiceImpl implements ContextService {
     CollectionService collectionService;
 
     @Override
-    public Context createContext() {
+    public Context createContext(AssignmentDTO body) {
         // Temporal implementation
         Context context = new Context();
         context.setId(UUID.randomUUID());
