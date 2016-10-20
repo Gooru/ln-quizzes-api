@@ -19,7 +19,7 @@ public class JsonUtil {
      * @param properties The list of strings to be used for the search
      * @return the list of properties missing if it exists
      */
-    public ArrayList<String> getMissingPropertiesList(Map<String, Object> json, String[] properties) {
+    public static ArrayList<String> getMissingPropertiesList(Map<String, Object> json, String[] properties) {
         ArrayList<String> missingParamsList = new ArrayList<String>();
         for (String jsonProperty : properties) {
             if (!json.containsKey(jsonProperty)) {
@@ -39,7 +39,7 @@ public class JsonUtil {
      * @param property The string to be used for the search
      * @return the property if it exists
      */
-    public Map<String, Object> getJsonChildrenByProperty(Map<String, Object> json, String property) {
+    public static Map<String, Object> getJsonChildrenByProperty(Map<String, Object> json, String property) {
         Map<String, Object> result = (Map<String, Object>) json.get(property);
         if (result == null) {
             throw new MissingJsonPropertiesException(property);

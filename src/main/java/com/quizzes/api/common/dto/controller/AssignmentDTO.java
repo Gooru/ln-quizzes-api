@@ -1,5 +1,8 @@
 package com.quizzes.api.common.dto.controller;
 
+import com.quizzes.api.common.validator.ValidContext;
+
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -8,9 +11,14 @@ import java.util.Map;
  */
 public class AssignmentDTO {
 
+    @NotNull
     private CollectionDTO collection;
+    @NotNull
     private TeacherDTO teacher;
+    @NotNull
     private List<StudentDTO> students;
+    @NotNull
+    @ValidContext
     private Map<String, String> context;
 
     public AssignmentDTO() {

@@ -1,10 +1,16 @@
 package com.quizzes.api.common.dto.controller;
 
+import javax.validation.constraints.NotNull;
+
 public class BaseUserDTO {
 
+    @NotNull
     private String id;
+    @NotNull
     private String firstName;
+    @NotNull
     private String lastName;
+    @NotNull
     private String username;
 
     public BaseUserDTO() {

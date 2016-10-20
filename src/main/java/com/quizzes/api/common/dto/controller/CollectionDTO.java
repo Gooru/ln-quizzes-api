@@ -1,8 +1,16 @@
 package com.quizzes.api.common.dto.controller;
 
+import javax.validation.constraints.NotNull;
+
 public class CollectionDTO {
+
+    @NotNull
     private String id;
+
+    @NotNull
     private String name;
+
+    @NotNull
     private String description;
 
     public CollectionDTO() {
