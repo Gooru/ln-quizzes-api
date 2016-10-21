@@ -1,9 +1,7 @@
 package com.quizzes.api.itsLearning;
 
+import com.quizzes.api.common.dto.api.TokenDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
-import com.quizzes.api.common.dto.controller.TeacherDTO;
-import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
@@ -11,14 +9,13 @@ import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.GooruAPIService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
 import com.quizzes.api.common.service.ProfileService;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 //TODO: We need to change this implementation to be its learning profile
 @Service
@@ -42,10 +39,15 @@ public class ILContextServiceImpl implements ContextService {
     @Autowired
     GroupProfileService groupProfileService;
 
+    @Autowired
+    GooruAPIService gooruAPIService;
+
     @Override
     public Context createContext(AssignmentDTO body) {
         //Validate fields
         //TODO: Validation call goes here
+
+        gooruAPIService.getAccessToken();
 
         //Get owner collection
         Profile teacher = profileService.findOrCreateTeacher(body.getTeacher());

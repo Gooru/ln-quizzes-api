@@ -11,10 +11,10 @@ import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.GooruAPIService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
 import com.quizzes.api.common.service.ProfileService;
-import com.quizzes.api.realtime.model.CollectionOnAir;
 import org.json.simple.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +32,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,6 +57,9 @@ public class ILContextServiceImplTest {
 
     @Mock
     GroupProfileService groupProfileService;
+
+    @Mock
+    GooruAPIService gooruAPIService;
 
     @Test
     public void createContext() throws Exception {
@@ -88,13 +92,17 @@ public class ILContextServiceImplTest {
 
         Context contextResult = new Context(UUID.fromString("a7ec9d42-7777-4486-a22b-6a0e347fb98b"), collectionResult.getId(), groupResult.getId(), new JSONObject(assignmentDTO.getContext()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        doNothing().when(gooruAPIService).getAccessToken();
 
         Context result = contextService.createContext(assignmentDTO);
 
+        verify(gooruAPIService, times(1)).getAccessToken();
         verify(profileService, times(1)).findOrCreateTeacher(Mockito.eq(teacherDTO));
         verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
         verify(groupService, times(1)).createGroup(Mockito.eq(teacherResult));
-        verify(groupProfileService, times(1)).assignStudentListToGroup(Mockito.eq(groupResult),Mockito.eq(students));
+        verify(groupProfileService, times(1)).assignStudentListToGroup(Mockito.eq(groupResult), Mockito.eq(students));
         verify(contextRepository, times(1)).save(any(Context.class));
 
         assertNotNull(result);
