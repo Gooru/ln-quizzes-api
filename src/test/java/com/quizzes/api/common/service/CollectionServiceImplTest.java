@@ -2,9 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
-import com.quizzes.api.common.dto.controller.TeacherDTO;
 import com.quizzes.api.common.model.tables.pojos.Collection;
-import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
 import com.quizzes.api.realtime.service.EventService;
