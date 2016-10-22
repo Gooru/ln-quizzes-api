@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class ContextValidator implements ConstraintValidator<ValidContext, Map<?, ?>> {
 
-    @Value("quizzes.context.mandatoryFields")
+    @Value("${quizzes.context.mandatoryFields}")
     private String[] mandatoryFields;
 
     @Override
@@ -25,9 +25,25 @@ public class ContextValidator implements ConstraintValidator<ValidContext, Map<?
         if (map == null || map.size() == 0)
             return false;
 
-        if (JsonUtil.getMissingPropertiesList((Map<String, Object>)map, mandatoryFields).isEmpty()){
-            return true;
+        if (!JsonUtil.getMissingPropertiesList((Map<String, Object>)map, mandatoryFields).isEmpty()){
+            return false;
         }
-        return false;
+        for (String mandatoryField : mandatoryFields){
+            Object value = map.get(mandatoryField);
+            if (value == null){
+                return false;
+            }
+            if (value instanceof String && ((String) value).isEmpty()){
+                return false;
+            }
+            if (value instanceof java.util.Collection && ((java.util.Collection) value).isEmpty()){
+                return false;
+            }
+            if (value instanceof java.util.Map && ((Map) value).isEmpty()){
+                return false;
+            }
+
+    }
+        return true;
     }
 }

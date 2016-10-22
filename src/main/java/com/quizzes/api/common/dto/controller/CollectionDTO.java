@@ -1,16 +1,20 @@
 package com.quizzes.api.common.dto.controller;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class CollectionDTO {
 
-    @NotNull
+    @NotNull(message = "ID is required")
+    @Size(min=1, message = "ID is required")
     private String id;
 
-    @NotNull
+    @NotNull(message = "Name is required")
+    @Size(min=1, message = "Name is required")
     private String name;
 
-    @NotNull
+    @NotNull(message = "Description is required")
+    @Size(min=1, message = "Description is required")
     private String description;
 
     public CollectionDTO() {

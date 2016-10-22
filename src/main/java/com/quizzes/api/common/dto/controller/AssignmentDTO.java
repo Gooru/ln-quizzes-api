@@ -2,7 +2,10 @@ package com.quizzes.api.common.dto.controller;
 
 import com.quizzes.api.common.validator.ValidContext;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +14,17 @@ import java.util.Map;
  */
 public class AssignmentDTO {
 
-    @NotNull
+    @NotNull(message = "A Collection is required")
+    @Valid
     private CollectionDTO collection;
-    @NotNull
+    @NotNull(message = "A Teacher is required")
+    @Valid
     private TeacherDTO teacher;
-    @NotNull
+    @NotNull(message = "At least one student is required")
+    @Size(min = 1, message = "At least one student is required")
+    @Valid
     private List<StudentDTO> students;
-    @NotNull
+    @NotNull(message = "A Context is required")
     @ValidContext
     private Map<String, String> context;
 

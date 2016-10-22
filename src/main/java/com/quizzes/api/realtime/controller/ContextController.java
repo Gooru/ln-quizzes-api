@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class ContextController {
     @ApiOperation(value = "Map context with quizzes", notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. If the context does not exist, it will created.")
     @RequestMapping(path = "/v1/map/context/collection/{externalCollectionId}",
             method = RequestMethod.POST)
-    public ResponseEntity<?> createContext(@RequestBody AssignmentDTO body) throws ParseException {
+    public ResponseEntity<?> createContext(@Valid @RequestBody AssignmentDTO body) throws ParseException {
         Context context = contextService.createContext(body);
 
         Map<String, String> result = new HashMap<String, String>();
