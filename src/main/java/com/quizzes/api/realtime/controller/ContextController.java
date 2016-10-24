@@ -35,9 +35,6 @@ public class ContextController {
                     "If the context does not exist, it will created.")
     @RequestMapping(path = "/v1/map/context/collection/{externalCollectionId}", method = RequestMethod.POST)
     public ResponseEntity<?> createContext(@RequestBody AssignmentDTO body) {
-
-        System.out.println(body.toString());
-
         Context context = contextService.createContext(body);
 
         Map<String, String> result = new HashMap<String, String>();
