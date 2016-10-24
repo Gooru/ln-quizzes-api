@@ -11,7 +11,7 @@ CREATE TABLE profile
     external_id     VARCHAR(50) NOT NULL,
     lms_id          LMS         NOT NULL DEFAULT 'quizzes',
     profile_data    JSONB,
-    created_at      TIMESTAMP   DEFAULT current_timestamp,
+    created_at      TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT profile_external_id_lms_id_uc UNIQUE (external_id, lms_id)
 );
 CREATE INDEX profile_external_id_md5_idx ON profile (DECODE(MD5(external_id), 'HEX'));
@@ -30,7 +30,7 @@ CREATE TABLE collection
     collection_data     JSONB,
     is_lock             BOOLEAN     NOT NULL DEFAULT FALSE,
     is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
-    created_at          TIMESTAMP   DEFAULT current_timestamp,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT collection_external_id_lms_id_uc UNIQUE (external_id, lms_id)
 );
 CREATE INDEX collection_external_id_md5_idx ON collection (DECODE(MD5(external_id), 'HEX'));
@@ -47,7 +47,7 @@ CREATE TABLE resource
     resource_data       JSONB,
     sequence            SMALLINT    NOT NULL DEFAULT 0,
     is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
-    created_at          TIMESTAMP   DEFAULT current_timestamp,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT resource_external_id_lms_id_uc UNIQUE (external_id, lms_id)
 );
 CREATE INDEX resource_external_id_md5_idx ON resource (DECODE(MD5(external_id), 'HEX'));
@@ -59,7 +59,7 @@ CREATE TABLE "group"
     id                  UUID        PRIMARY KEY,
     owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
     group_data          JSONB,
-    created_at          TIMESTAMP   DEFAULT current_timestamp
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp
 );
 CREATE INDEX group_owner_profile_id_idx ON resource (owner_profile_id);
 
@@ -68,7 +68,7 @@ CREATE TABLE group_profile
     id                  UUID        PRIMARY KEY,
     group_id            UUID        NOT NULL REFERENCES "group"(id),
     profile_id          UUID        NOT NULL REFERENCES profile(id),
-    created_at          TIMESTAMP   DEFAULT current_timestamp,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT group_profile_group_id_profile_id_uc UNIQUE (group_id, profile_id)
 );
 
@@ -78,7 +78,7 @@ CREATE TABLE context
     collection_id       UUID        NOT NULL REFERENCES collection(id),
     group_id            UUID        NOT NULL REFERENCES "group"(id),
     context_data        JSONB,
-    created_at          TIMESTAMP   DEFAULT current_timestamp,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT context_collection_id_group_id_uc UNIQUE (collection_id, group_id)
 );
 
@@ -89,7 +89,7 @@ CREATE TABLE context_profile
     profile_id          UUID        NOT NULL REFERENCES profile(id),
     current_resource_id UUID        NOT NULL REFERENCES resource(id),
     is_complete         BOOLEAN     NOT NULL DEFAULT FALSE,
-    created_at          TIMESTAMP   DEFAULT current_timestamp,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT context_profile_context_id_profile_id_uc UNIQUE (context_id, profile_id)
 );
 
@@ -99,7 +99,7 @@ CREATE TABLE context_profile_event
     context_profile_id  UUID        NOT NULL REFERENCES context_profile(id),
     resource_id         UUID        NOT NULL REFERENCES resource(id),
     event_data          JSONB,
-    created_at          TIMESTAMP   DEFAULT current_timestamp,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT context_profile_event_context_profile_id_resource_id_uc UNIQUE (context_profile_id, resource_id)
 );
 

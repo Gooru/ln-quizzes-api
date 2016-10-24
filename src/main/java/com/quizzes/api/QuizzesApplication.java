@@ -2,7 +2,6 @@ package com.quizzes.api;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -17,17 +16,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EntityScan(basePackages = { "com.quizzes.api.common.model", "com.quizzes.api.realtime.model" })
 @EnableJpaRepositories
-public class AppRunner implements CommandLineRunner {
+public class QuizzesApplication {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static void main(String[] args) {
-        // Launch the application
-        SpringApplication.run(AppRunner.class, args);
-    }
-
-    @Override
-    public void run(String... args) throws Exception {
+        SpringApplication.run(QuizzesApplication.class, args);
     }
 
 }
