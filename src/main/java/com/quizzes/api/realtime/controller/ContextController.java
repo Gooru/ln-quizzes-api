@@ -6,9 +6,7 @@ import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,10 +29,12 @@ public class ContextController {
     @Autowired
     private ContextService contextService;
 
-    @ApiOperation(value = "Map context with quizzes", notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. If the context does not exist, it will created.")
-    @RequestMapping(path = "/v1/map/context/collection/{externalCollectionId}",
-            method = RequestMethod.POST)
-    public ResponseEntity<?> createContext(@RequestBody AssignmentDTO body) throws ParseException {
+    @ApiOperation(
+            value = "Map context with quizzes",
+            notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. " +
+                    "If the context does not exist, it will created.")
+    @RequestMapping(path = "/v1/map/context/collection/{externalCollectionId}", method = RequestMethod.POST)
+    public ResponseEntity<?> createContext(@RequestBody AssignmentDTO body) {
         Context context = contextService.createContext(body);
 
         Map<String, String> result = new HashMap<String, String>();
