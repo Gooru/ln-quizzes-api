@@ -1,6 +1,6 @@
 package com.quizzes.api.itsLearning;
 
-import com.quizzes.api.common.dto.api.TokenDTO;
+import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -13,7 +13,6 @@ import com.quizzes.api.common.service.GooruAPIService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
 import com.quizzes.api.common.service.ProfileService;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +58,7 @@ public class ILContextServiceImpl implements ContextService {
         Group group = groupService.createGroup(teacher);
         groupProfileService.assignStudentListToGroup(group, body.getStudents());
 
-        Context context = new Context(null, collection.getId(), group.getId(), new JSONObject(body.getContext()), null);
+        Context context = new Context(null, collection.getId(), group.getId(), new Gson().toJson(body.getContext()), null);
         context = contextRepository.save(context);
 
         return context;

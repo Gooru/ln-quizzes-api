@@ -1,14 +1,14 @@
 package com.quizzes.api.realtime.messaging;
 
 import org.springframework.boot.json.JsonParser;
-import org.springframework.boot.json.JsonSimpleJsonParser;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class MessageBuilder {
 
-    private JsonParser jsonParser = new JsonSimpleJsonParser();
+    private JsonParser jsonParser = new GsonJsonParser();
 
     /**
      * Creates a generic Event Message

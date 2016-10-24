@@ -1,5 +1,6 @@
 package com.quizzes.api.itsLearning;
 
+import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.StudentDTO;
@@ -15,7 +16,6 @@ import com.quizzes.api.common.service.GooruAPIService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
 import com.quizzes.api.common.service.ProfileService;
-import org.json.simple.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -90,7 +90,8 @@ public class ILContextServiceImplTest {
         groupResult.setId(UUID.fromString("b3ec9d42-7777-4486-a22b-6a0e347fb98b"));
         when(groupService.createGroup(teacherResult)).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.fromString("a7ec9d42-7777-4486-a22b-6a0e347fb98b"), collectionResult.getId(), groupResult.getId(), new JSONObject(assignmentDTO.getContext()), null);
+        Context contextResult = new Context(UUID.fromString("a7ec9d42-7777-4486-a22b-6a0e347fb98b"),
+                collectionResult.getId(), groupResult.getId(),  new Gson().toJson(assignmentDTO.getContext()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
@@ -107,17 +108,12 @@ public class ILContextServiceImplTest {
 
         assertNotNull(result);
         assertEquals(result.getId().toString(), "a7ec9d42-7777-4486-a22b-6a0e347fb98b");
-        assertEquals(result.getId().getClass(), UUID.class);
 
         assertEquals(result.getCollectionId().toString(), "b3ec9d42-5dc2-4486-a22b-6a0e347fb98b");
-        assertEquals(result.getCollectionId().getClass(), UUID.class);
 
         assertEquals(result.getGroupId().toString(), "b3ec9d42-7777-4486-a22b-6a0e347fb98b");
-        assertEquals(result.getGroupId().getClass(), UUID.class);
 
         assertEquals(result.getContextData().toString(), "{\"classId\":\"classId\"}");
-        assertEquals(result.getContextData().getClass(), JSONObject.class);
-
     }
 
 }
