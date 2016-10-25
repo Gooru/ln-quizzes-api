@@ -3,3 +3,6 @@ build/
 *.jar
 *.tar.gz
 s3.artifact
+gradle/wrapper/*
+gradlew
+gradlew.bat

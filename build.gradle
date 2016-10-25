@@ -12,6 +12,15 @@ buildscript {
         classpath("org.postgresql:postgresql:9.4.1211")
         classpath("gradle.plugin.com.boxfuse.client:flyway-release:4.0.3")
     }
+    configurations.classpath {
+        resolutionStrategy {                            // enforce a specific jOOQ version
+            forcedModules = [
+                    'org.jooq:jooq:3.4.1',
+                    'org.jooq:jooq-meta:3.4.1',
+                    'org.jooq:jooq-codegen:3.4.1'
+            ]
+        }
+    }
 }
 
 apply plugin: "java"
@@ -62,6 +71,20 @@ jooq {
                 inputSchema = "public"
                 excludes = "public.schema_version"
                 // ...
+                customTypes {
+                    customType {
+                        type = "java.lang.String"
+                        name = "StringJson"
+                        converter = "com.quizzes.api.common.model.PostgresJSONGsonBinding"
+                    }
+                }
+                forcedTypes {
+                    forcedType {
+                        name = "StringJson"
+                        expression = ".*_data"
+                        types = ".*"
+                    }
+                }
             }
             generate {
                 relations = false

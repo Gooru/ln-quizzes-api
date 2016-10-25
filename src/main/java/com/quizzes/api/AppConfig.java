@@ -3,11 +3,11 @@ package com.quizzes.api;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.repository.ContextRepositoryImpl;
 import com.quizzes.api.common.repository.ProfileRepository;
-import com.quizzes.api.common.service.ContextService;
-import com.quizzes.api.common.service.ContextServiceImpl;
+import com.quizzes.api.common.repository.ProfileRepositoryImpl;
 import com.quizzes.api.common.service.ProfileService;
 import com.quizzes.api.common.service.ProfileServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.context.annotation.Bean;
@@ -28,13 +28,23 @@ public class AppConfig {
     }
 
     @Bean
-    public ProfileService profileService(){
+    public ProfileRepository profileRepository() {
+        return new ProfileRepositoryImpl();
+    }
+
+    @Bean
+    public ProfileService profileService() {
         return new ProfileServiceImpl();
     }
 
     @Bean
-    public ContextRepository contextRepository(){
+    public ContextRepository contextRepository() {
         return new ContextRepositoryImpl();
+    }
+
+    @Bean
+    public Logger logger(){
+        return LoggerFactory.getLogger(this.getClass());
     }
 
     @Bean
@@ -43,7 +53,7 @@ public class AppConfig {
                 .groupName("real-time")
                 .apiInfo(apiInfo())
                 .select()
-                .paths(regex("/nucleus.*"))
+                .paths(regex("/quizzes.*"))
                 .build();
     }
 

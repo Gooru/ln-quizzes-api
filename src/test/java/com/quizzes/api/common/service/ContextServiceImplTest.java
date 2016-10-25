@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.junit.Test;
@@ -36,7 +37,7 @@ public class ContextServiceImplTest {
 
         assignmentDTO.setCollection(collectionDTO);
 
-        Context result = contextService.createContext(assignmentDTO);
+        Context result = contextService.createContext(assignmentDTO, Lms.its_learning);
         assertEquals(result.getId().getClass(), UUID.class);
 
         Context contextMock = new Context();

@@ -9,12 +9,12 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context implements java.io.Serializable {
 
-	private static final long serialVersionUID = -188588970;
+	private static final long serialVersionUID = -580883754;
 
 	private java.util.UUID     id;
 	private java.util.UUID     collectionId;
 	private java.util.UUID     groupId;
-	private java.lang.Object   contextData;
+	private java.lang.String   contextData;
 	private java.sql.Timestamp createdAt;
 
 	public Context() {}
@@ -23,7 +23,7 @@ public class Context implements java.io.Serializable {
 		java.util.UUID     id,
 		java.util.UUID     collectionId,
 		java.util.UUID     groupId,
-		java.lang.Object   contextData,
+		java.lang.String   contextData,
 		java.sql.Timestamp createdAt
 	) {
 		this.id = id;
@@ -57,11 +57,11 @@ public class Context implements java.io.Serializable {
 		this.groupId = groupId;
 	}
 
-	public java.lang.Object getContextData() {
+	public java.lang.String getContextData() {
 		return this.contextData;
 	}
 
-	public void setContextData(java.lang.Object contextData) {
+	public void setContextData(java.lang.String contextData) {
 		this.contextData = contextData;
 	}
 

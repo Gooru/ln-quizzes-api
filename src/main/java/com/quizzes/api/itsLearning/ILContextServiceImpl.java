@@ -2,6 +2,7 @@ package com.quizzes.api.itsLearning;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
@@ -16,7 +17,6 @@ import com.quizzes.api.common.service.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-//TODO: We need to change this implementation to be its learning profile
 @Service
 @org.springframework.context.annotation.Profile("its-learning-lms")
 public class ILContextServiceImpl implements ContextService {
@@ -42,14 +42,11 @@ public class ILContextServiceImpl implements ContextService {
     GooruAPIService gooruAPIService;
 
     @Override
-    public Context createContext(AssignmentDTO body) {
-        //Validate fields
-        //TODO: Validation call goes here
-
-        gooruAPIService.getAccessToken();
+    public Context createContext(AssignmentDTO body, Lms lms) {
+        String token = gooruAPIService.getAccessToken();
 
         //Get owner collection
-        Profile teacher = profileService.findOrCreateTeacher(body.getTeacher());
+        Profile teacher = profileService.findOrCreateTeacher(body.getTeacher(), lms);
 
         //Get the collection
         Collection collection = collectionService.findOrCreateCollection(body.getCollection());
@@ -62,7 +59,6 @@ public class ILContextServiceImpl implements ContextService {
         context = contextRepository.save(context);
 
         return context;
-
     }
 
 }
