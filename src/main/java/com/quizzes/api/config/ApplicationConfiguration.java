@@ -19,11 +19,6 @@ import org.springframework.jms.annotation.EnableJms;
 public class ApplicationConfiguration {
 
     @Bean
-    public JsonParser jsonParser() {
-        return new GsonJsonParser();
-    }
-
-    @Bean
     public ProfileRepository profileRepository() {
         return new ProfileRepositoryImpl();
     }
