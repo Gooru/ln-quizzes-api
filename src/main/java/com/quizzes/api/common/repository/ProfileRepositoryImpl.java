@@ -20,6 +20,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
         if (profile.getId() == null) {
             profile.setId(UUID.randomUUID());
             ProfileRecord profileRecord = jooq.newRecord(PROFILE, profile);
+            profileRecord.changed(PROFILE.CREATED_AT, false); // Add this the use the current date
             jooq.executeInsert(profileRecord);
         } else {
             ProfileRecord profileRecord = jooq.newRecord(PROFILE, profile);
@@ -42,7 +43,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .from(PROFILE)
                 .where(PROFILE.EXTERNAL_ID.eq(String.valueOf(externalId)))
                 .and(PROFILE.LMS_ID.eq(lmsId))
-                .fetchAny().into(Profile.class);
+                .fetchOneInto(Profile.class);
     }
 
 }

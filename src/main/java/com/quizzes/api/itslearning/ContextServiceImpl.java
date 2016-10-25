@@ -1,4 +1,4 @@
-package com.quizzes.api.itsLearning;
+package com.quizzes.api.itslearning;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @org.springframework.context.annotation.Profile("its-learning-lms")
-public class ILContextServiceImpl implements ContextService {
+public class ContextServiceImpl implements ContextService {
     @Autowired
     ProfileService profileService;
 

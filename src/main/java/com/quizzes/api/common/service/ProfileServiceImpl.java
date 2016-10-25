@@ -29,12 +29,11 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public Profile findOrCreateTeacher(TeacherDTO teacher, Lms lms) {
-        Gson gson = new Gson();
         Profile profile = profileRepository.findByExternalIdAndLms(UUID.fromString(teacher.getId()), lms);
         if (profile != null) {
             return profile;
         }
-        profile = profileRepository.save(new Profile(null, teacher.getId(), lms, gson.toJson(teacher), null));
+        profile = profileRepository.save(new Profile(null, teacher.getId(), lms, new Gson().toJson(teacher), null));
         return profile;
     }
 }

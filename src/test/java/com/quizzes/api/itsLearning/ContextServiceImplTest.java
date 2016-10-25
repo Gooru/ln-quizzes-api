@@ -17,6 +17,7 @@ import com.quizzes.api.common.service.GooruAPIService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
 import com.quizzes.api.common.service.ProfileService;
+import com.quizzes.api.itslearning.ContextServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -33,16 +34,15 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ILContextServiceImplTest {
+public class ContextServiceImplTest {
 
     @InjectMocks
-    private ContextService contextService = Mockito.spy(ILContextServiceImpl.class);
+    private ContextService contextService = Mockito.spy(ContextServiceImpl.class);
 
     @Mock
     ProfileService profileService;
