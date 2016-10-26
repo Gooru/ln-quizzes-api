@@ -19,8 +19,8 @@ public class CollectionRepositoryImpl implements CollectionRepository {
 
     @Override
     public Collection findByExternalIdAndLmsId(String externalId, Lms lmsId) {
-        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.IS_COLLECTION,
-                COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCK)
+        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA
+                COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCK)
                 .from(COLLECTION)
                 .where(COLLECTION.EXTERNAL_ID.eq(externalId))
                 .and(COLLECTION.LMS_ID.eq(lmsId))
