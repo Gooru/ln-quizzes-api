@@ -5,17 +5,17 @@ import javax.validation.constraints.Size;
 
 public class BaseUserDTO {
 
-    @NotNull(message = "ID is required")
-    @Size(min=1, message = "ID is required")
+    @NotNull(message = "{base_user.id.not_null}")
+    @Size(min=1, message = "{base_user.id.size}")
     private String id;
-    @NotNull(message = "Firstname is required")
-    @Size(min=1, message = "Firstname is required")
+    @NotNull(message = "{base_user.first_name.not_null}")
+    @Size(min=1, message = "{base_user.first_name.size}")
     private String firstName;
-    @NotNull(message = "Lastname is required")
-    @Size(min=1, message = "Lastname is required")
+    @NotNull(message = "{base_user.last_name.not_null}")
+    @Size(min=1, message = "{base_user.last_name.size}")
     private String lastName;
-    @NotNull(message = "Username is required")
-    @Size(min=1, message = "Username is required")
+    @NotNull(message = "{base_user.username.not_null}")
+    @Size(min=1, message = "{base_user.username.size}")
     private String username;
 
     public BaseUserDTO() {

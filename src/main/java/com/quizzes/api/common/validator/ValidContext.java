@@ -17,6 +17,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 @Constraint(validatedBy = ContextValidator.class)
 public @interface ValidContext {
+    String lms();
+
     String message() default "valid.map";
 
     Class<?>[] groups() default {};

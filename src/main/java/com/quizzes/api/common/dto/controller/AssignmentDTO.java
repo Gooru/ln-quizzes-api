@@ -14,18 +14,18 @@ import java.util.Map;
  */
 public class AssignmentDTO {
 
-    @NotNull(message = "A Collection is required")
+    @NotNull(message = "{assignment.collection.not_null}")
     @Valid
     private CollectionDTO collection;
-    @NotNull(message = "A Teacher is required")
+    @NotNull(message = "{assignment.teacher.not_null}")
     @Valid
     private TeacherDTO teacher;
-    @NotNull(message = "At least one student is required")
-    @Size(min = 1, message = "At least one student is required")
+    @NotNull(message = "{assignment.students.not_null}")
+    @Size(min = 1, message = "{assignment.students.size}")
     @Valid
     private List<StudentDTO> students;
-    @NotNull(message = "A Context is required")
-    @ValidContext
+    @NotNull(message = "{assignment.context.not_null}")
+    @ValidContext(lms="itslearning")
     private Map<String, String> context;
 
     public AssignmentDTO() {

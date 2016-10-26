@@ -1,8 +1,13 @@
 package com.quizzes.api.common.validator;
 
 import com.quizzes.api.common.utils.JsonUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Map;
@@ -12,12 +17,17 @@ import java.util.Map;
  */
 public class ContextValidator implements ConstraintValidator<ValidContext, Map<?, ?>> {
 
-    @Value("${quizzes.context.mandatoryFields}")
+    @Resource
+    public Environment environment;
+
+    private String lms = "";
+
     private String[] mandatoryFields;
+
 
     @Override
     public void initialize(final ValidContext annotation) {
-        return;
+        lms = annotation.lms();
     }
 
     @Override

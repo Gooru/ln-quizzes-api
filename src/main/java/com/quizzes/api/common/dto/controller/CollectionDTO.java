@@ -5,16 +5,16 @@ import javax.validation.constraints.Size;
 
 public class CollectionDTO {
 
-    @NotNull(message = "ID is required")
-    @Size(min=1, message = "ID is required")
+    @NotNull(message = "{collection.id.not_null}")
+    @Size(min=1, message = "{collection.id.size}")
     private String id;
 
-    @NotNull(message = "Name is required")
-    @Size(min=1, message = "Name is required")
+    @NotNull(message = "{collection.name.not_null}")
+    @Size(min=1, message = "{collection.name.size}Name is required")
     private String name;
 
-    @NotNull(message = "Description is required")
-    @Size(min=1, message = "Description is required")
+    @NotNull(message = "{collection.description.not_null}")
+    @Size(min=1, message = "{collection.description.size}")
     private String description;
 
     public CollectionDTO() {
