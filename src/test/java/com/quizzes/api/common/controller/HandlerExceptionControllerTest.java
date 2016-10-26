@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ public class HandlerExceptionControllerTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong exception", "MissingJsonPropertiesException", result.getException());
-        assertEquals("Wrong status code", 400, result.getStatus());
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
         assertEquals("Wrong message exception", "Missing JSON properties: classId, unitId", result.getMessage());
     }
 
@@ -41,7 +42,7 @@ public class HandlerExceptionControllerTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong exception", "Exception", result.getException());
-        assertEquals("Wrong status code", 400, result.getStatus());
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
         assertEquals("Wrong message exception", "New Error", result.getMessage());
     }
 

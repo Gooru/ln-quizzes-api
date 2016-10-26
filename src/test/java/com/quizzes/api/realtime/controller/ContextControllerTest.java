@@ -49,7 +49,7 @@ public class ContextControllerTest {
 
         ResponseEntity<?> result = controller.startContextEvent("externalId", requestBody);
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }
 
     @Test
@@ -59,7 +59,7 @@ public class ContextControllerTest {
 
         ResponseEntity<?> result = controller.onResourceEvent("resourceId", "externalId", requestBody);
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Body is not null", null, result.getBody());
     }
 
@@ -70,7 +70,7 @@ public class ContextControllerTest {
 
         ResponseEntity<?> result = controller.finishContextEvent("externalId", requestBody);
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Body is not null", null, result.getBody());
     }
 
