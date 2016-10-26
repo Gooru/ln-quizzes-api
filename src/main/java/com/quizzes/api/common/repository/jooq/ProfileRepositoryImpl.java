@@ -31,8 +31,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
         return jooq.select()
                 .from(PROFILE)
                 .where(PROFILE.ID.eq(id))
-                .fetchAny()
-                .into(Profile.class);
+                .fetchOneInto(Profile.class);
     }
 
     @Override
@@ -41,8 +40,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .from(PROFILE)
                 .where(PROFILE.EXTERNAL_ID.eq(externalId))
                 .and(PROFILE.LMS_ID.eq(lmsId))
-                .fetchAny()
-                .into(Profile.class);
+                .fetchOneInto(Profile.class);
     }
 
     private Profile insertProfile(final Profile profile) {

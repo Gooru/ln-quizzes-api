@@ -30,8 +30,7 @@ public class ContextRepositoryImpl implements ContextRepository {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
-                .fetchAny()
-                .into(Context.class);
+                .fetchOneInto(Context.class);
     }
 
     @Override
@@ -40,8 +39,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .from(CONTEXT)
                 .where(CONTEXT.COLLECTION_ID.eq(collectionId))
                 .and(CONTEXT.GROUP_ID.eq(groupId))
-                .fetchAny()
-                .into(Context.class);
+                .fetchOneInto(Context.class);
     }
 
     private Context insertContext(final Context context) {
