@@ -1,15 +1,16 @@
-package com.quizzes.api.common.repository;
+package com.quizzes.api.common.repository.jooq;
 
 import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
 
-@Service
+@Repository
 public class ContextRepositoryImpl implements ContextRepository {
 
     @Autowired
@@ -29,8 +30,7 @@ public class ContextRepositoryImpl implements ContextRepository {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
-                .fetchAny()
-                .into(Context.class);
+                .fetchOneInto(Context.class);
     }
 
     @Override
@@ -39,8 +39,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .from(CONTEXT)
                 .where(CONTEXT.COLLECTION_ID.eq(collectionId))
                 .and(CONTEXT.GROUP_ID.eq(groupId))
-                .fetchAny()
-                .into(Context.class);
+                .fetchOneInto(Context.class);
     }
 
     private Context insertContext(final Context context) {

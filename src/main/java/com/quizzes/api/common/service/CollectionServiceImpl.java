@@ -21,7 +21,9 @@ public class CollectionServiceImpl implements CollectionService {
     ProfileServiceImpl profileServiceImpl;
 
     public Collection findByExternalId(String externalId) {
-        return collectionRepository.findByExternalId(externalId);
+        // TODO we need to change the method params
+        //return collectionRepository.findByExternalId(externalId);
+        return null;
     }
 
     public Collection findOrCreateCollection(CollectionDTO id) {

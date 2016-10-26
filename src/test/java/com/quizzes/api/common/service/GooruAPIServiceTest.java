@@ -5,10 +5,8 @@ import com.quizzes.api.gooru.service.GooruAPIService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.slf4j.Logger;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
@@ -19,9 +17,6 @@ public class GooruAPIServiceTest {
 
     @InjectMocks
     private GooruAPIService gooruAPIService = Mockito.spy(GooruAPIService.class);
-
-    @Mock
-    private Logger logger;
 
     @Test
     public void getAccessToken() throws Exception {
