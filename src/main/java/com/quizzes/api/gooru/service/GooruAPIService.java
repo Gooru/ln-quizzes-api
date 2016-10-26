@@ -52,10 +52,7 @@ public class GooruAPIService {
     }
 
     public String generateGooruURL(String path) {
-        if (path.startsWith("/")) {
-            return baseURL + path;
-        }
-        return baseURL + "/" + path;
+        return baseURL + (path.startsWith("/") ? "" : "/") + path;
     }
 
     public AccessDTO getAccessKey() {
