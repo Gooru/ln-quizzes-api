@@ -24,7 +24,7 @@ public class GroupServiceImplTest {
 
         Group result = groupService.createGroup(teacher);
         verify(groupService, times(1)).createGroup(Mockito.eq(teacher));
-        assertNull(result);
+        assertNull("Response is not null", result);
     }
 
 }

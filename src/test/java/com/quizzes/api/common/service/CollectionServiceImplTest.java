@@ -44,7 +44,7 @@ public class CollectionServiceImplTest {
 
         Collection result = collectionService.findOrCreateCollection(collectionDTO);
         verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
-        assertNull(result);
+        assertNull("Response is not null", result);
     }
 
     @Test
@@ -83,9 +83,9 @@ public class CollectionServiceImplTest {
 
         CollectionOnAir result = collectionService.findCollectionOnAir("classId", "collectionId");
         verify(collectionOnAirRepository, times(1)).findFirstByClassIdAndCollectionId(Mockito.eq("classId"), Mockito.eq("collectionId"));
-        assertEquals(mockCollection.getClassId(), "classId");
-        assertEquals(mockCollection.getCollectionId(), "collectionId");
-        assertNotNull(result);
+        assertEquals("Wrong class", "classId", mockCollection.getClassId());
+        assertEquals("Wrong collection", "collectionId", mockCollection.getCollectionId());
+        assertNotNull("Response is Null", result);
     }
 
     @Test
@@ -97,9 +97,9 @@ public class CollectionServiceImplTest {
 
         verify(collectionService, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
         verify(collectionOnAirRepository, times(1)).save(any(CollectionOnAir.class));
-        assertEquals(result.getClassId(), "classId");
-        assertEquals(result.getCollectionId(), "collectionId");
-        assertNotNull(result);
+        assertEquals("Wrong class", "classId", result.getClassId());
+        assertEquals("Wrong collection", "collectionId", result.getCollectionId());
+        assertNotNull("Response is Null", result);
     }
 
     @Test
@@ -111,9 +111,9 @@ public class CollectionServiceImplTest {
 
         verify(collectionService, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
         verify(collectionOnAirRepository, times(0)).save(any(CollectionOnAir.class));
-        assertEquals(result.getClassId(), "classId");
-        assertEquals(result.getCollectionId(), "collectionId");
-        assertNotNull(result);
+        assertEquals("Wrong class", "classId", result.getClassId());
+        assertEquals("Wrong collection", "collectionId", result.getCollectionId());
+        assertNotNull("Response is Null", result);
     }
 
     @Test
@@ -128,15 +128,15 @@ public class CollectionServiceImplTest {
 
         // Creating the list to verify the size
         List<CollectionOnAir> resultList = Lists.newArrayList(result);
-        assertEquals(resultList.size(), 2);
+        assertEquals("Wrong size in list", 2, resultList.size());
 
-        assertEquals(resultList.get(0).getCollectionId(), "firstCollection");
-        assertEquals(resultList.get(1).getCollectionId(), "secondCollection");
+        assertEquals("Wrong collection in array", "firstCollection", resultList.get(0).getCollectionId());
+        assertEquals("Wrong collection in array", "secondCollection", resultList.get(1).getCollectionId());
 
-        assertNotEquals(resultList.get(0).getCollectionId(), "secondCollection");
-        assertNotEquals(resultList.get(1).getCollectionId(), "firstCollection");
+        assertNotEquals("Wrong collection in array", "secondCollection", resultList.get(0).getCollectionId());
+        assertNotEquals("Wrong collection in array", "firstCollection", resultList.get(1).getCollectionId());
 
-        assertNotNull(result);
+        assertNotNull("Response is Null", result);
     }
 
 

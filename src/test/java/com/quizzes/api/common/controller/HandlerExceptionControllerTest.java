@@ -28,10 +28,10 @@ public class HandlerExceptionControllerTest {
         MissingJsonPropertiesException exceptionMock = new MissingJsonPropertiesException(missingParams);
         ExceptionMessage result = controller.handleInvalidJsonPropertiesException(exceptionMock);
 
-        assertNotNull(result);
-        assertEquals(result.getException(), "MissingJsonPropertiesException");
-        assertEquals(result.getStatus(), 400);
-        assertEquals(result.getMessage(), "Missing JSON properties: classId, unitId");
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", "MissingJsonPropertiesException", result.getException());
+        assertEquals("Wrong status code", 400, result.getStatus());
+        assertEquals("Wrong message exception", "Missing JSON properties: classId, unitId", result.getMessage());
     }
 
     @Test
@@ -39,10 +39,10 @@ public class HandlerExceptionControllerTest {
         Exception exceptionMock = new Exception("New Error");
         ExceptionMessage result = controller.handleException(exceptionMock);
 
-        assertNotNull(result);
-        assertEquals(result.getException(), "Exception");
-        assertEquals(result.getStatus(), 400);
-        assertEquals(result.getMessage(), "New Error");
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", "Exception", result.getException());
+        assertEquals("Wrong status code", 400, result.getStatus());
+        assertEquals("Wrong message exception", "New Error", result.getMessage());
     }
 
 }
