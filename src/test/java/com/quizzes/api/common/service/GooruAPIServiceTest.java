@@ -47,16 +47,17 @@ public class GooruAPIServiceTest {
 
         String result = gooruAPIService.generateGooruURL(path);
         assertNotNull(result);
-        assertEquals(result.getClass(), String.class);
         assertEquals(result, "http://www.gooru.org/api/nucleus-auth/v1/token");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void generateGooruURLException() throws Exception {
-        //It should generate an exception if path does not start with '/'
+    @Test
+    public void completeGenerateGooruURL() throws Exception {
         ReflectionTestUtils.setField(gooruAPIService, "baseURL", "http://www.gooru.org/api/nucleus-auth/v1");
         String path = "token";
-        gooruAPIService.generateGooruURL(path);
+
+        String result = gooruAPIService.generateGooruURL(path);
+        assertNotNull(result);
+        assertEquals(result, "http://www.gooru.org/api/nucleus-auth/v1/token");
     }
 
     @Test

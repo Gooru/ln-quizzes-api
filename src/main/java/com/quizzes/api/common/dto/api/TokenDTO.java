@@ -1,10 +1,10 @@
 package com.quizzes.api.common.dto.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 public class TokenDTO {
 
-    @JsonProperty("access_token")
+    @SerializedName("access_token")
     private String token;
 
     public TokenDTO() {

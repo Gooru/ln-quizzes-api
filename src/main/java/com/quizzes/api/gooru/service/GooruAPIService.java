@@ -55,12 +55,10 @@ public class GooruAPIService {
     }
 
     public String generateGooruURL(String path) {
-        if ('/' != path.charAt(0)) {
-            logger.error("Error: There was a problem trying to connect to the API," +
-                    " the path is missing the character '/' in " + baseURL + " _here_ " + path);
-            throw new IllegalArgumentException(ExceptionMessageTemplate.ERROR_CONNECTING_API);
+        if (path.startsWith("/")) {
+            return baseURL + path;
         }
-        return baseURL + path;
+        return baseURL + "/" + path;
     }
 
     public AccessDTO getAccessKey() {
