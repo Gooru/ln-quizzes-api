@@ -15,7 +15,7 @@ public enum Lms implements org.jooq.EnumType {
 
 	gooru("gooru"),
 
-	its_learning("its-learning");
+	its_learning("its_learning");
 
 	private final java.lang.String literal;
 

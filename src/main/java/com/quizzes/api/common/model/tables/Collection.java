@@ -11,7 +11,7 @@ import com.quizzes.api.common.model.Public;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.CollectionRecord> {
 
-	private static final long serialVersionUID = -99384232;
+	private static final long serialVersionUID = -1329287302;
 
 	/**
 	 * The singleton instance of <code>public.collection</code>
@@ -54,7 +54,7 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	/**
 	 * The column <code>public.collection.collection_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.lang.Object> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.lang.String> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.collection.is_lock</code>.
@@ -69,7 +69,7 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	/**
 	 * The column <code>public.collection.created_at</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.collection</code> table reference

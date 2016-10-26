@@ -11,7 +11,7 @@ import com.quizzes.api.common.model.Public;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileEvent extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord> {
 
-	private static final long serialVersionUID = 2097857619;
+	private static final long serialVersionUID = -1827269751;
 
 	/**
 	 * The singleton instance of <code>public.context_profile_event</code>
@@ -44,12 +44,12 @@ public class ContextProfileEvent extends org.jooq.impl.TableImpl<com.quizzes.api
 	/**
 	 * The column <code>public.context_profile_event.event_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord, java.lang.Object> EVENT_DATA = createField("event_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord, java.lang.String> EVENT_DATA = createField("event_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.context_profile_event.created_at</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.context_profile_event</code> table reference

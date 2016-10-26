@@ -5,11 +5,13 @@ import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.StudentDTO;
 import com.quizzes.api.common.dto.controller.TeacherDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
+import com.quizzes.api.gooru.service.GooruAPIService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,7 +28,6 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,9 +73,11 @@ public class ContextServiceImplTest {
         List<StudentDTO> students = new ArrayList<>();
         assignmentDTO.setStudents(students);
 
+        Lms lms = Lms.its_learning;
+
         Profile teacherResult = new Profile();
         teacherResult.setId(UUID.fromString("aa778e3a-fa35-48f2-a0b8-32dd5ce42edd"));
-        when(profileService.findOrCreateTeacher(teacherDTO)).thenReturn(teacherResult);
+        when(profileService.findOrCreateTeacher(teacherDTO, lms)).thenReturn(teacherResult);
 
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.fromString("b3ec9d42-5dc2-4486-a22b-6a0e347fb98b"));
@@ -85,16 +88,13 @@ public class ContextServiceImplTest {
         when(groupService.createGroup(teacherResult)).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.fromString("a7ec9d42-7777-4486-a22b-6a0e347fb98b"),
-                collectionResult.getId(), groupResult.getId(),  new Gson().toJson(assignmentDTO.getContext()), null);
+                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContext()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        doNothing().when(gooruAPIService).getAccessToken();
+        Context result = contextService.createContext(assignmentDTO, lms);
 
-        Context result = contextService.createContext(assignmentDTO);
-
-        verify(gooruAPIService, times(1)).getAccessToken();
-        verify(profileService, times(1)).findOrCreateTeacher(Mockito.eq(teacherDTO));
+        verify(profileService, times(1)).findOrCreateTeacher(Mockito.eq(teacherDTO), Mockito.eq(lms));
         verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
         verify(groupService, times(1)).createGroup(Mockito.eq(teacherResult));
         verify(groupProfileService, times(1)).assignStudentListToGroup(Mockito.eq(groupResult), Mockito.eq(students));
@@ -102,14 +102,9 @@ public class ContextServiceImplTest {
 
         assertNotNull(result);
         assertEquals(result.getId().toString(), "a7ec9d42-7777-4486-a22b-6a0e347fb98b");
-
         assertEquals(result.getCollectionId().toString(), "b3ec9d42-5dc2-4486-a22b-6a0e347fb98b");
-
         assertEquals(result.getGroupId().toString(), "b3ec9d42-7777-4486-a22b-6a0e347fb98b");
-
         assertEquals(result.getContextData().toString(), "{\"classId\":\"classId\"}");
-        assertEquals(1, 1);
     }
-
 
 }

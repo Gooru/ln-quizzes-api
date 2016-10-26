@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Resource implements java.io.Serializable {
 
-	private static final long serialVersionUID = 621306307;
+	private static final long serialVersionUID = -1261559813;
 
 	private java.util.UUID                   id;
 	private java.lang.String                 externalId;
@@ -17,7 +17,7 @@ public class Resource implements java.io.Serializable {
 	private java.util.UUID                   collectionId;
 	private java.lang.Boolean                isResource;
 	private java.util.UUID                   ownerProfileId;
-	private java.lang.Object                 resourceData;
+	private java.lang.String                 resourceData;
 	private java.lang.Short                  sequence;
 	private java.lang.Boolean                isDeleted;
 	private java.sql.Timestamp               createdAt;
@@ -31,7 +31,7 @@ public class Resource implements java.io.Serializable {
 		java.util.UUID                   collectionId,
 		java.lang.Boolean                isResource,
 		java.util.UUID                   ownerProfileId,
-		java.lang.Object                 resourceData,
+		java.lang.String                 resourceData,
 		java.lang.Short                  sequence,
 		java.lang.Boolean                isDeleted,
 		java.sql.Timestamp               createdAt
@@ -96,11 +96,11 @@ public class Resource implements java.io.Serializable {
 		this.ownerProfileId = ownerProfileId;
 	}
 
-	public java.lang.Object getResourceData() {
+	public java.lang.String getResourceData() {
 		return this.resourceData;
 	}
 
-	public void setResourceData(java.lang.Object resourceData) {
+	public void setResourceData(java.lang.String resourceData) {
 		this.resourceData = resourceData;
 	}
 

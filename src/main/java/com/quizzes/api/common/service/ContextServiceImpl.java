@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ContextServiceImpl implements ContextService {
-
     @Autowired
     ProfileService profileService;
 
@@ -31,18 +31,10 @@ public class ContextServiceImpl implements ContextService {
     @Autowired
     GroupProfileService groupProfileService;
 
-    @Autowired
-    GooruAPIService gooruAPIService;
-
     @Override
-    public Context createContext(AssignmentDTO body) {
-        //Validate fields
-        //TODO: Validation call goes here
-
-        gooruAPIService.getAccessToken();
-
+    public Context createContext(AssignmentDTO body, Lms lms) {
         //Get owner collection
-        Profile teacher = profileService.findOrCreateTeacher(body.getTeacher());
+        Profile teacher = profileService.findOrCreateTeacher(body.getTeacher(), lms);
 
         //Get the collection
         Collection collection = collectionService.findOrCreateCollection(body.getCollection());

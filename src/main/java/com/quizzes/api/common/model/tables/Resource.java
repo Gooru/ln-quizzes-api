@@ -11,7 +11,7 @@ import com.quizzes.api.common.model.Public;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.ResourceRecord> {
 
-	private static final long serialVersionUID = -585496136;
+	private static final long serialVersionUID = -1900493424;
 
 	/**
 	 * The singleton instance of <code>public.resource</code>
@@ -59,7 +59,7 @@ public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.mod
 	/**
 	 * The column <code>public.resource.resource_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ResourceRecord, java.lang.Object> RESOURCE_DATA = createField("resource_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ResourceRecord, java.lang.String> RESOURCE_DATA = createField("resource_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.resource.sequence</code>.
@@ -74,7 +74,7 @@ public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.mod
 	/**
 	 * The column <code>public.resource.created_at</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ResourceRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ResourceRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.resource</code> table reference
