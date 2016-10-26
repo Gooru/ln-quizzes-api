@@ -31,8 +31,8 @@ public class GooruAPIServiceTest {
         ReflectionTestUtils.setField(gooruAPIService, "token", "token-id");
 
         String result = gooruAPIService.getAccessToken();
-        assertNotNull(result);
-        assertEquals(result, "token-id");
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong token", "token-id", result);
     }
 
     @Test
@@ -41,8 +41,8 @@ public class GooruAPIServiceTest {
         String path = "/token";
 
         String result = gooruAPIService.generateGooruURL(path);
-        assertNotNull(result);
-        assertEquals(result, "http://www.gooru.org/api/nucleus-auth/v1/token");
+        assertNotNull("Response is null", result);
+        assertEquals("Invalid url", "http://www.gooru.org/api/nucleus-auth/v1/token", result);
     }
 
     @Test
@@ -51,8 +51,8 @@ public class GooruAPIServiceTest {
         String path = "token";
 
         String result = gooruAPIService.generateGooruURL(path);
-        assertNotNull(result);
-        assertEquals(result, "http://www.gooru.org/api/nucleus-auth/v1/token");
+        assertNotNull("Response is null", result);
+        assertEquals("Invalid url", "http://www.gooru.org/api/nucleus-auth/v1/token", result);
     }
 
     @Test
@@ -62,11 +62,11 @@ public class GooruAPIServiceTest {
         ReflectionTestUtils.setField(gooruAPIService, "clientKey", "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==");
 
         AccessDTO result = gooruAPIService.getAccessKey();
-        assertNotNull(result);
+        assertNotNull("Response is null", result);
         assertEquals(result.getClass(), AccessDTO.class);
-        assertEquals(result.getClient_id(), "ba956a97-ae15-11e5-a302-f8a963065976");
-        assertEquals(result.getGrant_type(), "anonymous");
-        assertEquals(result.getClient_key(), "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==");
+        assertEquals("Invalid client id", "ba956a97-ae15-11e5-a302-f8a963065976", result.getClient_id());
+        assertEquals("Invalid grant type", "anonymous", result.getGrant_type());
+        assertEquals("Invalid client key", "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==", result.getClient_key());
     }
 
 }
