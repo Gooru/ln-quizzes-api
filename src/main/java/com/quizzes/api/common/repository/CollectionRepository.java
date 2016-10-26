@@ -7,6 +7,6 @@ public interface CollectionRepository {
 
     Collection findByExternalIdAndLmsId(String externalId, Lms lmsId);
 
-    Collection save(Collection id);
+    Collection save(Collection collection);
 
 }
