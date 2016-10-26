@@ -1,13 +1,13 @@
 package com.quizzes.api.common.repository;
 
-import static com.quizzes.api.common.model.tables.Context.CONTEXT;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.records.ContextRecord;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+
+import static com.quizzes.api.common.model.tables.Context.CONTEXT;
 
 @Service
 public class ContextRepositoryImpl implements ContextRepository {
@@ -16,16 +16,12 @@ public class ContextRepositoryImpl implements ContextRepository {
     private DSLContext jooq;
 
     @Override
-    public Context save(Context context) {
+    public Context save(final Context context) {
         if (context.getId() == null) {
-            context.setId(UUID.randomUUID());
-            ContextRecord contextRecord = jooq.newRecord(CONTEXT, context);
-            jooq.executeInsert(contextRecord);
+            return insertContext(context);
         } else {
-            ContextRecord contextRecord = jooq.newRecord(CONTEXT, context);
-            jooq.update(CONTEXT).set(contextRecord).where(CONTEXT.ID.eq(contextRecord.getId())).execute();
+            return updateContext(context);
         }
-        return context;
     }
 
     @Override
@@ -33,7 +29,8 @@ public class ContextRepositoryImpl implements ContextRepository {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
-                .fetchAny().into(Context.class);
+                .fetchAny()
+                .into(Context.class);
     }
 
     @Override
@@ -42,7 +39,28 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .from(CONTEXT)
                 .where(CONTEXT.COLLECTION_ID.eq(collectionId))
                 .and(CONTEXT.GROUP_ID.eq(groupId))
-                .fetchAny().into(Context.class);
+                .fetchAny()
+                .into(Context.class);
+    }
+
+    private Context insertContext(final Context context) {
+        return jooq.insertInto(CONTEXT)
+                .set(CONTEXT.ID, UUID.randomUUID())
+                .set(CONTEXT.COLLECTION_ID, context.getCollectionId())
+                .set(CONTEXT.GROUP_ID, context.getGroupId())
+                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
+                .returning()
+                .fetchOne()
+                .into(Context.class);
+    }
+
+    private Context updateContext(final Context context) {
+        return jooq.update(CONTEXT)
+                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
+                .where(CONTEXT.ID.eq(context.getId()))
+                .returning()
+                .fetchOne()
+                .into(Context.class);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.quizzes.api.common.model;
+package com.quizzes.api.common.model.binding;
 
 import org.jooq.Binding;
 import org.jooq.BindingGetResultSetContext;
@@ -17,7 +17,7 @@ import java.sql.Types;
 import java.util.Objects;
 
 // We're binding <T> = Object (unknown JDBC type), and <U> = String (user type)
-public class StringJSONBinding implements Binding<Object, String> {
+public class PostgresJsonbStringBinding implements Binding<Object, String> {
 
     // The converter does all the work
     @Override
