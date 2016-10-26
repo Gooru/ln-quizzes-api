@@ -29,6 +29,6 @@ public class GroupProfileServiceImplTest {
 
         GroupProfile result = groupProfileService.assignStudentListToGroup(group, students);
         verify(groupProfileService, times(1)).assignStudentListToGroup(Mockito.eq(group), Mockito.eq(students));
-        assertNull(result);
+        assertNull("Response is not null", result);
     }
 }

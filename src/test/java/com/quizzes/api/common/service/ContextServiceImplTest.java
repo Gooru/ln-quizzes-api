@@ -76,18 +76,18 @@ public class ContextServiceImplTest {
         Lms lms = Lms.its_learning;
 
         Profile teacherResult = new Profile();
-        teacherResult.setId(UUID.fromString("aa778e3a-fa35-48f2-a0b8-32dd5ce42edd"));
+        teacherResult.setId(UUID.randomUUID());
         when(profileService.findOrCreateTeacher(teacherDTO, lms)).thenReturn(teacherResult);
 
         Collection collectionResult = new Collection();
-        collectionResult.setId(UUID.fromString("b3ec9d42-5dc2-4486-a22b-6a0e347fb98b"));
+        collectionResult.setId(UUID.randomUUID());
         when(collectionService.findOrCreateCollection(collectionDTO)).thenReturn(collectionResult);
 
         Group groupResult = new Group();
-        groupResult.setId(UUID.fromString("b3ec9d42-7777-4486-a22b-6a0e347fb98b"));
+        groupResult.setId(UUID.randomUUID());
         when(groupService.createGroup(teacherResult)).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.fromString("a7ec9d42-7777-4486-a22b-6a0e347fb98b"),
+        Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContext()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
@@ -100,11 +100,11 @@ public class ContextServiceImplTest {
         verify(groupProfileService, times(1)).assignStudentListToGroup(Mockito.eq(groupResult), Mockito.eq(students));
         verify(contextRepository, times(1)).save(any(Context.class));
 
-        assertNotNull(result);
-        assertEquals(result.getId().toString(), "a7ec9d42-7777-4486-a22b-6a0e347fb98b");
-        assertEquals(result.getCollectionId().toString(), "b3ec9d42-5dc2-4486-a22b-6a0e347fb98b");
-        assertEquals(result.getGroupId().toString(), "b3ec9d42-7777-4486-a22b-6a0e347fb98b");
-        assertEquals(result.getContextData().toString(), "{\"classId\":\"classId\"}");
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertEquals("Wrong id for collection", collectionResult.getId(), result.getCollectionId());
+        assertEquals("Wrong id for group", groupResult.getId(), result.getGroupId());
+        assertEquals("Wrong context data", "{\"classId\":\"classId\"}", result.getContextData());
     }
 
 }

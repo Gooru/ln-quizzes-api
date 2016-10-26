@@ -48,8 +48,8 @@ public class ContextControllerTest {
         requestBody.setProfileId(UUID.randomUUID());
 
         ResponseEntity<?> result = controller.startContextEvent("externalId", requestBody);
-        assertNotNull(result);
-        assertEquals(result.getStatusCode().value(), HttpStatus.OK.value());
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }
 
     @Test
@@ -58,9 +58,9 @@ public class ContextControllerTest {
         requestBody.setProfileId(UUID.randomUUID());
 
         ResponseEntity<?> result = controller.onResourceEvent("resourceId", "externalId", requestBody);
-        assertNotNull(result);
-        assertEquals(result.getStatusCode().value(), HttpStatus.OK.value());
-        assertEquals(result.getBody(), null);
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Body is not null", null, result.getBody());
     }
 
     @Test
@@ -69,9 +69,9 @@ public class ContextControllerTest {
         requestBody.setProfileId(UUID.randomUUID());
 
         ResponseEntity<?> result = controller.finishContextEvent("externalId", requestBody);
-        assertNotNull(result);
-        assertEquals(result.getStatusCode().value(), HttpStatus.OK.value());
-        assertEquals(result.getBody(), null);
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Body is not null", null, result.getBody());
     }
 
 }
