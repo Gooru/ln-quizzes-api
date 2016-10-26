@@ -8,9 +8,9 @@ import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,10 +36,10 @@ public class ContextController {
             value = "Map context with quizzes",
             notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. " +
                     "If the context does not exist, it will created.")
-    @RequestMapping(path = "/v1/map/context/collection", method = RequestMethod.POST)
-    public ResponseEntity<?> createContext(@RequestBody AssignmentDTO body,
-                                           @RequestHeader(value = "provider") Lms lms) throws ParseException {
-        Context context = contextService.createContext(body, lms);
+    @RequestMapping(path = "/v1/context/assignment", method = RequestMethod.POST)
+    public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO body,
+                                           @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId) {
+        Context context = contextService.createContext(body, Lms.valueOf(lmsId));
 
         Map<String, String> result = new HashMap<String, String>();
         result.put("contextId", context.getId().toString());

@@ -65,13 +65,13 @@ jooq {
                 customTypes {
                     customType {
                         type = "java.lang.String"
-                        name = "StringJson"
-                        converter = "com.quizzes.api.common.model.StringJSONBinding"
+                        name = "PostgresJsonbString"
+                        converter = "com.quizzes.api.common.model.binding.PostgresJsonbStringBinding"
                     }
                 }
                 forcedTypes {
                     forcedType {
-                        name = "StringJson"
+                        name = "PostgresJsonbString"
                         expression = ".*_data"
                         types = ".*"
                     }

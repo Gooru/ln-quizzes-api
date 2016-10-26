@@ -3,7 +3,7 @@ DROP EXTENSION IF EXISTS "uuid-ossp";
 CREATE EXTENSION "uuid-ossp";
 
 DROP TYPE IF EXISTS LMS;
-CREATE TYPE LMS AS ENUM ('quizzes', 'gooru', 'its-learning');
+CREATE TYPE LMS AS ENUM ('quizzes', 'gooru', 'its_learning');
 
 CREATE TABLE profile
 (
