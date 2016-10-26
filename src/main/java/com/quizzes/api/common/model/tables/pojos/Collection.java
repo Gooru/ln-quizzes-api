@@ -9,14 +9,14 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1419508423;
+	private static final long serialVersionUID = 94858723;
 
 	private java.util.UUID                   id;
 	private java.lang.String                 externalId;
 	private com.quizzes.api.common.model.enums.Lms lmsId;
 	private java.lang.Boolean                isCollection;
 	private java.util.UUID                   ownerProfileId;
-	private java.lang.Object                 collectionData;
+	private java.lang.String                 collectionData;
 	private java.lang.Boolean                isLock;
 	private java.lang.Boolean                isDeleted;
 	private java.sql.Timestamp               createdAt;
@@ -29,7 +29,7 @@ public class Collection implements java.io.Serializable {
 		com.quizzes.api.common.model.enums.Lms lmsId,
 		java.lang.Boolean                isCollection,
 		java.util.UUID                   ownerProfileId,
-		java.lang.Object                 collectionData,
+		java.lang.String                 collectionData,
 		java.lang.Boolean                isLock,
 		java.lang.Boolean                isDeleted,
 		java.sql.Timestamp               createdAt
@@ -85,11 +85,11 @@ public class Collection implements java.io.Serializable {
 		this.ownerProfileId = ownerProfileId;
 	}
 
-	public java.lang.Object getCollectionData() {
+	public java.lang.String getCollectionData() {
 		return this.collectionData;
 	}
 
-	public void setCollectionData(java.lang.Object collectionData) {
+	public void setCollectionData(java.lang.String collectionData) {
 		this.collectionData = collectionData;
 	}
 

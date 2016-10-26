@@ -3,17 +3,17 @@ package com.quizzes.api.realtime.controller;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.EventDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,11 +32,14 @@ public class ContextController {
     @Autowired
     private ContextService contextService;
 
-    @ApiOperation(value = "Map context with quizzes", notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. If the context does not exist, it will created.")
-    @RequestMapping(path = "/v1/map/context/collection/{externalCollectionId}",
-            method = RequestMethod.POST)
-    public ResponseEntity<?> createContext(@Valid @RequestBody AssignmentDTO body) throws ParseException {
-        Context context = contextService.createContext(body);
+    @ApiOperation(
+            value = "Map context with quizzes",
+            notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. " +
+                    "If the context does not exist, it will created.")
+    @RequestMapping(path = "/v1/context/assignment", method = RequestMethod.POST)
+    public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO body,
+                                           @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId) {
+        Context context = contextService.createContext(body, Lms.valueOf(lmsId));
 
         Map<String, String> result = new HashMap<String, String>();
         result.put("contextId", context.getId().toString());

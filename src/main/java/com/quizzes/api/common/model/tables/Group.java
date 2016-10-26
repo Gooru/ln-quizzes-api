@@ -11,7 +11,7 @@ import com.quizzes.api.common.model.Public;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Group extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.GroupRecord> {
 
-	private static final long serialVersionUID = 903299644;
+	private static final long serialVersionUID = 44072198;
 
 	/**
 	 * The singleton instance of <code>public.group</code>
@@ -39,12 +39,12 @@ public class Group extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.
 	/**
 	 * The column <code>public.group.group_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.GroupRecord, java.lang.Object> GROUP_DATA = createField("group_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.GroupRecord, java.lang.String> GROUP_DATA = createField("group_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.group.created_at</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.GroupRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.GroupRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.group</code> table reference

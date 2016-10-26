@@ -9,11 +9,11 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Group implements java.io.Serializable {
 
-	private static final long serialVersionUID = -1922763644;
+	private static final long serialVersionUID = -965621628;
 
 	private java.util.UUID     id;
 	private java.util.UUID     ownerProfileId;
-	private java.lang.Object   groupData;
+	private java.lang.String   groupData;
 	private java.sql.Timestamp createdAt;
 
 	public Group() {}
@@ -21,7 +21,7 @@ public class Group implements java.io.Serializable {
 	public Group(
 		java.util.UUID     id,
 		java.util.UUID     ownerProfileId,
-		java.lang.Object   groupData,
+		java.lang.String   groupData,
 		java.sql.Timestamp createdAt
 	) {
 		this.id = id;
@@ -46,11 +46,11 @@ public class Group implements java.io.Serializable {
 		this.ownerProfileId = ownerProfileId;
 	}
 
-	public java.lang.Object getGroupData() {
+	public java.lang.String getGroupData() {
 		return this.groupData;
 	}
 
-	public void setGroupData(java.lang.Object groupData) {
+	public void setGroupData(java.lang.String groupData) {
 		this.groupData = groupData;
 	}
 

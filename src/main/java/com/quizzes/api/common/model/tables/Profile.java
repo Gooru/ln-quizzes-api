@@ -11,7 +11,7 @@ import com.quizzes.api.common.model.Public;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Profile extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.ProfileRecord> {
 
-	private static final long serialVersionUID = -1087090877;
+	private static final long serialVersionUID = 705819571;
 
 	/**
 	 * The singleton instance of <code>public.profile</code>
@@ -44,12 +44,12 @@ public class Profile extends org.jooq.impl.TableImpl<com.quizzes.api.common.mode
 	/**
 	 * The column <code>public.profile.profile_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ProfileRecord, java.lang.Object> PROFILE_DATA = createField("profile_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ProfileRecord, java.lang.String> PROFILE_DATA = createField("profile_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.profile.created_at</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.profile</code> table reference

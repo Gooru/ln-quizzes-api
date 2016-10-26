@@ -62,6 +62,20 @@ jooq {
                 inputSchema = "public"
                 excludes = "public.schema_version"
                 // ...
+                customTypes {
+                    customType {
+                        type = "java.lang.String"
+                        name = "PostgresJsonbString"
+                        converter = "com.quizzes.api.common.model.binding.PostgresJsonbStringBinding"
+                    }
+                }
+                forcedTypes {
+                    forcedType {
+                        name = "PostgresJsonbString"
+                        expression = ".*_data"
+                        types = ".*"
+                    }
+                }
             }
             generate {
                 relations = false
@@ -95,7 +109,6 @@ dependencies {
     compile("org.springframework:spring-messaging")
     compile("org.springframework:spring-jms")
     compile("org.apache.activemq:activemq-broker")
-    compile("com.googlecode.json-simple:json-simple")
     compile('com.google.code.gson:gson:2.7')
 
     // Define JPA Configuration using Hibernate implementation by default

@@ -9,12 +9,12 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileEvent implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1796971073;
+	private static final long serialVersionUID = 1593813285;
 
 	private java.util.UUID     id;
 	private java.util.UUID     contextProfileId;
 	private java.util.UUID     resourceId;
-	private java.lang.Object   eventData;
+	private java.lang.String   eventData;
 	private java.sql.Timestamp createdAt;
 
 	public ContextProfileEvent() {}
@@ -23,7 +23,7 @@ public class ContextProfileEvent implements java.io.Serializable {
 		java.util.UUID     id,
 		java.util.UUID     contextProfileId,
 		java.util.UUID     resourceId,
-		java.lang.Object   eventData,
+		java.lang.String   eventData,
 		java.sql.Timestamp createdAt
 	) {
 		this.id = id;
@@ -57,11 +57,11 @@ public class ContextProfileEvent implements java.io.Serializable {
 		this.resourceId = resourceId;
 	}
 
-	public java.lang.Object getEventData() {
+	public java.lang.String getEventData() {
 		return this.eventData;
 	}
 
-	public void setEventData(java.lang.Object eventData) {
+	public void setEventData(java.lang.String eventData) {
 		this.eventData = eventData;
 	}
 
