@@ -4,6 +4,8 @@
 package com.quizzes.api.common.model.tables;
 
 import com.quizzes.api.common.model.Public;
+import com.quizzes.api.common.model.StringJSONBinding;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.records.ResourceRecord;
 
 /**
@@ -12,7 +14,7 @@ import com.quizzes.api.common.model.tables.records.ResourceRecord;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Resource extends org.jooq.impl.TableImpl<ResourceRecord> {
 
-	private static final long serialVersionUID = -537314364;
+	private static final long serialVersionUID = 1689069539;
 
 	/**
 	 * The singleton instance of <code>public.resource</code>
@@ -40,7 +42,7 @@ public class Resource extends org.jooq.impl.TableImpl<ResourceRecord> {
 	/**
 	 * The column <code>public.resource.lms_id</code>.
 	 */
-	public final org.jooq.TableField<ResourceRecord, com.quizzes.api.common.model.enums.Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.enums.Lms.class), this, "");
+	public final org.jooq.TableField<ResourceRecord, Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(Lms.class), this, "");
 
 	/**
 	 * The column <code>public.resource.collection_id</code>.
@@ -60,7 +62,7 @@ public class Resource extends org.jooq.impl.TableImpl<ResourceRecord> {
 	/**
 	 * The column <code>public.resource.resource_data</code>.
 	 */
-	public final org.jooq.TableField<ResourceRecord, java.lang.String> RESOURCE_DATA = createField("resource_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.PostgresJSONGsonBinding());
+	public final org.jooq.TableField<ResourceRecord, java.lang.String> RESOURCE_DATA = createField("resource_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new StringJSONBinding());
 
 	/**
 	 * The column <code>public.resource.sequence</code>.
@@ -75,7 +77,7 @@ public class Resource extends org.jooq.impl.TableImpl<ResourceRecord> {
 	/**
 	 * The column <code>public.resource.created_at</code>.
 	 */
-	public final org.jooq.TableField<ResourceRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<ResourceRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.resource</code> table reference

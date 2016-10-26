@@ -4,6 +4,8 @@
 package com.quizzes.api.common.model.tables;
 
 import com.quizzes.api.common.model.Public;
+import com.quizzes.api.common.model.StringJSONBinding;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.records.CollectionRecord;
 
 /**
@@ -12,7 +14,7 @@ import com.quizzes.api.common.model.tables.records.CollectionRecord;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection extends org.jooq.impl.TableImpl<CollectionRecord> {
 
-	private static final long serialVersionUID = 1460418788;
+	private static final long serialVersionUID = 967001283;
 
 	/**
 	 * The singleton instance of <code>public.collection</code>
@@ -40,7 +42,7 @@ public class Collection extends org.jooq.impl.TableImpl<CollectionRecord> {
 	/**
 	 * The column <code>public.collection.lms_id</code>.
 	 */
-	public final org.jooq.TableField<CollectionRecord, com.quizzes.api.common.model.enums.Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.enums.Lms.class), this, "");
+	public final org.jooq.TableField<CollectionRecord, Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(Lms.class), this, "");
 
 	/**
 	 * The column <code>public.collection.is_collection</code>.
@@ -55,7 +57,7 @@ public class Collection extends org.jooq.impl.TableImpl<CollectionRecord> {
 	/**
 	 * The column <code>public.collection.collection_data</code>.
 	 */
-	public final org.jooq.TableField<CollectionRecord, java.lang.String> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.PostgresJSONGsonBinding());
+	public final org.jooq.TableField<CollectionRecord, java.lang.String> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new StringJSONBinding());
 
 	/**
 	 * The column <code>public.collection.is_lock</code>.
@@ -70,7 +72,7 @@ public class Collection extends org.jooq.impl.TableImpl<CollectionRecord> {
 	/**
 	 * The column <code>public.collection.created_at</code>.
 	 */
-	public final org.jooq.TableField<CollectionRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<CollectionRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.collection</code> table reference

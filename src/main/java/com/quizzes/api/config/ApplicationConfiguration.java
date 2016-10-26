@@ -4,6 +4,8 @@ import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.repository.ContextRepositoryImpl;
 import com.quizzes.api.common.repository.ProfileRepository;
 import com.quizzes.api.common.repository.ProfileRepositoryImpl;
+import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.ContextServiceImpl;
 import com.quizzes.api.common.service.ProfileService;
 import com.quizzes.api.common.service.ProfileServiceImpl;
 import org.slf4j.Logger;
@@ -26,6 +28,11 @@ public class ApplicationConfiguration {
     @Bean
     public ProfileService profileService() {
         return new ProfileServiceImpl();
+    }
+
+    @Bean
+    public ContextService contextService() {
+        return new ContextServiceImpl();
     }
 
     @Bean

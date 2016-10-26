@@ -19,7 +19,7 @@ public class Tables {
 	/**
 	 * The table public.collection
 	 */
-	public static final com.quizzes.api.common.model.tables.Collection COLLECTION = Collection.COLLECTION;
+	public static final Collection COLLECTION = Collection.COLLECTION;
 
 	/**
 	 * The table public.collection_on_air
@@ -29,7 +29,7 @@ public class Tables {
 	/**
 	 * The table public.context
 	 */
-	public static final Context CONTEXT = Context.CONTEXT;
+	public static final com.quizzes.api.common.model.tables.Context CONTEXT = Context.CONTEXT;
 
 	/**
 	 * The table public.context_profile

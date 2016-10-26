@@ -4,6 +4,8 @@
 package com.quizzes.api.common.model.tables;
 
 import com.quizzes.api.common.model.Public;
+import com.quizzes.api.common.model.StringJSONBinding;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.records.ProfileRecord;
 
 /**
@@ -12,7 +14,7 @@ import com.quizzes.api.common.model.tables.records.ProfileRecord;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Profile extends org.jooq.impl.TableImpl<ProfileRecord> {
 
-	private static final long serialVersionUID = -172976305;
+	private static final long serialVersionUID = -1693000432;
 
 	/**
 	 * The singleton instance of <code>public.profile</code>
@@ -40,17 +42,17 @@ public class Profile extends org.jooq.impl.TableImpl<ProfileRecord> {
 	/**
 	 * The column <code>public.profile.lms_id</code>.
 	 */
-	public final org.jooq.TableField<ProfileRecord, com.quizzes.api.common.model.enums.Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.enums.Lms.class), this, "");
+	public final org.jooq.TableField<ProfileRecord, Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(Lms.class), this, "");
 
 	/**
 	 * The column <code>public.profile.profile_data</code>.
 	 */
-	public final org.jooq.TableField<ProfileRecord, java.lang.String> PROFILE_DATA = createField("profile_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.PostgresJSONGsonBinding());
+	public final org.jooq.TableField<ProfileRecord, java.lang.String> PROFILE_DATA = createField("profile_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new StringJSONBinding());
 
 	/**
 	 * The column <code>public.profile.created_at</code>.
 	 */
-	public final org.jooq.TableField<ProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<ProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.profile</code> table reference

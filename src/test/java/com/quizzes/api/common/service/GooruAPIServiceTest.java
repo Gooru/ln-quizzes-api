@@ -1,8 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.api.AccessDTO;
-import com.quizzes.api.common.exception.ExceptionMessageTemplate;
-import org.junit.Before;
+import com.quizzes.api.gooru.service.GooruAPIService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,9 +13,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GooruAPIServiceTest {

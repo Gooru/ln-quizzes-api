@@ -12,7 +12,7 @@ import com.quizzes.api.common.model.tables.records.ContextProfileRecord;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile extends org.jooq.impl.TableImpl<ContextProfileRecord> {
 
-	private static final long serialVersionUID = -460821938;
+	private static final long serialVersionUID = 570595885;
 
 	/**
 	 * The singleton instance of <code>public.context_profile</code>
@@ -55,7 +55,7 @@ public class ContextProfile extends org.jooq.impl.TableImpl<ContextProfileRecord
 	/**
 	 * The column <code>public.context_profile.created_at</code>.
 	 */
-	public final org.jooq.TableField<ContextProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<ContextProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.context_profile</code> table reference

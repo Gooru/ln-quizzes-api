@@ -4,7 +4,7 @@
 package com.quizzes.api.common.model;
 
 import com.quizzes.api.common.model.tables.*;
-import com.quizzes.api.common.model.tables.Context;
+import com.quizzes.api.common.model.tables.Collection;
 import com.quizzes.api.common.model.tables.Profile;
 
 /**
@@ -36,9 +36,9 @@ public class Public extends org.jooq.impl.SchemaImpl {
 
 	private final java.util.List<org.jooq.Table<?>> getTables0() {
 		return java.util.Arrays.<org.jooq.Table<?>>asList(
-			com.quizzes.api.common.model.tables.Collection.COLLECTION,
+			Collection.COLLECTION,
 			CollectionOnAir.COLLECTION_ON_AIR,
-			Context.CONTEXT,
+			com.quizzes.api.common.model.tables.Context.CONTEXT,
 			ContextProfile.CONTEXT_PROFILE,
 			ContextProfileEvent.CONTEXT_PROFILE_EVENT,
 			Event.EVENT,

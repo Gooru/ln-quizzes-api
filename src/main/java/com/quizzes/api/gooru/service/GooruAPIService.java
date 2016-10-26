@@ -1,4 +1,4 @@
-package com.quizzes.api.common.service;
+package com.quizzes.api.gooru.service;
 
 import com.quizzes.api.common.dto.api.AccessDTO;
 import com.quizzes.api.common.dto.api.TokenDTO;
@@ -11,7 +11,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Service
 public class GooruAPIService {
 
     private String token = null;
@@ -45,7 +44,7 @@ public class GooruAPIService {
         }
     }
 
-    protected String generateToken() {
+    public String generateToken() {
         String uri = generateGooruURL("/token");
         AccessDTO accessDTO = getAccessKey();
 
@@ -55,7 +54,7 @@ public class GooruAPIService {
         return result.getToken();
     }
 
-    String generateGooruURL(String path) {
+    public String generateGooruURL(String path) {
         if ('/' != path.charAt(0)) {
             logger.error("Error: There was a problem trying to connect to the API," +
                     " the path is missing the character '/' in " + baseURL + " _here_ " + path);
@@ -64,7 +63,7 @@ public class GooruAPIService {
         return baseURL + path;
     }
 
-    AccessDTO getAccessKey() {
+    public AccessDTO getAccessKey() {
         return new AccessDTO(clientKey, clientId, grantType);
     }
 }

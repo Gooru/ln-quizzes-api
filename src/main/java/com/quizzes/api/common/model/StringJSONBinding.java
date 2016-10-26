@@ -17,7 +17,7 @@ import java.sql.Types;
 import java.util.Objects;
 
 // We're binding <T> = Object (unknown JDBC type), and <U> = String (user type)
-public class PostgresJSONGsonBinding implements Binding<Object, String> {
+public class StringJSONBinding implements Binding<Object, String> {
 
     // The converter does all the work
     @Override

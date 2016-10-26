@@ -1,4 +1,4 @@
-package com.quizzes.api.itsLearning;
+package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
@@ -11,13 +11,6 @@ import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
-import com.quizzes.api.common.service.CollectionService;
-import com.quizzes.api.common.service.ContextService;
-import com.quizzes.api.common.service.GooruAPIService;
-import com.quizzes.api.common.service.GroupProfileService;
-import com.quizzes.api.common.service.GroupService;
-import com.quizzes.api.common.service.ProfileService;
-import com.quizzes.api.itslearning.ContextServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -37,6 +30,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ContextServiceImplTest {
@@ -58,9 +53,6 @@ public class ContextServiceImplTest {
 
     @Mock
     GroupProfileService groupProfileService;
-
-    @Mock
-    GooruAPIService gooruAPIService;
 
     @Test
     public void createContext() throws Exception {
@@ -94,15 +86,12 @@ public class ContextServiceImplTest {
         when(groupService.createGroup(teacherResult)).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.fromString("a7ec9d42-7777-4486-a22b-6a0e347fb98b"),
-                collectionResult.getId(), groupResult.getId(),  new Gson().toJson(assignmentDTO.getContext()), null);
+                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContext()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-
-        when(gooruAPIService.getAccessToken()).thenReturn("token");
 
         Context result = contextService.createContext(assignmentDTO, lms);
 
-        verify(gooruAPIService, times(1)).getAccessToken();
         verify(profileService, times(1)).findOrCreateTeacher(Mockito.eq(teacherDTO), Mockito.eq(lms));
         verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
         verify(groupService, times(1)).createGroup(Mockito.eq(teacherResult));

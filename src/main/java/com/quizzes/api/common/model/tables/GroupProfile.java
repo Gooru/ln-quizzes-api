@@ -12,7 +12,7 @@ import com.quizzes.api.common.model.tables.records.GroupProfileRecord;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class GroupProfile extends org.jooq.impl.TableImpl<GroupProfileRecord> {
 
-	private static final long serialVersionUID = -988589349;
+	private static final long serialVersionUID = -1842173702;
 
 	/**
 	 * The singleton instance of <code>public.group_profile</code>
@@ -45,7 +45,7 @@ public class GroupProfile extends org.jooq.impl.TableImpl<GroupProfileRecord> {
 	/**
 	 * The column <code>public.group_profile.created_at</code>.
 	 */
-	public final org.jooq.TableField<GroupProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<GroupProfileRecord, java.sql.Timestamp> CREATED_AT = createField("created_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.group_profile</code> table reference
