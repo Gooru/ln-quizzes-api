@@ -1,15 +1,16 @@
-package com.quizzes.api.common.repository;
+package com.quizzes.api.common.repository.jooq;
 
 import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
 
-@Service
+@Repository
 public class ContextRepositoryImpl implements ContextRepository {
 
     @Autowired

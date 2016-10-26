@@ -29,7 +29,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public Profile findOrCreateTeacher(TeacherDTO teacher, Lms lms) {
-        Profile profile = profileRepository.findByExternalIdAndLms(UUID.fromString(teacher.getId()), lms);
+        Profile profile = profileRepository.findByExternalIdAndLmsId(teacher.getId(), lms);
         if (profile != null) {
             return profile;
         }
