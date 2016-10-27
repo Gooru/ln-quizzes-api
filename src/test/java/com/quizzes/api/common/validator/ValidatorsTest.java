@@ -92,7 +92,7 @@ public class ValidatorsTest {
 
         Set<ConstraintViolation<AssignmentDTO>> constraintViolations =
                 validator.validate(assignment);
-        assertEquals(4, constraintViolations.size());
+        assertEquals(11, constraintViolations.size());
     }
 
 

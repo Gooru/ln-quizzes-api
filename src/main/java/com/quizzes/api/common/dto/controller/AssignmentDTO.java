@@ -1,9 +1,6 @@
 package com.quizzes.api.common.dto.controller;
 
-import com.quizzes.api.common.validator.ValidContext;
-
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -25,7 +22,6 @@ public class AssignmentDTO {
     @Valid
     private List<StudentDTO> students;
     @NotNull(message = "{assignment.context.not_null}")
-    @ValidContext(lms="itslearning")
     private Map<String, String> context;
 
     public AssignmentDTO() {
