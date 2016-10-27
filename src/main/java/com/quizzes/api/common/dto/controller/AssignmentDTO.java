@@ -4,7 +4,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class is used to get the specific body context (json) in the endpoints
@@ -14,15 +13,15 @@ public class AssignmentDTO {
     @NotNull(message = "{assignment.collection.not_null}")
     @Valid
     private CollectionDTO collection;
-    @NotNull(message = "{assignment.teacher.not_null}")
+    @NotNull(message = "{assignment.owner.not_null}")
     @Valid
-    private TeacherDTO teacher;
-    @NotNull(message = "{assignment.students.not_null}")
-    @Size(min = 1, message = "{assignment.students.size}")
+    private ProfileDTO owner;
+    @NotNull(message = "{assignment.assignees.not_null}")
+    @Size(min = 1, message = "{assignment.assignees.size}")
     @Valid
-    private List<StudentDTO> students;
-    @NotNull(message = "{assignment.context.not_null}")
-    private Map<String, String> context;
+    private List<ProfileDTO> assignees;
+    @NotNull(message = "{assignment.context_data.not_null}")
+    private ContextDataDTO contextData;
 
     public AssignmentDTO() {
     }
@@ -35,27 +34,27 @@ public class AssignmentDTO {
         this.collection = collection;
     }
 
-    public TeacherDTO getTeacher() {
-        return teacher;
+    public ProfileDTO getOwner() {
+        return owner;
     }
 
-    public void setTeacher(TeacherDTO teacher) {
-        this.teacher = teacher;
+    public void setOwner(ProfileDTO owner) {
+        this.owner = owner;
     }
 
-    public List<StudentDTO> getStudents() {
-        return students;
+    public List<ProfileDTO> getAssignees() {
+        return assignees;
     }
 
-    public void setStudents(List<StudentDTO> students) {
-        this.students = students;
+    public void setAssignees(List<ProfileDTO> assignees) {
+        this.assignees = assignees;
     }
 
-    public Map<String, String> getContext() {
-        return context;
+    public ContextDataDTO getContextData() {
+        return contextData;
     }
 
-    public void setContext(Map<String, String> context) {
-        this.context = context;
+    public void setContextData(ContextDataDTO contextData) {
+        this.contextData = contextData;
     }
 }

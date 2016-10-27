@@ -1,6 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.dto.controller.StudentDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import org.junit.Test;
@@ -25,10 +25,10 @@ public class GroupProfileServiceImplTest {
     @Test
     public void assignStudentListToGroup() throws Exception {
         Group group = new Group();
-        List<StudentDTO> students = new ArrayList<>();
+        List<ProfileDTO> assignees = new ArrayList<>();
 
-        GroupProfile result = groupProfileService.assignStudentListToGroup(group, students);
-        verify(groupProfileService, times(1)).assignStudentListToGroup(Mockito.eq(group), Mockito.eq(students));
+        GroupProfile result = groupProfileService.assignAssigneesListToGroup(group, assignees);
+        verify(groupProfileService, times(1)).assignAssigneesListToGroup(Mockito.eq(group), Mockito.eq(assignees));
         assertNull("Response is not null", result);
     }
 }

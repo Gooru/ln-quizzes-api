@@ -3,22 +3,22 @@ package com.quizzes.api.common.dto.controller;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class BaseUserDTO {
+public class ProfileDTO {
 
-    @NotNull(message = "{base_user.id.not_null}")
-    @Size(min=1, message = "{base_user.id.size}")
+    @NotNull(message = "{profile.id.not_null}")
+    @Size(min=1, message = "{profile.id.size}")
     private String id;
-    @NotNull(message = "{base_user.first_name.not_null}")
-    @Size(min=1, message = "{base_user.first_name.size}")
+    @NotNull(message = "{profile.first_name.not_null}")
+    @Size(min=1, message = "{profile.first_name.size}")
     private String firstName;
-    @NotNull(message = "{base_user.last_name.not_null}")
-    @Size(min=1, message = "{base_user.last_name.size}")
+    @NotNull(message = "{profile.last_name.not_null}")
+    @Size(min=1, message = "{profile.last_name.size}")
     private String lastName;
-    @NotNull(message = "{base_user.username.not_null}")
-    @Size(min=1, message = "{base_user.username.size}")
+    @NotNull(message = "{profile.username.not_null}")
+    @Size(min=1, message = "{profile.username.size}")
     private String username;
 
-    public BaseUserDTO() {
+    public ProfileDTO() {
     }
 
     public String getId() {

@@ -34,16 +34,16 @@ public class ContextServiceImpl implements ContextService {
     @Override
     public Context createContext(AssignmentDTO body, Lms lms) {
         //Get owner collection
-        Profile teacher = profileService.findOrCreateTeacher(body.getTeacher(), lms);
+        Profile teacher = profileService.findOrCreateOwner(body.getOwner(), lms);
 
         //Get the collection
         Collection collection = collectionService.findOrCreateCollection(body.getCollection());
 
         //Assign teacher and students to a group
         Group group = groupService.createGroup(teacher);
-        groupProfileService.assignStudentListToGroup(group, body.getStudents());
+        groupProfileService.assignAssigneesListToGroup(group, body.getAssignees());
 
-        Context context = new Context(null, collection.getId(), group.getId(), new Gson().toJson(body.getContext()), null);
+        Context context = new Context(null, collection.getId(), group.getId(), new Gson().toJson(body.getContextData()), null);
         context = contextRepository.save(context);
 
         return context;

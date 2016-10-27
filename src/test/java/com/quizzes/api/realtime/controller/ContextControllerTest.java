@@ -2,9 +2,9 @@ package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.dto.controller.StudentDTO;
-import com.quizzes.api.common.dto.controller.TeacherDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -49,31 +49,28 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        TeacherDTO teacher = new TeacherDTO();
-        teacher.setId("1");
-        teacher.setFirstName("firstName");
-        teacher.setLastName("lastname");
-        teacher.setUsername("username");
-        assignment.setTeacher(teacher);
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId("1");
+        owner.setFirstName("firstName");
+        owner.setLastName("lastname");
+        owner.setUsername("username");
+        assignment.setOwner(owner);
 
-        StudentDTO student = new StudentDTO();
-        student.setId("12345");
-        student.setFirstName("firstname01");
-        student.setLastName("lastname01");
-        student.setUsername("firstname01");
-        List<StudentDTO> students = new ArrayList<>();
-        students.add(student);
-        assignment.setStudents(students);
+        ProfileDTO assignee = new ProfileDTO();
+        assignee.setId("12345");
+        assignee.setFirstName("firstname01");
+        assignee.setLastName("lastname01");
+        assignee.setUsername("firstname01");
+        List<ProfileDTO> assignees = new ArrayList<>();
+        assignees.add(assignee);
+        assignment.setAssignees(assignees);
 
         CollectionDTO collection = new CollectionDTO();
         collection.setId("2");
-        collection.setDescription("collection description test");
-        collection.setName("collection test01");
         assignment.setCollection(collection);
 
-        Map<String, String> contextDto = new HashMap<>();
-        contextDto.put("classId","123");
-        assignment.setContext(contextDto);
+        ContextDataDTO contextData = new ContextDataDTO();
+        assignment.setContextData(contextData);
 
         ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
@@ -92,9 +89,9 @@ public class ContextControllerTest {
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in collection"));
-        assertThat(result.getBody().toString(), containsString("Error in teacher"));
+        assertThat(result.getBody().toString(), containsString("Error in owner"));
         assertThat(result.getBody().toString(), containsString("Error in context"));
-        assertThat(result.getBody().toString(), containsString("Error in students"));
+        assertThat(result.getBody().toString(), containsString("Error in assignees"));
     }
 
     @Test
@@ -105,50 +102,47 @@ public class ContextControllerTest {
         when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         AssignmentDTO assignment = new AssignmentDTO();
-        TeacherDTO teacher = new TeacherDTO();
-        teacher.setId("1");
-        teacher.setFirstName("firstName");
-        teacher.setLastName("lastname");
-        teacher.setUsername("username");
-        assignment.setTeacher(teacher);
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId("1");
+        owner.setFirstName("firstName");
+        owner.setLastName("lastname");
+        owner.setUsername("username");
+        assignment.setOwner(owner);
         CollectionDTO collection = new CollectionDTO();
         collection.setId("2");
-        collection.setDescription("collection description test");
-        collection.setName("collection test01");
         assignment.setCollection(collection);
-        Map<String, String> contextDto = new HashMap<>();
-        contextDto.put("classId","123");
-        assignment.setContext(contextDto);
+        ContextDataDTO contextData = new ContextDataDTO();
+        assignment.setContextData(contextData);
 
-        //Testing no students
+        //Testing no assignees
         ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
-        assertThat(result.getBody().toString(), not(containsString("Error in teacher")));
+        assertThat(result.getBody().toString(), not(containsString("Error in owner")));
         assertThat(result.getBody().toString(), not(containsString("Error in context")));
-        assertThat(result.getBody().toString(), containsString("Error in students"));
-        assertThat(result.getBody().toString(), containsString("At least one student is required"));
+        assertThat(result.getBody().toString(), containsString("Error in assignees"));
+        assertThat(result.getBody().toString(), containsString("At least one assignee is required"));
 
-        StudentDTO student = new StudentDTO();
-        List<StudentDTO> students = new ArrayList<>();
-        students.add(student);
-        assignment.setStudents(students);
+        ProfileDTO assignee = new ProfileDTO();
+        List<ProfileDTO> assignees = new ArrayList<>();
+        assignees.add(assignee);
+        assignment.setAssignees(assignees);
 
-        //testing empty student
+        //testing empty assignee
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("Error in students"));
+        assertThat(result.getBody().toString(), containsString("Error in assignees"));
         assertThat(result.getBody().toString(), containsString("ID is required"));
         assertThat(result.getBody().toString(), containsString("Firstname is required"));
         assertThat(result.getBody().toString(), containsString("Lastname is required"));
         assertThat(result.getBody().toString(), containsString("Username is required"));
 
-        student.setId("12345");
-        student.setFirstName("firstname01");
-        student.setLastName("lastname01");
-        student.setUsername("firstname01");
+        assignee.setId("12345");
+        assignee.setFirstName("firstname01");
+        assignee.setLastName("lastname01");
+        assignee.setUsername("firstname01");
 
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
@@ -165,52 +159,49 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        StudentDTO student = new StudentDTO();
-        student.setId("12345");
-        student.setFirstName("firstname01");
-        student.setLastName("lastname01");
-        student.setUsername("firstname01");
-        List<StudentDTO> students = new ArrayList<>();
-        students.add(student);
-        assignment.setStudents(students);
+        ProfileDTO assignee = new ProfileDTO();
+        assignee.setId("12345");
+        assignee.setFirstName("firstname01");
+        assignee.setLastName("lastname01");
+        assignee.setUsername("firstname01");
+        List<ProfileDTO> assignees = new ArrayList<>();
+        assignees.add(assignee);
+        assignment.setAssignees(assignees);
 
         CollectionDTO collection = new CollectionDTO();
         collection.setId("2");
-        collection.setDescription("collection description test");
-        collection.setName("collection test01");
         assignment.setCollection(collection);
 
-        Map<String, String> contextDto = new HashMap<>();
-        contextDto.put("classId","123");
-        assignment.setContext(contextDto);
+        ContextDataDTO contextData = new ContextDataDTO();
+        assignment.setContextData(contextData);
 
-        //Testing no teacher
+        //Testing no owner
         ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
-        assertThat(result.getBody().toString(), not(containsString("Error in teachers")));
+        assertThat(result.getBody().toString(), not(containsString("Error in owners")));
         assertThat(result.getBody().toString(), not(containsString("Error in context")));
-        assertThat(result.getBody().toString(), containsString("Error in teacher"));
-        assertThat(result.getBody().toString(), containsString("A Teacher is required"));
+        assertThat(result.getBody().toString(), containsString("Error in owner"));
+        assertThat(result.getBody().toString(), containsString("A Owner is required"));
 
-        TeacherDTO teacher = new TeacherDTO();
-        assignment.setTeacher(teacher);
+        ProfileDTO owner = new ProfileDTO();
+        assignment.setOwner(owner);
 
-        //testing empty teacher
+        //testing empty owner
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("Error in teacher"));
+        assertThat(result.getBody().toString(), containsString("Error in owner"));
         assertThat(result.getBody().toString(), containsString("ID is required"));
         assertThat(result.getBody().toString(), containsString("Firstname is required"));
         assertThat(result.getBody().toString(), containsString("Lastname is required"));
         assertThat(result.getBody().toString(), containsString("Username is required"));
 
-        teacher.setId("12345");
-        teacher.setFirstName("firstname01");
-        teacher.setLastName("lastname01");
-        teacher.setUsername("firstname01");
+        owner.setId("12345");
+        owner.setFirstName("firstname01");
+        owner.setLastName("lastname01");
+        owner.setUsername("firstname01");
 
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
@@ -227,32 +218,31 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        StudentDTO student = new StudentDTO();
-        student.setId("12345");
-        student.setFirstName("firstname01");
-        student.setLastName("lastname01");
-        student.setUsername("firstname01");
-        List<StudentDTO> students = new ArrayList<>();
-        students.add(student);
-        assignment.setStudents(students);
+        ProfileDTO assignee = new ProfileDTO();
+        assignee.setId("12345");
+        assignee.setFirstName("firstname01");
+        assignee.setLastName("lastname01");
+        assignee.setUsername("firstname01");
+        List<ProfileDTO> assignees = new ArrayList<>();
+        assignees.add(assignee);
+        assignment.setAssignees(assignees);
 
-        TeacherDTO teacher = new TeacherDTO();
-        teacher.setId("12345");
-        teacher.setFirstName("firstname01");
-        teacher.setLastName("lastname01");
-        teacher.setUsername("firstname01");
-        assignment.setTeacher(teacher);
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId("12345");
+        owner.setFirstName("firstname01");
+        owner.setLastName("lastname01");
+        owner.setUsername("firstname01");
+        assignment.setOwner(owner);
 
-        Map<String, String> contextDto = new HashMap<>();
-        contextDto.put("classId","123");
-        assignment.setContext(contextDto);
+        ContextDataDTO contextData = new ContextDataDTO();
+        assignment.setContextData(contextData);
 
         //Testing no collection
         ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in students")));
-        assertThat(result.getBody().toString(), not(containsString("Error in teachers")));
+        assertThat(result.getBody().toString(), not(containsString("Error in assignees")));
+        assertThat(result.getBody().toString(), not(containsString("Error in owners")));
         assertThat(result.getBody().toString(), not(containsString("Error in context")));
         assertThat(result.getBody().toString(), containsString("Error in collection"));
         assertThat(result.getBody().toString(), containsString("A Collection is required"));
@@ -266,12 +256,8 @@ public class ContextControllerTest {
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in collection"));
         assertThat(result.getBody().toString(), containsString("ID is required"));
-        assertThat(result.getBody().toString(), containsString("Description is required"));
-        assertThat(result.getBody().toString(), containsString("Name is required"));
 
         collection.setId("2");
-        collection.setDescription("collection description test");
-        collection.setName("collection test01");
 
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
@@ -288,41 +274,38 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        StudentDTO student = new StudentDTO();
-        student.setId("12345");
-        student.setFirstName("firstname01");
-        student.setLastName("lastname01");
-        student.setUsername("firstname01");
-        List<StudentDTO> students = new ArrayList<>();
-        students.add(student);
-        assignment.setStudents(students);
+        ProfileDTO assignee = new ProfileDTO();
+        assignee.setId("12345");
+        assignee.setFirstName("firstname01");
+        assignee.setLastName("lastname01");
+        assignee.setUsername("firstname01");
+        List<ProfileDTO> assignees = new ArrayList<>();
+        assignees.add(assignee);
+        assignment.setAssignees(assignees);
 
-        TeacherDTO teacher = new TeacherDTO();
-        teacher.setId("12345");
-        teacher.setFirstName("firstname01");
-        teacher.setLastName("lastname01");
-        teacher.setUsername("firstname01");
-        assignment.setTeacher(teacher);
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId("12345");
+        owner.setFirstName("firstname01");
+        owner.setLastName("lastname01");
+        owner.setUsername("firstname01");
+        assignment.setOwner(owner);
 
         CollectionDTO collection = new CollectionDTO();
         collection.setId("2");
-        collection.setDescription("collection description test");
-        collection.setName("collection test01");
         assignment.setCollection(collection);
 
         //Testing no context
         ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in students")));
-        assertThat(result.getBody().toString(), not(containsString("Error in teachers")));
+        assertThat(result.getBody().toString(), not(containsString("Error in assignees")));
+        assertThat(result.getBody().toString(), not(containsString("Error in owners")));
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
         assertThat(result.getBody().toString(), containsString("Error in context"));
-        assertThat(result.getBody().toString(), containsString("A Context is required"));
+        assertThat(result.getBody().toString(), containsString("A ContextData is required"));
 
-        Map<String, String> contextDto = new HashMap<>();
-        contextDto.put("classId","123");
-        assignment.setContext(contextDto);
+        ContextDataDTO contextData = new ContextDataDTO();
+        assignment.setContextData(contextData);
 
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
         assertNotNull("Response is Null", result);

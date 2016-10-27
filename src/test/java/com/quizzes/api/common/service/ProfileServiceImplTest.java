@@ -1,7 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.dto.controller.StudentDTO;
-import com.quizzes.api.common.dto.controller.TeacherDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
@@ -46,28 +45,28 @@ public class ProfileServiceImplTest {
 
     @Test
     public void findOrCreateStudent() throws Exception {
-        StudentDTO student = new StudentDTO();
+        ProfileDTO assignee = new ProfileDTO();
         Lms lms = Lms.its_learning;
 
-        Profile result = profileService.findOrCreateStudent(student, lms);
-        verify(profileService, times(1)).findOrCreateStudent(eq(student), eq(lms));
+        Profile result = profileService.findOrCreateAssignee(assignee, lms);
+        verify(profileService, times(1)).findOrCreateAssignee(eq(assignee), eq(lms));
         assertNull("Response is not null", result);
     }
 
     @Test
-    public void findOrCreateTeacherFind() throws Exception {
-        TeacherDTO teacher = new TeacherDTO();
+    public void findOrCreateOwnerFind() throws Exception {
+        ProfileDTO owner = new ProfileDTO();
         String profileExternalId = UUID.randomUUID().toString();
         String profileData = "{\"firstName\":\"name\"}";
-        teacher.setId(profileExternalId);
+        owner.setId(profileExternalId);
 
         when(profileRepository
                 .findByExternalIdAndLmsId(profileExternalId, Lms.its_learning))
                 .thenReturn(new Profile(UUID.randomUUID(), profileExternalId, Lms.its_learning, profileData, null));
 
-        Profile result = profileService.findOrCreateTeacher(teacher, Lms.its_learning);
+        Profile result = profileService.findOrCreateOwner(owner, Lms.its_learning);
 
-        verify(profileService, times(1)).findOrCreateTeacher(Mockito.eq(teacher), Mockito.eq(Lms.its_learning));
+        verify(profileService, times(1)).findOrCreateOwner(Mockito.eq(owner), Mockito.eq(Lms.its_learning));
         verify(profileRepository, times(1))
                 .findByExternalIdAndLmsId(
                         Mockito.eq(profileExternalId),
@@ -83,10 +82,10 @@ public class ProfileServiceImplTest {
 
     @Test
     public void findOrCreateTeacherCreate() throws Exception {
-        TeacherDTO teacher = new TeacherDTO();
+        ProfileDTO owner = new ProfileDTO();
         String profileExternalId = UUID.randomUUID().toString();
         String profileData = "{\"firstName\":\"name\"}";
-        teacher.setId(profileExternalId);
+        owner.setId(profileExternalId);
 
         when(profileRepository
                 .findByExternalIdAndLmsId(profileExternalId, Lms.its_learning))
@@ -95,9 +94,9 @@ public class ProfileServiceImplTest {
                 .save(any(Profile.class)))
                 .thenReturn(new Profile(UUID.randomUUID(), profileExternalId, Lms.its_learning, profileData, null));
 
-        Profile result = profileService.findOrCreateTeacher(teacher, Lms.its_learning);
+        Profile result = profileService.findOrCreateOwner(owner, Lms.its_learning);
 
-        verify(profileService, times(1)).findOrCreateTeacher(Mockito.eq(teacher), Mockito.eq(Lms.its_learning));
+        verify(profileService, times(1)).findOrCreateOwner(Mockito.eq(owner), Mockito.eq(Lms.its_learning));
         verify(profileRepository, times(1))
                 .findByExternalIdAndLmsId(
                         Mockito.eq(profileExternalId),

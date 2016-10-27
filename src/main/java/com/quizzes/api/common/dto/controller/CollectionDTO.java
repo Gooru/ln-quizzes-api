@@ -9,14 +9,6 @@ public class CollectionDTO {
     @Size(min=1, message = "{collection.id.size}")
     private String id;
 
-    @NotNull(message = "{collection.name.not_null}")
-    @Size(min=1, message = "{collection.name.size}Name is required")
-    private String name;
-
-    @NotNull(message = "{collection.description.not_null}")
-    @Size(min=1, message = "{collection.description.size}")
-    private String description;
-
     public CollectionDTO() {
     }
 
@@ -26,21 +18,5 @@ public class CollectionDTO {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 }

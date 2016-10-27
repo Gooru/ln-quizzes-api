@@ -3,8 +3,8 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
-import com.quizzes.api.common.dto.controller.StudentDTO;
-import com.quizzes.api.common.dto.controller.TeacherDTO;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -63,21 +63,23 @@ public class ContextServiceImplTest {
         CollectionDTO collectionDTO = new CollectionDTO();
         assignmentDTO.setCollection(collectionDTO);
 
-        TeacherDTO teacherDTO = new TeacherDTO();
-        assignmentDTO.setTeacher(teacherDTO);
+        ProfileDTO ownerDTO = new ProfileDTO();
+        assignmentDTO.setOwner(ownerDTO);
 
-        Map<String, String> contextMock = new HashMap<>();
-        contextMock.put("classId", "classId");
-        assignmentDTO.setContext(contextMock);
+        ContextDataDTO contextDataMock = new ContextDataDTO();
+        Map<String, String> contextMapMock = new HashMap<>();
+        contextMapMock.put("classId", "classId");
+        contextDataMock.setContextMap(contextMapMock);
+        assignmentDTO.setContextData(contextDataMock);
 
-        List<StudentDTO> students = new ArrayList<>();
-        assignmentDTO.setStudents(students);
+        List<ProfileDTO> assignees = new ArrayList<>();
+        assignmentDTO.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
 
         Profile teacherResult = new Profile();
         teacherResult.setId(UUID.randomUUID());
-        when(profileService.findOrCreateTeacher(teacherDTO, lms)).thenReturn(teacherResult);
+        when(profileService.findOrCreateOwner(ownerDTO, lms)).thenReturn(teacherResult);
 
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
@@ -88,23 +90,23 @@ public class ContextServiceImplTest {
         when(groupService.createGroup(teacherResult)).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContext()), null);
+                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         Context result = contextService.createContext(assignmentDTO, lms);
 
-        verify(profileService, times(1)).findOrCreateTeacher(Mockito.eq(teacherDTO), Mockito.eq(lms));
+        verify(profileService, times(1)).findOrCreateOwner(Mockito.eq(ownerDTO), Mockito.eq(lms));
         verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
         verify(groupService, times(1)).createGroup(Mockito.eq(teacherResult));
-        verify(groupProfileService, times(1)).assignStudentListToGroup(Mockito.eq(groupResult), Mockito.eq(students));
+        verify(groupProfileService, times(1)).assignAssigneesListToGroup(Mockito.eq(groupResult), Mockito.eq(assignees));
         verify(contextRepository, times(1)).save(any(Context.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
         assertEquals("Wrong id for collection", collectionResult.getId(), result.getCollectionId());
         assertEquals("Wrong id for group", groupResult.getId(), result.getGroupId());
-        assertEquals("Wrong context data", "{\"classId\":\"classId\"}", result.getContextData());
+        assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
     }
 
 }
