@@ -18,9 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 @CrossOrigin
@@ -38,9 +44,23 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/assignment", method = RequestMethod.POST)
     public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO body,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId) {
+        Map<String, Object> result = new HashMap<>();
+
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<AssignmentDTO>> constraintViolations = validator.validate(body);
+
+        if (!constraintViolations.isEmpty()) {
+            List<String> constraintErrors = new ArrayList<>();
+            for (ConstraintViolation violation : constraintViolations) {
+                constraintErrors.add(String.format("Error in %s: %s" , violation.getPropertyPath(), violation.getMessage()));
+            }
+            result.put("Errors", constraintErrors);
+            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+        }
+
         Context context = contextService.createContext(body, Lms.valueOf(lmsId));
 
-        Map<String, String> result = new HashMap<String, String>();
         result.put("contextId", context.getId().toString());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
