@@ -95,7 +95,7 @@ public class ContextServiceImplTest {
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        Context result = contextService.createContext(assignmentDTO, lms);
+        Context result = contextService.createContext(assignmentDTO, lms, UUID.randomUUID());
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(profileService, times(0)).save(any(Profile.class));
@@ -151,7 +151,7 @@ public class ContextServiceImplTest {
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        Context result = contextService.createContext(assignmentDTO, lms);
+        Context result = contextService.createContext(assignmentDTO, lms, UUID.randomUUID());
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(profileService, times(1)).save(any(Profile.class));

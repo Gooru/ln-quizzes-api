@@ -12,6 +12,8 @@ import com.quizzes.api.common.repository.ContextRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class ContextServiceImpl implements ContextService {
     @Autowired
@@ -33,7 +35,7 @@ public class ContextServiceImpl implements ContextService {
     GroupProfileService groupProfileService;
 
     @Override
-    public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
+    public Context createContext(AssignmentDTO assignmentDTO, Lms lms, UUID profileId) {
         //Get OwnerProfile
         Profile owner = findProfile(assignmentDTO.getOwner(), lms);
 
