@@ -1,6 +1,5 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
@@ -16,7 +15,6 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -64,7 +62,6 @@ public class ProfileServiceImplTest {
     @Test
     public void save() throws Exception {
         Profile mockProfile = new Profile(null, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null);
-        Lms lms = Lms.its_learning;
 
         Profile profile = mockProfile;
         UUID id = UUID.randomUUID();

@@ -34,9 +34,10 @@ public class ContextServiceImpl implements ContextService {
 
     @Override
     public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
-        //Create a new copy of the collection
+        //Get OwnerProfile
         Profile owner = findProfile(assignmentDTO.getOwner(), lms);
 
+        //Create a new copy of the collection
         //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
         Collection collection = new Collection(); //gooruApi.getCollection(assignmentDTO.getCollection().getId())
         collection.setOwnerProfileId(owner.getId()); //We could send this param in the previous method
