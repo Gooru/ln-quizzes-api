@@ -57,7 +57,7 @@ public class ContextServiceImplTest {
     GooruAPIService gooruAPIService;
 
     @Test
-    public void createContextFindPrrofile() throws Exception {
+    public void createContextFindProfile() throws Exception {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
 
         CollectionDTO collectionDTO = new CollectionDTO();
