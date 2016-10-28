@@ -44,70 +44,40 @@ public class ProfileServiceImplTest {
     }
 
     @Test
-    public void findOrCreateStudent() throws Exception {
-        ProfileDTO assignee = new ProfileDTO();
+    public void findByExternalIdAndLmsId() throws Exception {
+        UUID id = UUID.randomUUID();
+        Profile profile = new Profile(id, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null);
+        Lms lms = Lms.its_learning;
+        when(profileRepository
+                .findByExternalIdAndLmsId("external-id", Lms.its_learning))
+                .thenReturn(profile);
+
+        Profile result = profileService.findByExternalIdAndLmsId("external-id", lms);
+        verify(profileRepository, times(1)).findByExternalIdAndLmsId(eq("external-id"), eq(lms));
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id", profile.getId(), result.getId());
+        assertEquals("Wrong profile data", "{\"firstName\":\"name\"}", result.getProfileData());
+        assertEquals("Wrong lms id", lms, result.getLmsId());
+        assertEquals("Wrong external id", "external-id", result.getExternalId());
+    }
+
+    @Test
+    public void save() throws Exception {
+        Profile mockProfile = new Profile(null, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null);
         Lms lms = Lms.its_learning;
 
-        Profile result = profileService.findOrCreateAssignee(assignee, lms);
-        verify(profileService, times(1)).findOrCreateAssignee(eq(assignee), eq(lms));
-        assertNull("Response is not null", result);
-    }
+        Profile profile = mockProfile;
+        UUID id = UUID.randomUUID();
+        profile.setId(id);
+        when(profileRepository.save(mockProfile)).thenReturn(profile);
 
-    @Test
-    public void findOrCreateOwnerFind() throws Exception {
-        ProfileDTO owner = new ProfileDTO();
-        String profileExternalId = UUID.randomUUID().toString();
-        String profileData = "{\"firstName\":\"name\"}";
-        owner.setId(profileExternalId);
+        Profile result = profileService.save(profile);
 
-        when(profileRepository
-                .findByExternalIdAndLmsId(profileExternalId, Lms.its_learning))
-                .thenReturn(new Profile(UUID.randomUUID(), profileExternalId, Lms.its_learning, profileData, null));
-
-        Profile result = profileService.findOrCreateOwner(owner, Lms.its_learning);
-
-        verify(profileService, times(1)).findOrCreateOwner(Mockito.eq(owner), Mockito.eq(Lms.its_learning));
-        verify(profileRepository, times(1))
-                .findByExternalIdAndLmsId(
-                        Mockito.eq(profileExternalId),
-                        Mockito.eq(Lms.its_learning));
-        verify(profileRepository, times(0)).save(Mockito.eq(new Profile()));
-
+        verify(profileRepository, times(1)).save(eq(mockProfile));
         assertNotNull("Response is null", result);
-        assertNotNull("Id is null", result.getId());
-        assertEquals("Wrong external id", profileExternalId, result.getExternalId());
-        assertEquals("Wrong Lms", Lms.its_learning, result.getLmsId());
-        assertEquals("Wrong profile data", profileData, result.getProfileData());
+        assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong profile data", profile.getProfileData(), result.getProfileData());
+        assertEquals("Wrong lms id", profile.getLmsId(), result.getLmsId());
+        assertEquals("Wrong external id", profile.getExternalId(), result.getExternalId());
     }
-
-    @Test
-    public void findOrCreateTeacherCreate() throws Exception {
-        ProfileDTO owner = new ProfileDTO();
-        String profileExternalId = UUID.randomUUID().toString();
-        String profileData = "{\"firstName\":\"name\"}";
-        owner.setId(profileExternalId);
-
-        when(profileRepository
-                .findByExternalIdAndLmsId(profileExternalId, Lms.its_learning))
-                .thenReturn(null);
-        when(profileRepository
-                .save(any(Profile.class)))
-                .thenReturn(new Profile(UUID.randomUUID(), profileExternalId, Lms.its_learning, profileData, null));
-
-        Profile result = profileService.findOrCreateOwner(owner, Lms.its_learning);
-
-        verify(profileService, times(1)).findOrCreateOwner(Mockito.eq(owner), Mockito.eq(Lms.its_learning));
-        verify(profileRepository, times(1))
-                .findByExternalIdAndLmsId(
-                        Mockito.eq(profileExternalId),
-                        Mockito.eq(Lms.its_learning));
-        verify(profileRepository, times(1)).save(any(Profile.class));
-
-        assertNotNull("Response is null", result);
-        assertNotNull("Id is null", result.getId());
-        assertEquals("Wrong external id", profileExternalId, result.getExternalId());
-        assertEquals("Wrong Lms", Lms.its_learning, result.getLmsId());
-        assertEquals("Wrong profile data", profileData, result.getProfileData());
-    }
-
 }

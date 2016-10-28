@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.repository.CollectionRepository;
 import com.quizzes.api.realtime.model.CollectionOnAir;
@@ -20,10 +21,16 @@ public class CollectionServiceImpl implements CollectionService {
     @Autowired
     ProfileServiceImpl profileServiceImpl;
 
-    public Collection findByExternalId(String externalId) {
-        // TODO we need to change the method params
-        //return collectionRepository.findByExternalId(externalId);
-        return null;
+    //TODO: Tests
+    @Override
+    public Collection findByExternalIdAndLmsId(String externalId, Lms lms) {
+        return collectionRepository.findByExternalIdAndLmsId(externalId, lms);
+    }
+
+    //TODO: tests
+    @Override
+    public Collection save(Collection collection) {
+        return collectionRepository.save(collection);
     }
 
     public Collection findOrCreateCollection(CollectionDTO id) {

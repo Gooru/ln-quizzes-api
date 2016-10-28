@@ -1,7 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
@@ -15,11 +15,14 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -39,12 +42,47 @@ public class CollectionServiceImplTest {
     private CollectionOnAirRepository collectionOnAirRepository;
 
     @Test
-    public void findOrCreateCollection() throws Exception {
-        CollectionDTO collectionDTO = new CollectionDTO();
+    public void findByExternalIdAndLmsId() throws Exception {
+        UUID id = UUID.randomUUID();
+        UUID profileId = UUID.randomUUID();
+        Collection collection =
+                new Collection(id, "external-id", Lms.its_learning, true, profileId, "body", false, false, null);
+        doReturn(collection).when(collectionService).findByExternalIdAndLmsId("external-id", Lms.its_learning);
 
-        Collection result = collectionService.findOrCreateCollection(collectionDTO);
-        verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
-        assertNull("Response is not null", result);
+        Collection result = collectionService.findByExternalIdAndLmsId("external-id", Lms.its_learning);
+        verify(collectionService, times(1))
+                .findByExternalIdAndLmsId(Mockito.eq("external-id"), Mockito.eq(Lms.its_learning));
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong lms id", Lms.its_learning, result.getLmsId());
+        assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
+        assertEquals("Wrong collection data", "body", result.getCollectionData());
+        assertTrue("isCollection is not true", result.getIsCollection());
+        assertFalse("isLock is not false", result.getIsLock());
+        assertFalse("isDeleted is not false", result.getIsDeleted());
+        assertNull("createdAt is not null", result.getCreatedAt());
+    }
+
+    @Test
+    public void save() throws Exception {
+        UUID id = UUID.randomUUID();
+        UUID profileId = UUID.randomUUID();
+        Collection collection =
+                new Collection(null, "external-id", Lms.its_learning, true, profileId, "body", false, false, null);
+        doReturn(collection).when(collectionService).save(collection);
+
+        Collection result = collectionService.save(collection);
+        collection.setId(id);
+        verify(collectionService, times(1)).save(Mockito.eq(collection));
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong lms id", Lms.its_learning, result.getLmsId());
+        assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
+        assertEquals("Wrong collection data", "body", result.getCollectionData());
+        assertTrue("isCollection is not true", result.getIsCollection());
+        assertFalse("isLock is not false", result.getIsLock());
+        assertFalse("isDeleted is not false", result.getIsDeleted());
+        assertNull("createdAt is not null", result.getCreatedAt());
     }
 
     @Test

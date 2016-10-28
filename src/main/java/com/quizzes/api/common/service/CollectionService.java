@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import org.springframework.stereotype.Service;
@@ -8,9 +9,9 @@ import org.springframework.stereotype.Service;
 @Service
 public interface CollectionService {
 
-    Collection findByExternalId(String externalId);
+    Collection findByExternalIdAndLmsId(String externalId, Lms lms);
 
-    Collection findOrCreateCollection(CollectionDTO collectionDTO);
+    Collection save(Collection collection);
 
     //TODO: WE NEED TO REMOVE THIS OLD METHODS - OLD REAL TIME METHODS
 
