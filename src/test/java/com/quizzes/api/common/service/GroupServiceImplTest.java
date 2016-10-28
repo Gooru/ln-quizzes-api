@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.UUID;
+
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,10 +22,10 @@ public class GroupServiceImplTest {
 
     @Test
     public void createGroup() throws Exception {
-        Profile teacher = new Profile();
+        UUID owner = UUID.randomUUID();
 
-        Group result = groupService.createGroup(teacher);
-        verify(groupService, times(1)).createGroup(Mockito.eq(teacher));
+        Group result = groupService.createGroup(owner);
+        verify(groupService, times(1)).createGroup(Mockito.eq(owner));
         assertNull("Response is not null", result);
     }
 

@@ -57,13 +57,14 @@ public class ContextServiceImplTest {
     GooruAPIService gooruAPIService;
 
     @Test
-    public void createContext() throws Exception {
+    public void createContextFindProfile() throws Exception {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
 
         CollectionDTO collectionDTO = new CollectionDTO();
         assignmentDTO.setCollection(collectionDTO);
 
         ProfileDTO ownerDTO = new ProfileDTO();
+        ownerDTO.setId("external-id");
         assignmentDTO.setOwner(ownerDTO);
 
         ContextDataDTO contextDataMock = new ContextDataDTO();
@@ -77,28 +78,85 @@ public class ContextServiceImplTest {
 
         Lms lms = Lms.its_learning;
 
-        Profile teacherResult = new Profile();
-        teacherResult.setId(UUID.randomUUID());
-        when(profileService.findOrCreateOwner(ownerDTO, lms)).thenReturn(teacherResult);
+        Profile profileResponse = new Profile();
+        UUID profileResponseId = UUID.randomUUID();
+        profileResponse.setId(profileResponseId);
+        when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
 
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
-        when(collectionService.findOrCreateCollection(collectionDTO)).thenReturn(collectionResult);
+        when(collectionService.save(any(Collection.class))).thenReturn(collectionResult);
 
         Group groupResult = new Group();
         groupResult.setId(UUID.randomUUID());
-        when(groupService.createGroup(teacherResult)).thenReturn(groupResult);
+        when(groupService.createGroup(profileResponseId)).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        Context result = contextService.createContext(assignmentDTO, lms);
+
+        verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
+        verify(profileService, times(0)).save(any(Profile.class));
+        verify(collectionService, times(1)).save(any(Collection.class));
+        verify(groupService, times(1)).createGroup(Mockito.eq(profileResponseId));
+        verify(groupProfileService, times(1)).assignAssigneesListToGroup(Mockito.eq(groupResult), Mockito.eq(assignees));
+        verify(contextRepository, times(1)).save(any(Context.class));
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertEquals("Wrong id for collection", collectionResult.getId(), result.getCollectionId());
+        assertEquals("Wrong id for group", groupResult.getId(), result.getGroupId());
+        assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
+    }
+
+    @Test
+    public void createContextCreateProfile() throws Exception {
+        AssignmentDTO assignmentDTO = new AssignmentDTO();
+
+        CollectionDTO collectionDTO = new CollectionDTO();
+        assignmentDTO.setCollection(collectionDTO);
+
+        ProfileDTO ownerDTO = new ProfileDTO();
+        ownerDTO.setId("external-id");
+        assignmentDTO.setOwner(ownerDTO);
+
+        ContextDataDTO contextDataMock = new ContextDataDTO();
+        Map<String, String> contextMapMock = new HashMap<>();
+        contextMapMock.put("classId", "classId");
+        contextDataMock.setContextMap(contextMapMock);
+        assignmentDTO.setContextData(contextDataMock);
+
+        List<ProfileDTO> assignees = new ArrayList<>();
+        assignmentDTO.setAssignees(assignees);
+
+        Lms lms = Lms.its_learning;
+
+        Profile profileResponse = new Profile();
+        UUID profileResponseId = UUID.randomUUID();
+        profileResponse.setId(profileResponseId);
+        when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(null);
+        when(profileService.save(any(Profile.class))).thenReturn(profileResponse);
+
+        Collection collectionResult = new Collection();
+        collectionResult.setId(UUID.randomUUID());
+        when(collectionService.save(any(Collection.class))).thenReturn(collectionResult);
+
+        Group groupResult = new Group();
+        groupResult.setId(UUID.randomUUID());
+        when(groupService.createGroup(profileResponseId)).thenReturn(groupResult);
+
+        Context contextResult = new Context(UUID.randomUUID(),
+                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         Context result = contextService.createContext(assignmentDTO, lms);
 
-        verify(profileService, times(1)).findOrCreateOwner(Mockito.eq(ownerDTO), Mockito.eq(lms));
-        verify(collectionService, times(1)).findOrCreateCollection(Mockito.eq(collectionDTO));
-        verify(groupService, times(1)).createGroup(Mockito.eq(teacherResult));
+        verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
+        verify(profileService, times(1)).save(any(Profile.class));
+        verify(collectionService, times(1)).save(any(Collection.class));
+        verify(groupService, times(1)).createGroup(Mockito.eq(profileResponseId));
         verify(groupProfileService, times(1)).assignAssigneesListToGroup(Mockito.eq(groupResult), Mockito.eq(assignees));
         verify(contextRepository, times(1)).save(any(Context.class));
 

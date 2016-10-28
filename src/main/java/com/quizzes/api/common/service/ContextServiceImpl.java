@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -32,21 +33,34 @@ public class ContextServiceImpl implements ContextService {
     GroupProfileService groupProfileService;
 
     @Override
-    public Context createContext(AssignmentDTO body, Lms lms) {
-        //Get owner collection
-        Profile teacher = profileService.findOrCreateOwner(body.getOwner(), lms);
+    public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
+        //Get OwnerProfile
+        Profile owner = findProfile(assignmentDTO.getOwner(), lms);
 
-        //Get the collection
-        Collection collection = collectionService.findOrCreateCollection(body.getCollection());
+        //Create a new copy of the collection
+        //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
+        Collection collection = new Collection(); //gooruApi.getCollection(assignmentDTO.getCollection().getId())
+        collection.setOwnerProfileId(owner.getId()); //We could send this param in the previous method
+        collectionService.save(collection);
 
         //Assign teacher and students to a group
-        Group group = groupService.createGroup(teacher);
-        groupProfileService.assignAssigneesListToGroup(group, body.getAssignees());
+        Group group = groupService.createGroup(collection.getOwnerProfileId());
+        groupProfileService.assignAssigneesListToGroup(group, assignmentDTO.getAssignees());
 
-        Context context = new Context(null, collection.getId(), group.getId(), new Gson().toJson(body.getContextData()), null);
+        Context context = new Context(null, collection.getId(), group.getId(),
+                new Gson().toJson(assignmentDTO.getContextData()), null);
         context = contextRepository.save(context);
 
         return context;
+    }
+
+    private Profile findProfile(ProfileDTO profileDTO, Lms lms) {
+        Profile profile = profileService.findByExternalIdAndLmsId(profileDTO.getId(), lms);
+        if (profile == null) {
+            profile = profileService
+                    .save(new Profile(null, profileDTO.getId(), lms, new Gson().toJson(profileDTO), null));
+        }
+        return profile;
     }
 
 }
