@@ -8,6 +8,7 @@ import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 
 @CrossOrigin
@@ -35,20 +37,26 @@ import java.util.Set;
 public class ContextController {
 
     @Autowired
+    @Qualifier("contextServiceImpl")
     private ContextService contextService;
 
+    @Autowired
+    @Qualifier("contextServiceDummyImpl")
+    private ContextService contextServiceDummy;
+
     @ApiOperation(
-            value = "Map context with quizzes",
-            notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. " +
-                    "If the context does not exist, it will created.")
+            value = "Creates an assignmentgit ",
+            notes = "Creates an assignment of a collection (assessment) to a group of people (students) in a specified context, " +
+                    "returning a generated Context ID.")
     @RequestMapping(path = "/v1/context/assignment", method = RequestMethod.POST)
-    public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO body,
-                                           @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId) {
+    public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO assignmentDTO,
+                                           @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                           @RequestHeader(value = "profile-id") UUID profileId) {
         Map<String, Object> result = new HashMap<>();
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<AssignmentDTO>> constraintViolations = validator.validate(body);
+        Set<ConstraintViolation<AssignmentDTO>> constraintViolations = validator.validate(assignmentDTO);
 
         if (!constraintViolations.isEmpty()) {
             List<String> constraintErrors = new ArrayList<>();
@@ -59,7 +67,14 @@ public class ContextController {
             return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        Context context = contextService.createContext(body, Lms.valueOf(lmsId));
+        //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
+        Context context =  null;
+        if (Lms.quizzes.equals(Lms.valueOf(lmsId))) {
+            context = contextServiceDummy.createContext(assignmentDTO, Lms.valueOf(lmsId));
+        }
+        else {
+            context = contextService.createContext(assignmentDTO, Lms.valueOf(lmsId));
+        }
 
         result.put("contextId", context.getId().toString());
 

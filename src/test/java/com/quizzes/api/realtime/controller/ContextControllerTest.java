@@ -17,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -72,7 +70,7 @@ public class ContextControllerTest {
         ContextDataDTO contextData = new ContextDataDTO();
         assignment.setContextData(contextData);
 
-        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         assertEquals("Response body is wrong:", "{contextId=" + contextId.toString() + "}", result.getBody().toString());
@@ -85,7 +83,7 @@ public class ContextControllerTest {
         context.setId(contextId);
         when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
-        ResponseEntity<?> result = controller.assignContext(new AssignmentDTO(), Lms.its_learning.getLiteral());
+        ResponseEntity<?> result = controller.assignContext(new AssignmentDTO(), Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in collection"));
@@ -115,7 +113,7 @@ public class ContextControllerTest {
         assignment.setContextData(contextData);
 
         //Testing no assignees
-        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
@@ -130,7 +128,7 @@ public class ContextControllerTest {
         assignment.setAssignees(assignees);
 
         //testing empty assignee
-        result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in assignees"));
@@ -144,7 +142,7 @@ public class ContextControllerTest {
         assignee.setLastName("lastname01");
         assignee.setUsername("firstname01");
 
-        result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         assertEquals("Response body is wrong:", "{contextId=" + contextId.toString() + "}", result.getBody().toString());
@@ -176,7 +174,7 @@ public class ContextControllerTest {
         assignment.setContextData(contextData);
 
         //Testing no owner
-        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
@@ -189,7 +187,7 @@ public class ContextControllerTest {
         assignment.setOwner(owner);
 
         //testing empty owner
-        result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in owner"));
@@ -203,7 +201,7 @@ public class ContextControllerTest {
         owner.setLastName("lastname01");
         owner.setUsername("firstname01");
 
-        result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         assertEquals("Response body is wrong:", "{contextId=" + contextId.toString() + "}", result.getBody().toString());
@@ -238,7 +236,7 @@ public class ContextControllerTest {
         assignment.setContextData(contextData);
 
         //Testing no collection
-        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in assignees")));
@@ -251,7 +249,7 @@ public class ContextControllerTest {
         assignment.setCollection(collection);
 
         //testing empty collection
-        result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in collection"));
@@ -259,7 +257,7 @@ public class ContextControllerTest {
 
         collection.setId("2");
 
-        result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         assertEquals("Response body is wrong:", "{contextId=" + contextId.toString() + "}", result.getBody().toString());
@@ -295,7 +293,7 @@ public class ContextControllerTest {
         assignment.setCollection(collection);
 
         //Testing no context
-        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in assignees")));
@@ -307,7 +305,7 @@ public class ContextControllerTest {
         ContextDataDTO contextData = new ContextDataDTO();
         assignment.setContextData(contextData);
 
-        result = controller.assignContext(assignment, Lms.its_learning.getLiteral());
+        result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         assertEquals("Response body is wrong:", "{contextId=" + contextId.toString() + "}", result.getBody().toString());
