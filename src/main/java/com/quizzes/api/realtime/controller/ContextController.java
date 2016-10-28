@@ -37,22 +37,26 @@ import java.util.UUID;
 public class ContextController {
 
     @Autowired
-    @Qualifier("contextServiceMockImpl")
+    @Qualifier("contextServiceImpl")
     private ContextService contextService;
 
+    @Autowired
+    @Qualifier("contextServiceDummyImpl")
+    private ContextService contextServiceDummy;
+
     @ApiOperation(
-            value = "Map context with quizzes",
-            notes = "Maps the LMS content with a Quizzes context, returning the Quizzes contextID. " +
-                    "If the context does not exist, it will be created.")
+            value = "Creates an assignmentgit ",
+            notes = "Creates an assignment of a collection (assessment) to a group of people (students) in a specified context, " +
+                    "returning a generated Context ID.")
     @RequestMapping(path = "/v1/context/assignment", method = RequestMethod.POST)
-    public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO body,
+    public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO assignmentDTO,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
         Map<String, Object> result = new HashMap<>();
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<AssignmentDTO>> constraintViolations = validator.validate(body);
+        Set<ConstraintViolation<AssignmentDTO>> constraintViolations = validator.validate(assignmentDTO);
 
         if (!constraintViolations.isEmpty()) {
             List<String> constraintErrors = new ArrayList<>();
@@ -63,7 +67,14 @@ public class ContextController {
             return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        Context context = contextService.createContext(body, Lms.valueOf(lmsId), profileId);
+        //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
+        Context context =  null;
+        if (Lms.quizzes.equals(Lms.valueOf(lmsId))) {
+            context = contextServiceDummy.createContext(assignmentDTO, Lms.valueOf(lmsId));
+        }
+        else {
+            context = contextService.createContext(assignmentDTO, Lms.valueOf(lmsId));
+        }
 
         result.put("contextId", context.getId().toString());
 

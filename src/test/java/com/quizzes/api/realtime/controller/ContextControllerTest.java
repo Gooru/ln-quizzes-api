@@ -17,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -45,7 +43,7 @@ public class ContextControllerTest {
         Context context = new Context();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class), any(UUID.class))).thenReturn(context);
+        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         AssignmentDTO assignment = new AssignmentDTO();
 
@@ -83,7 +81,7 @@ public class ContextControllerTest {
         Context context = new Context();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class), any(UUID.class))).thenReturn(context);
+        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         ResponseEntity<?> result = controller.assignContext(new AssignmentDTO(), Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
@@ -99,7 +97,7 @@ public class ContextControllerTest {
         Context context = new Context();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class), any(UUID.class))).thenReturn(context);
+        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         AssignmentDTO assignment = new AssignmentDTO();
         ProfileDTO owner = new ProfileDTO();
@@ -155,7 +153,7 @@ public class ContextControllerTest {
         Context context = new Context();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class), any(UUID.class))).thenReturn(context);
+        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         AssignmentDTO assignment = new AssignmentDTO();
 
@@ -214,7 +212,7 @@ public class ContextControllerTest {
         Context context = new Context();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class), any(UUID.class))).thenReturn(context);
+        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         AssignmentDTO assignment = new AssignmentDTO();
 
@@ -270,7 +268,7 @@ public class ContextControllerTest {
         Context context = new Context();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class), any(UUID.class))).thenReturn(context);
+        when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         AssignmentDTO assignment = new AssignmentDTO();
 

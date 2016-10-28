@@ -10,10 +10,10 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Service
-public class ContextServiceMockImpl implements ContextService {
+public class ContextServiceDummyImpl implements ContextService {
 
     @Override
-    public Context createContext(AssignmentDTO body, Lms lms, UUID profileId) {
+    public Context createContext(AssignmentDTO body, Lms lms) {
         Context context = generateMockContext();
 
         return context;

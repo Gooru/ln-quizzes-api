@@ -35,7 +35,7 @@ public class ContextServiceImpl implements ContextService {
     GroupProfileService groupProfileService;
 
     @Override
-    public Context createContext(AssignmentDTO assignmentDTO, Lms lms, UUID profileId) {
+    public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
         //Get OwnerProfile
         Profile owner = findProfile(assignmentDTO.getOwner(), lms);
 
