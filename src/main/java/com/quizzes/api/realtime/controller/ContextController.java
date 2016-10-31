@@ -45,7 +45,7 @@ public class ContextController {
     private ContextService contextServiceDummy;
 
     @ApiOperation(
-            value = "Creates an assignmentgit ",
+            value = "Creates an assignment",
             notes = "Creates an assignment of a collection (assessment) to a group of people (students) in a specified context, " +
                     "returning a generated Context ID.")
     @RequestMapping(path = "/v1/context/assignment", method = RequestMethod.POST)

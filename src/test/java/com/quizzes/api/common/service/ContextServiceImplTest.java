@@ -9,6 +9,7 @@ import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
+import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.gooru.service.GooruAPIService;
@@ -74,6 +75,12 @@ public class ContextServiceImplTest {
         assignmentDTO.setContextData(contextDataMock);
 
         List<ProfileDTO> assignees = new ArrayList<>();
+        ProfileDTO profile1 = new ProfileDTO();
+        profile1.setId("1");
+        ProfileDTO profile2 = new ProfileDTO();
+        profile1.setId("2");
+        assignees.add(profile1);
+        assignees.add(profile2);
         assignmentDTO.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
@@ -85,11 +92,12 @@ public class ContextServiceImplTest {
 
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
+        collectionResult.setOwnerProfileId(UUID.randomUUID());
         when(collectionService.save(any(Collection.class))).thenReturn(collectionResult);
 
         Group groupResult = new Group();
         groupResult.setId(UUID.randomUUID());
-        when(groupService.createGroup(profileResponseId)).thenReturn(groupResult);
+        when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
@@ -98,10 +106,10 @@ public class ContextServiceImplTest {
         Context result = contextService.createContext(assignmentDTO, lms);
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
+        verify(groupProfileService, times(2)).save(any(GroupProfile.class));
         verify(profileService, times(0)).save(any(Profile.class));
         verify(collectionService, times(1)).save(any(Collection.class));
-        verify(groupService, times(1)).createGroup(Mockito.eq(profileResponseId));
-        verify(groupProfileService, times(1)).assignAssigneesListToGroup(Mockito.eq(groupResult), Mockito.eq(assignees));
+        verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
 
         assertNotNull("Response is Null", result);
@@ -129,6 +137,9 @@ public class ContextServiceImplTest {
         assignmentDTO.setContextData(contextDataMock);
 
         List<ProfileDTO> assignees = new ArrayList<>();
+        ProfileDTO profile1 = new ProfileDTO();
+        profile1.setId("1");
+        assignees.add(profile1);
         assignmentDTO.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
@@ -141,11 +152,12 @@ public class ContextServiceImplTest {
 
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
+        collectionResult.setOwnerProfileId(UUID.randomUUID());
         when(collectionService.save(any(Collection.class))).thenReturn(collectionResult);
 
         Group groupResult = new Group();
         groupResult.setId(UUID.randomUUID());
-        when(groupService.createGroup(profileResponseId)).thenReturn(groupResult);
+        when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
@@ -154,10 +166,10 @@ public class ContextServiceImplTest {
         Context result = contextService.createContext(assignmentDTO, lms);
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
-        verify(profileService, times(1)).save(any(Profile.class));
+        verify(groupProfileService, times(1)).save(any(GroupProfile.class));
+        verify(profileService, times(2)).save(any(Profile.class));
         verify(collectionService, times(1)).save(any(Collection.class));
-        verify(groupService, times(1)).createGroup(Mockito.eq(profileResponseId));
-        verify(groupProfileService, times(1)).assignAssigneesListToGroup(Mockito.eq(groupResult), Mockito.eq(assignees));
+        verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
 
         assertNotNull("Response is Null", result);
