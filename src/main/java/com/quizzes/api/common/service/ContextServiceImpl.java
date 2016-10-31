@@ -45,7 +45,7 @@ public class ContextServiceImpl implements ContextService {
         //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
         Collection collection = new Collection(); //gooruApi.getCollection(assignmentDTO.getCollection().getId())
         collection.setOwnerProfileId(owner.getId()); //We could send this param in the previous method
-        collectionService.save(collection);
+        collection = collectionService.save(collection);
 
         //Assign teacher and students to a group
         Group group = groupService.createGroup(collection.getOwnerProfileId());

@@ -92,11 +92,12 @@ public class ContextServiceImplTest {
 
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
+        collectionResult.setOwnerProfileId(UUID.randomUUID());
         when(collectionService.save(any(Collection.class))).thenReturn(collectionResult);
 
         Group groupResult = new Group();
         groupResult.setId(UUID.randomUUID());
-        when(groupService.createGroup(profileResponseId)).thenReturn(groupResult);
+        when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
@@ -108,7 +109,7 @@ public class ContextServiceImplTest {
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
         verify(profileService, times(0)).save(any(Profile.class));
         verify(collectionService, times(1)).save(any(Collection.class));
-        verify(groupService, times(1)).createGroup(Mockito.eq(profileResponseId));
+        verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
 
         assertNotNull("Response is Null", result);
@@ -151,11 +152,12 @@ public class ContextServiceImplTest {
 
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
+        collectionResult.setOwnerProfileId(UUID.randomUUID());
         when(collectionService.save(any(Collection.class))).thenReturn(collectionResult);
 
         Group groupResult = new Group();
         groupResult.setId(UUID.randomUUID());
-        when(groupService.createGroup(profileResponseId)).thenReturn(groupResult);
+        when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
@@ -167,7 +169,7 @@ public class ContextServiceImplTest {
         verify(groupProfileService, times(1)).save(any(GroupProfile.class));
         verify(profileService, times(2)).save(any(Profile.class));
         verify(collectionService, times(1)).save(any(Collection.class));
-        verify(groupService, times(1)).createGroup(Mockito.eq(profileResponseId));
+        verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
 
         assertNotNull("Response is Null", result);
