@@ -2,6 +2,7 @@ package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
@@ -53,13 +54,14 @@ public class ContextController {
             value = "Creates an assignment",
             notes = "Creates an assignment of a collection (assessment) to a group of people (students) in a specified context, " +
                     "returning a generated Context ID.")
+    @ApiResponses({ @ApiResponse(code = 200, message = "Context ID", response = AssignContextResponseDTO.class),
+            @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/assignment",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO assignmentDTO,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
-        Map<String, Object> result = new HashMap<>();
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -70,8 +72,9 @@ public class ContextController {
             for (ConstraintViolation violation : constraintViolations) {
                 constraintErrors.add(String.format("Error in %s: %s" , violation.getPropertyPath(), violation.getMessage()));
             }
-            result.put("Errors", constraintErrors);
-            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+            //TODO: the validations are on hold, we're using mocks in the meantime
+//            result.put("Errors", constraintErrors);
+//            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
         }
 
         //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
@@ -83,7 +86,7 @@ public class ContextController {
             context = contextService.createContext(assignmentDTO, Lms.valueOf(lmsId));
         }
 
-        result.put("contextId", context.getId().toString());
+        AssignContextResponseDTO result = new AssignContextResponseDTO(context.getId());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
