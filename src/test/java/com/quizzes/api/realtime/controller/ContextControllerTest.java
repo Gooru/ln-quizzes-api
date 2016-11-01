@@ -5,6 +5,7 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
+import com.quizzes.api.common.dto.controller.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -320,8 +321,8 @@ public class ContextControllerTest {
 
         ResponseEntity<?> result = controller.startContextEvent("123", "quizzes", UUID.randomUUID());
         Object resultBody = result.getBody();
-        assertSame(resultBody.getClass(), ContextController.StartContextEventResponseDTO.class);
-        assertNotNull("Current resource ID is null", ((ContextController.StartContextEventResponseDTO)resultBody).currentResourceId);
+        assertSame(resultBody.getClass(), StartContextEventResponseDTO.class);
+        assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO)resultBody).getCurrentResourceId());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }

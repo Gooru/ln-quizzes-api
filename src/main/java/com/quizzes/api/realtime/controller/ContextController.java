@@ -1,11 +1,16 @@
 package com.quizzes.api.realtime.controller;
 
+import com.quizzes.api.common.dto.controller.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.AttemptDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
+import com.quizzes.api.common.dto.controller.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -89,6 +94,8 @@ public class ContextController {
             notes = "Sends event to start the Collection attempt associated to the context. " +
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
+    @ApiResponses({ @ApiResponse(code = 200, message = "Start Context Event", response = StartContextEventResponseDTO.class),
+                    @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -128,42 +135,5 @@ public class ContextController {
                                                 @RequestBody ProfileIdDTO requestBody) throws Exception {
 //        contextService.endContext();
         return new ResponseEntity<>(null, HttpStatus.OK);
-    }
-
-    //TODO: temporary class for mocking the response
-    public static class StartContextEventResponseDTO {
-        UUID currentResourceId;
-        List<AttemptDTO> attempt;
-
-        public StartContextEventResponseDTO(UUID currentResourceId, List<AttemptDTO> attempt) {
-            this.currentResourceId = currentResourceId;
-            this.attempt = attempt;
-        }
-    }
-
-    //TODO: temporary class for mocking the response
-    private class AttemptDTO {
-        UUID id;
-        long timeSpent;
-        int reaction;
-        int score;
-        List<AnswerDTO> answer;
-
-        public AttemptDTO(UUID id, long timeSpent, int reaction, int score, List<AnswerDTO> answer) {
-            this.id = id;
-            this.timeSpent = timeSpent;
-            this.reaction = reaction;
-            this.score = score;
-            this.answer = answer;
-        }
-    }
-
-    //TODO: temporary class for mocking the response
-    private class AnswerDTO {
-        String value;
-
-        public AnswerDTO(String value) {
-            this.value = value;
-        }
     }
 }
