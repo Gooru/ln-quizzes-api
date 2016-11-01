@@ -27,7 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -322,7 +321,7 @@ public class ContextControllerTest {
         ResponseEntity<?> result = controller.startContextEvent("123", "quizzes", UUID.randomUUID());
         Object resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDTO.class);
-        assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO)resultBody).getCurrentResourceId());
+        assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO) resultBody).getCurrentResourceId());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }
@@ -340,10 +339,7 @@ public class ContextControllerTest {
 
     @Test
     public void finishContextEvent() throws Exception {
-        ProfileIdDTO requestBody = new ProfileIdDTO();
-        requestBody.setProfileId(UUID.randomUUID());
-
-        ResponseEntity<?> result = controller.finishContextEvent("externalId", requestBody);
+        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning" , UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Body is not null", null, result.getBody());
