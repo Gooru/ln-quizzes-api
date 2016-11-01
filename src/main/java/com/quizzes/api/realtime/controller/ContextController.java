@@ -1,10 +1,10 @@
 package com.quizzes.api.realtime.controller;
 
-import com.quizzes.api.common.dto.controller.AnswerDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.AttemptDTO;
+import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.dto.controller.StartContextEventResponseDTO;
+import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
