@@ -119,12 +119,18 @@ public class ContextController {
     }
 
 
-    @ApiOperation(value = "Register resource", notes = "Register resource")
-    @RequestMapping(path = "/v1/event/on-resource/{resourceId}/context/{contextId}",
-            method = RequestMethod.POST)
+    @ApiOperation(value = "Register resource",
+            notes = "Sends event to indicate current resource position and provides the data generated" +
+                    " in the previous resource (this value could be null in case there is not previous resource)")
+    @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> onResourceEvent(@PathVariable String resourceId,
                                              @PathVariable String contextId,
-                                             @RequestBody ProfileIdDTO requestBody) throws Exception {
+                                             @RequestBody AttemptDTO attemptDTO,
+                                             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                             @RequestHeader(value = "profile-id") UUID profileId) {
+
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
