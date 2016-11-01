@@ -5,6 +5,8 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
+import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -329,10 +331,12 @@ public class ContextControllerTest {
 
     @Test
     public void registerResource() throws Exception {
-        ProfileIdDTO requestBody = new ProfileIdDTO();
-        requestBody.setProfileId(UUID.randomUUID());
+        AnswerDTO answerDTO = new AnswerDTO("1");
+        List<AnswerDTO> answerDTOList = new ArrayList<>();
+        answerDTOList.add(answerDTO);
+        AttemptDTO requestBody = new AttemptDTO(UUID.randomUUID(), 120, 3, 0, answerDTOList);
 
-        ResponseEntity<?> result = controller.onResourceEvent("resourceId", "externalId", requestBody);
+        ResponseEntity<?> result = controller.onResourceEvent("1", "1", requestBody, "quizzes", UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Body is not null", null, result.getBody());
