@@ -145,7 +145,7 @@ public class ContextController {
     })
     @RequestMapping(path = "/v1/context/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getContext(@PathVariable UUID contextId) throws Exception {
+    public ResponseEntity<AssignmentDTO> getContext(@PathVariable UUID contextId) throws Exception {
 
         AssignmentDTO assignmentDTO = new AssignmentDTO();
 
