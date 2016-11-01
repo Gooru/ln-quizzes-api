@@ -9,7 +9,10 @@ import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,7 +133,10 @@ public class ContextController {
 
 
     @ApiOperation(value = "Get context", notes = "Gets the context information.")
-    @ApiResponses({@ApiResponse(code = 200, message = "assignmentDTO", response = AssignmentDTO.class)})
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "assignmentDTO", response = AssignmentDTO.class),
+        @ApiResponse(code = 400, message = "Invalid UUID")
+    })
     @RequestMapping(path = "/v1/context/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getContext(@PathVariable UUID contextId) throws Exception {

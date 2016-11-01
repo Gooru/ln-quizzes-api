@@ -401,5 +401,5 @@ public class ContextControllerTest {
         assertNotNull("Body is null", result.getBody());
         assertEquals("Body is not an assignmentDTO class", AssignmentDTO.class, result.getBody().getClass());
     }
-    
+
 }
