@@ -1,5 +1,6 @@
 package com.quizzes.api.realtime.controller;
 
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
@@ -122,12 +123,13 @@ public class ContextController {
     @ApiOperation(value = "Register resource",
             notes = "Sends event to indicate current resource position and provides the data generated" +
                     " in the previous resource (this value could be null in case there is not previous resource)")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK")})
     @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> onResourceEvent(@PathVariable String resourceId,
                                              @PathVariable String contextId,
-                                             @RequestBody AttemptDTO attemptDTO,
+                                             @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
                                              @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                              @RequestHeader(value = "profile-id") UUID profileId) {
 
