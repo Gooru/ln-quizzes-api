@@ -24,7 +24,9 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -316,7 +318,10 @@ public class ContextControllerTest {
         ProfileIdDTO requestBody = new ProfileIdDTO();
         requestBody.setProfileId(UUID.randomUUID());
 
-        ResponseEntity<?> result = controller.startContextEvent("externalId", requestBody);
+        ResponseEntity<?> result = controller.startContextEvent("123", "quizzes", UUID.randomUUID());
+        Object resultBody = result.getBody();
+        assertSame(resultBody.getClass(), ContextController.StartContextEventResponseDTO.class);
+        assertNotNull("Current resource ID is null", ((ContextController.StartContextEventResponseDTO)resultBody).currentResourceId);
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }

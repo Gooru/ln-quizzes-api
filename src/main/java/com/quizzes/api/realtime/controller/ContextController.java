@@ -1,7 +1,6 @@
 package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.EventDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -10,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,7 +48,9 @@ public class ContextController {
             value = "Creates an assignment",
             notes = "Creates an assignment of a collection (assessment) to a group of people (students) in a specified context, " +
                     "returning a generated Context ID.")
-    @RequestMapping(path = "/v1/context/assignment", method = RequestMethod.POST)
+    @RequestMapping(path = "/v1/context/assignment",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO assignmentDTO,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
@@ -82,26 +84,31 @@ public class ContextController {
     }
 
 
-    @ApiOperation(value = "Start collection", notes = "Return the collection if exists, otherwise it will create one")
-    @RequestMapping(path = "/v1/event/start/context/{contextId}",
-            method = RequestMethod.POST)
+    @ApiOperation(
+            value = "Start collection",
+            notes = "Sends event to start the Collection attempt associated to the context. " +
+                    "If the Collection attempt was not started previously there is not a start action executed. " +
+                    "In any case returns the current attempt status.")
+    @RequestMapping(path = "/v1/context/{contextId}/event/start",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> startContextEvent(@PathVariable String contextId,
-                                               @RequestBody ProfileIdDTO requestBody) {
-        EventDTO eventDTO = new EventDTO();
-        eventDTO.setContextId(contextId);
-        eventDTO.setCurrenteResourceId("1");
+                                               @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                               @RequestHeader(value = "profile-id") UUID profileId) {
 
-        ArrayList<Map<String, String>> list = new ArrayList<>();
-        Map<String, String> item = new HashMap<>();
-        item.put("resourceId", "1");
-        item.put("timeSpent", "2452454351");
-        item.put("answer", "answer-object");
-        item.put("reaction", "2");
-        item.put("score", "80");
+        AnswerDTO answer1 = new AnswerDTO("1");
+        AnswerDTO answer2 = new AnswerDTO("1,3");
+        List<AnswerDTO> answerList = new ArrayList<>();
+        answerList.add(answer1);
+        answerList.add(answer2);
 
-        list.add(item);
-        eventDTO.setCollectionStatus(list);
-        return new ResponseEntity<>(eventDTO, HttpStatus.OK);
+        AttemptDTO attempt = new AttemptDTO(UUID.randomUUID(), 1500, 1, 8, answerList);
+        List<AttemptDTO> attempts = new ArrayList<>();
+        attempts.add(attempt);
+
+        StartContextEventResponseDTO result = new StartContextEventResponseDTO(UUID.randomUUID(), attempts);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 
@@ -123,4 +130,40 @@ public class ContextController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
+    //TODO: temporary class for mocking the response
+    public static class StartContextEventResponseDTO {
+        UUID currentResourceId;
+        List<AttemptDTO> attempt;
+
+        public StartContextEventResponseDTO(UUID currentResourceId, List<AttemptDTO> attempt) {
+            this.currentResourceId = currentResourceId;
+            this.attempt = attempt;
+        }
+    }
+
+    //TODO: temporary class for mocking the response
+    private class AttemptDTO {
+        UUID id;
+        long timeSpent;
+        int reaction;
+        int score;
+        List<AnswerDTO> answer;
+
+        public AttemptDTO(UUID id, long timeSpent, int reaction, int score, List<AnswerDTO> answer) {
+            this.id = id;
+            this.timeSpent = timeSpent;
+            this.reaction = reaction;
+            this.score = score;
+            this.answer = answer;
+        }
+    }
+
+    //TODO: temporary class for mocking the response
+    private class AnswerDTO {
+        String value;
+
+        public AnswerDTO(String value) {
+            this.value = value;
+        }
+    }
 }
