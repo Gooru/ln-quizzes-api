@@ -5,6 +5,7 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
+import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -24,7 +25,9 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -316,7 +319,10 @@ public class ContextControllerTest {
         ProfileIdDTO requestBody = new ProfileIdDTO();
         requestBody.setProfileId(UUID.randomUUID());
 
-        ResponseEntity<?> result = controller.startContextEvent("externalId", requestBody);
+        ResponseEntity<?> result = controller.startContextEvent("123", "quizzes", UUID.randomUUID());
+        Object resultBody = result.getBody();
+        assertSame(resultBody.getClass(), StartContextEventResponseDTO.class);
+        assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO)resultBody).getCurrentResourceId());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }
