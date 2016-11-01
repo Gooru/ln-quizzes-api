@@ -17,7 +17,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -343,4 +345,61 @@ public class ContextControllerTest {
         assertEquals("Body is not null", null, result.getBody());
     }
 
+    @Test
+    public void getContext() throws Exception {
+
+        AssignmentDTO assignmentDTO = new AssignmentDTO();
+
+        CollectionDTO collection = new CollectionDTO();
+        collection.setId(UUID.randomUUID().toString());
+        assignmentDTO.setCollection(collection);
+
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId(UUID.randomUUID().toString());
+        owner.setFirstName("Michael");
+        owner.setLastName("Guth");
+        owner.setUsername("migut");
+        assignmentDTO.setOwner(owner);
+
+        List<ProfileDTO> profiles = new ArrayList<>();
+
+        ProfileDTO profile1 = new ProfileDTO();
+        owner.setId(UUID.randomUUID().toString());
+        owner.setFirstName("Karol");
+        owner.setLastName("Fernandez");
+        owner.setUsername("karol1");
+        assignmentDTO.setOwner(profile1);
+
+        ProfileDTO profile2 = new ProfileDTO();
+        owner.setId(UUID.randomUUID().toString());
+        owner.setFirstName("Roger");
+        owner.setLastName("Stevens");
+        owner.setUsername("rogersteve");
+        assignmentDTO.setOwner(profile2);
+
+        profiles.add(profile1);
+        profiles.add(profile2);
+
+        assignmentDTO.setAssignees(profiles);
+
+        ContextDataDTO contextData = new ContextDataDTO();
+        Map<String, String> context = new HashMap<>();
+        context.put("classId", UUID.randomUUID().toString());
+        contextData.setContextMap(context);
+
+        Map<String, String> metadata = new HashMap<>();
+        context.put("title", "Math 1st Grade");
+        context.put("description", "First Partial");
+        contextData.setMetadata(metadata);
+
+        assignmentDTO.setContextData(contextData);
+
+        ResponseEntity<?> result = controller.getContext(UUID.randomUUID());
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
+        assertNotNull("Body is null", result.getBody());
+        assertEquals("Body is not an assignmentDTO class", AssignmentDTO.class, result.getBody().getClass());
+    }
+    
 }

@@ -1,15 +1,21 @@
 package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.EventDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,18 +67,17 @@ public class ContextController {
         if (!constraintViolations.isEmpty()) {
             List<String> constraintErrors = new ArrayList<>();
             for (ConstraintViolation violation : constraintViolations) {
-                constraintErrors.add(String.format("Error in %s: %s" , violation.getPropertyPath(), violation.getMessage()));
+                constraintErrors.add(String.format("Error in %s: %s", violation.getPropertyPath(), violation.getMessage()));
             }
             result.put("Errors", constraintErrors);
             return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
         }
 
         //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
-        Context context =  null;
+        Context context = null;
         if (Lms.quizzes.equals(Lms.valueOf(lmsId))) {
             context = contextServiceDummy.createContext(assignmentDTO, Lms.valueOf(lmsId));
-        }
-        else {
+        } else {
             context = contextService.createContext(assignmentDTO, Lms.valueOf(lmsId));
         }
 
@@ -121,6 +126,60 @@ public class ContextController {
                                                 @RequestBody ProfileIdDTO requestBody) throws Exception {
 //        contextService.endContext();
         return new ResponseEntity<>(null, HttpStatus.OK);
+    }
+
+
+    @ApiOperation(value = "Get context", notes = "Gets the context information.")
+    @ApiResponses({@ApiResponse(code = 200, message = "assignmentDTO", response = AssignmentDTO.class)})
+    @RequestMapping(path = "/v1/context/{contextId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getContext(@PathVariable UUID contextId) throws Exception {
+
+        AssignmentDTO assignmentDTO = new AssignmentDTO();
+
+        CollectionDTO collection = new CollectionDTO();
+        collection.setId(UUID.randomUUID().toString());
+        assignmentDTO.setCollection(collection);
+
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId(UUID.randomUUID().toString());
+        owner.setFirstName("Michael");
+        owner.setLastName("Guth");
+        owner.setUsername("migut");
+        assignmentDTO.setOwner(owner);
+
+        List<ProfileDTO> profiles = new ArrayList<>();
+
+        ProfileDTO profile1 = new ProfileDTO();
+        profile1.setId(UUID.randomUUID().toString());
+        profile1.setFirstName("Karol");
+        profile1.setLastName("Fernandez");
+        profile1.setUsername("karol1");
+
+        ProfileDTO profile2 = new ProfileDTO();
+        profile2.setId(UUID.randomUUID().toString());
+        profile2.setFirstName("Roger");
+        profile2.setLastName("Stevens");
+        profile2.setUsername("rogersteve");
+
+        profiles.add(profile1);
+        profiles.add(profile2);
+
+        assignmentDTO.setAssignees(profiles);
+
+        ContextDataDTO contextData = new ContextDataDTO();
+        Map<String, String> context = new HashMap<>();
+        context.put("classId", UUID.randomUUID().toString());
+        contextData.setContextMap(context);
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("title", "Math 1st Grade");
+        metadata.put("description", "First Partial");
+        contextData.setMetadata(metadata);
+
+        assignmentDTO.setContextData(contextData);
+
+        return new ResponseEntity<>(assignmentDTO, HttpStatus.OK);
     }
 
 }
