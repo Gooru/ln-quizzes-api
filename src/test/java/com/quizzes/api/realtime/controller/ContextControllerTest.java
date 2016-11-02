@@ -361,11 +361,13 @@ public class ContextControllerTest {
 
         assertNotNull("Collection id is null", result.getBody().getCollection().getId());
 
+        assertNotNull("Owner id is null", result.getBody().getOwner().getId());
         assertEquals("Wrong first name in owner", "Michael", result.getBody().getOwner().getFirstName());
         assertEquals("Wrong last name in owner", "Guth", result.getBody().getOwner().getLastName());
         assertEquals("Wrong username in owner", "migut", result.getBody().getOwner().getUsername());
 
         assertEquals("Wrong list size for assignees", 2, result.getBody().getAssignees().size());
+        assertNotNull("Profile1 id is null", result.getBody().getAssignees().get(0).getId());
         assertEquals("Wrong first name in owner", "Karol", result.getBody().getAssignees().get(0).getFirstName());
         assertEquals("Wrong last name in owner", "Fernandez", result.getBody().getAssignees().get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", result.getBody().getAssignees().get(0).getUsername());
