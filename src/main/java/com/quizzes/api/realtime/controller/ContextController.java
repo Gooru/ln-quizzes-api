@@ -136,7 +136,7 @@ public class ContextController {
             value = "Finish event",
             notes = "Sends event to finish the current collection attempt.")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Finish the current attempt"),
+        @ApiResponse(code = 200, message = "Finish the current attempt", response = Object.class),
         @ApiResponse(code = 500, message = "Bad request")
     })
     @RequestMapping(path = "/v1/context/{contextId}/event/end",
