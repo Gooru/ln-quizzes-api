@@ -358,7 +358,7 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<AssignmentDTO> result = controller.getContext(UUID.randomUUID());
+        ResponseEntity<AssignmentDTO> result = controller.getContext(UUID.randomUUID(), "its_learning" , UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
