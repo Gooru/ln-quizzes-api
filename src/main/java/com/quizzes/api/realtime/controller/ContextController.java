@@ -1,10 +1,13 @@
 package com.quizzes.api.realtime.controller;
 
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileIdDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
-import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -35,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 
 @CrossOrigin
 @RestController
@@ -70,7 +72,7 @@ public class ContextController {
         if (!constraintViolations.isEmpty()) {
             List<String> constraintErrors = new ArrayList<>();
             for (ConstraintViolation violation : constraintViolations) {
-                constraintErrors.add(String.format("Error in %s: %s" , violation.getPropertyPath(), violation.getMessage()));
+                constraintErrors.add(String.format("Error in %s: %s", violation.getPropertyPath(), violation.getMessage()));
             }
             //TODO: the validations are on hold, we're using mocks in the meantime
 //            result.put("Errors", constraintErrors);
@@ -78,11 +80,10 @@ public class ContextController {
         }
 
         //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
-        Context context =  null;
+        Context context = null;
         if (Lms.quizzes.equals(Lms.valueOf(lmsId))) {
             context = contextServiceDummy.createContext(assignmentDTO, Lms.valueOf(lmsId));
-        }
-        else {
+        } else {
             context = contextService.createContext(assignmentDTO, Lms.valueOf(lmsId));
         }
 
@@ -97,8 +98,8 @@ public class ContextController {
             notes = "Sends event to start the Collection attempt associated to the context. " +
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
-    @ApiResponses({ @ApiResponse(code = 200, message = "Start Context Event", response = StartContextEventResponseDTO.class),
-                    @ApiResponse(code = 500, message = "Bad request")})
+    @ApiResponses({@ApiResponse(code = 200, message = "Start Context Event", response = StartContextEventResponseDTO.class),
+            @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -139,4 +140,61 @@ public class ContextController {
 //        contextService.endContext();
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
+
+    @ApiOperation(value = "Get context", notes = "Gets the context information.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "assignmentDTO", response = AssignmentDTO.class),
+            @ApiResponse(code = 400, message = "Invalid UUID")
+    })
+    @RequestMapping(path = "/v1/context/{contextId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AssignmentDTO> getContext(@PathVariable UUID contextId) throws Exception {
+
+        AssignmentDTO assignmentDTO = new AssignmentDTO();
+
+        CollectionDTO collection = new CollectionDTO();
+        collection.setId(UUID.randomUUID().toString());
+        assignmentDTO.setCollection(collection);
+
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId(UUID.randomUUID().toString());
+        owner.setFirstName("Michael");
+        owner.setLastName("Guth");
+        owner.setUsername("migut");
+        assignmentDTO.setOwner(owner);
+
+        List<ProfileDTO> profiles = new ArrayList<>();
+
+        ProfileDTO profile1 = new ProfileDTO();
+        profile1.setId(UUID.randomUUID().toString());
+        profile1.setFirstName("Karol");
+        profile1.setLastName("Fernandez");
+        profile1.setUsername("karol1");
+
+        ProfileDTO profile2 = new ProfileDTO();
+        profile2.setId(UUID.randomUUID().toString());
+        profile2.setFirstName("Roger");
+        profile2.setLastName("Stevens");
+        profile2.setUsername("rogersteve");
+
+        profiles.add(profile1);
+        profiles.add(profile2);
+
+        assignmentDTO.setAssignees(profiles);
+
+        ContextDataDTO contextData = new ContextDataDTO();
+        Map<String, String> context = new HashMap<>();
+        context.put("classId", UUID.randomUUID().toString());
+        contextData.setContextMap(context);
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("title", "Math 1st Grade");
+        metadata.put("description", "First Partial");
+        contextData.setMetadata(metadata);
+
+        assignmentDTO.setContextData(contextData);
+
+        return new ResponseEntity<>(assignmentDTO, HttpStatus.OK);
+    }
+
 }
