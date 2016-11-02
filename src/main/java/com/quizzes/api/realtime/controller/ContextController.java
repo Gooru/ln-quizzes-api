@@ -56,7 +56,7 @@ public class ContextController {
             value = "Creates an assignment",
             notes = "Creates an assignment of a collection (assessment) to a group of people (students) in a specified context, " +
                     "returning a generated Context ID.")
-    @ApiResponses({ @ApiResponse(code = 200, message = "Context ID", response = AssignContextResponseDTO.class),
+    @ApiResponses({@ApiResponse(code = 200, message = "Context ID", response = AssignContextResponseDTO.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/assignment",
             method = RequestMethod.POST,
@@ -136,15 +136,15 @@ public class ContextController {
             value = "Finish event",
             notes = "Sends event to finish the current collection attempt.")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Finish the current attempt", response = Object.class),
-        @ApiResponse(code = 500, message = "Bad request")
+            @ApiResponse(code = 200, message = "Finish the current attempt", response = Object.class),
+            @ApiResponse(code = 500, message = "Bad request")
     })
     @RequestMapping(path = "/v1/context/{contextId}/event/end",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> finishContextEvent(@PathVariable UUID contextId,
-                                                @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                                @RequestHeader(value = "profile-id") UUID profileId) {
+                                                   @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                   @RequestHeader(value = "profile-id") UUID profileId) {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -155,7 +155,9 @@ public class ContextController {
     })
     @RequestMapping(path = "/v1/context/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AssignmentDTO> getContext(@PathVariable UUID contextId) throws Exception {
+    public ResponseEntity<AssignmentDTO> getContext(@PathVariable UUID contextId,
+                                                    @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                    @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
         AssignmentDTO assignmentDTO = new AssignmentDTO();
 
