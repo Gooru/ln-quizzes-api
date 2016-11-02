@@ -1,11 +1,11 @@
 package com.quizzes.api.realtime.controller;
 
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
-import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
@@ -123,13 +123,20 @@ public class ContextController {
     }
 
 
-    @ApiOperation(value = "Register resource", notes = "Register resource")
-    @RequestMapping(path = "/v1/event/on-resource/{resourceId}/context/{contextId}",
-            method = RequestMethod.POST)
-    public ResponseEntity<?> onResourceEvent(@PathVariable String resourceId,
+    @ApiOperation(value = "Register resource",
+            notes = "Sends event to indicate current resource position and provides the data generated" +
+                    " in the previous resource (this value could be null in case there is not previous resource)")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK")})
+    @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> onResourceEvent(@PathVariable String resourceId,
                                              @PathVariable String contextId,
-                                             @RequestBody ProfileIdDTO requestBody) throws Exception {
-        return new ResponseEntity<>(null, HttpStatus.OK);
+                                             @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
+                                             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                             @RequestHeader(value = "profile-id") UUID profileId) {
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @ApiOperation(
