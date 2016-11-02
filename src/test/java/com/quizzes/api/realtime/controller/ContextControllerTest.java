@@ -18,9 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -361,21 +359,24 @@ public class ContextControllerTest {
 
         assertNotNull("Collection id is null", result.getBody().getCollection().getId());
 
-        assertNotNull("Owner id is null", result.getBody().getOwner().getId());
-        assertEquals("Wrong first name in owner", "Michael", result.getBody().getOwner().getFirstName());
-        assertEquals("Wrong last name in owner", "Guth", result.getBody().getOwner().getLastName());
-        assertEquals("Wrong username in owner", "migut", result.getBody().getOwner().getUsername());
+        ProfileDTO ownerResult = result.getBody().getOwner();
+        assertNotNull("Owner id is null", ownerResult.getId());
+        assertEquals("Wrong first name in owner", "Michael", ownerResult.getFirstName());
+        assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
+        assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
 
-        assertEquals("Wrong list size for assignees", 2, result.getBody().getAssignees().size());
-        assertNotNull("Profile1 id is null", result.getBody().getAssignees().get(0).getId());
-        assertEquals("Wrong first name in owner", "Karol", result.getBody().getAssignees().get(0).getFirstName());
-        assertEquals("Wrong last name in owner", "Fernandez", result.getBody().getAssignees().get(0).getLastName());
-        assertEquals("Wrong username in owner", "karol1", result.getBody().getAssignees().get(0).getUsername());
+        List<ProfileDTO> profiles = result.getBody().getAssignees();
+        assertEquals("Wrong list size for assignees", 2, profiles.size());
+        assertNotNull("Profile1 id is null", profiles.get(0).getId());
+        assertEquals("Wrong first name in owner", "Karol", profiles.get(0).getFirstName());
+        assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
+        assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        assertEquals("Wrong size inside context map", 1, result.getBody().getContextData().getContextMap().size());
-        assertEquals("Wrong size inside metadata", 2, result.getBody().getContextData().getMetadata().size());
-        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", result.getBody().getContextData().getMetadata().get("title"));
-        assertEquals("Key description with invalid value in metadata", "First Partial", result.getBody().getContextData().getMetadata().get("description"));
+        ContextDataDTO contextResult = result.getBody().getContextData();
+        assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
+        assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
+        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
+        assertEquals("Key description with invalid value in metadata", "First Partial", contextResult.getMetadata().get("description"));
     }
 
 }
