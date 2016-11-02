@@ -3,8 +3,11 @@ package com.quizzes.api.realtime.controller;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
-import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -36,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-
 @CrossOrigin
 @RestController
 @RequestMapping("/quizzes/api")
@@ -54,13 +56,14 @@ public class ContextController {
             value = "Creates an assignment",
             notes = "Creates an assignment of a collection (assessment) to a group of people (students) in a specified context, " +
                     "returning a generated Context ID.")
+    @ApiResponses({@ApiResponse(code = 200, message = "Context ID", response = AssignContextResponseDTO.class),
+            @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/assignment",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO assignmentDTO,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
-        Map<String, Object> result = new HashMap<>();
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -69,22 +72,22 @@ public class ContextController {
         if (!constraintViolations.isEmpty()) {
             List<String> constraintErrors = new ArrayList<>();
             for (ConstraintViolation violation : constraintViolations) {
-                constraintErrors.add(String.format("Error in %s: %s" , violation.getPropertyPath(), violation.getMessage()));
+                constraintErrors.add(String.format("Error in %s: %s", violation.getPropertyPath(), violation.getMessage()));
             }
-            result.put("Errors", constraintErrors);
-            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+            //TODO: the validations are on hold, we're using mocks in the meantime
+//            result.put("Errors", constraintErrors);
+//            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
         }
 
         //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
-        Context context =  null;
+        Context context = null;
         if (Lms.quizzes.equals(Lms.valueOf(lmsId))) {
             context = contextServiceDummy.createContext(assignmentDTO, Lms.valueOf(lmsId));
-        }
-        else {
+        } else {
             context = contextService.createContext(assignmentDTO, Lms.valueOf(lmsId));
         }
 
-        result.put("contextId", context.getId().toString());
+        AssignContextResponseDTO result = new AssignContextResponseDTO(context.getId());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -95,8 +98,8 @@ public class ContextController {
             notes = "Sends event to start the Collection attempt associated to the context. " +
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
-    @ApiResponses({ @ApiResponse(code = 200, message = "Start Context Event", response = StartContextEventResponseDTO.class),
-                    @ApiResponse(code = 500, message = "Bad request")})
+    @ApiResponses({@ApiResponse(code = 200, message = "Start Context Event", response = StartContextEventResponseDTO.class),
+            @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -136,12 +139,78 @@ public class ContextController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Register an event", notes = "Register an event")
-    @RequestMapping(path = "/v1/end/context/{contextId}",
-            method = RequestMethod.POST)
-    public ResponseEntity<?> finishContextEvent(@PathVariable String contextId,
-                                                @RequestBody ProfileIdDTO requestBody) throws Exception {
-//        contextService.endContext();
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    @ApiOperation(
+            value = "Finish event",
+            notes = "Sends event to finish the current collection attempt.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Finish the current attempt"),
+            @ApiResponse(code = 500, message = "Bad request")
+    })
+    @RequestMapping(path = "/v1/context/{contextId}/event/end",
+            method = RequestMethod.POST,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> finishContextEvent(@PathVariable UUID contextId,
+                                                   @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                   @RequestHeader(value = "profile-id") UUID profileId) {
+        return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @ApiOperation(value = "Get context", notes = "Gets the context information.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "assignmentDTO", response = AssignmentDTO.class),
+            @ApiResponse(code = 400, message = "Invalid UUID")
+    })
+    @RequestMapping(path = "/v1/context/{contextId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AssignmentDTO> getContext(@PathVariable UUID contextId,
+                                                    @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                    @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+
+        AssignmentDTO assignmentDTO = new AssignmentDTO();
+
+        CollectionDTO collection = new CollectionDTO();
+        collection.setId(UUID.randomUUID().toString());
+        assignmentDTO.setCollection(collection);
+
+        ProfileDTO owner = new ProfileDTO();
+        owner.setId(UUID.randomUUID().toString());
+        owner.setFirstName("Michael");
+        owner.setLastName("Guth");
+        owner.setUsername("migut");
+        assignmentDTO.setOwner(owner);
+
+        List<ProfileDTO> profiles = new ArrayList<>();
+
+        ProfileDTO profile1 = new ProfileDTO();
+        profile1.setId(UUID.randomUUID().toString());
+        profile1.setFirstName("Karol");
+        profile1.setLastName("Fernandez");
+        profile1.setUsername("karol1");
+
+        ProfileDTO profile2 = new ProfileDTO();
+        profile2.setId(UUID.randomUUID().toString());
+        profile2.setFirstName("Roger");
+        profile2.setLastName("Stevens");
+        profile2.setUsername("rogersteve");
+
+        profiles.add(profile1);
+        profiles.add(profile2);
+
+        assignmentDTO.setAssignees(profiles);
+
+        ContextDataDTO contextData = new ContextDataDTO();
+        Map<String, String> context = new HashMap<>();
+        context.put("classId", UUID.randomUUID().toString());
+        contextData.setContextMap(context);
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("title", "Math 1st Grade");
+        metadata.put("description", "First Partial");
+        contextData.setMetadata(metadata);
+
+        assignmentDTO.setContextData(contextData);
+
+        return new ResponseEntity<>(assignmentDTO, HttpStatus.OK);
+    }
+
 }
