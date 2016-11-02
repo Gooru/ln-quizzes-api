@@ -8,6 +8,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
+import com.quizzes.api.common.dto.controller.response.GetContextDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -157,27 +158,28 @@ public class ContextController {
 
     @ApiOperation(value = "Get context", notes = "Gets the context information.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "assignmentDTO", response = AssignmentDTO.class),
+            @ApiResponse(code = 200, message = "assignmentDTO", response = GetContextDTO.class),
             @ApiResponse(code = 400, message = "Invalid UUID")
     })
     @RequestMapping(path = "/v1/context/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AssignmentDTO> getContext(@PathVariable UUID contextId,
+    public ResponseEntity<GetContextDTO> getContext(@PathVariable UUID contextId,
                                                     @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                     @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        AssignmentDTO assignmentDTO = new AssignmentDTO();
+        GetContextDTO context = new GetContextDTO();
+        context.setId(UUID.randomUUID());
 
         CollectionDTO collection = new CollectionDTO();
         collection.setId(UUID.randomUUID().toString());
-        assignmentDTO.setCollection(collection);
+        context.setCollection(collection);
 
         ProfileDTO owner = new ProfileDTO();
         owner.setId(UUID.randomUUID().toString());
         owner.setFirstName("Michael");
         owner.setLastName("Guth");
         owner.setUsername("migut");
-        assignmentDTO.setOwner(owner);
+        context.setOwner(owner);
 
         List<ProfileDTO> profiles = new ArrayList<>();
 
@@ -196,44 +198,45 @@ public class ContextController {
         profiles.add(profile1);
         profiles.add(profile2);
 
-        assignmentDTO.setAssignees(profiles);
+        context.setAssignees(profiles);
 
         ContextDataDTO contextData = new ContextDataDTO();
-        Map<String, String> context = new HashMap<>();
-        context.put("classId", UUID.randomUUID().toString());
-        contextData.setContextMap(context);
+        Map<String, String> contextMap = new HashMap<>();
+        contextMap.put("classId", UUID.randomUUID().toString());
+        contextData.setContextMap(contextMap);
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put("title", "Math 1st Grade");
         metadata.put("description", "First Partial");
         contextData.setMetadata(metadata);
 
-        assignmentDTO.setContextData(contextData);
+        context.setContextData(contextData);
 
-        return new ResponseEntity<>(assignmentDTO, HttpStatus.OK);
+        return new ResponseEntity<>(context, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "assignmentDTO", responseContainer = "List", response = AssignmentDTO.class),
+            @ApiResponse(code = 200, message = "assignmentDTO", responseContainer = "List", response = GetContextDTO.class),
     })
     @RequestMapping(path = "/v1/contexts/created",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<AssignmentDTO>> getContextsCreated(@RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+    public ResponseEntity<List<GetContextDTO>> getContextsCreated(@RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                                   @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        AssignmentDTO assignmentDTO = new AssignmentDTO();
+        GetContextDTO context = new GetContextDTO();
+        context.setId(UUID.randomUUID());
 
         CollectionDTO collection = new CollectionDTO();
         collection.setId(UUID.randomUUID().toString());
-        assignmentDTO.setCollection(collection);
+        context.setCollection(collection);
 
         ProfileDTO owner = new ProfileDTO();
         owner.setId(UUID.randomUUID().toString());
         owner.setFirstName("Michael");
         owner.setLastName("Guth");
         owner.setUsername("migut");
-        assignmentDTO.setOwner(owner);
+        context.setOwner(owner);
 
         List<ProfileDTO> profiles = new ArrayList<>();
 
@@ -252,22 +255,22 @@ public class ContextController {
         profiles.add(profile1);
         profiles.add(profile2);
 
-        assignmentDTO.setAssignees(profiles);
+        context.setAssignees(profiles);
 
         ContextDataDTO contextData = new ContextDataDTO();
-        Map<String, String> context = new HashMap<>();
-        context.put("classId", UUID.randomUUID().toString());
-        contextData.setContextMap(context);
+        Map<String, String> contextMap = new HashMap<>();
+        contextMap.put("classId", UUID.randomUUID().toString());
+        contextData.setContextMap(contextMap);
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put("title", "Math 1st Grade");
         metadata.put("description", "First Partial");
         contextData.setMetadata(metadata);
 
-        assignmentDTO.setContextData(contextData);
+        context.setContextData(contextData);
 
-        List<AssignmentDTO> list = new ArrayList<>();
-        list.add(assignmentDTO);
+        List<GetContextDTO> list = new ArrayList<>();
+        list.add(context);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }

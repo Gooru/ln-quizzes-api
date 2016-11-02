@@ -9,6 +9,7 @@ import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
+import com.quizzes.api.common.dto.controller.response.GetContextDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -364,12 +365,13 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<AssignmentDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+        ResponseEntity<GetContextDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Body is null", result.getBody());
 
+        assertNotNull("Context id is null", result.getBody().getId());
         assertNotNull("Collection id is null", result.getBody().getCollection().getId());
 
         ProfileDTO ownerResult = result.getBody().getOwner();
@@ -395,14 +397,15 @@ public class ContextControllerTest {
     @Test
     public void getContextsCreated() throws Exception {
 
-        ResponseEntity<List<AssignmentDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+        ResponseEntity<List<GetContextDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        AssignmentDTO result = response.getBody().get(0);
+        GetContextDTO result = response.getBody().get(0);
         assertNotNull("Body is null", result);
+        assertNotNull("Context id is null", result.getId());
 
         assertNotNull("Collection id is null", result.getCollection().getId());
 
