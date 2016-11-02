@@ -6,6 +6,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
+import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
@@ -343,7 +344,8 @@ public class ContextControllerTest {
         AnswerDTO answerDTO = new AnswerDTO("1");
         List<AnswerDTO> answerDTOList = new ArrayList<>();
         answerDTOList.add(answerDTO);
-        OnResourceEventRequestDTO requestBody = new OnResourceEventRequestDTO(UUID.randomUUID(), 120, 3, answerDTOList);
+        ResourceDTO resource = new ResourceDTO(UUID.randomUUID(), 120, 3, answerDTOList);
+        OnResourceEventRequestDTO requestBody = new OnResourceEventRequestDTO(resource);
 
         ResponseEntity<?> result = controller.onResourceEvent("1", "1", requestBody, "quizzes", UUID.randomUUID());
         assertNotNull("Response is Null", result);

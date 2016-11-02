@@ -130,13 +130,13 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> onResourceEvent(@PathVariable String resourceId,
+    public ResponseEntity<Void> onResourceEvent(@PathVariable String resourceId,
                                              @PathVariable String contextId,
                                              @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
                                              @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                              @RequestHeader(value = "profile-id") UUID profileId) {
 
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @ApiOperation(
