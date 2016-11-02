@@ -29,7 +29,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -324,7 +323,7 @@ public class ContextControllerTest {
         ResponseEntity<?> result = controller.startContextEvent("123", "quizzes", UUID.randomUUID());
         Object resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDTO.class);
-        assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO)resultBody).getCurrentResourceId());
+        assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO) resultBody).getCurrentResourceId());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }
@@ -354,31 +353,27 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        AssignmentDTO assignmentDTO = new AssignmentDTO();
-
-        CollectionDTO collection = new CollectionDTO();
-        assignmentDTO.setCollection(collection);
-
-        ProfileDTO owner = new ProfileDTO();
-        assignmentDTO.setOwner(owner);
-
-        List<ProfileDTO> profiles = new ArrayList<>();
-        ProfileDTO profile1 = new ProfileDTO();
-        ProfileDTO profile2 = new ProfileDTO();
-        profiles.add(profile1);
-        profiles.add(profile2);
-
-        assignmentDTO.setAssignees(profiles);
-
-        ContextDataDTO contextData = new ContextDataDTO();
-        assignmentDTO.setContextData(contextData);
-
-        ResponseEntity<?> result = controller.getContext(UUID.randomUUID());
+        ResponseEntity<AssignmentDTO> result = controller.getContext(UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Body is null", result.getBody());
-        assertEquals("Body is not an assignmentDTO class", AssignmentDTO.class, result.getBody().getClass());
+
+        assertNotNull("Collection id is null", result.getBody().getCollection().getId());
+
+        assertEquals("Wrong first name in owner", "Michael", result.getBody().getOwner().getFirstName());
+        assertEquals("Wrong last name in owner", "Guth", result.getBody().getOwner().getLastName());
+        assertEquals("Wrong username in owner", "migut", result.getBody().getOwner().getUsername());
+
+        assertEquals("Wrong list size for assignees", 2, result.getBody().getAssignees().size());
+        assertEquals("Wrong first name in owner", "Karol", result.getBody().getAssignees().get(0).getFirstName());
+        assertEquals("Wrong last name in owner", "Fernandez", result.getBody().getAssignees().get(0).getLastName());
+        assertEquals("Wrong username in owner", "karol1", result.getBody().getAssignees().get(0).getUsername());
+
+        assertEquals("Wrong size inside context map", 1, result.getBody().getContextData().getContextMap().size());
+        assertEquals("Wrong size inside metadata", 2, result.getBody().getContextData().getMetadata().size());
+        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", result.getBody().getContextData().getMetadata().get("title"));
+        assertEquals("Key description with invalid value in metadata", "First Partial", result.getBody().getContextData().getMetadata().get("description"));
     }
 
 }
