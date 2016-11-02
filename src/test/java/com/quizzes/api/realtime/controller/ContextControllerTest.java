@@ -80,7 +80,7 @@ public class ContextControllerTest {
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         Object resultBody = result.getBody();
         assertSame(resultBody.getClass(), AssignContextResponseDTO.class);
-        assertEquals("Response body is wrong", ((AssignContextResponseDTO)resultBody).getId(), context.getId());
+        assertEquals("Response body is wrong", ((AssignContextResponseDTO) resultBody).getId(), context.getId());
     }
 
     @Ignore
@@ -349,7 +349,7 @@ public class ContextControllerTest {
 
     @Test
     public void finishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning" , UUID.randomUUID());
+        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning", UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
@@ -358,7 +358,7 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<AssignmentDTO> result = controller.getContext(UUID.randomUUID(), "its_learning" , UUID.randomUUID());
+        ResponseEntity<AssignmentDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -380,6 +380,40 @@ public class ContextControllerTest {
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
         ContextDataDTO contextResult = result.getBody().getContextData();
+        assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
+        assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
+        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
+        assertEquals("Key description with invalid value in metadata", "First Partial", contextResult.getMetadata().get("description"));
+    }
+
+    @Test
+    public void getContextsCreated() throws Exception {
+
+        ResponseEntity<List<AssignmentDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+
+        assertNotNull("Response is Null", response);
+        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
+        assertEquals("Wrong list size for assignments", 1, response.getBody().size());
+
+        AssignmentDTO result = response.getBody().get(0);
+        assertNotNull("Body is null", result);
+
+        assertNotNull("Collection id is null", result.getCollection().getId());
+
+        ProfileDTO ownerResult = result.getOwner();
+        assertNotNull("Owner id is null", ownerResult.getId());
+        assertEquals("Wrong first name in owner", "Michael", ownerResult.getFirstName());
+        assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
+        assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
+
+        List<ProfileDTO> profiles = result.getAssignees();
+        assertEquals("Wrong list size for assignees", 2, profiles.size());
+        assertNotNull("Profile1 id is null", profiles.get(0).getId());
+        assertEquals("Wrong first name in owner", "Karol", profiles.get(0).getFirstName());
+        assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
+        assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
+
+        ContextDataDTO contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
