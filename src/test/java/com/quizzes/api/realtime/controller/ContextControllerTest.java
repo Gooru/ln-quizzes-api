@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -348,13 +349,10 @@ public class ContextControllerTest {
 
     @Test
     public void finishContextEvent() throws Exception {
-        ProfileIdDTO requestBody = new ProfileIdDTO();
-        requestBody.setProfileId(UUID.randomUUID());
-
-        ResponseEntity<?> result = controller.finishContextEvent("externalId", requestBody);
+        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning" , UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-        assertEquals("Body is not null", null, result.getBody());
+        assertNull("Body is not null", result.getBody());
     }
 
     @Test
