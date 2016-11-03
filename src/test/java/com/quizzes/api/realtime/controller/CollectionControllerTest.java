@@ -1,6 +1,8 @@
 package com.quizzes.api.realtime.controller;
 
 import com.google.common.collect.Lists;
+import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.service.CollectionServiceImpl;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import org.junit.Test;
@@ -10,15 +12,18 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,6 +38,16 @@ public class CollectionControllerTest {
     private CollectionServiceImpl collectionServiceImpl;
 
     HttpServletResponse response = mock(HttpServletResponse.class);
+
+    @Test
+    public void getCollection() throws Exception {
+
+        ResponseEntity<CollectionDataDTO> result = collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertNotNull("Response Body is Null", result.getBody());
+        assertSame(result.getBody().getClass(), CollectionDataDTO.class);
+    }
 
     @Test
     public void findCollectionOnAir() throws Exception {
