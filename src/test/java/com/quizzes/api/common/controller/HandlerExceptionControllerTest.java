@@ -49,12 +49,12 @@ public class HandlerExceptionControllerTest {
 
     @Test
     public void handleContentNotFoundException() throws Exception {
-        ContentNotFoundException exceptionMock = new ContentNotFoundException("the param");
+        ContentNotFoundException exceptionMock = new ContentNotFoundException("We couldn't find the param");
         ExceptionMessage result = controller.handleContentNotFoundException(exceptionMock);
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong exception", "ContentNotFoundException", result.getException());
-        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong status code", HttpStatus.NOT_FOUND.value(), result.getStatus());
         assertEquals("Wrong message exception", "We couldn't find the param", result.getMessage());
     }
 

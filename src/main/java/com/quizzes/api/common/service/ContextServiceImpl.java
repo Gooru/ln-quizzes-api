@@ -70,7 +70,7 @@ public class ContextServiceImpl implements ContextService {
         Context context = contextRepository.findById(contextId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
-            throw new ContentNotFoundException("a context with id :" + contextId);
+            throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
         context.setContextData(new Gson().toJson(contextData));
         return contextRepository.save(context);
