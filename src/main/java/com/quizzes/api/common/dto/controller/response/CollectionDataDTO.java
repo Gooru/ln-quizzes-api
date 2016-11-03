@@ -8,9 +8,9 @@ public class CollectionDataDTO {
     boolean isCollection;
     List<CollectionDataResourceDTO> resources;
 
-    public CollectionDataDTO(UUID id, boolean isResource, List<CollectionDataResourceDTO> resources) {
+    public CollectionDataDTO(UUID id, boolean isCollection, List<CollectionDataResourceDTO> resources) {
         this.id = id;
-        this.isCollection = isResource;
+        this.isCollection = isCollection;
         this.resources = resources;
     }
 
@@ -18,7 +18,7 @@ public class CollectionDataDTO {
         return id;
     }
 
-    public boolean isCollection() {
+    public boolean getIsCollection() {
         return isCollection;
     }
 

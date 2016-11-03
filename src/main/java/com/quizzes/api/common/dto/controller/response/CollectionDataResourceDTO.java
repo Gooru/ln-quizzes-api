@@ -17,7 +17,7 @@ public class CollectionDataResourceDTO {
         return id;
     }
 
-    public boolean isResource() {
+    public boolean getIsResource() {
         return isResource;
     }
 

@@ -15,7 +15,7 @@ public class ChoiceDTO {
         return text;
     }
 
-    public boolean isFixed() {
+    public boolean getIsFixed() {
         return isFixed;
     }
 

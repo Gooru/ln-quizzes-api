@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,7 +58,9 @@ public class CollectionController extends AbstractRealTimeController {
     @RequestMapping(path = "/v1/collection/{collectionId}",
                     method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionDataDTO> getCollection(@PathVariable UUID collectionId) throws Exception {
+    public ResponseEntity<CollectionDataDTO> getCollection(@PathVariable UUID collectionId,
+                                                           @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                           @RequestHeader(value = "profile-id") UUID profileId) {
 
         ChoiceDTO choiceDTO = new ChoiceDTO("mocked text", false, "mocked value");
         List<ChoiceDTO> choiceDTOList = new ArrayList<>();
