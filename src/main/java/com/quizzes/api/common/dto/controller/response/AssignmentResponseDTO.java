@@ -5,11 +5,11 @@ import com.quizzes.api.common.dto.controller.AssignmentDTO;
 
 import java.util.UUID;
 
-public class GetContextDTO extends AssignmentDTO {
+public class AssignmentResponseDTO extends AssignmentDTO {
 
     private UUID id;
 
-    public GetContextDTO() {
+    public AssignmentResponseDTO() {
     }
 
     public UUID getId() {

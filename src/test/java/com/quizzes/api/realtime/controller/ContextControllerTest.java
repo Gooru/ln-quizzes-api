@@ -9,7 +9,7 @@ import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
-import com.quizzes.api.common.dto.controller.response.GetContextDTO;
+import com.quizzes.api.common.dto.controller.response.AssignmentResponseDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -365,7 +365,7 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<GetContextDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+        ResponseEntity<AssignmentResponseDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -397,13 +397,13 @@ public class ContextControllerTest {
     @Test
     public void getContextsCreated() throws Exception {
 
-        ResponseEntity<List<GetContextDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+        ResponseEntity<List<AssignmentResponseDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        GetContextDTO result = response.getBody().get(0);
+        AssignmentResponseDTO result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
