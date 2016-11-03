@@ -1,14 +1,12 @@
 package com.quizzes.api.realtime.controller;
 
-import com.quizzes.api.common.dto.controller.request.ContextDataRequestDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDTO;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
-import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AssignmentResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
@@ -353,11 +351,11 @@ public class ContextController {
             method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AssignContextResponseDTO> updateContext(
             @PathVariable UUID contextId,
-            @RequestBody ContextDataRequestDTO contextDataRequestDTO,
+            @RequestBody ContextPutRequestDTO contextPutRequestDTO,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        Context context = contextService.update(contextId, contextDataRequestDTO.getContextData());
+        Context context = contextService.update(contextId, contextPutRequestDTO);
 
         if(context == null || context.getId() == null){
             throw new IllegalArgumentException("Error trying to get the updated context");

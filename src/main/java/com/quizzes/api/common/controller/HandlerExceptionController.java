@@ -28,9 +28,9 @@ public class HandlerExceptionController {
     /**
      * Handles exceptions when content was not found
      *
-     * @return Content Not Found and status 400
+     * @return Content Not Found and status 404
      */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(value = ContentNotFoundException.class)
     public ExceptionMessage handleContentNotFoundException(ContentNotFoundException e) {
         return new ExceptionMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(),

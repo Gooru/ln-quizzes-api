@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.ContextPutRequestDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -66,13 +68,16 @@ public class ContextServiceImpl implements ContextService {
     }
 
     @Override
-    public Context update(UUID contextId, ContextDataDTO contextData) {
+    public Context update(UUID contextId, ContextPutRequestDTO contextPutRequestDTO) {
+        Gson gson = new Gson();
         Context context = contextRepository.findById(contextId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
-        context.setContextData(new Gson().toJson(contextData));
+        ContextDataDTO contextDataDTO = gson.fromJson(context.getContextData(), ContextDataDTO.class);
+        contextDataDTO.setMetadata(contextPutRequestDTO.getContextData().getMetadata());
+        context.setContextData(gson.toJson(contextDataDTO));
         return contextRepository.save(context);
     }
 

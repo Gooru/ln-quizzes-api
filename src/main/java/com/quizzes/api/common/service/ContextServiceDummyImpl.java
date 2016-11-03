@@ -1,5 +1,6 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.dto.ContextPutRequestDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.model.enums.Lms;
@@ -21,7 +22,7 @@ public class ContextServiceDummyImpl implements ContextService {
     }
 
     @Override
-    public Context update(UUID context, ContextDataDTO contextData) {
+    public Context update(UUID context, ContextPutRequestDTO contextPutRequestDTO) {
         return null;
     }
 

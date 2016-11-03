@@ -5,14 +5,13 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.dto.controller.request.ContextDataRequestDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDTO;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AssignmentResponseDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
-import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -472,12 +471,12 @@ public class ContextControllerTest {
     public void updateContext() throws Exception {
         Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
                 UUID.randomUUID(), "{\"context\":\"value\"}", null);
-        when(contextService.update(any(UUID.class), any(ContextDataDTO.class))).thenReturn(contextResult);
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDTO.class))).thenReturn(contextResult);
 
         ResponseEntity<AssignContextResponseDTO> result = controller.updateContext(UUID.randomUUID(),
-                new ContextDataRequestDTO(), "its_learning", UUID.randomUUID());
+                new ContextPutRequestDTO(), "its_learning", UUID.randomUUID());
 
-        verify(contextService, times(1)).update(any(UUID.class), any(ContextDataDTO.class));
+        verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDTO.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -486,9 +485,9 @@ public class ContextControllerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateContextException() throws Exception {
-        when(contextService.update(any(UUID.class), any(ContextDataDTO.class))).thenReturn(null);
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDTO.class))).thenReturn(null);
         ResponseEntity<AssignContextResponseDTO> result = controller.updateContext(UUID.randomUUID(),
-                new ContextDataRequestDTO(), "its_learning", UUID.randomUUID());
+                new ContextPutRequestDTO(), "its_learning", UUID.randomUUID());
     }
 
 }
