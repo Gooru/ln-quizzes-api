@@ -33,7 +33,7 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = ContentNotFoundException.class)
     public ExceptionMessage handleContentNotFoundException(ContentNotFoundException e) {
-        return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(),
+        return new ExceptionMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(),
                 ContentNotFoundException.class.getSimpleName());
     }
 
