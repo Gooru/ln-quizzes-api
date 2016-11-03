@@ -15,6 +15,7 @@ import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -351,6 +352,7 @@ public class ContextController {
             method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AssignContextResponseDTO> updateContext(
             @PathVariable UUID contextId,
+            @ApiParam(value = "Json body", required = true, name = "Body")
             @RequestBody ContextPutRequestDTO contextPutRequestDTO,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
