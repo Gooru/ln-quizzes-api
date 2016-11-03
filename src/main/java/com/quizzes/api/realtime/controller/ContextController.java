@@ -345,7 +345,7 @@ public class ContextController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
+    @ApiOperation(value = "Update context", notes = "Update the context metadata.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "AssignContextResponseDTO", response = AssignContextResponseDTO.class),
     })
