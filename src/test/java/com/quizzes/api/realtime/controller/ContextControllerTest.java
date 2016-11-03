@@ -5,12 +5,14 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
+import com.quizzes.api.common.dto.controller.request.ContextDataRequestDTO;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AssignmentResponseDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -35,6 +37,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -462,6 +466,29 @@ public class ContextControllerTest {
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
         assertEquals("Key description with invalid value in metadata", "Second Partial", contextResult.getMetadata().get("description"));
+    }
+
+    @Test
+    public void updateContext() throws Exception {
+        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
+                UUID.randomUUID(), "{\"context\":\"value\"}", null);
+        when(contextService.update(any(UUID.class), any(ContextDataDTO.class))).thenReturn(contextResult);
+
+        ResponseEntity<AssignContextResponseDTO> result = controller.updateContext(UUID.randomUUID(),
+                new ContextDataRequestDTO(), "its_learning", UUID.randomUUID());
+
+        verify(contextService, times(1)).update(any(UUID.class), any(ContextDataDTO.class));
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Invalid status code", contextResult.getId(), result.getBody().getId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void updateContextException() throws Exception {
+        when(contextService.update(any(UUID.class), any(ContextDataDTO.class))).thenReturn(null);
+        ResponseEntity<AssignContextResponseDTO> result = controller.updateContext(UUID.randomUUID(),
+                new ContextDataRequestDTO(), "its_learning", UUID.randomUUID());
     }
 
 }

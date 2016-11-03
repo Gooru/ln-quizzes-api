@@ -1,5 +1,6 @@
 package com.quizzes.api.common.controller;
 
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,18 @@ public class HandlerExceptionController {
     public ExceptionMessage handleInvalidJsonPropertiesException(MissingJsonPropertiesException e) {
         return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(),
                 MissingJsonPropertiesException.class.getSimpleName());
+    }
+
+    /**
+     * Handles exceptions when content was not found
+     *
+     * @return Content Not Found and status 400
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = ContentNotFoundException.class)
+    public ExceptionMessage handleContentNotFoundException(ContentNotFoundException e) {
+        return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(),
+                ContentNotFoundException.class.getSimpleName());
     }
 
     /**

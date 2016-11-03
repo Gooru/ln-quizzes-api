@@ -1,5 +1,8 @@
 package com.quizzes.api.realtime.controller;
 
+import com.quizzes.api.common.dto.controller.request.ContextDataRequestDTO;
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
@@ -340,6 +343,27 @@ public class ContextController {
         list.add(assignmentResponseDTO);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "AssignContextResponseDTO", response = AssignContextResponseDTO.class),
+    })
+    @RequestMapping(path = "/v1/context/{contextId}",
+            method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AssignContextResponseDTO> updateContext(
+            @PathVariable UUID contextId,
+            @RequestBody ContextDataRequestDTO contextDataRequestDTO,
+            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+
+        Context context = contextService.update(contextId, contextDataRequestDTO.getContextData());
+
+        if(context == null || context.getId() == null){
+            throw new IllegalArgumentException("Error trying to get the updated context");
+        }
+
+        return new ResponseEntity<>(new AssignContextResponseDTO(context.getId()), HttpStatus.OK);
     }
 
 }

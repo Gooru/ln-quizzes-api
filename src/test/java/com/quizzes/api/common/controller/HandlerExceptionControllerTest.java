@@ -1,5 +1,6 @@
 package com.quizzes.api.common.controller;
 
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.junit.Test;
@@ -44,6 +45,17 @@ public class HandlerExceptionControllerTest {
         assertEquals("Wrong exception", "Exception", result.getException());
         assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
         assertEquals("Wrong message exception", "New Error", result.getMessage());
+    }
+
+    @Test
+    public void handleContentNotFoundException() throws Exception {
+        ContentNotFoundException exceptionMock = new ContentNotFoundException("the param");
+        ExceptionMessage result = controller.handleContentNotFoundException(exceptionMock);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", "ContentNotFoundException", result.getException());
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong message exception", "We couldn't find the param", result.getMessage());
     }
 
 }

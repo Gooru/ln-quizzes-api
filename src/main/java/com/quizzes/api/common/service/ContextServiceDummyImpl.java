@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 
@@ -17,6 +18,11 @@ public class ContextServiceDummyImpl implements ContextService {
         Context context = generateMockContext();
 
         return context;
+    }
+
+    @Override
+    public Context update(UUID context, ContextDataDTO contextData) {
+        return null;
     }
 
     public static Context generateMockContext(){
