@@ -1,5 +1,9 @@
 package com.quizzes.api.realtime.controller;
 
+import com.quizzes.api.common.dto.CommonContextGetDTO;
+import com.quizzes.api.common.dto.ContextGetAssignedDTO;
+import com.quizzes.api.common.dto.ContextGetCreatedDTO;
+import com.quizzes.api.common.dto.ContextGetDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
@@ -9,7 +13,6 @@ import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
-import com.quizzes.api.common.dto.controller.response.AssignmentResponseDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -365,7 +368,7 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<AssignmentResponseDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+        ResponseEntity<ContextGetDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -387,7 +390,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        ContextDataDTO contextResult = result.getBody().getContextData();
+        CommonContextGetDTO.ContextDataDTO contextResult = result.getBody().getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
@@ -397,23 +400,17 @@ public class ContextControllerTest {
     @Test
     public void getContextsCreated() throws Exception {
 
-        ResponseEntity<List<AssignmentResponseDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextGetCreatedDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        AssignmentResponseDTO result = response.getBody().get(0);
+        ContextGetCreatedDTO result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
         assertNotNull("Collection id is null", result.getCollection().getId());
-
-        ProfileDTO ownerResult = result.getOwner();
-        assertNotNull("Owner id is null", ownerResult.getId());
-        assertEquals("Wrong first name in owner", "Michael", ownerResult.getFirstName());
-        assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
-        assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
 
         List<ProfileDTO> profiles = result.getAssignees();
         assertEquals("Wrong list size for assignees", 2, profiles.size());
@@ -422,7 +419,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        ContextDataDTO contextResult = result.getContextData();
+        CommonContextGetDTO.ContextDataDTO contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
@@ -432,13 +429,13 @@ public class ContextControllerTest {
     @Test
     public void getAssignedContexts() throws Exception {
 
-        ResponseEntity<List<AssignmentResponseDTO>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextGetAssignedDTO>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        AssignmentResponseDTO result = response.getBody().get(0);
+        ContextGetAssignedDTO result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
@@ -450,14 +447,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
         assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
 
-        List<ProfileDTO> profiles = result.getAssignees();
-        assertEquals("Wrong list size for assignees", 2, profiles.size());
-        assertNotNull("Profile1 id is null", profiles.get(0).getId());
-        assertEquals("Wrong first name in owner", "Karol", profiles.get(0).getFirstName());
-        assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
-        assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
-
-        ContextDataDTO contextResult = result.getContextData();
+        CommonContextGetDTO.ContextDataDTO contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
