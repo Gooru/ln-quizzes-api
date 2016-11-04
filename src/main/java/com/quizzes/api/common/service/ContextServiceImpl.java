@@ -1,8 +1,11 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.ContextPutRequestDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -10,14 +13,20 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class ContextServiceImpl implements ContextService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     ProfileService profileService;
 
@@ -56,6 +65,20 @@ public class ContextServiceImpl implements ContextService {
         context = contextRepository.save(context);
 
         return context;
+    }
+
+    @Override
+    public Context update(UUID contextId, ContextPutRequestDTO contextPutRequestDTO) {
+        Gson gson = new Gson();
+        Context context = contextRepository.findById(contextId);
+        if (context == null) {
+            logger.error("Error updating context: " + contextId + " was not found");
+            throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
+        }
+        ContextDataDTO contextDataDTO = gson.fromJson(context.getContextData(), ContextDataDTO.class);
+        contextDataDTO.setMetadata(contextPutRequestDTO.getContextData().getMetadata());
+        context.setContextData(gson.toJson(contextDataDTO));
+        return contextRepository.save(context);
     }
 
     private Profile findProfile(ProfileDTO profileDTO, Lms lms) {
