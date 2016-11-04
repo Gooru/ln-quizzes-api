@@ -184,7 +184,7 @@ public class ContextServiceImplTest {
     @Test
     public void update() throws Exception {
         ContextPutRequestDTO contextDataMock = new ContextPutRequestDTO();
-        ContextPutRequestDTO.MetaDataDTO metadata = new ContextPutRequestDTO.MetaDataDTO();
+        ContextPutRequestDTO.MetadataDTO metadata = new ContextPutRequestDTO.MetadataDTO();
 
         Map<String, String> metadataMap = new HashMap<>();
         metadataMap.put("classId", "classId");

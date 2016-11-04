@@ -4,22 +4,22 @@ import java.util.Map;
 
 public class ContextPutRequestDTO {
 
-    private MetaDataDTO contextData;
+    private MetadataDTO contextData;
 
     public ContextPutRequestDTO() {
     }
 
-    public MetaDataDTO getContextData() {
+    public MetadataDTO getContextData() {
         return contextData;
     }
 
-    public void setContextData(MetaDataDTO contextData) {
+    public void setContextData(MetadataDTO contextData) {
         this.contextData = contextData;
     }
 
-    public static class MetaDataDTO{
+    public static class MetadataDTO {
 
-        public MetaDataDTO() {
+        public MetadataDTO() {
         }
 
         private Map<String, String> metadata;
