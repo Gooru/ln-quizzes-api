@@ -14,6 +14,7 @@ import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,8 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/assignment",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> assignContext(@RequestBody AssignmentDTO assignmentDTO,
+    public ResponseEntity<?> assignContext(@ApiParam(value = "Json body", required = true, name = "Body")
+                                               @RequestBody AssignmentDTO assignmentDTO,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
@@ -100,7 +102,7 @@ public class ContextController {
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Start Context Event", response = StartContextEventResponseDTO.class),
+            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDTO.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,
@@ -138,7 +140,8 @@ public class ContextController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> onResourceEvent(@PathVariable String resourceId,
                                                 @PathVariable String contextId,
-                                                @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
+                                                @ApiParam(value = "Json body", required = true, name = "Body")
+                                                    @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
                                                 @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                 @RequestHeader(value = "profile-id") UUID profileId) {
 
@@ -163,7 +166,7 @@ public class ContextController {
 
     @ApiOperation(value = "Get context", notes = "Gets the context information.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "assignmentDTO", response = AssignmentResponseDTO.class),
+            @ApiResponse(code = 200, message = "Body", response = AssignmentResponseDTO.class),
             @ApiResponse(code = 400, message = "Invalid UUID")
     })
     @RequestMapping(path = "/v1/context/{contextId}",
@@ -223,7 +226,7 @@ public class ContextController {
 
     @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "assignmentDTO", responseContainer = "List",
+            @ApiResponse(code = 200, message = "Body", responseContainer = "List",
                     response = AssignmentResponseDTO.class),
     })
     @RequestMapping(path = "/v1/contexts/created",
@@ -286,7 +289,7 @@ public class ContextController {
     @ApiOperation(value = "Get assigned contexts",
             notes = "Get all the ‘active’ contexts assigned to the assignee profile.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "assignmentDTO", responseContainer = "List",
+            @ApiResponse(code = 200, message = "Body", responseContainer = "List",
                     response = AssignmentResponseDTO.class),
     })
     @RequestMapping(path = "/v1/contexts/assigned",

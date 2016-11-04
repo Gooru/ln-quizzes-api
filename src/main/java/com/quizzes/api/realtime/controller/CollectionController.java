@@ -54,7 +54,7 @@ public class CollectionController extends AbstractRealTimeController {
 
     @ApiOperation(value ="Get a collection by it's collection ID",
                     notes = "Gets Collection data, including Resources and Answers (in case of Question).")
-    @ApiResponses(@ApiResponse(code = 200, message = "", response = CollectionDataDTO.class))
+    @ApiResponses(@ApiResponse(code = 200, message = "Body", response = CollectionDataDTO.class))
     @RequestMapping(path = "/v1/collection/{collectionId}",
                     method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
