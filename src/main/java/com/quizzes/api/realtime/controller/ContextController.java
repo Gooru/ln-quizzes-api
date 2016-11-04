@@ -352,7 +352,7 @@ public class ContextController {
             method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AssignContextResponseDTO> updateContext(
             @PathVariable UUID contextId,
-            @ApiParam(value = "Json body", required = true, name = "Body")
+            @ApiParam(value = "Body", required = true, name = "Body")
             @RequestBody ContextPutRequestDTO contextPutRequestDTO,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
