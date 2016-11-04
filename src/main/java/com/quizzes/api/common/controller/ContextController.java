@@ -1,4 +1,4 @@
-package com.quizzes.api.realtime.controller;
+package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.ContextGetAssignedDTO;
 import com.quizzes.api.common.dto.ContextGetCreatedDTO;
