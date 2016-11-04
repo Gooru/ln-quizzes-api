@@ -3,11 +3,12 @@ package com.quizzes.api.realtime.controller;
 import com.quizzes.api.common.dto.ContextGetAssignedDTO;
 import com.quizzes.api.common.dto.ContextGetCreatedDTO;
 import com.quizzes.api.common.dto.ContextGetDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDTO;
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
-import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
@@ -325,6 +326,28 @@ public class ContextController {
         list.add(contextGetAssignedDTO);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Update context", notes = "Update the context metadata.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "AssignContextResponseDTO", response = AssignContextResponseDTO.class),
+    })
+    @RequestMapping(path = "/v1/context/{contextId}",
+            method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AssignContextResponseDTO> updateContext(
+            @PathVariable UUID contextId,
+            @ApiParam(value = "Body", required = true, name = "Body")
+            @RequestBody ContextPutRequestDTO contextPutRequestDTO,
+            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+
+        Context context = contextService.update(contextId, contextPutRequestDTO);
+
+        if(context == null || context.getId() == null){
+            throw new IllegalArgumentException("Error trying to get the updated context");
+        }
+
+        return new ResponseEntity<>(new AssignContextResponseDTO(context.getId()), HttpStatus.OK);
     }
 
 }
