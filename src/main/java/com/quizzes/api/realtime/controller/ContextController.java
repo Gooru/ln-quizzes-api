@@ -107,9 +107,12 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> startContextEvent(@PathVariable String contextId,
+    public ResponseEntity<?> startContextEvent(@PathVariable UUID contextId,
                                                @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                @RequestHeader(value = "profile-id") UUID profileId) {
+
+        CollectionDTO collection = new CollectionDTO();
+        collection.setId(UUID.randomUUID().toString());
 
         AnswerDTO answer1 = new AnswerDTO("1");
         AnswerDTO answer2 = new AnswerDTO("1,3");
@@ -121,7 +124,8 @@ public class ContextController {
         List<AttemptDTO> attempts = new ArrayList<>();
         attempts.add(attempt);
 
-        StartContextEventResponseDTO result = new StartContextEventResponseDTO(UUID.randomUUID(), attempts);
+        StartContextEventResponseDTO result =
+                new StartContextEventResponseDTO(contextId, collection, UUID.randomUUID(), attempts);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

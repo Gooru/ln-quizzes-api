@@ -335,7 +335,7 @@ public class ContextControllerTest {
         ProfileIdDTO requestBody = new ProfileIdDTO();
         requestBody.setProfileId(UUID.randomUUID());
 
-        ResponseEntity<?> result = controller.startContextEvent("123", "quizzes", UUID.randomUUID());
+        ResponseEntity<?> result = controller.startContextEvent(UUID.randomUUID(), "quizzes", UUID.randomUUID());
         Object resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDTO.class);
         assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO) resultBody).getCurrentResourceId());
