@@ -2,9 +2,9 @@ package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetAssignedResponseResponseDto;
-import com.quizzes.api.common.dto.ContextGetCreatedResponseResponseDto;
-import com.quizzes.api.common.dto.ContextGetResponseResponseDto;
+import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
+import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
@@ -372,7 +372,7 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<ContextGetResponseResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+        ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -404,13 +404,13 @@ public class ContextControllerTest {
     @Test
     public void getContextsCreated() throws Exception {
 
-        ResponseEntity<List<ContextGetCreatedResponseResponseDto>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        ContextGetCreatedResponseResponseDto result = response.getBody().get(0);
+        ContextGetCreatedResponseDto result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
@@ -433,13 +433,13 @@ public class ContextControllerTest {
     @Test
     public void getAssignedContexts() throws Exception {
 
-        ResponseEntity<List<ContextGetAssignedResponseResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextGetAssignedResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        ContextGetAssignedResponseResponseDto result = response.getBody().get(0);
+        ContextGetAssignedResponseDto result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 

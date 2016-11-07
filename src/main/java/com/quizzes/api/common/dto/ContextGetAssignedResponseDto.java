@@ -2,11 +2,11 @@ package com.quizzes.api.common.dto;
 
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 
-public class ContextGetAssignedResponseResponseDto extends CommonContextGetResponseDto {
+public class ContextGetAssignedResponseDto extends CommonContextGetResponseDto {
 
     private ProfileDTO owner;
 
-    public ContextGetAssignedResponseResponseDto() {
+    public ContextGetAssignedResponseDto() {
     }
 
     public ProfileDTO getOwner() {
