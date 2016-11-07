@@ -1,7 +1,6 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.model.tables.pojos.Group;
-import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.GroupRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,10 +20,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupServiceImplTest {
+public class GroupServiceTest {
 
     @InjectMocks
-    private GroupService groupService = Mockito.spy(GroupServiceImpl.class);
+    private GroupService groupService = Mockito.spy(GroupService.class);
 
     @Mock
     private GroupRepository groupRepository;

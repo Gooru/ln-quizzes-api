@@ -1,20 +1,20 @@
 package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.controller.ContextController;
-import com.quizzes.api.common.dto.CommonContextGetDTO;
-import com.quizzes.api.common.dto.ContextGetAssignedDTO;
-import com.quizzes.api.common.dto.ContextGetCreatedDTO;
-import com.quizzes.api.common.dto.ContextGetDTO;
+import com.quizzes.api.common.dto.CommonContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
+import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.dto.ContextPutRequestDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
-import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
+import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -90,8 +90,8 @@ public class ContextControllerTest {
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         Object resultBody = result.getBody();
-        assertSame(resultBody.getClass(), AssignContextResponseDTO.class);
-        assertEquals("Response body is wrong", ((AssignContextResponseDTO) resultBody).getId(), context.getId());
+        assertSame(resultBody.getClass(), ContextIdResponseDto.class);
+        assertEquals("Response body is wrong", ((ContextIdResponseDto) resultBody).getId(), context.getId());
     }
 
     @Ignore
@@ -372,7 +372,7 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<ContextGetDTO> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+        ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -394,7 +394,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        CommonContextGetDTO.ContextDataDTO contextResult = result.getBody().getContextData();
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getBody().getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
@@ -404,13 +404,13 @@ public class ContextControllerTest {
     @Test
     public void getContextsCreated() throws Exception {
 
-        ResponseEntity<List<ContextGetCreatedDTO>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        ContextGetCreatedDTO result = response.getBody().get(0);
+        ContextGetCreatedResponseDto result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
@@ -423,7 +423,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        CommonContextGetDTO.ContextDataDTO contextResult = result.getContextData();
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
@@ -433,13 +433,13 @@ public class ContextControllerTest {
     @Test
     public void getAssignedContexts() throws Exception {
 
-        ResponseEntity<List<ContextGetAssignedDTO>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextGetAssignedResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        ContextGetAssignedDTO result = response.getBody().get(0);
+        ContextGetAssignedResponseDto result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
@@ -451,7 +451,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
         assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
 
-        CommonContextGetDTO.ContextDataDTO contextResult = result.getContextData();
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
@@ -462,12 +462,12 @@ public class ContextControllerTest {
     public void updateContext() throws Exception {
         Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
                 UUID.randomUUID(), "{\"context\":\"value\"}", null);
-        when(contextService.update(any(UUID.class), any(ContextPutRequestDTO.class))).thenReturn(contextResult);
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(contextResult);
 
-        ResponseEntity<AssignContextResponseDTO> result = controller.updateContext(UUID.randomUUID(),
-                new ContextPutRequestDTO(), "its_learning", UUID.randomUUID());
+        ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
+                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
 
-        verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDTO.class));
+        verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDto.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -476,9 +476,9 @@ public class ContextControllerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateContextException() throws Exception {
-        when(contextService.update(any(UUID.class), any(ContextPutRequestDTO.class))).thenReturn(null);
-        ResponseEntity<AssignContextResponseDTO> result = controller.updateContext(UUID.randomUUID(),
-                new ContextPutRequestDTO(), "its_learning", UUID.randomUUID());
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(null);
+        ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
+                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
     }
 
 }
