@@ -4,11 +4,11 @@ import com.quizzes.api.common.dto.ContextGetAssignedDTO;
 import com.quizzes.api.common.dto.ContextGetCreatedDTO;
 import com.quizzes.api.common.dto.ContextGetDTO;
 import com.quizzes.api.common.dto.ContextPutRequestDTO;
-import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
@@ -21,7 +21,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +65,7 @@ public class ContextController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@ApiParam(value = "Json body", required = true, name = "Body")
-                                               @RequestBody AssignmentDTO assignmentDTO,
+                                           @RequestBody AssignmentDTO assignmentDTO,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
@@ -143,7 +142,7 @@ public class ContextController {
     public ResponseEntity<Void> onResourceEvent(@PathVariable String resourceId,
                                                 @PathVariable String contextId,
                                                 @ApiParam(value = "Json body", required = true, name = "Body")
-                                                    @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
+                                                @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
                                                 @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                 @RequestHeader(value = "profile-id") UUID profileId) {
 
@@ -343,7 +342,7 @@ public class ContextController {
 
         Context context = contextService.update(contextId, contextPutRequestDTO);
 
-        if(context == null || context.getId() == null){
+        if (context == null || context.getId() == null) {
             throw new IllegalArgumentException("Error trying to get the updated context");
         }
 
