@@ -15,6 +15,7 @@ import com.quizzes.api.common.dto.controller.response.StartContextEventResponseD
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.ContextServiceDummy;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -49,12 +50,11 @@ import java.util.UUID;
 public class ContextController {
 
     @Autowired
-    @Qualifier("contextServiceImpl")
     private ContextService contextService;
 
+
     @Autowired
-    @Qualifier("contextServiceDummyImpl")
-    private ContextService contextServiceDummy;
+    private ContextServiceDummy contextServiceDummy;
 
     @ApiOperation(
             value = "Creates an assignment",

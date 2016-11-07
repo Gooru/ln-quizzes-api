@@ -36,10 +36,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ContextServiceImplTest {
+public class ContextServiceTest {
 
     @InjectMocks
-    private ContextService contextService = Mockito.spy(ContextServiceImpl.class);
+    private ContextService contextService = Mockito.spy(ContextService.class);
 
     @Mock
     ProfileService profileService;
