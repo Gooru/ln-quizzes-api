@@ -1,8 +1,9 @@
 package com.quizzes.api.content.gooru.dto;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
-public class TokenRequestDTO {
+public class TokenRequestDto {
 
     @SerializedName("client_key")
     private String clientKey;
@@ -13,10 +14,10 @@ public class TokenRequestDTO {
     @SerializedName("grant_type")
     private String grantType;
 
-    public TokenRequestDTO() {
+    public TokenRequestDto() {
     }
 
-    public TokenRequestDTO(String clientKey, String clientId, String grantType) {
+    public TokenRequestDto(String clientKey, String clientId, String grantType) {
         this.clientKey = clientKey;
         this.clientId = clientId;
         this.grantType = grantType;
@@ -44,6 +45,10 @@ public class TokenRequestDTO {
 
     public void setGrantType(String grantType) {
         this.grantType = grantType;
+    }
+
+    public String toString() {
+        return new Gson().toJson(this).toString();
     }
 
 }

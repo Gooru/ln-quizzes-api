@@ -10,6 +10,7 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
+import com.quizzes.api.common.service.content.CollectionContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @Service
 public class ContextServiceImpl implements ContextService {
+
     @Autowired
     ProfileService profileService;
 
@@ -36,6 +38,9 @@ public class ContextServiceImpl implements ContextService {
     @Autowired
     GroupProfileService groupProfileService;
 
+    @Autowired
+    CollectionContentService collectionContentService;
+
     @Override
     public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
         //Get OwnerProfile
@@ -43,19 +48,25 @@ public class ContextServiceImpl implements ContextService {
 
         //Create a new copy of the collection
         //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
-        Collection collection = new Collection(); //gooruApi.getCollection(assignmentDTO.getCollection().getId())
-        collection.setOwnerProfileId(owner.getId()); //We could send this param in the previous method
-        collection = collectionService.save(collection);
 
-        //Assign teacher and students to a group
-        Group group = groupService.createGroup(collection.getOwnerProfileId());
-        assignProfilesToGroup(group.getId(), assignmentDTO.getAssignees(), lms);
+        Collection collection =
+                collectionContentService.createCollectionCopy(assignmentDTO.getCollection().getId(), owner);
 
-        Context context = new Context(null, collection.getId(), group.getId(),
-                new Gson().toJson(assignmentDTO.getContextData()), null);
-        context = contextRepository.save(context);
+        if (collection != null) {
+            collection = collectionService.save(collection);
 
-        return context;
+            //Assign teacher and students to a group
+            Group group = groupService.createGroup(collection.getOwnerProfileId());
+            assignProfilesToGroup(group.getId(), assignmentDTO.getAssignees(), lms);
+
+            Context context = new Context(null, collection.getId(), group.getId(),
+                    new Gson().toJson(assignmentDTO.getContextData()), null);
+            context = contextRepository.save(context);
+
+            return context;
+        }
+
+        return null;
     }
 
     private Profile findProfile(ProfileDTO profileDTO, Lms lms) {

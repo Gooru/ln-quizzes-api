@@ -12,7 +12,7 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
-import com.quizzes.api.gooru.service.GooruAPIService;
+import com.quizzes.api.common.service.content.CollectionContentService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -55,7 +55,7 @@ public class ContextServiceImplTest {
     GroupProfileService groupProfileService;
 
     @Mock
-    GooruAPIService gooruAPIService;
+    CollectionContentService collectionContentService;
 
     @Test
     public void createContextFindProfile() throws Exception {
@@ -102,6 +102,8 @@ public class ContextServiceImplTest {
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        when (collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
         Context result = contextService.createContext(assignmentDTO, lms);
 
@@ -162,6 +164,8 @@ public class ContextServiceImplTest {
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        when (collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
         Context result = contextService.createContext(assignmentDTO, lms);
 

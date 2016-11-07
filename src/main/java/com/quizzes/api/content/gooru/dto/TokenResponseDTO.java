@@ -1,10 +1,13 @@
 package com.quizzes.api.content.gooru.dto;
 
-public class TokenResponseDTO {
+import com.google.gson.annotations.SerializedName;
 
+public class TokenResponseDto {
+
+    @SerializedName("access_token")
     private String token;
 
-    public TokenResponseDTO() {
+    public TokenResponseDto() {
     }
 
     public String getToken() {

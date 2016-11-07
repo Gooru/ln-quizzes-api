@@ -1,12 +1,12 @@
 package com.quizzes.api.content.gooru.dto;
 
-public class CollectionDTO {
+public class CollectionDto {
 
     private String id;
 
     private String title;
 
-    public CollectionDTO() {
+    public CollectionDto() {
     }
 
     public String getId() {
