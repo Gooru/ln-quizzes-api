@@ -12,16 +12,14 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 @Service
-public class ContextServiceDummyImpl implements ContextService {
+public class ContextServiceDummy {
 
-    @Override
     public Context createContext(AssignmentDTO body, Lms lms) {
         Context context = generateMockContext();
 
         return context;
     }
 
-    @Override
     public Context update(UUID context, ContextPutRequestDTO contextPutRequestDTO) {
         return null;
     }

@@ -18,7 +18,6 @@ import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.service.ContextService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;

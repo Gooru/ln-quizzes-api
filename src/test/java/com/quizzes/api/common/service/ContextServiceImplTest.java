@@ -39,7 +39,7 @@ import static org.mockito.Mockito.when;
 public class ContextServiceImplTest {
 
     @InjectMocks
-    private ContextService contextService = Mockito.spy(ContextServiceImpl.class);
+    private ContextService contextService = Mockito.spy(ContextService.class);
 
     @Mock
     ProfileService profileService;
