@@ -14,10 +14,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupProfileServiceImplTest {
+public class GroupProfileServiceTest {
 
     @InjectMocks
-    private GroupProfileService groupProfileService = Mockito.spy(GroupProfileServiceImpl.class);
+    private GroupProfileService groupProfileService = Mockito.spy(GroupProfileService.class);
 
     @Mock
     private GroupProfileRepository groupProfileRepository;
