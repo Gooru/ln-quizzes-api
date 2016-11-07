@@ -5,7 +5,7 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import java.util.Map;
 import java.util.UUID;
 
-public class CommonContextGetDTO {
+public class CommonContextGetResponseDto {
 
     private UUID id;
 
@@ -13,7 +13,7 @@ public class CommonContextGetDTO {
 
     private ContextDataDTO contextData;
 
-    public CommonContextGetDTO() {
+    public CommonContextGetResponseDto() {
     }
 
     public UUID getId() {

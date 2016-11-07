@@ -1,7 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.ContextPutRequestDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
@@ -65,7 +65,7 @@ public class ContextService {
         return context;
     }
 
-    public Context update(UUID contextId, ContextPutRequestDTO contextPutRequestDTO) {
+    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto) {
         Gson gson = new Gson();
         Context context = contextRepository.findById(contextId);
         if (context == null) {
@@ -73,7 +73,7 @@ public class ContextService {
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
         ContextDataDTO contextDataDTO = gson.fromJson(context.getContextData(), ContextDataDTO.class);
-        contextDataDTO.setMetadata(contextPutRequestDTO.getContextData().getMetadata());
+        contextDataDTO.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         context.setContextData(gson.toJson(contextDataDTO));
         return contextRepository.save(context);
     }

@@ -1,7 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.ContextPutRequestDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
@@ -183,8 +183,8 @@ public class ContextServiceTest {
 
     @Test
     public void update() throws Exception {
-        ContextPutRequestDTO contextDataMock = new ContextPutRequestDTO();
-        ContextPutRequestDTO.MetadataDTO metadata = new ContextPutRequestDTO.MetadataDTO();
+        ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
+        ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
 
         Map<String, String> metadataMap = new HashMap<>();
         metadataMap.put("classId", "classId");
@@ -214,7 +214,7 @@ public class ContextServiceTest {
     @Test(expected = ContentNotFoundException.class)
     public void updateException() throws Exception {
         when(contextRepository.findById(any(UUID.class))).thenReturn(null);
-        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDTO());
+        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto());
     }
 
 }
