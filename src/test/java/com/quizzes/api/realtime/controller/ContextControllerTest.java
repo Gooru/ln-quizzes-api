@@ -1,11 +1,20 @@
 package com.quizzes.api.realtime.controller;
 
+import com.quizzes.api.common.controller.ContextController;
+import com.quizzes.api.common.dto.CommonContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
+import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.dto.controller.response.AssignContextResponseDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDto;
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
+import com.quizzes.api.common.dto.controller.request.ResourceDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
+import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -31,6 +40,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -79,8 +90,8 @@ public class ContextControllerTest {
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         Object resultBody = result.getBody();
-        assertSame(resultBody.getClass(), AssignContextResponseDTO.class);
-        assertEquals("Response body is wrong", ((AssignContextResponseDTO)resultBody).getId(), context.getId());
+        assertSame(resultBody.getClass(), ContextIdResponseDto.class);
+        assertEquals("Response body is wrong", ((ContextIdResponseDto) resultBody).getId(), context.getId());
     }
 
     @Ignore
@@ -328,7 +339,7 @@ public class ContextControllerTest {
         ProfileIdDTO requestBody = new ProfileIdDTO();
         requestBody.setProfileId(UUID.randomUUID());
 
-        ResponseEntity<?> result = controller.startContextEvent("123", "quizzes", UUID.randomUUID());
+        ResponseEntity<?> result = controller.startContextEvent(UUID.randomUUID(), "quizzes", UUID.randomUUID());
         Object resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDTO.class);
         assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO) resultBody).getCurrentResourceId());
@@ -338,10 +349,13 @@ public class ContextControllerTest {
 
     @Test
     public void registerResource() throws Exception {
-        ProfileIdDTO requestBody = new ProfileIdDTO();
-        requestBody.setProfileId(UUID.randomUUID());
+        AnswerDTO answerDTO = new AnswerDTO("1");
+        List<AnswerDTO> answerDTOList = new ArrayList<>();
+        answerDTOList.add(answerDTO);
+        ResourceDTO resource = new ResourceDTO(UUID.randomUUID(), 120, 3, answerDTOList);
+        OnResourceEventRequestDTO requestBody = new OnResourceEventRequestDTO(resource);
 
-        ResponseEntity<?> result = controller.onResourceEvent("resourceId", "externalId", requestBody);
+        ResponseEntity<?> result = controller.onResourceEvent("1", "1", requestBody, "quizzes", UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Body is not null", null, result.getBody());
@@ -349,7 +363,7 @@ public class ContextControllerTest {
 
     @Test
     public void finishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning" , UUID.randomUUID());
+        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning", UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
@@ -358,12 +372,13 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
 
-        ResponseEntity<AssignmentDTO> result = controller.getContext(UUID.randomUUID());
+        ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Body is null", result.getBody());
 
+        assertNotNull("Context id is null", result.getBody().getId());
         assertNotNull("Collection id is null", result.getBody().getCollection().getId());
 
         ProfileDTO ownerResult = result.getBody().getOwner();
@@ -379,11 +394,91 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        ContextDataDTO contextResult = result.getBody().getContextData();
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getBody().getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
         assertEquals("Key description with invalid value in metadata", "First Partial", contextResult.getMetadata().get("description"));
+    }
+
+    @Test
+    public void getContextsCreated() throws Exception {
+
+        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+
+        assertNotNull("Response is Null", response);
+        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
+        assertEquals("Wrong list size for assignments", 1, response.getBody().size());
+
+        ContextGetCreatedResponseDto result = response.getBody().get(0);
+        assertNotNull("Body is null", result);
+        assertNotNull("Context id is null", result.getId());
+
+        assertNotNull("Collection id is null", result.getCollection().getId());
+
+        List<ProfileDTO> profiles = result.getAssignees();
+        assertEquals("Wrong list size for assignees", 2, profiles.size());
+        assertNotNull("Profile1 id is null", profiles.get(0).getId());
+        assertEquals("Wrong first name in owner", "Karol", profiles.get(0).getFirstName());
+        assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
+        assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
+
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
+        assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
+        assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
+        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
+        assertEquals("Key description with invalid value in metadata", "First Partial", contextResult.getMetadata().get("description"));
+    }
+
+    @Test
+    public void getAssignedContexts() throws Exception {
+
+        ResponseEntity<List<ContextGetAssignedResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
+
+        assertNotNull("Response is Null", response);
+        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
+        assertEquals("Wrong list size for assignments", 1, response.getBody().size());
+
+        ContextGetAssignedResponseDto result = response.getBody().get(0);
+        assertNotNull("Body is null", result);
+        assertNotNull("Context id is null", result.getId());
+
+        assertNotNull("Collection id is null", result.getCollection().getId());
+
+        ProfileDTO ownerResult = result.getOwner();
+        assertNotNull("Owner id is null", ownerResult.getId());
+        assertEquals("Wrong first name in owner", "Michael", ownerResult.getFirstName());
+        assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
+        assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
+
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
+        assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
+        assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
+        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
+        assertEquals("Key description with invalid value in metadata", "Second Partial", contextResult.getMetadata().get("description"));
+    }
+
+    @Test
+    public void updateContext() throws Exception {
+        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
+                UUID.randomUUID(), "{\"context\":\"value\"}", null);
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(contextResult);
+
+        ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
+                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
+
+        verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDto.class));
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Invalid status code", contextResult.getId(), result.getBody().getId());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void updateContextException() throws Exception {
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(null);
+        ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
+                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
     }
 
 }

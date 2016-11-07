@@ -1,10 +1,12 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -34,10 +36,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ContextServiceImplTest {
+public class ContextServiceTest {
 
     @InjectMocks
-    private ContextService contextService = Mockito.spy(ContextServiceImpl.class);
+    private ContextService contextService = Mockito.spy(ContextService.class);
 
     @Mock
     ProfileService profileService;
@@ -181,6 +183,42 @@ public class ContextServiceImplTest {
         assertEquals("Wrong id for collection", collectionResult.getId(), result.getCollectionId());
         assertEquals("Wrong id for group", groupResult.getId(), result.getGroupId());
         assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
+    }
+
+    @Test
+    public void update() throws Exception {
+        ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
+        ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
+
+        Map<String, String> metadataMap = new HashMap<>();
+        metadataMap.put("classId", "classId");
+        metadata.setMetadata(metadataMap);
+        contextDataMock.setContextData(metadata);
+
+        UUID id = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID groupId = UUID.randomUUID();
+        Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
+        when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
+        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        Context result = contextService.update(UUID.randomUUID(), contextDataMock);
+        contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
+
+        verify(contextRepository, times(1)).findById(any(UUID.class));
+        verify(contextRepository, times(1)).save(any(Context.class));
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
+        assertEquals("Wrong id for group", groupId, result.getGroupId());
+        assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void updateException() throws Exception {
+        when(contextRepository.findById(any(UUID.class))).thenReturn(null);
+        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto());
     }
 
 }
