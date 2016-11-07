@@ -13,6 +13,7 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
+import com.quizzes.api.common.service.content.CollectionContentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,25 +45,33 @@ public class ContextService {
     @Autowired
     GroupProfileService groupProfileService;
 
+    @Autowired
+    CollectionContentService collectionContentService;
+
     public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
         //Get OwnerProfile
         Profile owner = findProfile(assignmentDTO.getOwner(), lms);
 
         //Create a new copy of the collection
         //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
-        Collection collection = new Collection(); //gooruApi.getCollection(assignmentDTO.getCollection().getId())
-        collection.setOwnerProfileId(owner.getId()); //We could send this param in the previous method
-        collection = collectionService.save(collection);
 
-        //Assign teacher and students to a group
-        Group group = groupService.createGroup(collection.getOwnerProfileId());
-        assignProfilesToGroup(group.getId(), assignmentDTO.getAssignees(), lms);
+        Collection collection =
+                collectionContentService.createCollectionCopy(assignmentDTO.getCollection().getId(), owner);
 
-        Context context = new Context(null, collection.getId(), group.getId(),
-                new Gson().toJson(assignmentDTO.getContextData()), null);
-        context = contextRepository.save(context);
+        if (collection != null) {
+            collection = collectionService.save(collection);
 
-        return context;
+            Group group = groupService.createGroup(collection.getOwnerProfileId());
+            assignProfilesToGroup(group.getId(), assignmentDTO.getAssignees(), lms);
+
+            Context context = new Context(null, collection.getId(), group.getId(),
+                    new Gson().toJson(assignmentDTO.getContextData()), null);
+            context = contextRepository.save(context);
+
+            return context;
+        }
+
+        return null;
     }
 
     public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto) {
