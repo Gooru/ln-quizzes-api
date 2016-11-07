@@ -11,7 +11,7 @@ public class CommonContextGetResponseDto {
 
     private CollectionDTO collection;
 
-    private ContextDataDTO contextData;
+    private ContextDataDto contextData;
 
     public CommonContextGetResponseDto() {
     }
@@ -32,20 +32,20 @@ public class CommonContextGetResponseDto {
         this.collection = collection;
     }
 
-    public ContextDataDTO getContextData() {
+    public ContextDataDto getContextData() {
         return contextData;
     }
 
-    public void setContextData(ContextDataDTO contextData) {
+    public void setContextData(ContextDataDto contextData) {
         this.contextData = contextData;
     }
 
-    public static class ContextDataDTO {
+    public static class ContextDataDto {
 
         private Map<String, String> metadata;
         private Map<String, String> contextMap;
 
-        public ContextDataDTO() {
+        public ContextDataDto() {
         }
 
         public Map<String, String> getMetadata() {

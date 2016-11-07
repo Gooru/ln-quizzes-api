@@ -210,7 +210,7 @@ public class ContextController {
 
         contextGetResponseDto.setAssignees(profiles);
 
-        ContextGetAssignedResponseDto.ContextDataDTO contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDTO();
+        ContextGetAssignedResponseDto.ContextDataDto contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDto();
 
         Map<String, String> contextMap = new HashMap<>();
         contextMap.put("classId", UUID.randomUUID().toString());
@@ -237,12 +237,12 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        ContextGetCreatedResponseDto contextGetCreatedResponseD = new ContextGetCreatedResponseDto();
-        contextGetCreatedResponseD.setId(UUID.randomUUID());
+        ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
+        contextGetCreatedResponseDto.setId(UUID.randomUUID());
 
         CollectionDTO collection = new CollectionDTO();
         collection.setId(UUID.randomUUID().toString());
-        contextGetCreatedResponseD.setCollection(collection);
+        contextGetCreatedResponseDto.setCollection(collection);
 
         List<ProfileDTO> profiles = new ArrayList<>();
 
@@ -261,9 +261,9 @@ public class ContextController {
         profiles.add(profile1);
         profiles.add(profile2);
 
-        contextGetCreatedResponseD.setAssignees(profiles);
+        contextGetCreatedResponseDto.setAssignees(profiles);
 
-        ContextGetAssignedResponseDto.ContextDataDTO contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDTO();
+        ContextGetAssignedResponseDto.ContextDataDto contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDto();
 
         Map<String, String> contextMap = new HashMap<>();
         contextMap.put("classId", UUID.randomUUID().toString());
@@ -274,10 +274,10 @@ public class ContextController {
         metadata.put("description", "First Partial");
         contextDataDTO.setMetadata(metadata);
 
-        contextGetCreatedResponseD.setContextData(contextDataDTO);
+        contextGetCreatedResponseDto.setContextData(contextDataDTO);
 
         List<ContextGetCreatedResponseDto> list = new ArrayList<>();
-        list.add(contextGetCreatedResponseD);
+        list.add(contextGetCreatedResponseDto);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
@@ -308,7 +308,7 @@ public class ContextController {
         owner.setUsername("migut");
         contextGetAssignedResponseDto.setOwner(owner);
 
-        ContextGetAssignedResponseDto.ContextDataDTO contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDTO();
+        ContextGetAssignedResponseDto.ContextDataDto contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDto();
 
         Map<String, String> contextMap = new HashMap<>();
         contextMap.put("classId", UUID.randomUUID().toString());

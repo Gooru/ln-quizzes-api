@@ -394,7 +394,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        CommonContextGetResponseDto.ContextDataDTO contextResult = result.getBody().getContextData();
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getBody().getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
@@ -423,7 +423,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
         assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
-        CommonContextGetResponseDto.ContextDataDTO contextResult = result.getContextData();
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
@@ -451,7 +451,7 @@ public class ContextControllerTest {
         assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
         assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
 
-        CommonContextGetResponseDto.ContextDataDTO contextResult = result.getContextData();
+        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
         assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
         assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
