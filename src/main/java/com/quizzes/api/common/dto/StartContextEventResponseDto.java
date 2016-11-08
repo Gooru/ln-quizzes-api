@@ -3,9 +3,10 @@ package com.quizzes.api.common.dto.controller.response;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-public class StartContextEventResponseDTO {
+public class StartContextEventResponseDto {
 
     private UUID id;
 
@@ -13,14 +14,14 @@ public class StartContextEventResponseDTO {
 
     private UUID currentResourceId;
 
-    private List<AttemptDTO> attempt;
+    private List<Map<String, Object>> attempt;
 
 
-    public StartContextEventResponseDTO() {
+    public StartContextEventResponseDto() {
     }
 
-    public StartContextEventResponseDTO(UUID id, CollectionDTO collection, UUID currentResourceId,
-                                        List<AttemptDTO> attempt) {
+    public StartContextEventResponseDto(UUID id, CollectionDTO collection, UUID currentResourceId,
+                                        List<Map<String, Object>> attempt) {
         this.id = id;
         this.collection = collection;
         this.currentResourceId = currentResourceId;
@@ -51,11 +52,11 @@ public class StartContextEventResponseDTO {
         this.currentResourceId = currentResourceId;
     }
 
-    public List<AttemptDTO> getAttempt() {
+    public List<Map<String, Object>> getAttempt() {
         return attempt;
     }
 
-    public void setAttempt(List<AttemptDTO> attempt) {
+    public void setAttempt(List<Map<String, Object>> attempt) {
         this.attempt = attempt;
     }
 

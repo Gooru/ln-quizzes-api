@@ -8,10 +8,9 @@ import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
-import com.quizzes.api.common.dto.controller.response.AttemptDTO;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
+import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
+import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -103,31 +102,15 @@ public class ContextController {
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDTO.class),
+            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDocDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> startContextEvent(@PathVariable UUID contextId,
-                                               @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                               @RequestHeader(value = "profile-id") UUID profileId) {
-
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId(UUID.randomUUID().toString());
-
-        AnswerDTO answer1 = new AnswerDTO("1");
-        AnswerDTO answer2 = new AnswerDTO("1,3");
-        List<AnswerDTO> answerList = new ArrayList<>();
-        answerList.add(answer1);
-        answerList.add(answer2);
-
-        AttemptDTO attempt = new AttemptDTO(UUID.randomUUID(), 1500, 1, 8, answerList);
-        List<AttemptDTO> attempts = new ArrayList<>();
-        attempts.add(attempt);
-
-        StartContextEventResponseDTO result =
-                new StartContextEventResponseDTO(contextId, collection, UUID.randomUUID(), attempts);
-
+    public ResponseEntity<StartContextEventResponseDto> startContextEvent(@PathVariable UUID contextId,
+                                                                          @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                                          @RequestHeader(value = "profile-id") UUID profileId) {
+        StartContextEventResponseDto result = contextService.startContextEvent(contextId, profileId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

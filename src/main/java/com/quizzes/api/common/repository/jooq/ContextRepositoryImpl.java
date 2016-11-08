@@ -42,6 +42,11 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .fetchOneInto(Context.class);
     }
 
+    @Override
+    public UUID findCollectionIdByContextId(UUID contextId){
+        return UUID.randomUUID();
+    }
+
     private Context insertContext(final Context context) {
         return jooq.insertInto(CONTEXT)
                 .set(CONTEXT.ID, UUID.randomUUID())

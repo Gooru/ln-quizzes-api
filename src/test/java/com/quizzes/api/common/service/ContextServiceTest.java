@@ -3,13 +3,15 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.tables.pojos.ContextProfile;
+import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
@@ -21,6 +23,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.boot.json.GsonJsonParser;
+import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +50,15 @@ public class ContextServiceTest {
 
     @Mock
     ContextRepository contextRepository;
+
+    @Mock
+    ContextProfileEventService contextProfileEventService;
+
+    @Mock
+    ContextProfileService contextProfileService;
+
+    @Mock
+    JsonParser jsonParser = new GsonJsonParser();
 
     @Mock
     CollectionService collectionService;
@@ -103,7 +116,7 @@ public class ContextServiceTest {
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when (collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
         Context result = contextService.createContext(assignmentDTO, lms);
 
@@ -163,7 +176,7 @@ public class ContextServiceTest {
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when (collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
         Context result = contextService.createContext(assignmentDTO, lms);
 
@@ -209,6 +222,93 @@ public class ContextServiceTest {
         assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
         assertEquals("Wrong id for group", groupId, result.getGroupId());
         assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
+    }
+
+    @Test
+    public void startContextEvent() throws Exception {
+        UUID collectionId = UUID.randomUUID();
+
+        UUID contextProfileId = UUID.randomUUID();
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setCurrentResourceId(contextProfileId);
+
+        Map<String, String> eventData = new HashMap<>();
+        eventData.put("id", UUID.randomUUID().toString());
+        eventData.put("timeSpend", "1478623337");
+        eventData.put("reaction", UUID.randomUUID().toString());
+        eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
+
+        ContextProfileEvent contextProfileEvent =
+                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                        new Gson().toJson(eventData), null);
+
+        List<ContextProfileEvent> list = new ArrayList<>();
+        list.add(contextProfileEvent);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("answer", "test");
+        List<Object> listMock = new ArrayList<>();
+        listMock.add("[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
+        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
+        when(jsonParser.parseList(any(String.class))).thenReturn(listMock);
+
+        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextRepository.findCollectionIdByContextId(any(UUID.class))).thenReturn(collectionId);
+        when(contextProfileEventService.findAttemptsByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class))).thenReturn(list);
+
+        StartContextEventResponseDto result = contextService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextProfileEventService, times(1)).findAttemptsByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextRepository, times(1)).findCollectionIdByContextId(any(UUID.class));
+        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
+
+        assertNotNull("Response is Null", result);
+        assertNotNull("Id is Null", result.getId());
+        assertNotNull("Resource id is Null", result.getCurrentResourceId());
+        assertNotNull("Collection id is Null", result.getCollection().getId());
+        assertEquals("Wrong size", 1, result.getAttempt().size());
+        assertEquals("Answer list is Null", "{answer=[[{\"value\":\"1\"},{\"value\":\"2,3\"}]]}", result.getAttempt().get(0).toString());
+    }
+
+    @Test
+    public void startContextEventListNull() throws Exception {
+        UUID collectionId = UUID.randomUUID();
+
+        UUID contextProfileId = UUID.randomUUID();
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setCurrentResourceId(contextProfileId);
+
+        Map<String, String> eventData = new HashMap<>();
+        eventData.put("id", UUID.randomUUID().toString());
+        eventData.put("timeSpend", "1478623337");
+        eventData.put("reaction", UUID.randomUUID().toString());
+        eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
+
+        ContextProfileEvent contextProfileEvent =
+                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                        new Gson().toJson(eventData), null);
+
+        List<ContextProfileEvent> list = new ArrayList<>();
+        list.add(contextProfileEvent);
+
+        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextRepository.findCollectionIdByContextId(any(UUID.class))).thenReturn(collectionId);
+        when(contextProfileEventService.findAttemptsByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class))).thenReturn(list);
+
+        StartContextEventResponseDto result = contextService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextProfileEventService, times(1)).findAttemptsByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextRepository, times(1)).findCollectionIdByContextId(any(UUID.class));
+        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
+
+        assertNotNull("Response is Null", result);
+        assertNotNull("Id is Null", result.getId());
+        assertNotNull("Resource id is Null", result.getCurrentResourceId());
+        assertNotNull("Collection id is Null", result.getCollection().getId());
+        assertEquals("Wrong size", 1, result.getAttempt().size());
+        assertEquals("Answer list is Null", "{answer=[]}", result.getAttempt().get(0).toString());
     }
 
     @Test(expected = ContentNotFoundException.class)
