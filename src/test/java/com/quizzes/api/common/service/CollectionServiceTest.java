@@ -30,10 +30,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CollectionServiceImplTest {
+public class CollectionServiceTest {
 
     @InjectMocks
-    private CollectionService collectionService = Mockito.spy(CollectionServiceImpl.class);
+    private CollectionService collectionService = Mockito.spy(CollectionService.class);
 
     @Mock
     private EventService eventService;

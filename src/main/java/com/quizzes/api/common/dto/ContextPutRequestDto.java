@@ -2,11 +2,11 @@ package com.quizzes.api.common.dto;
 
 import java.util.Map;
 
-public class ContextPutRequestDTO {
+public class ContextPutRequestDto {
 
     private MetadataDTO contextData;
 
-    public ContextPutRequestDTO() {
+    public ContextPutRequestDto() {
     }
 
     public MetadataDTO getContextData() {

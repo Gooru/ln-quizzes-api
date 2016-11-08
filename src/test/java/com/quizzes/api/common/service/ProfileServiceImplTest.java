@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 public class ProfileServiceImplTest {
 
     @InjectMocks
-    private ProfileServiceImpl profileService = Mockito.spy(ProfileServiceImpl.class);
+    private ProfileService profileService = Mockito.spy(ProfileService.class);
 
     @Mock
     private ProfileRepository profileRepository;

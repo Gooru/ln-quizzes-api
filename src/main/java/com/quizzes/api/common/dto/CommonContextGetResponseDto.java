@@ -5,15 +5,15 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import java.util.Map;
 import java.util.UUID;
 
-public class CommonContextGetDTO {
+public class CommonContextGetResponseDto {
 
     private UUID id;
 
     private CollectionDTO collection;
 
-    private ContextDataDTO contextData;
+    private ContextDataDto contextData;
 
-    public CommonContextGetDTO() {
+    public CommonContextGetResponseDto() {
     }
 
     public UUID getId() {
@@ -32,20 +32,20 @@ public class CommonContextGetDTO {
         this.collection = collection;
     }
 
-    public ContextDataDTO getContextData() {
+    public ContextDataDto getContextData() {
         return contextData;
     }
 
-    public void setContextData(ContextDataDTO contextData) {
+    public void setContextData(ContextDataDto contextData) {
         this.contextData = contextData;
     }
 
-    public static class ContextDataDTO {
+    public static class ContextDataDto {
 
         private Map<String, String> metadata;
         private Map<String, String> contextMap;
 
-        public ContextDataDTO() {
+        public ContextDataDto() {
         }
 
         public Map<String, String> getMetadata() {

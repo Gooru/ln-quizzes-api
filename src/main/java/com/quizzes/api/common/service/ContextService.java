@@ -1,11 +1,12 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.ContextPutRequestDTO;
+import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
+import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
@@ -16,11 +17,14 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
+import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,6 +36,9 @@ public class ContextService {
 
     @Autowired
     ContextProfileService contextProfileService;
+
+    @Autowired
+    JsonParser jsonParser;
 
     @Autowired
     ContextProfileEventService contextProfileEventService;
@@ -75,7 +82,7 @@ public class ContextService {
         return context;
     }
 
-    public Context update(UUID contextId, ContextPutRequestDTO contextPutRequestDTO) {
+    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto) {
         Gson gson = new Gson();
         Context context = contextRepository.findById(contextId);
         if (context == null) {
@@ -83,26 +90,48 @@ public class ContextService {
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
         ContextDataDTO contextDataDTO = gson.fromJson(context.getContextData(), ContextDataDTO.class);
-        contextDataDTO.setMetadata(contextPutRequestDTO.getContextData().getMetadata());
+        contextDataDTO.setMetadata(contextPutRequestDto.getContextData().getMetadata());
+        contextDataDTO.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         context.setContextData(gson.toJson(contextDataDTO));
         return contextRepository.save(context);
     }
 
-    public StartContextEventResponseDTO startContextEvent(UUID contextId, UUID profileId){
+    public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
         ContextProfile contextProfile = findContextProfile(contextId, profileId);
+
+        CollectionDTO collection = new CollectionDTO();
+        collection.setId(String.valueOf(contextRepository.findCollectionIdByContextId(contextId)));
+
         List<ContextProfileEvent> attempts = contextProfileEventService.findAttemptsByContextProfileIdAndResourceId(
                 contextProfile.getProfileId(), contextProfile.getCurrentResourceId());
 
-        StartContextEventResponseDTO response = new StartContextEventResponseDTO(
-                UUID.randomUUID(), null, contextProfile.getCurrentResourceId(), null);
-        return response;
+        List<Map<String, Object>> list = convertContextProfileToJson(attempts);
+
+        StartContextEventResponseDto result = new StartContextEventResponseDto(
+                UUID.randomUUID(), collection, contextProfile.getCurrentResourceId(), list);
+        return result;
+    }
+
+    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (ContextProfileEvent context : attempts) {
+            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
+            if (data.containsKey("answer") && data.get("answer").toString() != null) {
+                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
+                data.put("answer", answers);
+            } else {
+                data.put("answer", new JSONArray());
+            }
+            list.add(data);
+        }
+        return list;
     }
 
     private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
         ContextProfile contextProfile =
                 contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
         if (contextProfile == null) {
-            contextProfile = contextProfileService .save(new ContextProfile(null, contextId, profileId, null, null, null));
+            contextProfile = contextProfileService.save(new ContextProfile(null, contextId, profileId, null, null, null));
         }
         return contextProfile;
     }
