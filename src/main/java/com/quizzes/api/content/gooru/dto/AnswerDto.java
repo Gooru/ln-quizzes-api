@@ -2,7 +2,7 @@ package com.quizzes.api.content.gooru.dto;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AnswerDTO {
+public class AnswerDto {
 
     @SerializedName("answer_text")
     private String answerText;
@@ -11,11 +11,11 @@ public class AnswerDTO {
     private String answerType;
 
     @SerializedName("is_correct")
-    private int isCorrect;
+    private boolean isCorrect;
 
     private int sequence;
 
-    public AnswerDTO() {
+    public AnswerDto() {
     }
 
     public String getAnswerText() {
@@ -34,11 +34,11 @@ public class AnswerDTO {
         this.answerType = answerType;
     }
 
-    public int getIsCorrect() {
+    public boolean isCorrect() {
         return isCorrect;
     }
 
-    public void setIsCorrect(int isCorrect) {
+    public void setIsCorrect(boolean isCorrect) {
         this.isCorrect = isCorrect;
     }
 
