@@ -1,6 +1,7 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.dto;
 
 import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 
 import java.util.List;
 import java.util.UUID;
