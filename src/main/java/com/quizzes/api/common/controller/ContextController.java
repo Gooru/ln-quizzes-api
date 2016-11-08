@@ -9,7 +9,7 @@ import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
-import com.quizzes.api.common.dto.StartContextEventResponseDocDTO;
+import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -102,7 +102,7 @@ public class ContextController {
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDocDTO.class),
+            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDocDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,

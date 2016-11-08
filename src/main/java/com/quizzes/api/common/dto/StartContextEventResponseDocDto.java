@@ -6,7 +6,7 @@ import com.quizzes.api.common.dto.controller.response.AttemptDTO;
 import java.util.List;
 import java.util.UUID;
 
-public class StartContextEventResponseDocDTO {
+public class StartContextEventResponseDocDto {
 
     private UUID id;
 
@@ -17,10 +17,10 @@ public class StartContextEventResponseDocDTO {
     private List<AttemptDTO> attempt;
 
 
-    public StartContextEventResponseDocDTO() {
+    public StartContextEventResponseDocDto() {
     }
 
-    public StartContextEventResponseDocDTO(UUID id, CollectionDTO collection, UUID currentResourceId,
+    public StartContextEventResponseDocDto(UUID id, CollectionDTO collection, UUID currentResourceId,
                                            List<AttemptDTO> attempt) {
         this.id = id;
         this.collection = collection;
