@@ -81,10 +81,7 @@ public class ContextControllerTest {
         List<ProfileDTO> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
-
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId("2");
-        assignment.setCollection(collection);
+        assignment.setExternalCollectionId(UUID.randomUUID().toString());
 
         ContextDataDTO contextData = new ContextDataDTO();
         assignment.setContextData(contextData);
@@ -129,9 +126,8 @@ public class ContextControllerTest {
         owner.setLastName("lastname");
         owner.setUsername("username");
         assignment.setOwner(owner);
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId("2");
-        assignment.setCollection(collection);
+        assignment.setExternalCollectionId(UUID.randomUUID().toString());
+
         ContextDataDTO contextData = new ContextDataDTO();
         assignment.setContextData(contextData);
 
@@ -190,9 +186,7 @@ public class ContextControllerTest {
         assignees.add(assignee);
         assignment.setAssignees(assignees);
 
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId("2");
-        assignment.setCollection(collection);
+        assignment.setExternalCollectionId(UUID.randomUUID().toString());
 
         ContextDataDTO contextData = new ContextDataDTO();
         assignment.setContextData(contextData);
@@ -270,8 +264,7 @@ public class ContextControllerTest {
         assertThat(result.getBody().toString(), containsString("Error in collection"));
         assertThat(result.getBody().toString(), containsString("A Collection is required"));
 
-        CollectionDTO collection = new CollectionDTO();
-        assignment.setCollection(collection);
+        assignment.setExternalCollectionId(UUID.randomUUID().toString());
 
         //testing empty collection
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
@@ -279,8 +272,6 @@ public class ContextControllerTest {
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in collection"));
         assertThat(result.getBody().toString(), containsString("ID is required"));
-
-        collection.setId("2");
 
         result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
@@ -314,9 +305,7 @@ public class ContextControllerTest {
         owner.setUsername("firstname01");
         assignment.setOwner(owner);
 
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId("2");
-        assignment.setCollection(collection);
+        assignment.setExternalCollectionId(UUID.randomUUID().toString());
 
         //Testing no context
         ResponseEntity<?> result = controller.assignContext(assignment, Lms.its_learning.getLiteral(), UUID.randomUUID());

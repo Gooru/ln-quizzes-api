@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -69,14 +70,13 @@ public class ValidatorsTest {
         List<ProfileDTO> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
-        CollectionDTO collection = new CollectionDTO();
-        assignment.setCollection(collection);
+        assignment.setExternalCollectionId(UUID.randomUUID().toString());
         ContextDataDTO contextData = new ContextDataDTO();
         assignment.setContextData(contextData);
 
         Set<ConstraintViolation<AssignmentDTO>> constraintViolations =
                 validator.validate(assignment);
-        assertEquals(9, constraintViolations.size());
+        assertEquals(8, constraintViolations.size());
     }
 
 

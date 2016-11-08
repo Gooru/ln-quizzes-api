@@ -4,19 +4,19 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class AssessmentDTO extends CollectionDTO {
+public class AssessmentDto extends CollectionDto {
 
     @SerializedName("question")
-    private List<QuestionDTO> questions;
+    private List<QuestionDto> questions;
 
-    public AssessmentDTO() {
+    public AssessmentDto() {
     }
 
-    public List<QuestionDTO> getQuestions() {
+    public List<QuestionDto> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<QuestionDTO> questions) {
+    public void setQuestions(List<QuestionDto> questions) {
         this.questions = questions;
     }
 

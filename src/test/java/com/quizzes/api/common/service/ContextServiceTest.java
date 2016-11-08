@@ -3,7 +3,6 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
@@ -17,7 +16,7 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
-import com.quizzes.api.gooru.service.GooruAPIService;
+import com.quizzes.api.common.service.content.CollectionContentService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -36,7 +35,6 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,14 +70,12 @@ public class ContextServiceTest {
     GroupProfileService groupProfileService;
 
     @Mock
-    GooruAPIService gooruAPIService;
+    CollectionContentService collectionContentService;
 
     @Test
     public void createContextFindProfile() throws Exception {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
-
-        CollectionDTO collectionDTO = new CollectionDTO();
-        assignmentDTO.setCollection(collectionDTO);
+        assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDTO ownerDTO = new ProfileDTO();
         ownerDTO.setId("external-id");
@@ -120,6 +116,8 @@ public class ContextServiceTest {
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
+
         Context result = contextService.createContext(assignmentDTO, lms);
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
@@ -139,9 +137,7 @@ public class ContextServiceTest {
     @Test
     public void createContextCreateProfile() throws Exception {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
-
-        CollectionDTO collectionDTO = new CollectionDTO();
-        assignmentDTO.setCollection(collectionDTO);
+        assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDTO ownerDTO = new ProfileDTO();
         ownerDTO.setId("external-id");
@@ -179,6 +175,8 @@ public class ContextServiceTest {
         Context contextResult = new Context(UUID.randomUUID(),
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
         Context result = contextService.createContext(assignmentDTO, lms);
 
