@@ -11,4 +11,5 @@ public interface GroupService {
 
     Group createGroup(UUID ownerProfileId);
 
+    Group findById(UUID Id);
 }

@@ -20,4 +20,9 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.save(group);
     }
 
+    @Override
+    public Group findById(UUID id){
+        return groupRepository.findById(id);
+    }
+
 }

@@ -21,5 +21,9 @@ public class GroupProfileServiceImpl implements GroupProfileService {
     public void save(GroupProfile groupProfile) {
         groupProfileRepository.save(groupProfile);
     }
+
+    public List<GroupProfile> getGroupProfilesByGroupId(UUID id){
+        return groupProfileRepository.getGroupProfilesByGroupId(id);
+    }
 }
 

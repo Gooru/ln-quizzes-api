@@ -1,6 +1,5 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.realtime.model.CollectionOnAir;

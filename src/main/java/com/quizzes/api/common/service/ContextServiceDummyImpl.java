@@ -37,4 +37,11 @@ public class ContextServiceDummyImpl implements ContextService {
         return result;
     }
 
+    @Override
+    public Context getContext(UUID contextId) {
+        Context context = generateMockContext();
+        context.setId(contextId);
+
+        return context;
+    }
 }

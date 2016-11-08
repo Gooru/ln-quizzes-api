@@ -14,4 +14,5 @@ public interface GroupProfileService {
 
     void save(GroupProfile groupProfile);
 
+    List<GroupProfile> getGroupProfilesByGroupId(UUID id);
 }

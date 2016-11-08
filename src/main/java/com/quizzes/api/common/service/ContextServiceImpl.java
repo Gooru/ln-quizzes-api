@@ -81,6 +81,14 @@ public class ContextServiceImpl implements ContextService {
         return contextRepository.save(context);
     }
 
+    @Override
+    public Context getContext(UUID contextId) {
+
+        //TODO: replace this by findById method
+        return contextRepository.mockedFindById(contextId);
+
+    }
+
     private Profile findProfile(ProfileDTO profileDTO, Lms lms) {
         Profile profile = profileService.findByExternalIdAndLmsId(profileDTO.getId(), lms);
         if (profile == null) {

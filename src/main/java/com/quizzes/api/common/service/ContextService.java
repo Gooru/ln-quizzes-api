@@ -12,6 +12,8 @@ public interface ContextService {
 
     Context createContext(AssignmentDTO body, Lms lms); // We need to define the parameters and correct response value for the create context (assignment)
 
+    Context getContext(UUID id);
+
     Context update(UUID context, ContextPutRequestDTO contextPutRequestDTO);
 
 }

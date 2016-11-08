@@ -2,6 +2,7 @@ package com.quizzes.api.common.repository.jooq;
 
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.repository.GroupRepository;
+import org.apache.logging.log4j.core.util.UuidUtil;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,6 +24,14 @@ public class GroupRepositoryImpl implements GroupRepository {
         } else {
             return updateGroup(group);
         }
+    }
+
+    public Group findById(UUID id){
+        //TODO: mocked group, replace with a valid implementation
+        Group group = new Group();
+        group.setId(id);
+        group.setOwnerProfileId(UUID.randomUUID());
+        return group;
     }
 
     private Group insertGroup(final Group group) {
