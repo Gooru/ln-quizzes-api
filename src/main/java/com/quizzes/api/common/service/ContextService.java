@@ -56,7 +56,7 @@ public class ContextService {
         //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
 
         Collection collection =
-                collectionContentService.createCollectionCopy(assignmentDTO.getCollection().getId(), owner);
+                collectionContentService.createCollectionCopy(assignmentDTO.getExternalCollectionId(), owner);
 
         if (collection != null) {
             collection = collectionService.save(collection);

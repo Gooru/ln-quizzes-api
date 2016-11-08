@@ -10,28 +10,31 @@ import java.util.List;
  */
 public class AssignmentDTO {
 
-    @NotNull(message = "{assignment.collection.not_null}")
+    @NotNull(message = "{assignment.external.collection.id.not_null}")
     @Valid
-    private CollectionDTO collection;
+    private String externalCollectionId;
+
     @NotNull(message = "{assignment.owner.not_null}")
     @Valid
     private ProfileDTO owner;
+
     @NotNull(message = "{assignment.assignees.not_null}")
     @Size(min = 1, message = "{assignment.assignees.size}")
     @Valid
     private List<ProfileDTO> assignees;
+
     @NotNull(message = "{assignment.context_data.not_null}")
     private ContextDataDTO contextData;
 
     public AssignmentDTO() {
     }
 
-    public CollectionDTO getCollection() {
-        return collection;
+    public String getExternalCollectionId() {
+        return externalCollectionId;
     }
 
-    public void setCollection(CollectionDTO collection) {
-        this.collection = collection;
+    public void setExternalCollectionId(String externalCollectionId) {
+        this.externalCollectionId = externalCollectionId;
     }
 
     public ProfileDTO getOwner() {
@@ -57,4 +60,5 @@ public class AssignmentDTO {
     public void setContextData(ContextDataDTO contextData) {
         this.contextData = contextData;
     }
+
 }

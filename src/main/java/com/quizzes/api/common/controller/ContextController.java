@@ -61,7 +61,7 @@ public class ContextController {
                     "a specified context, returning a generated Context ID.")
     @ApiResponses({@ApiResponse(code = 200, message = "Context ID", response = ContextIdResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
-    @RequestMapping(path = "/v1/context/assignment",
+    @RequestMapping(path = "/v1/context",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@ApiParam(value = "Json body", required = true, name = "Body")

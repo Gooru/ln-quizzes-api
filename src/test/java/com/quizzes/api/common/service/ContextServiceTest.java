@@ -62,9 +62,7 @@ public class ContextServiceTest {
     @Test
     public void createContextFindProfile() throws Exception {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
-
-        CollectionDTO collectionDTO = new CollectionDTO();
-        assignmentDTO.setCollection(collectionDTO);
+        assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDTO ownerDTO = new ProfileDTO();
         ownerDTO.setId("external-id");
@@ -126,9 +124,7 @@ public class ContextServiceTest {
     @Test
     public void createContextCreateProfile() throws Exception {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
-
-        CollectionDTO collectionDTO = new CollectionDTO();
-        assignmentDTO.setCollection(collectionDTO);
+        assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDTO ownerDTO = new ProfileDTO();
         ownerDTO.setId("external-id");
