@@ -2,7 +2,6 @@ package com.quizzes.api.common.repository.jooq;
 
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.repository.GroupRepository;
-import org.apache.logging.log4j.core.util.UuidUtil;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
