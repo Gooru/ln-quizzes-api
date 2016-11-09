@@ -176,39 +176,7 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        Context context = contextService.getContext(contextId);
-
-        CollectionDTO collectionDTO = new CollectionDTO();
-        collectionDTO.setId(context.getCollectionId().toString());
-
-        Group group = groupService.findById(context.getGroupId());
-        ProfileDTO ownerDTO = new ProfileDTO();
-        ownerDTO.setId(group.getOwnerProfileId().toString());
-
-        List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
-        List<ProfileDTO> assigneesDTO = new ArrayList<>();
-        for (GroupProfile assignee : assignees){
-            ProfileDTO assigneeDTO = new ProfileDTO();
-            assigneeDTO.setId(assignee.getId().toString());
-            assigneesDTO.add(assigneeDTO);
-        }
-
-        CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
-
-        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
-        contextGetResponseDto.setId(contextId);
-        contextGetResponseDto.setCollection(collectionDTO);
-        contextGetResponseDto.setOwner(ownerDTO);
-        contextGetResponseDto.setAssignees(assigneesDTO);
-
-        Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
-
-        Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
-        Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
-        contextDataDto.setContextMap(contextMap);
-        contextDataDto.setMetadata(metadata);
-
-        contextGetResponseDto.setContextData(contextDataDto);
+        ContextGetResponseDto contextGetResponseDto = getContextGetResponseDto(contextId);
 
         return new ResponseEntity<>(contextGetResponseDto, HttpStatus.OK);
     }
@@ -336,4 +304,42 @@ public class ContextController {
         return new ResponseEntity<>(new ContextIdResponseDto(context.getId()), HttpStatus.OK);
     }
 
+    private ContextGetResponseDto getContextGetResponseDto(UUID contextId){
+
+        Context context = contextService.getContext(contextId);
+
+        CollectionDTO collectionDTO = new CollectionDTO();
+        collectionDTO.setId(context.getCollectionId().toString());
+
+        Group group = groupService.findById(context.getGroupId());
+        ProfileDTO ownerDTO = new ProfileDTO();
+        ownerDTO.setId(group.getOwnerProfileId().toString());
+
+        List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
+        List<ProfileDTO> assigneesDTO = new ArrayList<>();
+        for (GroupProfile assignee : assignees){
+            ProfileDTO assigneeDTO = new ProfileDTO();
+            assigneeDTO.setId(assignee.getId().toString());
+            assigneesDTO.add(assigneeDTO);
+        }
+
+        CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
+
+        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
+        contextGetResponseDto.setId(contextId);
+        contextGetResponseDto.setCollection(collectionDTO);
+        contextGetResponseDto.setOwner(ownerDTO);
+        contextGetResponseDto.setAssignees(assigneesDTO);
+
+        Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+
+        Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
+        Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
+        contextDataDto.setContextMap(contextMap);
+        contextDataDto.setMetadata(metadata);
+
+        contextGetResponseDto.setContextData(contextDataDto);
+
+        return contextGetResponseDto;
+    }
 }
