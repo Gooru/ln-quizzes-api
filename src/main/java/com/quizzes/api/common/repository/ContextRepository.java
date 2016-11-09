@@ -14,4 +14,6 @@ public interface ContextRepository {
 
     Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId);
 
+    UUID findCollectionIdByContextId(UUID contextId);
+
 }

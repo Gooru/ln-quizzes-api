@@ -1,7 +1,7 @@
 package com.quizzes.api.common.model;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+//import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -26,7 +26,7 @@ public class Context {
     @GenericGenerator(name = "uuid-gen", strategy = "uuid2")
     @GeneratedValue(generator = "uuid-gen")
     @Column(name = "id", nullable = false)
-    @JsonProperty("contextId")
+//    @JsonProperty("contextId")
     @Type(type = "pg-uuid")
     private UUID id;
 
