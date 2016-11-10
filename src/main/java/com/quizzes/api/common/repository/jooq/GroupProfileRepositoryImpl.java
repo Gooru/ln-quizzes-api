@@ -6,6 +6,8 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
@@ -23,6 +25,24 @@ public class GroupProfileRepositoryImpl implements GroupProfileRepository {
                 .set(GROUP_PROFILE.GROUP_ID, groupProfile.getGroupId())
                 .set(GROUP_PROFILE.PROFILE_ID, groupProfile.getProfileId())
                 .execute();
+    }
+
+    public List<GroupProfile> getGroupProfilesByGroupId(UUID id){
+        List<GroupProfile> groupProfiles = new ArrayList<>();
+
+        GroupProfile asignee1 = new GroupProfile();
+        asignee1.setGroupId(id);
+        asignee1.setId(UUID.randomUUID());
+        asignee1.setProfileId(UUID.randomUUID());
+        groupProfiles.add(asignee1);
+
+        GroupProfile asignee2 = new GroupProfile();
+        asignee2.setGroupId(id);
+        asignee2.setId(UUID.randomUUID());
+        asignee2.setProfileId(UUID.randomUUID());
+        groupProfiles.add(asignee2);
+
+        return groupProfiles;
     }
 
 }

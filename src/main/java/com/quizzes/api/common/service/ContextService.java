@@ -121,6 +121,13 @@ public class ContextService {
         return result;
     }
 
+    public Context getContext(UUID contextId) {
+
+        //TODO: replace this by findById method
+        return contextRepository.mockedFindById(contextId);
+
+    }
+
     private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
         List<Map<String, Object>> list = new ArrayList<>();
         for (ContextProfileEvent context : attempts) {
