@@ -3,6 +3,7 @@ package com.quizzes.api.common.service;
 import com.google.common.collect.Lists;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.repository.CollectionRepository;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
 import com.quizzes.api.realtime.service.EventService;
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -40,6 +42,9 @@ public class CollectionServiceTest {
 
     @Mock
     private CollectionOnAirRepository collectionOnAirRepository;
+
+    @Mock
+    private CollectionRepository collectionRepository;
 
     @Test
     public void findByExternalIdAndLmsId() throws Exception {
@@ -83,6 +88,18 @@ public class CollectionServiceTest {
         assertFalse("isLock is not false", result.getIsLock());
         assertFalse("isDeleted is not false", result.getIsDeleted());
         assertNull("createdAt is not null", result.getCreatedAt());
+    }
+
+    @Test
+    public void getCollection() throws Exception {
+        Collection collection = new Collection();
+        collection.setId(UUID.randomUUID());
+        collection.setIsCollection(false);
+        when(collectionRepository.findById(any(UUID.class))).thenReturn(collection);
+
+        Collection result = collectionService.findById(UUID.randomUUID());
+        assertNotNull("Result is Null", result);
+        assertSame(result.getClass(), Collection.class);
     }
 
     @Test

@@ -3,7 +3,10 @@ package com.quizzes.api.realtime.controller;
 import com.google.common.collect.Lists;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
 import com.quizzes.api.common.model.enums.Lms;
+import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.service.CollectionService;
+import com.quizzes.api.common.service.ResourceService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +27,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,10 +41,38 @@ public class CollectionControllerTest {
     @Mock
     private CollectionService collectionService;
 
+    @Mock
+    private ResourceService resourceService;
+
     HttpServletResponse response = mock(HttpServletResponse.class);
 
     @Test
     public void getCollection() throws Exception {
+        Collection collection = new Collection();
+        collection.setId(UUID.randomUUID());
+        collection.setIsCollection(false);
+        when(collectionService.findById(any(UUID.class))).thenReturn(collection);
+
+        List<Resource> resources = new ArrayList<>();
+        Resource resource1 = new Resource();
+        resource1.setId(UUID.randomUUID());
+        resource1.setIsResource(true);
+        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"SingleChoice\"," +
+                "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
+                " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
+                " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\",\"isFixed\":" +
+                " false,\"value\": \"B\"},{\"text\": \"option 3\",\"isFixed\": false,\"value\": \"C\"}]}}");
+        resources.add(resource1);
+
+        Resource resource2 = new Resource();
+        resource2.setId(UUID.randomUUID());
+        resource2.setIsResource(true);
+        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"True/False\",\"correctAnswer\":" +
+                " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
+                " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
+                "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
+        resources.add(resource2);
+        when(resourceService.getResourcesByCollectionId(collection.getId())).thenReturn(resources);
 
         ResponseEntity<CollectionDataDTO> result = collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);

@@ -41,8 +41,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
         //TODO: implement this mock
         Collection collection = new Collection();
         collection.setId(UUID.randomUUID());
-        collection.setIsCollection(true);
-        collection.setCollectionData("");
+        collection.setIsCollection(false);
         return collection;
     }
 

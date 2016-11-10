@@ -6,6 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ResourceRepository {
-    public List<Resource> getResourcesByCollectionId(UUID collectionId);
+    List<Resource> getResourcesByCollectionId(UUID collectionId);
 
 }

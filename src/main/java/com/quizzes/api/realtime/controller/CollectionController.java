@@ -49,7 +49,7 @@ public class CollectionController extends AbstractRealTimeController {
     private ResourceService resourceService;
 
     @Autowired
-    private JsonParser jsonParser;
+    private Gson gson;
 
     @ApiOperation(value = "Find collection on air by class and collection", notes = "Find collection on air by class and collection")
     @RequestMapping(path="/class/{classId}/collection/{collectionId}/onair",
@@ -74,50 +74,9 @@ public class CollectionController extends AbstractRealTimeController {
     public ResponseEntity<CollectionDataDTO> getCollection(@PathVariable UUID collectionId,
                                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                            @RequestHeader(value = "profile-id") UUID profileId) {
-/*
-        InteractionDTO singleChoiceInteraction =
-                new InteractionDTO(true, 10, "Mocked Interaction", new ArrayList<>(
-                        Arrays.asList(
-                                new ChoiceDTO("Option 1", false, "A"),
-                                new ChoiceDTO("Option 2", false, "B"),
-                                new ChoiceDTO("Option 3", false, "C"))));
-        QuestionDataDTO questionSingleChoice =
-                new QuestionDataDTO("Mocked Question Data",
-                        QuestionType.SingleChoice,
-                        new ArrayList<>(Arrays.asList(new AnswerDTO("A"))),
-                        "mocked body",
-                        singleChoiceInteraction);
 
-        InteractionDTO trueFalseInteraction =
-                new InteractionDTO(true, 10, "Mocked Interaction", new ArrayList<>(
-                        Arrays.asList(
-                                new ChoiceDTO("True", false, "T"),
-                                new ChoiceDTO("False", false, "F"))));
-        QuestionDataDTO questionTrueFalse =
-                new QuestionDataDTO("Mocked Question Data",
-                        QuestionType.TrueFalse,
-                        new ArrayList<>(Arrays.asList(new AnswerDTO("T"))),
-                        "mocked body",
-                        trueFalseInteraction);
-*/
-        Collection collection = collectionService.findById(collectionId);
-        List<Resource> resources = resourceService.getResourcesByCollectionId(collectionId);
-        List<CollectionDataResourceDTO> resourcesDTO = new ArrayList<>();
-        for (Resource resource : resources){
-            QuestionDataDTO questionDataDTO = null;
-            questionDataDTO = new Gson().fromJson(resource.getResourceData(), QuestionDataDTO.class);
-            CollectionDataResourceDTO resourceDTO = new CollectionDataResourceDTO(resource.getId(), resource.getIsResource(), questionDataDTO);
-            resourcesDTO.add(resourceDTO);
-        }
+        CollectionDataDTO result = getCollection(collectionId);
 
-        CollectionDataDTO result = new CollectionDataDTO(collection.getId(), collection.getIsCollection(), resourcesDTO);
-
-/*
-        List<CollectionDataResourceDTO> resources = new ArrayList<>();
-        resources.add(new CollectionDataResourceDTO(UUID.randomUUID(), false, questionSingleChoice));
-        resources.add(new CollectionDataResourceDTO(UUID.randomUUID(), false, questionTrueFalse));
-        CollectionDataDTO result = new CollectionDataDTO(UUID.randomUUID(), false, resources);
-*/
         return new ResponseEntity(result, HttpStatus.OK);
     }
 
@@ -165,4 +124,22 @@ public class CollectionController extends AbstractRealTimeController {
         collectionService.resetCollectionForUser(collectionUniqueId, userId);
     }
 
+    private CollectionDataDTO getCollection(UUID collectionId){
+        CollectionDataDTO result = null;
+        Collection collection = collectionService.findById(collectionId);
+        if (collection != null) {
+            List<Resource> resources = resourceService.getResourcesByCollectionId(collectionId);
+            List<CollectionDataResourceDTO> resourcesDTO = new ArrayList<>();
+            for (Resource resource : resources) {
+                QuestionDataDTO questionDataDTO = gson.fromJson(resource.getResourceData(), QuestionDataDTO.class);
+                CollectionDataResourceDTO resourceDTO = new CollectionDataResourceDTO(resource.getId(), resource.getIsResource(), questionDataDTO);
+                resourcesDTO.add(resourceDTO);
+            }
+
+            result = new CollectionDataDTO(collection.getId(), collection.getIsCollection(), resourcesDTO);
+        }
+        //TODO: if collection == null then return an error status ans error code;
+
+        return result;
+    }
 }
