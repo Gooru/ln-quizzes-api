@@ -1,14 +1,9 @@
 package com.quizzes.api.realtime.controller;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.controller.request.ResourceDTO;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
-import com.quizzes.api.common.dto.controller.response.ChoiceDTO;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
 import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
-import com.quizzes.api.common.dto.controller.response.InteractionDTO;
 import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
-import com.quizzes.api.common.dto.controller.response.QuestionType;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.service.CollectionService;
@@ -18,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
