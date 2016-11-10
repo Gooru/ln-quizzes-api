@@ -376,4 +376,27 @@ public class ContextServiceTest {
         Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
+    @Test
+    public void getContext() throws Exception {
+        Context context = new Context();
+        UUID contextId = UUID.randomUUID();
+        context.setId(contextId);
+        context.setGroupId(UUID.randomUUID());
+        context.setCollectionId(UUID.randomUUID());
+        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}");
+
+        when(contextRepository.mockedFindById(any(UUID.class))).thenReturn(context);
+
+        Context result = contextService.getContext(UUID.randomUUID());
+
+        assertNotNull("Result is Null", result);
+
+
+        assertNotNull("Context id is null", result.getId());
+        assertNotNull("Collection id is null", result.getCollectionId());
+        assertNotNull("Group is null", result.getGroupId());
+        assertNotNull("ContextData is null", result.getContextData());
+    }
+
 }

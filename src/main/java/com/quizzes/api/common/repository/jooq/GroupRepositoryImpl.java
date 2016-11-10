@@ -25,6 +25,14 @@ public class GroupRepositoryImpl implements GroupRepository {
         }
     }
 
+    public Group findById(UUID id){
+        //TODO: mocked group, replace with a valid implementation
+        Group group = new Group();
+        group.setId(id);
+        group.setOwnerProfileId(UUID.randomUUID());
+        return group;
+    }
+
     private Group insertGroup(final Group group) {
         return jooq.insertInto(GROUP)
                 .set(GROUP.ID, UUID.randomUUID())

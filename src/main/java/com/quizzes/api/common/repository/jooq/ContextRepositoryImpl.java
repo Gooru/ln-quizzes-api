@@ -42,6 +42,17 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
+    public Context mockedFindById(UUID id) {
+        Context result = new Context();
+        result.setId(UUID.randomUUID());
+        result.setCollectionId(UUID.randomUUID());
+        result.setGroupId(UUID.randomUUID());
+        result.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        return result;
+    }
+
+    @Override
     public Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId) {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
