@@ -468,8 +468,10 @@ public class ContextControllerTest {
 
     @Test
     public void getContextsCreated() throws Exception {
-
-        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+        Map<String, String> filter = new HashMap<>();
+        filter.put("classId", UUID.randomUUID().toString());
+        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller
+                .getContextsCreated(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());

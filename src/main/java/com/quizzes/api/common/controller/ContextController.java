@@ -1,26 +1,25 @@
 package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
-import com.quizzes.api.common.dto.controller.ContextDataDTO;
-import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
 import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
+import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
-import com.quizzes.api.common.dto.ContextIdResponseDto;
-import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.ContextServiceDummy;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
-import com.quizzes.api.common.service.ContextServiceDummy;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -36,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.ConstraintViolation;
@@ -190,7 +190,9 @@ public class ContextController {
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextGetCreatedResponseDto>> getContextsCreated(
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+            @RequestHeader(value = "profile-id") UUID profileId,
+            @ApiParam(value = "optional query params", required = true, name = "filterMap")
+            @RequestParam Map<String, String> filterMap) throws Exception {
 
         ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
         contextGetCreatedResponseDto.setId(UUID.randomUUID());
@@ -304,7 +306,7 @@ public class ContextController {
         return new ResponseEntity<>(new ContextIdResponseDto(context.getId()), HttpStatus.OK);
     }
 
-    private ContextGetResponseDto getContextGetResponseDto(UUID contextId){
+    private ContextGetResponseDto getContextGetResponseDto(UUID contextId) {
 
         Context context = contextService.getContext(contextId);
 
@@ -317,7 +319,7 @@ public class ContextController {
 
         List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
         List<ProfileDTO> assigneesDTO = new ArrayList<>();
-        for (GroupProfile assignee : assignees){
+        for (GroupProfile assignee : assignees) {
             ProfileDTO assigneeDTO = new ProfileDTO();
             assigneeDTO.setId(assignee.getId().toString());
             assigneesDTO.add(assigneeDTO);
@@ -331,10 +333,10 @@ public class ContextController {
         contextGetResponseDto.setOwner(ownerDTO);
         contextGetResponseDto.setAssignees(assigneesDTO);
 
-        Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+        Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
 
-        Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
-        Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
+        Map<String, String> contextMap = (Map<String, String>) contextDataMap.get("contextMap");
+        Map<String, String> metadata = (Map<String, String>) contextDataMap.get("metadata");
         contextDataDto.setContextMap(contextMap);
         contextDataDto.setMetadata(metadata);
 
