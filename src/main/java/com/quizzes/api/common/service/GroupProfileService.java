@@ -5,6 +5,9 @@ import com.quizzes.api.common.repository.GroupProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class GroupProfileService {
 
@@ -14,5 +17,10 @@ public class GroupProfileService {
     public void save(GroupProfile groupProfile) {
         groupProfileRepository.save(groupProfile);
     }
+
+    public List<GroupProfile> getGroupProfilesByGroupId(UUID id){
+        return groupProfileRepository.getGroupProfilesByGroupId(id);
+    }
+
 }
 
