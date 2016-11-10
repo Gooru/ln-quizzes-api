@@ -1,7 +1,13 @@
 package com.quizzes.api.realtime.controller;
 
 import com.google.common.collect.Lists;
+import com.quizzes.api.common.dto.controller.response.AnswerDTO;
+import com.quizzes.api.common.dto.controller.response.ChoiceDTO;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
+import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
+import com.quizzes.api.common.dto.controller.response.InteractionDTO;
+import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
+import com.quizzes.api.common.dto.controller.response.QuestionType;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Resource;
@@ -48,36 +54,45 @@ public class CollectionControllerTest {
 
     @Test
     public void getCollection() throws Exception {
-        Collection collection = new Collection();
-        collection.setId(UUID.randomUUID());
-        collection.setIsCollection(false);
-        when(collectionService.findById(any(UUID.class))).thenReturn(collection);
 
-        List<Resource> resources = new ArrayList<>();
-        Resource resource1 = new Resource();
-        resource1.setId(UUID.randomUUID());
-        resource1.setIsResource(true);
-        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"SingleChoice\"," +
-                "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
-                " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
-                " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\",\"isFixed\":" +
-                " false,\"value\": \"B\"},{\"text\": \"option 3\",\"isFixed\": false,\"value\": \"C\"}]}}");
-        resources.add(resource1);
+        List<AnswerDTO> answers = new ArrayList<>();
+        AnswerDTO answerDto = new AnswerDTO("A");
+        answers.add(answerDto);
+        List<ChoiceDTO> choices = new ArrayList<>();
+        ChoiceDTO choiceDto1 = new ChoiceDTO("option 1", false, "A");
+        choices.add(choiceDto1);
+        ChoiceDTO choiceDto2 = new ChoiceDTO("option 2", false, "B");
+        choices.add(choiceDto2);
+        ChoiceDTO choiceDto3 = new ChoiceDTO("option 3", false, "C");
+        choices.add(choiceDto3);
+        InteractionDTO interactionDto = new InteractionDTO(true, 10, "mocked Interaction", choices);
+        QuestionDataDTO questionDataDto = new QuestionDataDTO("mocked Question Data", QuestionType.SingleChoice, answers, "mocked body", interactionDto);
+        CollectionDataResourceDTO collectionDataResourceDto1 = new CollectionDataResourceDTO(UUID.randomUUID(),
+                true, questionDataDto);
+        List<CollectionDataResourceDTO> collectionDataResourceDtos = new ArrayList<>();
+        collectionDataResourceDtos.add(collectionDataResourceDto1);
 
-        Resource resource2 = new Resource();
-        resource2.setId(UUID.randomUUID());
-        resource2.setIsResource(true);
-        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"True/False\",\"correctAnswer\":" +
-                " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
-                " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
-                "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
-        resources.add(resource2);
-        when(resourceService.getResourcesByCollectionId(collection.getId())).thenReturn(resources);
+        List<AnswerDTO> answers2 = new ArrayList<>();
+        AnswerDTO answerDto2 = new AnswerDTO("T");
+        answers2.add(answerDto2);
+        List<ChoiceDTO> choices2 = new ArrayList<>();
+        ChoiceDTO choiceDto4 = new ChoiceDTO("True", false, "T");
+        choices2.add(choiceDto4);
+        ChoiceDTO choiceDto5 = new ChoiceDTO("False", false, "F");
+        choices2.add(choiceDto5);
+        InteractionDTO interactionDto2 = new InteractionDTO(true, 10, "mocked Interaction", choices2);
+        QuestionDataDTO questionDataDto2 = new QuestionDataDTO("mocked Question Data", QuestionType.TrueFalse, answers2, "mocked body", interactionDto2);
+        CollectionDataResourceDTO collectionDataResourceDto2 = new CollectionDataResourceDTO(UUID.randomUUID(),
+                true, questionDataDto2);
+        collectionDataResourceDtos.add(collectionDataResourceDto2);
+
+        CollectionDataDTO collectionDto = new CollectionDataDTO(UUID.randomUUID(), false, collectionDataResourceDtos);
+
+        when(collectionService.getCollection(any(UUID.class))).thenReturn(collectionDto);
 
         ResponseEntity<CollectionDataDTO> result = collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
 
-        verify(collectionService, times(1)).findById(any(UUID.class));
-        verify(resourceService, times(1)).getResourcesByCollectionId(any(UUID.class));
+        verify(collectionService, times(1)).getCollection(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());

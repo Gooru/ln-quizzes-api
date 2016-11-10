@@ -1,13 +1,7 @@
 package com.quizzes.api.realtime.controller;
 
-import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
-import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
-import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
-import com.quizzes.api.common.model.tables.pojos.Collection;
-import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.service.CollectionService;
-import com.quizzes.api.common.service.ResourceService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -24,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -37,12 +29,6 @@ public class CollectionController extends AbstractRealTimeController {
 
     @Autowired
     private CollectionService collectionService;
-
-    @Autowired
-    private ResourceService resourceService;
-
-    @Autowired
-    private Gson gson;
 
     @ApiOperation(value = "Find collection on air by class and collection", notes = "Find collection on air by class and collection")
     @RequestMapping(path="/class/{classId}/collection/{collectionId}/onair",
@@ -68,7 +54,7 @@ public class CollectionController extends AbstractRealTimeController {
                                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
-        CollectionDataDTO result = getCollection(collectionId);
+        CollectionDataDTO result = collectionService.getCollection(collectionId);
 
         return new ResponseEntity(result, HttpStatus.OK);
     }
@@ -117,22 +103,4 @@ public class CollectionController extends AbstractRealTimeController {
         collectionService.resetCollectionForUser(collectionUniqueId, userId);
     }
 
-    private CollectionDataDTO getCollection(UUID collectionId){
-        CollectionDataDTO result = null;
-        Collection collection = collectionService.findById(collectionId);
-        if (collection != null) {
-            List<Resource> resources = resourceService.getResourcesByCollectionId(collectionId);
-            List<CollectionDataResourceDTO> resourcesDTO = new ArrayList<>();
-            for (Resource resource : resources) {
-                QuestionDataDTO questionDataDTO = gson.fromJson(resource.getResourceData(), QuestionDataDTO.class);
-                CollectionDataResourceDTO resourceDTO = new CollectionDataResourceDTO(resource.getId(), resource.getIsResource(), questionDataDTO);
-                resourcesDTO.add(resourceDTO);
-            }
-
-            result = new CollectionDataDTO(collection.getId(), collection.getIsCollection(), resourcesDTO);
-        }
-        //TODO: if collection == null then return an error status ans error code;
-
-        return result;
-    }
 }

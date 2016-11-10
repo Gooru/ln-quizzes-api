@@ -1,8 +1,13 @@
 package com.quizzes.api.common.service;
 
+import com.google.gson.Gson;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
+import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
+import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.repository.CollectionRepository;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
@@ -10,6 +15,8 @@ import com.quizzes.api.realtime.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -21,6 +28,12 @@ public class CollectionService {
 
     @Autowired
     ProfileService profileService;
+
+    @Autowired
+    ResourceService resourceService;
+
+    @Autowired
+    Gson gson;
 
     //TODO: Tests
     public Collection findByExternalIdAndLmsId(String externalId, Lms lms) {
@@ -38,6 +51,25 @@ public class CollectionService {
 
     public Collection findById(UUID id) {
         return collectionRepository.findById(id);
+    }
+
+    public CollectionDataDTO getCollection(UUID collectionId){
+        CollectionDataDTO result = null;
+        Collection collection = findById(collectionId);
+        if (collection != null) {
+            List<Resource> resources = resourceService.getResourcesByCollectionId(collectionId);
+            List<CollectionDataResourceDTO> resourcesDTO = new ArrayList<>();
+            for (Resource resource : resources) {
+                QuestionDataDTO questionDataDTO = gson.fromJson(resource.getResourceData(), QuestionDataDTO.class);
+                CollectionDataResourceDTO resourceDTO = new CollectionDataResourceDTO(resource.getId(), resource.getIsResource(), questionDataDTO);
+                resourcesDTO.add(resourceDTO);
+            }
+
+            result = new CollectionDataDTO(collection.getId(), collection.getIsCollection(), resourcesDTO);
+        }
+        //TODO: if collection == null then return an error status ans error code;
+
+        return result;
     }
 
     //TODO: WE NEED TO REMOVE THIS OLD METHODS - OLD REAL TIME METHODS
