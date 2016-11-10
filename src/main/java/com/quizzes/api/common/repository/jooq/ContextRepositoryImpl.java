@@ -6,6 +6,8 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
@@ -41,6 +43,23 @@ public class ContextRepositoryImpl implements ContextRepository {
         result.setGroupId(UUID.randomUUID());
         result.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
                 "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        return result;
+    }
+
+    @Override
+    public List<Context> findByOwnerId(UUID profileId){
+        //TODO: this is a mock, replace with a jooq impl
+        List<Context> result = new ArrayList<>();
+
+        Context context = new Context();
+        context.setId(UUID.randomUUID());
+        context.setCollectionId(UUID.randomUUID());
+        context.setGroupId(UUID.randomUUID());
+        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+
+        result.add(context);
+
         return result;
     }
 

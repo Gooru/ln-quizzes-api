@@ -128,6 +128,12 @@ public class ContextService {
 
     }
 
+    public List<Context> getContextByOwnerId(UUID profileId) {
+
+        return contextRepository.findByOwnerId(profileId);
+
+    }
+
     private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
         List<Map<String, Object>> list = new ArrayList<>();
         for (ContextProfileEvent context : attempts) {

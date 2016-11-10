@@ -192,47 +192,7 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
-        contextGetCreatedResponseDto.setId(UUID.randomUUID());
-
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId(UUID.randomUUID().toString());
-        contextGetCreatedResponseDto.setCollection(collection);
-
-        List<ProfileDTO> profiles = new ArrayList<>();
-
-        ProfileDTO profile1 = new ProfileDTO();
-        profile1.setId(UUID.randomUUID().toString());
-        profile1.setFirstName("Karol");
-        profile1.setLastName("Fernandez");
-        profile1.setUsername("karol1");
-
-        ProfileDTO profile2 = new ProfileDTO();
-        profile2.setId(UUID.randomUUID().toString());
-        profile2.setFirstName("Roger");
-        profile2.setLastName("Stevens");
-        profile2.setUsername("rogersteve");
-
-        profiles.add(profile1);
-        profiles.add(profile2);
-
-        contextGetCreatedResponseDto.setAssignees(profiles);
-
-        ContextGetAssignedResponseDto.ContextDataDto contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDto();
-
-        Map<String, String> contextMap = new HashMap<>();
-        contextMap.put("classId", UUID.randomUUID().toString());
-        contextDataDTO.setContextMap(contextMap);
-
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("title", "Math 1st Grade");
-        metadata.put("description", "First Partial");
-        contextDataDTO.setMetadata(metadata);
-
-        contextGetCreatedResponseDto.setContextData(contextDataDTO);
-
-        List<ContextGetCreatedResponseDto> list = new ArrayList<>();
-        list.add(contextGetCreatedResponseDto);
+        List<ContextGetCreatedResponseDto> list = getContextGetCreatedResponseDto(profileId);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
@@ -341,5 +301,45 @@ public class ContextController {
         contextGetResponseDto.setContextData(contextDataDto);
 
         return contextGetResponseDto;
+    }
+
+    private List<ContextGetCreatedResponseDto> getContextGetCreatedResponseDto(UUID profileId){
+
+        List<ContextGetCreatedResponseDto> result = new ArrayList<>();
+        List<Context> contexts = contextService.getContextByOwnerId(profileId);
+
+        for (Context context : contexts){
+            CollectionDTO collectionDTO = new CollectionDTO();
+            collectionDTO.setId(context.getCollectionId().toString());
+
+            List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
+            List<ProfileDTO> assigneesDTO = new ArrayList<>();
+            for (GroupProfile assignee : assignees){
+                ProfileDTO assigneeDTO = new ProfileDTO();
+                assigneeDTO.setId(assignee.getId().toString());
+                assigneesDTO.add(assigneeDTO);
+            }
+
+            CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
+
+            ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
+            contextGetCreatedResponseDto.setId(context.getId());
+            contextGetCreatedResponseDto.setCollection(collectionDTO);
+            contextGetCreatedResponseDto.setAssignees(assigneesDTO);
+
+            Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+
+            Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
+            Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
+            contextDataDto.setContextMap(contextMap);
+            contextDataDto.setMetadata(metadata);
+
+            contextGetCreatedResponseDto.setContextData(contextDataDto);
+
+            result.add(contextGetCreatedResponseDto);
+
+        }
+
+        return result;
     }
 }
