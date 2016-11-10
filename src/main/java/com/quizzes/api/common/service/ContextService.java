@@ -17,8 +17,8 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
-import org.jooq.tools.json.JSONArray;
 import com.quizzes.api.common.service.content.CollectionContentService;
+import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,13 +91,28 @@ public class ContextService {
         return null;
     }
 
-    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto) {
+    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Gson gson = new Gson();
         Context context = contextRepository.findById(contextId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
+
+        if(contextPutRequestDto.getAssignees() != null){
+            List<UUID> contextProfileIds = contextProfileService.findContextProfileIdsByContextId(contextId);
+            for (ProfileDTO profileDTO : contextPutRequestDto.getAssignees()) {
+                if (!contextProfileIds.contains(UUID.fromString(profileDTO.getId()))) {
+                    Profile profile = findProfile(profileDTO, lms);
+                    contextProfileService.save(new ContextProfile(null, context.getId(), profile.getId(), null, null, null));
+                } else {
+                    contextProfileIds.remove(UUID.fromString(profileDTO.getId()));
+                }
+            }
+            deleteOldContextProfiles(contextProfileIds);
+        }
+
+        //Update ContextData
         ContextDataDTO contextDataDTO = gson.fromJson(context.getContextData(), ContextDataDTO.class);
         contextDataDTO.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         contextDataDTO.setMetadata(contextPutRequestDto.getContextData().getMetadata());
@@ -161,5 +176,12 @@ public class ContextService {
             groupProfileService.save(new GroupProfile(null, groupId, profile.getId(), null));
         }
     }
+
+    private void deleteOldContextProfiles(List<UUID> idsToDelete) {
+        for(UUID id : idsToDelete){
+            contextProfileService.delete(id);
+        }
+    }
+
 
 }

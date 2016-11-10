@@ -27,10 +27,18 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Context findById(UUID id) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
-                .from(CONTEXT)
-                .where(CONTEXT.ID.eq(id))
-                .fetchOneInto(Context.class);
+        String contextData = "{\"metadata\":{\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"4ef71420-dde9-4d2f-822e-5abb2c0b9c8c\"}}";
+
+        Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                contextData, null);
+
+        return context;
+
+//        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
+//                .from(CONTEXT)
+//                .where(CONTEXT.ID.eq(id))
+//                .fetchOneInto(Context.class);
     }
 
     @Override
@@ -48,23 +56,34 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     private Context insertContext(final Context context) {
-        return jooq.insertInto(CONTEXT)
-                .set(CONTEXT.ID, UUID.randomUUID())
-                .set(CONTEXT.COLLECTION_ID, context.getCollectionId())
-                .set(CONTEXT.GROUP_ID, context.getGroupId())
-                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
-                .returning()
-                .fetchOne()
-                .into(Context.class);
+        return new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "{\n" +
+                "    \"metadata\": {\n" +
+                "      \"description\": \"First Partial\",\n" +
+                "      \"title\": \"Math 1st Grade\"\n" +
+                "    },\n" +
+                "    \"contextMap\": {\n" +
+                "      \"classId\": \"4ef71420-dde9-4d2f-822e-5abb2c0b9c8c\"\n" +
+                "    }\n" +
+                "  }", null);
+//        return jooq.insertInto(CONTEXT)
+//                .set(CONTEXT.ID, UUID.randomUUID())
+//                .set(CONTEXT.COLLECTION_ID, context.getCollectionId())
+//                .set(CONTEXT.GROUP_ID, context.getGroupId())
+//                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
+//                .returning()
+//                .fetchOne()
+//                .into(Context.class);
     }
 
     private Context updateContext(final Context context) {
-        return jooq.update(CONTEXT)
-                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
-                .where(CONTEXT.ID.eq(context.getId()))
-                .returning()
-                .fetchOne()
-                .into(Context.class);
+        return context;
+
+//        return jooq.update(CONTEXT)
+//                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
+//                .where(CONTEXT.ID.eq(context.getId()))
+//                .returning()
+//                .fetchOne()
+//                .into(Context.class);
     }
 
 }

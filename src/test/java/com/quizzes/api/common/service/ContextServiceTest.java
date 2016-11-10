@@ -204,18 +204,77 @@ public class ContextServiceTest {
         metadata.setMetadata(metadataMap);
         contextDataMock.setContextData(metadata);
 
+        List<ProfileDTO> assignees = new ArrayList<>();
+        ProfileDTO profile1 = new ProfileDTO();
+        profile1.setId(UUID.randomUUID().toString());
+        ProfileDTO profile2 = new ProfileDTO();
+        profile2.setId(UUID.randomUUID().toString());
+        assignees.add(profile1);
+        assignees.add(profile2);
+        contextDataMock.setAssignees(assignees);
+
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
         Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
+        Profile profile = new Profile(UUID.randomUUID(), "234", Lms.its_learning, "{body}", null);
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+        when(profileService.save(any(Profile.class))).thenReturn(profile);
+        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(null);
 
-        Context result = contextService.update(UUID.randomUUID(), contextDataMock);
+        Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
         contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
         verify(contextRepository, times(1)).findById(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
+        verify(profileService, times(2)).save(any(Profile.class));
+        verify(contextProfileService, times(2)).save(any(ContextProfile.class));
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
+        assertEquals("Wrong id for group", groupId, result.getGroupId());
+        assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
+    }
+
+    @Test
+    public void updateAndDelete() throws Exception {
+        ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
+        ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
+
+        Map<String, String> metadataMap = new HashMap<>();
+        metadataMap.put("classId", "classId");
+        metadata.setMetadata(metadataMap);
+        contextDataMock.setContextData(metadata);
+
+        List<ProfileDTO> assignees = new ArrayList<>();
+        ProfileDTO profile1 = new ProfileDTO();
+        profile1.setId(UUID.randomUUID().toString());
+        List<UUID> ids = new ArrayList<>();
+        ids.add(UUID.randomUUID());
+        assignees.add(profile1);
+        contextDataMock.setAssignees(assignees);
+
+        UUID id = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID groupId = UUID.randomUUID();
+        Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
+        Profile profile = new Profile(UUID.randomUUID(), "234", Lms.its_learning, "{body}", null);
+        when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
+        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+        when(profileService.save(any(Profile.class))).thenReturn(profile);
+        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(null);
+        when(contextProfileService.findContextProfileIdsByContextId(any(UUID.class))).thenReturn(ids);
+
+        Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
+        contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
+
+        verify(contextRepository, times(1)).findById(any(UUID.class));
+        verify(contextRepository, times(1)).save(any(Context.class));
+        verify(profileService, times(1)).save(any(Profile.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(contextProfileService, times(1)).delete(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
@@ -314,7 +373,7 @@ public class ContextServiceTest {
     @Test(expected = ContentNotFoundException.class)
     public void updateException() throws Exception {
         when(contextRepository.findById(any(UUID.class))).thenReturn(null);
-        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto());
+        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
 }
