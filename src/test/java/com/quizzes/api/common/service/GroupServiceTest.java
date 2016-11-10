@@ -45,4 +45,19 @@ public class GroupServiceTest {
         assertEquals("Wrong group data", group.getGroupData(), result.getGroupData());
     }
 
+    @Test
+    public void findById() throws Exception {
+        UUID owner = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
+        Group group = new Group(id, owner, null, null);
+
+        when(groupRepository.findById(any(UUID.class))).thenReturn(group);
+
+        Group result = groupService.findById(UUID.randomUUID());
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong id", owner, result.getOwnerProfileId());
+
+    }
+
 }

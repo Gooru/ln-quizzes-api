@@ -1,5 +1,8 @@
 package com.quizzes.api.common.controller;
 
+import com.quizzes.api.common.dto.CommonContextGetResponseDto;
+import com.quizzes.api.common.dto.controller.ContextDataDTO;
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
 import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
@@ -7,20 +10,23 @@ import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
-import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
-import com.quizzes.api.common.dto.controller.response.AttemptDTO;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
+import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
+import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.tables.pojos.Group;
+import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.GroupProfileService;
+import com.quizzes.api.common.service.GroupService;
 import com.quizzes.api.common.service.ContextServiceDummy;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +60,15 @@ public class ContextController {
 
     @Autowired
     private ContextServiceDummy contextServiceDummy;
+
+    @Autowired
+    private GroupService groupService;
+
+    @Autowired
+    private GroupProfileService groupProfileService;
+
+    @Autowired
+    private JsonParser jsonParser;
 
     @ApiOperation(
             value = "Creates an assignment",
@@ -103,31 +118,15 @@ public class ContextController {
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDTO.class),
+            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDocDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> startContextEvent(@PathVariable UUID contextId,
-                                               @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                               @RequestHeader(value = "profile-id") UUID profileId) {
-
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId(UUID.randomUUID().toString());
-
-        AnswerDTO answer1 = new AnswerDTO("1");
-        AnswerDTO answer2 = new AnswerDTO("1,3");
-        List<AnswerDTO> answerList = new ArrayList<>();
-        answerList.add(answer1);
-        answerList.add(answer2);
-
-        AttemptDTO attempt = new AttemptDTO(UUID.randomUUID(), 1500, 1, 8, answerList);
-        List<AttemptDTO> attempts = new ArrayList<>();
-        attempts.add(attempt);
-
-        StartContextEventResponseDTO result =
-                new StartContextEventResponseDTO(contextId, collection, UUID.randomUUID(), attempts);
-
+    public ResponseEntity<StartContextEventResponseDto> startContextEvent(@PathVariable UUID contextId,
+                                                                          @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                                          @RequestHeader(value = "profile-id") UUID profileId) {
+        StartContextEventResponseDto result = contextService.startContextEvent(contextId, profileId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
@@ -177,51 +176,7 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
-        contextGetResponseDto.setId(UUID.randomUUID());
-
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId(UUID.randomUUID().toString());
-        contextGetResponseDto.setCollection(collection);
-
-        ProfileDTO owner = new ProfileDTO();
-        owner.setId(UUID.randomUUID().toString());
-        owner.setFirstName("Michael");
-        owner.setLastName("Guth");
-        owner.setUsername("migut");
-        contextGetResponseDto.setOwner(owner);
-
-        List<ProfileDTO> profiles = new ArrayList<>();
-
-        ProfileDTO profile1 = new ProfileDTO();
-        profile1.setId(UUID.randomUUID().toString());
-        profile1.setFirstName("Karol");
-        profile1.setLastName("Fernandez");
-        profile1.setUsername("karol1");
-
-        ProfileDTO profile2 = new ProfileDTO();
-        profile2.setId(UUID.randomUUID().toString());
-        profile2.setFirstName("Roger");
-        profile2.setLastName("Stevens");
-        profile2.setUsername("rogersteve");
-
-        profiles.add(profile1);
-        profiles.add(profile2);
-
-        contextGetResponseDto.setAssignees(profiles);
-
-        ContextGetAssignedResponseDto.ContextDataDto contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDto();
-
-        Map<String, String> contextMap = new HashMap<>();
-        contextMap.put("classId", UUID.randomUUID().toString());
-        contextDataDTO.setContextMap(contextMap);
-
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("title", "Math 1st Grade");
-        metadata.put("description", "First Partial");
-        contextDataDTO.setMetadata(metadata);
-
-        contextGetResponseDto.setContextData(contextDataDTO);
+        ContextGetResponseDto contextGetResponseDto = getContextGetResponseDto(contextId);
 
         return new ResponseEntity<>(contextGetResponseDto, HttpStatus.OK);
     }
@@ -349,4 +304,42 @@ public class ContextController {
         return new ResponseEntity<>(new ContextIdResponseDto(context.getId()), HttpStatus.OK);
     }
 
+    private ContextGetResponseDto getContextGetResponseDto(UUID contextId){
+
+        Context context = contextService.getContext(contextId);
+
+        CollectionDTO collectionDTO = new CollectionDTO();
+        collectionDTO.setId(context.getCollectionId().toString());
+
+        Group group = groupService.findById(context.getGroupId());
+        ProfileDTO ownerDTO = new ProfileDTO();
+        ownerDTO.setId(group.getOwnerProfileId().toString());
+
+        List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
+        List<ProfileDTO> assigneesDTO = new ArrayList<>();
+        for (GroupProfile assignee : assignees){
+            ProfileDTO assigneeDTO = new ProfileDTO();
+            assigneeDTO.setId(assignee.getId().toString());
+            assigneesDTO.add(assigneeDTO);
+        }
+
+        CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
+
+        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
+        contextGetResponseDto.setId(contextId);
+        contextGetResponseDto.setCollection(collectionDTO);
+        contextGetResponseDto.setOwner(ownerDTO);
+        contextGetResponseDto.setAssignees(assigneesDTO);
+
+        Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+
+        Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
+        Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
+        contextDataDto.setContextMap(contextMap);
+        contextDataDto.setMetadata(metadata);
+
+        contextGetResponseDto.setContextData(contextDataDto);
+
+        return contextGetResponseDto;
+    }
 }

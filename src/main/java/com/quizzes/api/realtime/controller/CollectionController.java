@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -61,19 +62,35 @@ public class CollectionController extends AbstractRealTimeController {
     public ResponseEntity<CollectionDataDTO> getCollection(@PathVariable UUID collectionId,
                                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                            @RequestHeader(value = "profile-id") UUID profileId) {
+        InteractionDTO singleChoiceInteraction =
+                new InteractionDTO(true, 10, "Mocked Interaction", new ArrayList<>(
+                        Arrays.asList(
+                                new ChoiceDTO("Option 1", false, "A"),
+                                new ChoiceDTO("Option 2", false, "B"),
+                                new ChoiceDTO("Option 3", false, "C"))));
+        QuestionDataDTO questionSingleChoice =
+                new QuestionDataDTO("Mocked Question Data",
+                        QuestionType.SingleChoice,
+                        new ArrayList<>(Arrays.asList(new AnswerDTO("A"))),
+                        "mocked body",
+                        singleChoiceInteraction);
 
-        ChoiceDTO choiceDTO = new ChoiceDTO("mocked text", false, "mocked value");
-        List<ChoiceDTO> choiceDTOList = new ArrayList<>();
-        choiceDTOList.add(choiceDTO);
-        InteractionDTO interactionDTO = new InteractionDTO(true, 10, "mocked Interaction", choiceDTOList);
-        AnswerDTO answerDTO = new AnswerDTO("1");
-        List<AnswerDTO>  answerDTOList = new ArrayList<>();
-        answerDTOList.add(answerDTO);
-        QuestionDataDTO questionDataDTO = new QuestionDataDTO("mocked Question Data", QuestionType.SingleChoice, answerDTOList, "mocked body", interactionDTO);
-        CollectionDataResourceDTO resourceDTO = new CollectionDataResourceDTO(UUID.randomUUID(), true, questionDataDTO);
+        InteractionDTO trueFalseInteraction =
+                new InteractionDTO(true, 10, "Mocked Interaction", new ArrayList<>(
+                        Arrays.asList(
+                                new ChoiceDTO("True", false, "T"),
+                                new ChoiceDTO("False", false, "F"))));
+        QuestionDataDTO questionTrueFalse =
+                new QuestionDataDTO("Mocked Question Data",
+                        QuestionType.TrueFalse,
+                        new ArrayList<>(Arrays.asList(new AnswerDTO("T"))),
+                        "mocked body",
+                        trueFalseInteraction);
+
         List<CollectionDataResourceDTO> resources = new ArrayList<>();
-        resources.add(resourceDTO);
-        CollectionDataDTO result = new CollectionDataDTO(UUID.randomUUID(), true, resources);
+        resources.add(new CollectionDataResourceDTO(UUID.randomUUID(), false, questionSingleChoice));
+        resources.add(new CollectionDataResourceDTO(UUID.randomUUID(), false, questionTrueFalse));
+        CollectionDataDTO result = new CollectionDataDTO(UUID.randomUUID(), false, resources);
 
         return new ResponseEntity(result, HttpStatus.OK);
     }

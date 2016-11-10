@@ -10,6 +10,10 @@ public interface ContextRepository {
 
     Context findById(UUID id);
 
+    Context mockedFindById(UUID id);
+
     Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId);
+
+    UUID findCollectionIdByContextId(UUID contextId);
 
 }

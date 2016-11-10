@@ -1,35 +1,42 @@
 package com.quizzes.api.realtime.controller;
 
+import com.google.gson.JsonArray;
 import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
 import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextIdResponseDto;
+import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
-import com.quizzes.api.common.dto.controller.ProfileIdDTO;
-import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
-import com.quizzes.api.common.dto.ContextIdResponseDto;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDTO;
+import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.tables.pojos.Group;
+import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.service.ContextService;
+import com.quizzes.api.common.service.GroupProfileService;
+import com.quizzes.api.common.service.GroupService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.containsString;
@@ -39,6 +46,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,6 +61,15 @@ public class ContextControllerTest {
 
     @Mock
     private ContextService contextService;
+
+    @Mock
+    private GroupService groupService;
+
+    @Mock
+    private GroupProfileService groupProfileService;
+
+    @Mock
+    private JsonParser jsonParser;
 
     @Test
     public void assignContext() throws Exception {
@@ -325,14 +342,37 @@ public class ContextControllerTest {
 
     @Test
     public void startContextEvent() throws Exception {
-        ProfileIdDTO requestBody = new ProfileIdDTO();
-        requestBody.setProfileId(UUID.randomUUID());
+        UUID id = UUID.randomUUID();
+        UUID resourceId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        CollectionDTO collection = new CollectionDTO();
+        collection.setId(String.valueOf(collectionId));
 
-        ResponseEntity<?> result = controller.startContextEvent(UUID.randomUUID(), "quizzes", UUID.randomUUID());
-        Object resultBody = result.getBody();
-        assertSame(resultBody.getClass(), StartContextEventResponseDTO.class);
-        assertNotNull("Current resource ID is null", ((StartContextEventResponseDTO) resultBody).getCurrentResourceId());
-        assertNotNull("Response is Null", result);
+        StartContextEventResponseDto startContext = new StartContextEventResponseDto();
+        startContext.setId(id);
+        startContext.setCurrentResourceId(resourceId);
+        startContext.setCollection(collection);
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("answer", new JsonArray());
+        list.add(map);
+
+        startContext.setAttempt(list);
+
+        when(contextService.startContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
+
+        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(UUID.randomUUID(), "quizzes", UUID.randomUUID());
+
+        verify(contextService, times(1)).startContextEvent(any(UUID.class), any(UUID.class));
+
+        StartContextEventResponseDto resultBody = result.getBody();
+        assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
+        assertEquals("Wrong resource id is null", resourceId, resultBody.getCurrentResourceId());
+        assertEquals("Wrong id", id, resultBody.getId());
+        assertEquals("Wrong collection id", collection.getId(), resultBody.getCollection().getId());
+        assertEquals("Wrong collection id", 1, resultBody.getAttempt().size());
+        assertTrue("Answer key not found", resultBody.getAttempt().get(0).containsKey("answer"));
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }
 
@@ -360,6 +400,48 @@ public class ContextControllerTest {
 
     @Test
     public void getContext() throws Exception {
+        Context context = new Context();
+        UUID contextId = UUID.randomUUID();
+        context.setId(contextId);
+        context.setGroupId(UUID.randomUUID());
+        context.setCollectionId(UUID.randomUUID());
+        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}");
+
+        when(contextService.getContext(any(UUID.class))).thenReturn(context);
+
+        Group group = new Group();
+        group.setId(UUID.randomUUID());
+        group.setOwnerProfileId(UUID.randomUUID());
+
+        when(groupService.findById(any(UUID.class))).thenReturn(group);
+
+        List<GroupProfile> groupProfiles = new ArrayList<>();
+
+        GroupProfile asignee1 = new GroupProfile();
+        asignee1.setGroupId(group.getId());
+        asignee1.setId(UUID.randomUUID());
+        asignee1.setProfileId(UUID.randomUUID());
+        groupProfiles.add(asignee1);
+
+        GroupProfile asignee2 = new GroupProfile();
+        asignee2.setGroupId(group.getId());
+        asignee2.setId(UUID.randomUUID());
+        asignee2.setProfileId(UUID.randomUUID());
+        groupProfiles.add(asignee2);
+
+        when(groupProfileService.getGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
+
+        Map<String,Object> contextDataMap = new HashMap<>();
+        Map<String, String> contextMap = new HashMap<>();
+        contextMap.put("classId", UUID.randomUUID().toString());
+        contextDataMap.put("contextMap", contextMap);
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("title", "Math 1st Grade");
+        metadata.put("description", "First Partial");
+        contextDataMap.put("metadata", metadata);
+
+        when(jsonParser.parseMap(any(String.class))).thenReturn(contextDataMap);
 
         ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
@@ -372,16 +454,10 @@ public class ContextControllerTest {
 
         ProfileDTO ownerResult = result.getBody().getOwner();
         assertNotNull("Owner id is null", ownerResult.getId());
-        assertEquals("Wrong first name in owner", "Michael", ownerResult.getFirstName());
-        assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
-        assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
 
         List<ProfileDTO> profiles = result.getBody().getAssignees();
         assertEquals("Wrong list size for assignees", 2, profiles.size());
         assertNotNull("Profile1 id is null", profiles.get(0).getId());
-        assertEquals("Wrong first name in owner", "Karol", profiles.get(0).getFirstName());
-        assertEquals("Wrong last name in owner", "Fernandez", profiles.get(0).getLastName());
-        assertEquals("Wrong username in owner", "karol1", profiles.get(0).getUsername());
 
         CommonContextGetResponseDto.ContextDataDto contextResult = result.getBody().getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());

@@ -33,4 +33,10 @@ public class ContextServiceDummy {
         return result;
     }
 
+    public Context getContext(UUID contextId) {
+        Context context = generateMockContext();
+        context.setId(contextId);
+
+        return context;
+    }
 }
