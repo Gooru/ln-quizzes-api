@@ -36,6 +36,16 @@ public class CollectionRepositoryImpl implements CollectionRepository {
         }
     }
 
+    @Override
+    public Collection findById(UUID id) {
+        //TODO: implement this mock
+        Collection collection = new Collection();
+        collection.setId(UUID.randomUUID());
+        collection.setIsCollection(true);
+        collection.setCollectionData("");
+        return collection;
+    }
+
     private Collection insertCollection(final Collection collection) {
         return jooq.insertInto(COLLECTION)
                 .set(COLLECTION.ID, UUID.randomUUID())

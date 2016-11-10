@@ -1,5 +1,7 @@
 package com.quizzes.api.realtime.controller;
 
+import com.google.gson.Gson;
+import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.ChoiceDTO;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
@@ -7,12 +9,16 @@ import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
 import com.quizzes.api.common.dto.controller.response.InteractionDTO;
 import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
 import com.quizzes.api.common.dto.controller.response.QuestionType;
+import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.service.CollectionService;
+import com.quizzes.api.common.service.ResourceService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +44,12 @@ public class CollectionController extends AbstractRealTimeController {
     @Autowired
     private CollectionService collectionService;
 
+    @Autowired
+    private ResourceService resourceService;
+
+    @Autowired
+    private JsonParser jsonParser;
+
     @ApiOperation(value = "Find collection on air by class and collection", notes = "Find collection on air by class and collection")
     @RequestMapping(path="/class/{classId}/collection/{collectionId}/onair",
                     method=RequestMethod.GET,
@@ -62,6 +74,20 @@ public class CollectionController extends AbstractRealTimeController {
                                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
+        Collection collection = collectionService.findById(collectionId);
+        List<Resource> resources = resourceService.getResourcesByCollectionId(collectionId);
+        List<CollectionDataResourceDTO> resourcesDTO = new ArrayList<>();
+        for (Resource resource : resources){
+            QuestionDataDTO questionDataDTO = null;
+            questionDataDTO = new Gson().fromJson(resource.getResourceData(), QuestionDataDTO.class);
+            CollectionDataResourceDTO resourceDTO = new CollectionDataResourceDTO(resource.getId(), resource.getIsResource(), questionDataDTO);
+            resourcesDTO.add(resourceDTO);
+        }
+
+        CollectionDataDTO result = new CollectionDataDTO(collection.getId(), collection.getIsCollection(), resourcesDTO);
+
+
+/*
         ChoiceDTO choiceDTO = new ChoiceDTO("mocked text", false, "mocked value");
         List<ChoiceDTO> choiceDTOList = new ArrayList<>();
         choiceDTOList.add(choiceDTO);
@@ -74,7 +100,7 @@ public class CollectionController extends AbstractRealTimeController {
         List<CollectionDataResourceDTO> resources = new ArrayList<>();
         resources.add(resourceDTO);
         CollectionDataDTO result = new CollectionDataDTO(UUID.randomUUID(), true, resources);
-
+*/
         return new ResponseEntity(result, HttpStatus.OK);
     }
 

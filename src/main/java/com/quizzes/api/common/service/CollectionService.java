@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class CollectionService {
@@ -35,6 +36,9 @@ public class CollectionService {
         return null;
     }
 
+    public Collection findById(UUID id) {
+        return collectionRepository.findById(id);
+    }
 
     //TODO: WE NEED TO REMOVE THIS OLD METHODS - OLD REAL TIME METHODS
     @Autowired
