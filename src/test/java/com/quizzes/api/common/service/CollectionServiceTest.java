@@ -98,6 +98,9 @@ public class CollectionServiceTest {
         when(collectionRepository.findById(any(UUID.class))).thenReturn(collection);
 
         Collection result = collectionService.findById(UUID.randomUUID());
+
+        verify(collectionRepository, times(1)).findById(any(UUID.class));
+
         assertNotNull("Result is Null", result);
         assertSame(result.getClass(), Collection.class);
     }

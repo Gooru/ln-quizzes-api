@@ -75,6 +75,10 @@ public class CollectionControllerTest {
         when(resourceService.getResourcesByCollectionId(collection.getId())).thenReturn(resources);
 
         ResponseEntity<CollectionDataDTO> result = collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
+
+        verify(collectionService, times(1)).findById(any(UUID.class));
+        verify(resourceService, times(1)).getResourcesByCollectionId(any(UUID.class));
+
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Response Body is Null", result.getBody());

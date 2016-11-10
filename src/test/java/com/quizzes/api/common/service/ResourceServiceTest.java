@@ -17,6 +17,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,6 +55,8 @@ public class ResourceServiceTest {
         when(resourceRepository.getResourcesByCollectionId(any(UUID.class))).thenReturn(resources);
 
         List<Resource> result = resourceService.getResourcesByCollectionId(UUID.randomUUID());
+        verify(resourceRepository, times(1)).getResourcesByCollectionId(any(UUID.class));
+
         assertNotNull("Result is null", result);
         assertEquals("Resources size doesn't match", 2, result.size());
         assertSame("Result is not a List", ArrayList.class, result.getClass());
