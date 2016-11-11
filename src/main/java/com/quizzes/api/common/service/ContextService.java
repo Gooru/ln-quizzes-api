@@ -67,26 +67,20 @@ public class ContextService {
     CollectionContentService collectionContentService;
 
     public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
-        //Get OwnerProfile
         Profile owner = findProfile(assignmentDTO.getOwner(), lms);
-
-        //Create a new copy of the collection
-        //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
-
         Collection collection =
                 collectionContentService.createCollectionCopy(assignmentDTO.getExternalCollectionId(), owner);
 
         if (collection != null) {
-            collection = collectionService.save(collection);
-
-            Group group = groupService.createGroup(collection.getOwnerProfileId());
+            Group group = groupService.createGroup(owner.getId());
             assignProfilesToGroup(group.getId(), assignmentDTO.getAssignees(), lms);
 
-            Context context = new Context(null, collection.getId(), group.getId(),
-                    new Gson().toJson(assignmentDTO.getContextData()), null);
-            context = contextRepository.save(context);
+            Context context = new Context();
+            context.setCollectionId(collection.getId());
+            context.setGroupId(group.getId());
+            context.setContextData(new Gson().toJson(assignmentDTO.getContextData()));
 
-            return context;
+            return contextRepository.save(context);
         }
 
         return null;
@@ -162,11 +156,14 @@ public class ContextService {
         return contextProfile;
     }
 
-    private Profile findProfile(ProfileDTO profileDTO, Lms lms) {
-        Profile profile = profileService.findByExternalIdAndLmsId(profileDTO.getId(), lms);
+    private Profile findProfile(ProfileDTO profileDTO, Lms lmsId) {
+        Profile profile = profileService.findByExternalIdAndLmsId(profileDTO.getId(), lmsId);
         if (profile == null) {
-            profile = profileService
-                    .save(new Profile(null, profileDTO.getId(), lms, new Gson().toJson(profileDTO), null));
+            profile = new Profile();
+            profile.setExternalId(profileDTO.getId());
+            profile.setLmsId(lmsId);
+            profile.setProfileData(new Gson().toJson(profileDTO));
+            profile = profileService.save(profile);
         }
         return profile;
     }

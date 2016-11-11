@@ -7,6 +7,7 @@ import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.service.CollectionService;
+import com.quizzes.api.common.service.ResourceService;
 import com.quizzes.api.common.service.content.CollectionContentService;
 import com.quizzes.api.content.gooru.dto.AnswerDto;
 import com.quizzes.api.content.gooru.dto.AssessmentDto;
@@ -16,7 +17,6 @@ import com.quizzes.api.content.gooru.rest.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +24,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class CollectionContentServiceImpl implements CollectionContentService {
+
+    private static final String COLLECTION_TITLE = "title";
+    private static final String RESOURCE_TITLE = "title";
+    private static final String RESOURCE_TYPE = "type";
+    private static final String RESOURCE_CORRECT_ANSWER = "correctAnswer";
 
     private static final Map<String, String> questionTypeMap;
 
@@ -41,7 +46,8 @@ public class CollectionContentServiceImpl implements CollectionContentService {
     @Autowired
     CollectionService collectionService;
 
-
+    @Autowired
+    ResourceService resourceService;
 
     @Override
     public Collection createCollectionCopy(String externalCollectionId, Profile owner) {
@@ -52,8 +58,9 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         collection.setLmsId(Lms.gooru);
         collection.setOwnerProfileId(owner.getId());
         collection.setIsCollection(false);
+        collection.setIsLock(false);
         Map<String, Object> collectionDataMap = new HashMap<>();
-        collectionDataMap.put("title", assessmentDto.getTitle());
+        collectionDataMap.put(COLLECTION_TITLE, assessmentDto.getTitle());
         collection.setCollectionData(new Gson().toJson(collectionDataMap));
 
         collection = collectionService.save(collection);
@@ -62,16 +69,17 @@ public class CollectionContentServiceImpl implements CollectionContentService {
             Resource resource = new Resource();
             resource.setExternalId(questionDto.getId());
             resource.setLmsId(Lms.gooru);
+            resource.setCollectionId(collection.getId());
             resource.setOwnerProfileId(owner.getId());
             resource.setIsResource(false);
-            resource.setSequence(questionDto.getSequence());
+            resource.setSequence((short) questionDto.getSequence());
             Map<String, Object> resourceDataMap = new HashMap<>();
-            resourceDataMap.put("title", questionDto.getTitle());
-            resourceDataMap.put("type", mapQuestionType(questionDto.getContentSubformat()));
-            resourceDataMap.put("correctAnswer", getCorrectAnswers(questionDto.getAnswers()));
+            resourceDataMap.put(RESOURCE_TITLE, questionDto.getTitle());
+            resourceDataMap.put(RESOURCE_TYPE, mapQuestionType(questionDto.getContentSubformat()));
+            resourceDataMap.put(RESOURCE_CORRECT_ANSWER, getCorrectAnswers(questionDto.getAnswers()));
             resource.setResourceData(new Gson().toJson(resourceDataMap));
 
-            // TODO save the resource
+            resourceService.save(resource);
         }
 
         return collection;

@@ -7,9 +7,10 @@ import java.util.UUID;
 
 public interface CollectionRepository {
 
-    Collection findByExternalIdAndLmsId(String externalId, Lms lmsId);
-
     Collection save(Collection collection);
 
     Collection findById(UUID id);
+
+    Collection findByExternalIdAndLmsId(String externalId, Lms lmsId);
+
 }

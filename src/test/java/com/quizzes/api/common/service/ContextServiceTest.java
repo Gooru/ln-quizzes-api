@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 
@@ -123,9 +124,9 @@ public class ContextServiceTest {
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
         verify(profileService, times(0)).save(any(Profile.class));
-        verify(collectionService, times(1)).save(any(Collection.class));
         verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
+        verify(collectionContentService, times(1)).createCollectionCopy(any(String.class), any(Profile.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
@@ -183,9 +184,9 @@ public class ContextServiceTest {
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(1)).save(any(GroupProfile.class));
         verify(profileService, times(2)).save(any(Profile.class));
-        verify(collectionService, times(1)).save(any(Collection.class));
         verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
+        verify(collectionContentService, times(1)).createCollectionCopy(any(String.class), any(Profile.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());

@@ -14,6 +14,10 @@ public class ResourceService {
     @Autowired
     private ResourceRepository resourceRepository;
 
+    public Resource save(Resource resource) {
+        return resourceRepository.save(resource);
+    }
+
     public List<Resource> findResourcesByCollectionId(UUID collectionId){
         return resourceRepository.findResourcesByCollectionId(collectionId);
 

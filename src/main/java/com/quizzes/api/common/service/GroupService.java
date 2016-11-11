@@ -14,11 +14,13 @@ public class GroupService {
     GroupRepository groupRepository;
 
     public Group createGroup(UUID ownerProfileId) {
-        Group group = new Group(null, ownerProfileId, null, null);
+        Group group = new Group();
+        group.setOwnerProfileId(ownerProfileId);
         return groupRepository.save(group);
     }
 
     public Group findById(UUID id){
         return groupRepository.findById(id);
     }
+
 }
