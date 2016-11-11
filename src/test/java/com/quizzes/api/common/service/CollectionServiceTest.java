@@ -136,12 +136,12 @@ public class CollectionServiceTest {
                 " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
                 "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
         resources.add(resource2);
-        when(resourceService.getResourcesByCollectionId(collection.getId())).thenReturn(resources);
+        when(resourceService.findResourcesByCollectionId(collection.getId())).thenReturn(resources);
 
         CollectionDataDTO result = collectionService.getCollection(UUID.randomUUID());
 
         verify(collectionRepository, times(1)).findById(any(UUID.class));
-        verify(resourceService, times(1)).getResourcesByCollectionId(any(UUID.class));
+        verify(resourceService, times(1)).findResourcesByCollectionId(any(UUID.class));
 
         assertNotNull("Result is Null", result);
         assertSame(result.getClass(), CollectionDataDTO.class);

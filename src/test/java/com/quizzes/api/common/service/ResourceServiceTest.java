@@ -52,10 +52,10 @@ public class ResourceServiceTest {
                 " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
                 "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
         resources.add(resource2);
-        when(resourceRepository.getResourcesByCollectionId(any(UUID.class))).thenReturn(resources);
+        when(resourceRepository.findResourcesByCollectionId(any(UUID.class))).thenReturn(resources);
 
-        List<Resource> result = resourceService.getResourcesByCollectionId(UUID.randomUUID());
-        verify(resourceRepository, times(1)).getResourcesByCollectionId(any(UUID.class));
+        List<Resource> result = resourceService.findResourcesByCollectionId(UUID.randomUUID());
+        verify(resourceRepository, times(1)).findResourcesByCollectionId(any(UUID.class));
 
         assertNotNull("Result is null", result);
         assertEquals("Resources size doesn't match", 2, result.size());

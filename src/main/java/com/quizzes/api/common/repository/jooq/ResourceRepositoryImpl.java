@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public class ResourceRepositoryImpl implements ResourceRepository {
 
-    public List<Resource> getResourcesByCollectionId(UUID collectionId){
+    public List<Resource> findResourcesByCollectionId(UUID collectionId){
         List<Resource> resources = new ArrayList<>();
         Resource resource1 = new Resource();
         resource1.setId(UUID.randomUUID());

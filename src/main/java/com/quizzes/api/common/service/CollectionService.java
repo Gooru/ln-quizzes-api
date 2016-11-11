@@ -57,7 +57,7 @@ public class CollectionService {
         CollectionDataDTO result = null;
         Collection collection = findById(collectionId);
         if (collection != null) {
-            List<Resource> resources = resourceService.getResourcesByCollectionId(collectionId);
+            List<Resource> resources = resourceService.findResourcesByCollectionId(collectionId);
             List<CollectionDataResourceDTO> resourcesDTO = new ArrayList<>();
             for (Resource resource : resources) {
                 QuestionDataDTO questionDataDTO = gson.fromJson(resource.getResourceData(), QuestionDataDTO.class);

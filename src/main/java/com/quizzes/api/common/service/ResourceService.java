@@ -14,8 +14,8 @@ public class ResourceService {
     @Autowired
     private ResourceRepository resourceRepository;
 
-    public List<Resource> getResourcesByCollectionId(UUID collectionId){
-        return resourceRepository.getResourcesByCollectionId(collectionId);
+    public List<Resource> findResourcesByCollectionId(UUID collectionId){
+        return resourceRepository.findResourcesByCollectionId(collectionId);
 
     }
 }
