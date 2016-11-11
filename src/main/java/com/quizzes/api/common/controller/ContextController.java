@@ -250,38 +250,8 @@ public class ContextController {
     public ResponseEntity<List<ContextGetAssignedResponseDto>> getAssignedContexts(
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-
-        ContextGetAssignedResponseDto contextGetAssignedResponseDto = new ContextGetAssignedResponseDto();
-        contextGetAssignedResponseDto.setId(UUID.randomUUID());
-
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId(UUID.randomUUID().toString());
-        contextGetAssignedResponseDto.setCollection(collection);
-
-        ProfileDTO owner = new ProfileDTO();
-        owner.setId(UUID.randomUUID().toString());
-        owner.setFirstName("Michael");
-        owner.setLastName("Guth");
-        owner.setUsername("migut");
-        contextGetAssignedResponseDto.setOwner(owner);
-
-        ContextGetAssignedResponseDto.ContextDataDto contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDto();
-
-        Map<String, String> contextMap = new HashMap<>();
-        contextMap.put("classId", UUID.randomUUID().toString());
-        contextDataDTO.setContextMap(contextMap);
-
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("title", "Math 1st Grade");
-        metadata.put("description", "Second Partial");
-        contextDataDTO.setMetadata(metadata);
-
-        contextGetAssignedResponseDto.setContextData(contextDataDTO);
-
-        List<ContextGetAssignedResponseDto> list = new ArrayList<>();
-        list.add(contextGetAssignedResponseDto);
-
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        List<ContextGetAssignedResponseDto> contexts = contextService.getContextsAssigned(profileId);
+        return new ResponseEntity<>(contexts, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Update context", notes = "Update the context metadata.")

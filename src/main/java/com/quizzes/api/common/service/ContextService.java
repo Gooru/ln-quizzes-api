@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
@@ -151,6 +152,17 @@ public class ContextService {
             list.add(data);
         }
         return list;
+    }
+
+    public List<ContextGetAssignedResponseDto> getContextsAssigned(UUID profileId){
+        List<Context> contexts = contextRepository.findContextsAssignedByProfileId(profileId);
+        List<ContextGetAssignedResponseDto> result = null;
+        for(Context context: contexts){
+            ContextGetAssignedResponseDto assigned = new ContextGetAssignedResponseDto();
+//            assigned.
+//            result.add();
+        }
+        return result;
     }
 
     private ContextProfile findContextProfile(UUID contextId, UUID profileId) {

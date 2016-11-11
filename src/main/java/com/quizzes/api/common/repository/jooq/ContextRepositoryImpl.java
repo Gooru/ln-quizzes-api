@@ -1,11 +1,18 @@
 package com.quizzes.api.common.repository.jooq;
 
+import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
@@ -64,6 +71,25 @@ public class ContextRepositoryImpl implements ContextRepository {
     @Override
     public UUID findCollectionIdByContextId(UUID contextId){
         return UUID.randomUUID();
+    }
+
+    @Override
+    public List<Context> findContextsAssignedByProfileId(UUID profileId){
+        //We do not have to return the group
+        Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
+                "    \"metadata\": {\n" +
+                "      \"description\": \"First Partial\",\n" +
+                "      \"title\": \"Math 1st Grade\"\n" +
+                "    },\n" +
+                "    \"contextMap\": {\n" +
+                "      \"classId\": \"4ef71420-dde9-4d2f-822e-5abb2c0b9c8c\"\n" +
+                "    }\n" +
+                "  }", null);
+
+        List<Context> list = new ArrayList<>();
+        list.add(context);
+
+        return list;
     }
 
     private Context insertContext(final Context context) {
