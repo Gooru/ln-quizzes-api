@@ -3,7 +3,10 @@ package com.quizzes.api.common.repository.jooq;
 import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.model.entities.ContextAssignedEntity;
+import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +77,7 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public List<Context> findContextsAssignedByProfileId(UUID profileId){
+    public List<ContextAssignedEntity> findContextsAssignedByProfileId(UUID profileId){
         //We do not have to return the group
         Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
                 "    \"metadata\": {\n" +
@@ -86,8 +89,19 @@ public class ContextRepositoryImpl implements ContextRepository {
                 "    }\n" +
                 "  }", null);
 
-        List<Context> list = new ArrayList<>();
-        list.add(context);
+        Profile owner = new Profile(UUID.randomUUID(), "23423424", Lms.its_learning, "{\n" +
+                "\"id\":\"9dc0dddb-f6c2-4884-97ed-66318a9958db\",\n" +
+                "\"firstName\":\"David\",\n" +
+                "\"lastName\":\"Artavia\",\n" +
+                "\"username\":\"dartavia\"\n" +
+                "}",null);
+
+        ContextAssignedEntity contextAssignedEntity = new ContextAssignedEntity();
+        contextAssignedEntity.setContext(context);
+        contextAssignedEntity.setOwner(owner);
+
+        List<ContextAssignedEntity> list = new ArrayList<>();
+        list.add(contextAssignedEntity);
 
         return list;
     }

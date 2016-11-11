@@ -9,6 +9,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.model.entities.ContextAssignedEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -154,13 +155,26 @@ public class ContextService {
         return list;
     }
 
-    public List<ContextGetAssignedResponseDto> getContextsAssigned(UUID profileId){
-        List<Context> contexts = contextRepository.findContextsAssignedByProfileId(profileId);
-        List<ContextGetAssignedResponseDto> result = null;
-        for(Context context: contexts){
-            ContextGetAssignedResponseDto assigned = new ContextGetAssignedResponseDto();
-//            assigned.
-//            result.add();
+    public List<ContextGetAssignedResponseDto> getContextsAssigned(UUID profileId) {
+        List<ContextAssignedEntity> contexts = contextRepository.findContextsAssignedByProfileId(profileId);
+        Context context = null;
+        Profile owner = null;
+
+        List<ContextGetAssignedResponseDto> result = new ArrayList<>();
+        for (ContextAssignedEntity entity : contexts) {
+            context = entity.getContext();
+            owner = entity.getOwner();
+
+            ContextGetAssignedResponseDto contextAssigned = new ContextGetAssignedResponseDto();
+            contextAssigned.setId(context.getId());
+            contextAssigned.setCollection(new CollectionDTO(context.getCollectionId().toString()));
+
+            Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+            contextAssigned.setContextResponse(contextDataMap);
+
+            Map<String, Object> ownerData = jsonParser.parseMap(owner.getProfileData());
+            contextAssigned.setOwnerResponse(ownerData);
+            result.add(contextAssigned);
         }
         return result;
     }

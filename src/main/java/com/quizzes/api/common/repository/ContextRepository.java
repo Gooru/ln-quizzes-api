@@ -1,5 +1,6 @@
 package com.quizzes.api.common.repository;
 
+import com.quizzes.api.common.model.entities.ContextAssignedEntity;
 import com.quizzes.api.common.model.tables.pojos.Context;
 
 import java.util.List;
@@ -17,6 +18,6 @@ public interface ContextRepository {
 
     UUID findCollectionIdByContextId(UUID contextId);
 
-    List<Context> findContextsAssignedByProfileId(UUID profileId);
+    List<ContextAssignedEntity> findContextsAssignedByProfileId(UUID profileId);
 
 }

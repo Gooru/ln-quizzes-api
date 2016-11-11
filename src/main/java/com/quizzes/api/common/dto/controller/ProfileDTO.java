@@ -21,6 +21,12 @@ public class ProfileDTO {
     public ProfileDTO() {
     }
 
+    public ProfileDTO(String firstName, String lastName, String username) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+    }
+
     public String getId() {
         return id;
     }

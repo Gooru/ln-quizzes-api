@@ -12,6 +12,10 @@ public class CollectionDTO {
     public CollectionDTO() {
     }
 
+    public CollectionDTO(String id) {
+        this.id = id;
+    }
+
     public String getId() {
         return id;
     }

@@ -20,6 +20,7 @@ import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
+import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.service.ContextService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
@@ -499,30 +500,51 @@ public class ContextControllerTest {
 
     @Test
     public void getAssignedContexts() throws Exception {
+        List<ContextGetAssignedResponseDto> contexts = new ArrayList<>();
+        ContextGetAssignedResponseDto contextAssigned = new ContextGetAssignedResponseDto();
+        contextAssigned.setId(UUID.randomUUID());
+        contextAssigned.setCollection(new CollectionDTO(UUID.randomUUID().toString()));
+
+        Map<String, Object> contextDataMap = new HashMap<>();
+        contextDataMap.put("contextMap", new HashMap<>());
+        contextDataMap.put("metaData", new HashMap<>());
+        contextAssigned.setContextResponse(contextDataMap);
+
+        Map<String, Object> ownerData = new HashMap<>();
+        ownerData.put("id", UUID.randomUUID().toString());
+        ownerData.put("firstName", "name");
+        ownerData.put("lastName", "last");
+        ownerData.put("username", "username");
+        contextAssigned.setOwnerResponse(ownerData);
+        contexts.add(contextAssigned);
+
+        when(contextService.getContextsAssigned(any(UUID.class))).thenReturn(contexts);
 
         ResponseEntity<List<ContextGetAssignedResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
 
+        verify(contextService, times(1)).getContextsAssigned(any(UUID.class));
+
+        List<ContextGetAssignedResponseDto> list = response.getBody();
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
-        assertEquals("Wrong list size for assignments", 1, response.getBody().size());
+        assertEquals("Wrong list size for assignments", 1, list.size());
 
-        ContextGetAssignedResponseDto result = response.getBody().get(0);
+        ContextGetAssignedResponseDto result = list.get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
         assertNotNull("Collection id is null", result.getCollection().getId());
 
-        ProfileDTO ownerResult = result.getOwner();
-        assertNotNull("Owner id is null", ownerResult.getId());
-        assertEquals("Wrong first name in owner", "Michael", ownerResult.getFirstName());
-        assertEquals("Wrong last name in owner", "Guth", ownerResult.getLastName());
-        assertEquals("Wrong username in owner", "migut", ownerResult.getUsername());
+        Map<String, Object> ownerResult = result.getOwnerResponse();
+        assertNotNull("Owner id is null", ownerResult.get("id"));
+        assertNotNull("First name id is null", ownerResult.get("firstName"));
+        assertNotNull("Last name id is null", ownerResult.get("lastName"));
+        assertNotNull("Username id is null", ownerResult.get("username"));
 
-        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
-        assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
-        assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
-        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
-        assertEquals("Key description with invalid value in metadata", "Second Partial", contextResult.getMetadata().get("description"));
+        Map<String, Object> contextResult = result.getContextResponse();
+        assertEquals("Wrong size inside context result", 2, contextResult.size());
+        assertTrue("Missing metaData key in context result", contextResult.containsKey("metaData"));
+        assertTrue("Missing contextMap key in context result", contextResult.containsKey("contextMap"));
     }
 
     @Test
