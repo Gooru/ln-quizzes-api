@@ -430,7 +430,7 @@ public class ContextControllerTest {
         asignee2.setProfileId(UUID.randomUUID());
         groupProfiles.add(asignee2);
 
-        when(groupProfileService.getGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
+        when(groupProfileService.findGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
 
         Map<String,Object> contextDataMap = new HashMap<>();
         Map<String, String> contextMap = new HashMap<>();
@@ -468,8 +468,10 @@ public class ContextControllerTest {
 
     @Test
     public void getContextsCreated() throws Exception {
-
-        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller.getContextsCreated("its_learning", UUID.randomUUID());
+        Map<String, String> filter = new HashMap<>();
+        filter.put("classId", UUID.randomUUID().toString());
+        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller
+                .getContextsCreated(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
@@ -527,12 +529,12 @@ public class ContextControllerTest {
     public void updateContext() throws Exception {
         Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
                 UUID.randomUUID(), "{\"context\":\"value\"}", null);
-        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(contextResult);
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
         ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
                 new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
 
-        verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDto.class));
+        verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -541,7 +543,7 @@ public class ContextControllerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateContextException() throws Exception {
-        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(null);
+        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(null);
         ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
                 new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
     }
