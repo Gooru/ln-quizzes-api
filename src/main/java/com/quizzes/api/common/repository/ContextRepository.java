@@ -18,6 +18,6 @@ public interface ContextRepository {
 
     UUID findCollectionIdByContextId(UUID contextId);
 
-    List<ContextAssignedEntity> findContextsAssignedByProfileId(UUID profileId);
+    List<ContextAssignedEntity> findAssignedContextsByProfileId(UUID profileId);
 
 }

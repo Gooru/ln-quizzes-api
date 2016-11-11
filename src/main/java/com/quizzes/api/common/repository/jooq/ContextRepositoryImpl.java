@@ -72,7 +72,7 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public List<ContextAssignedEntity> findContextsAssignedByProfileId(UUID profileId){
+    public List<ContextAssignedEntity> findAssignedContextsByProfileId(UUID profileId){
         //We do not have to return the group
         Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
                 "    \"metadata\": {\n" +

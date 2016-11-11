@@ -156,7 +156,7 @@ public class ContextService {
     }
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
-        List<ContextAssignedEntity> contexts = contextRepository.findContextsAssignedByProfileId(profileId);
+        List<ContextAssignedEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
         Context context = null;
         Profile owner = null;
 

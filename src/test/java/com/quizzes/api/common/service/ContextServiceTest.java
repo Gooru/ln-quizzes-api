@@ -433,12 +433,12 @@ public class ContextServiceTest {
         List<ContextAssignedEntity> list = new ArrayList<>();
         list.add(contextAssignedEntity);
 
-        when(contextRepository.findContextsAssignedByProfileId(any(UUID.class))).thenReturn(list);
+        when(contextRepository.findAssignedContextsByProfileId(any(UUID.class))).thenReturn(list);
         when(jsonParser.parseMap(any(String.class))).thenReturn(map);
 
         List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID());
 
-        verify(contextRepository, times(1)).findContextsAssignedByProfileId(any(UUID.class));
+        verify(contextRepository, times(1)).findAssignedContextsByProfileId(any(UUID.class));
 
         ContextAssignedGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());
