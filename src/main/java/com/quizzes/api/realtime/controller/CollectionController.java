@@ -6,7 +6,7 @@ import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
 import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
 import com.quizzes.api.common.dto.controller.response.InteractionDTO;
 import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
-import com.quizzes.api.common.dto.controller.response.QuestionType;
+import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import io.swagger.annotations.ApiOperation;
@@ -70,7 +70,7 @@ public class CollectionController extends AbstractRealTimeController {
                                 new ChoiceDTO("Option 3", false, "C"))));
         QuestionDataDTO questionSingleChoice =
                 new QuestionDataDTO("Mocked Question Data",
-                        QuestionType.SingleChoice,
+                        QuestionTypeEnum.SingleChoice,
                         new ArrayList<>(Arrays.asList(new AnswerDTO("A"))),
                         "mocked body",
                         singleChoiceInteraction);
@@ -82,7 +82,7 @@ public class CollectionController extends AbstractRealTimeController {
                                 new ChoiceDTO("False", false, "F"))));
         QuestionDataDTO questionTrueFalse =
                 new QuestionDataDTO("Mocked Question Data",
-                        QuestionType.TrueFalse,
+                        QuestionTypeEnum.TrueFalse,
                         new ArrayList<>(Arrays.asList(new AnswerDTO("T"))),
                         "mocked body",
                         trueFalseInteraction);

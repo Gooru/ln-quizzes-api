@@ -14,7 +14,7 @@ public class QuestionDto {
     private String contentSubformat;
 
     @SerializedName("sequence_id")
-    private int sequence;
+    private short sequence;
 
     @SerializedName("answer")
     private List<AnswerDto> answers;
@@ -47,11 +47,11 @@ public class QuestionDto {
         this.contentSubformat = contentSubformat;
     }
 
-    public int getSequence() {
+    public short getSequence() {
         return sequence;
     }
 
-    public void setSequence(int sequence) {
+    public void setSequence(short sequence) {
         this.sequence = sequence;
     }
 

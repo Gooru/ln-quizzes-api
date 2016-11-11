@@ -1,8 +1,8 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.enums;
 
 import com.google.gson.annotations.SerializedName;
 
-public enum QuestionType {
+public enum QuestionTypeEnum {
 
     @SerializedName("true_false")
     TrueFalse ("true_false"),
@@ -17,12 +17,20 @@ public enum QuestionType {
     MultipleImage ("multiple_image"),
 
     @SerializedName("match")
-    Match ("match");
+    Match ("match"),
 
-    private final java.lang.String literal;
+    @SerializedName("none")
+    None ("none");
 
-    private QuestionType(java.lang.String literal) {
+
+    private final String literal;
+
+    private QuestionTypeEnum(String literal) {
         this.literal = literal;
+    }
+
+    public String getLiteral() {
+        return literal;
     }
 
 }
