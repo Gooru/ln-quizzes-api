@@ -340,4 +340,25 @@ public class ContextServiceTest {
         assertNotNull("ContextData is null", result.getContextData());
     }
 
+    @Test
+    public void findContextByOwnerId() {
+        List<Context> contextsByOwner = new ArrayList<>();
+
+        Context context = new Context();
+        context.setId(UUID.randomUUID());
+        context.setCollectionId(UUID.randomUUID());
+        context.setGroupId(UUID.randomUUID());
+        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        contextsByOwner.add(context);
+
+        when(contextRepository.findByOwnerId(any(UUID.class))).thenReturn(contextsByOwner);
+
+        List<Context> result = contextService.findContextByOwnerId(UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findByOwnerId(any(UUID.class));
+        assertNotNull("Context by owner is null", result);
+
+    }
+
 }

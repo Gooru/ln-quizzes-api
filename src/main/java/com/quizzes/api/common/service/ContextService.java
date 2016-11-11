@@ -130,7 +130,7 @@ public class ContextService {
 
     }
 
-    public List<Context> getContextByOwnerId(UUID profileId) {
+    public List<Context> findContextByOwnerId(UUID profileId) {
 
         return contextRepository.findByOwnerId(profileId);
 
@@ -139,7 +139,7 @@ public class ContextService {
     public List<ContextGetCreatedResponseDto> getContextGetCreatedResponseDto(UUID profileId){
 
         List<ContextGetCreatedResponseDto> result = new ArrayList<>();
-        List<Context> contexts = getContextByOwnerId(profileId);
+        List<Context> contexts = findContextByOwnerId(profileId);
 
         for (Context context : contexts){
             CollectionDTO collectionDTO = new CollectionDTO();
