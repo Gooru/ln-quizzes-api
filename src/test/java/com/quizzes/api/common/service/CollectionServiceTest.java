@@ -1,8 +1,11 @@
 package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
+import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.model.tables.pojos.Resource;
+import com.quizzes.api.common.repository.CollectionRepository;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
 import com.quizzes.api.realtime.service.EventService;
@@ -22,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -40,6 +44,12 @@ public class CollectionServiceTest {
 
     @Mock
     private CollectionOnAirRepository collectionOnAirRepository;
+
+    @Mock
+    private CollectionRepository collectionRepository;
+
+    @Mock
+    private ResourceService resourceService;
 
     @Test
     public void findByExternalIdAndLmsId() throws Exception {
@@ -83,6 +93,58 @@ public class CollectionServiceTest {
         assertFalse("isLock is not false", result.getIsLock());
         assertFalse("isDeleted is not false", result.getIsDeleted());
         assertNull("createdAt is not null", result.getCreatedAt());
+    }
+
+    @Test
+    public void findById() throws Exception {
+        Collection collection = new Collection();
+        collection.setId(UUID.randomUUID());
+        collection.setIsCollection(false);
+        when(collectionRepository.findById(any(UUID.class))).thenReturn(collection);
+
+        Collection result = collectionService.findById(UUID.randomUUID());
+
+        verify(collectionRepository, times(1)).findById(any(UUID.class));
+
+        assertNotNull("Result is Null", result);
+        assertSame(result.getClass(), Collection.class);
+    }
+
+    @Test
+    public void getCollection() throws Exception {
+        Collection collection = new Collection();
+        collection.setId(UUID.randomUUID());
+        collection.setIsCollection(false);
+        when(collectionRepository.findById(any(UUID.class))).thenReturn(collection);
+
+        List<Resource> resources = new ArrayList<>();
+        Resource resource1 = new Resource();
+        resource1.setId(UUID.randomUUID());
+        resource1.setIsResource(true);
+        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"SingleChoice\"," +
+                "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
+                " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
+                " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\",\"isFixed\":" +
+                " false,\"value\": \"B\"},{\"text\": \"option 3\",\"isFixed\": false,\"value\": \"C\"}]}}");
+        resources.add(resource1);
+
+        Resource resource2 = new Resource();
+        resource2.setId(UUID.randomUUID());
+        resource2.setIsResource(true);
+        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"True/False\",\"correctAnswer\":" +
+                " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
+                " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
+                "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
+        resources.add(resource2);
+        when(resourceService.findResourcesByCollectionId(collection.getId())).thenReturn(resources);
+
+        CollectionDataDTO result = collectionService.getCollection(UUID.randomUUID());
+
+        verify(collectionRepository, times(1)).findById(any(UUID.class));
+        verify(resourceService, times(1)).findResourcesByCollectionId(any(UUID.class));
+
+        assertNotNull("Result is Null", result);
+        assertSame(result.getClass(), CollectionDataDTO.class);
     }
 
     @Test

@@ -27,7 +27,7 @@ public class GroupProfileRepositoryImpl implements GroupProfileRepository {
                 .execute();
     }
 
-    public List<GroupProfile> getGroupProfilesByGroupId(UUID id){
+    public List<GroupProfile> findGroupProfilesByGroupId(UUID id){
         List<GroupProfile> groupProfiles = new ArrayList<>();
 
         GroupProfile asignee1 = new GroupProfile();

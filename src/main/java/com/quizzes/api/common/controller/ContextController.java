@@ -287,7 +287,7 @@ public class ContextController {
         ProfileDTO ownerDTO = new ProfileDTO();
         ownerDTO.setId(group.getOwnerProfileId().toString());
 
-        List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
+        List<GroupProfile> assignees = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
         List<ProfileDTO> assigneesDTO = new ArrayList<>();
         for (GroupProfile assignee : assignees) {
             ProfileDTO assigneeDTO = new ProfileDTO();
