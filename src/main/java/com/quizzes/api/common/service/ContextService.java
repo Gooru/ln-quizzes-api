@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ContextService {
@@ -99,17 +100,11 @@ public class ContextService {
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
 
-        if(contextPutRequestDto.getAssignees() != null){
+        List<ProfileDTO> profiles = contextPutRequestDto.getAssignees();
+        if (profiles != null && profiles.size() > 0) {
             List<UUID> contextProfileIds = contextProfileService.findContextProfileIdsByContextId(contextId);
-            for (ProfileDTO profileDTO : contextPutRequestDto.getAssignees()) {
-                if (!contextProfileIds.contains(UUID.fromString(profileDTO.getId()))) {
-                    Profile profile = findProfile(profileDTO, lms);
-                    contextProfileService.save(new ContextProfile(null, context.getId(), profile.getId(), null, null, null));
-                } else {
-                    contextProfileIds.remove(UUID.fromString(profileDTO.getId()));
-                }
-            }
-            deleteOldContextProfiles(contextProfileIds);
+            addContextProfiles(profiles, contextProfileIds, lms, contextId);
+            deleteContextProfiles(profiles, contextProfileIds);
         }
 
         //Update ContextData
@@ -185,10 +180,31 @@ public class ContextService {
     }
 
     private void deleteOldContextProfiles(List<UUID> idsToDelete) {
-        for(UUID id : idsToDelete){
+        for (UUID id : idsToDelete) {
             contextProfileService.delete(id);
         }
     }
 
+    private void addContextProfiles(List<ProfileDTO> profiles, List<UUID> contextProfileIds, Lms lms, UUID contextId) {
+        List<ProfileDTO> idsToAdd = profiles.stream()
+                .filter(e -> (contextProfileIds.stream()
+                        .filter(d -> e.getId().equals(d.toString()))
+                        .count()) < 1)
+                .collect(Collectors.toList());
+
+        for (ProfileDTO profileDTO : idsToAdd) {
+            Profile profile = findProfile(profileDTO, lms);
+            contextProfileService.save(new ContextProfile(null, contextId, profile.getId(), null, null, null));
+        }
+    }
+
+    private void deleteContextProfiles(List<ProfileDTO> profiles, List<UUID> contextProfileIds) {
+        List<UUID> idsToDelete = contextProfileIds.stream()
+                .filter(e -> (profiles.stream()
+                        .filter(d -> d.getId().equals(e.toString()))
+                        .count()) < 1)
+                .collect(Collectors.toList());
+        deleteOldContextProfiles(idsToDelete);
+    }
 
 }
