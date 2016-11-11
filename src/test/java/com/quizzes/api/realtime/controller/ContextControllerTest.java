@@ -430,7 +430,7 @@ public class ContextControllerTest {
         asignee2.setProfileId(UUID.randomUUID());
         groupProfiles.add(asignee2);
 
-        when(groupProfileService.getGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
+        when(groupProfileService.findGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
 
         Map<String,Object> contextDataMap = new HashMap<>();
         Map<String, String> contextMap = new HashMap<>();
