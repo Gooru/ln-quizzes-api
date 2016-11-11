@@ -1,12 +1,15 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.model.entities.ContextAssignedEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -33,7 +36,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -397,6 +403,56 @@ public class ContextServiceTest {
         assertNotNull("Collection id is null", result.getCollectionId());
         assertNotNull("Group is null", result.getGroupId());
         assertNotNull("ContextData is null", result.getContextData());
+    }
+
+    @Test
+    public void getContextsAssigned(){
+        Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
+                "    \"metadata\": {\n" +
+                "      \"description\": \"First Partial\",\n" +
+                "      \"title\": \"Math 1st Grade\"\n" +
+                "    },\n" +
+                "    \"contextMap\": {\n" +
+                "      \"classId\": \"4ef71420-dde9-4d2f-822e-5abb2c0b9c8c\"\n" +
+                "    }\n" +
+                "  }", null);
+
+        Profile owner = new Profile(UUID.randomUUID(), "23423424", Lms.its_learning, "{\n" +
+                "\"id\":\"9dc0dddb-f6c2-4884-97ed-66318a9958db\",\n" +
+                "\"firstName\":\"David\",\n" +
+                "\"lastName\":\"Artavia\",\n" +
+                "\"username\":\"dartavia\"\n" +
+                "}",null);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", new HashMap<>());
+
+        ContextAssignedEntity contextAssignedEntity = new ContextAssignedEntity();
+        contextAssignedEntity.setContext(context);
+        contextAssignedEntity.setOwner(owner);
+
+        List<ContextAssignedEntity> list = new ArrayList<>();
+        list.add(contextAssignedEntity);
+
+        when(contextRepository.findContextsAssignedByProfileId(any(UUID.class))).thenReturn(list);
+        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
+
+        List<ContextGetAssignedResponseDto> result = contextService.getContextsAssigned(UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findContextsAssignedByProfileId(any(UUID.class));
+
+        ContextGetAssignedResponseDto resultEntity = result.get(0);
+        assertEquals("Wrong size", 1, result.size());
+
+        assertNotNull("First object is null", resultEntity);
+        assertNotNull("Id is null", resultEntity.getId());
+        assertNotNull("Id is null", resultEntity.getCollection().getId());
+
+        assertFalse("Context response is empty", resultEntity.getContextResponse().isEmpty());
+        assertFalse("Owner response is empty", resultEntity.getOwnerResponse().isEmpty());
+
+        assertNull("Owner is not null", resultEntity.getOwner());
+        assertNull("Context is not null", resultEntity.getContextData());
     }
 
 }
