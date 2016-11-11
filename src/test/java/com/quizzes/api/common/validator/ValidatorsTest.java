@@ -3,7 +3,7 @@ package com.quizzes.api.common.validator;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -12,9 +12,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,11 +29,11 @@ public class ValidatorsTest {
     }
 
     @Test
-    public void testProfileDTO() {
+    public void testProfileDto() {
 
-        ProfileDTO profile = new ProfileDTO();
+        ProfileDto profile = new ProfileDto();
 
-        Set<ConstraintViolation<ProfileDTO>> constraintViolations =
+        Set<ConstraintViolation<ProfileDto>> constraintViolations =
                 validator.validate(profile);
         assertEquals(4, constraintViolations.size());
     }
@@ -64,10 +62,10 @@ public class ValidatorsTest {
     public void testContext() {
 
         AssignmentDTO assignment = new AssignmentDTO();
-        ProfileDTO owner = new ProfileDTO();
+        ProfileDto owner = new ProfileDto();
         assignment.setOwner(owner);
-        ProfileDTO assignee = new ProfileDTO();
-        List<ProfileDTO> assignees = new ArrayList<>();
+        ProfileDto assignee = new ProfileDto();
+        List<ProfileDto> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
         assignment.setExternalCollectionId(UUID.randomUUID().toString());

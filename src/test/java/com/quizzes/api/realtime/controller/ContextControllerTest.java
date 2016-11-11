@@ -3,7 +3,7 @@ package com.quizzes.api.realtime.controller;
 import com.google.gson.JsonArray;
 import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
+import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
@@ -11,7 +11,7 @@ import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
 import com.quizzes.api.common.dto.controller.request.ResourceDTO;
 import com.quizzes.api.common.dto.controller.response.AnswerDTO;
@@ -20,7 +20,6 @@ import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
-import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.service.ContextService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
@@ -81,19 +80,19 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        ProfileDTO owner = new ProfileDTO();
+        ProfileDto owner = new ProfileDto();
         owner.setId("1");
         owner.setFirstName("firstName");
         owner.setLastName("lastname");
         owner.setUsername("username");
         assignment.setOwner(owner);
 
-        ProfileDTO assignee = new ProfileDTO();
+        ProfileDto assignee = new ProfileDto();
         assignee.setId("12345");
         assignee.setFirstName("firstname01");
         assignee.setLastName("lastname01");
         assignee.setUsername("firstname01");
-        List<ProfileDTO> assignees = new ArrayList<>();
+        List<ProfileDto> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
         assignment.setExternalCollectionId(UUID.randomUUID().toString());
@@ -135,7 +134,7 @@ public class ContextControllerTest {
         when(contextService.createContext(any(AssignmentDTO.class), any(Lms.class))).thenReturn(context);
 
         AssignmentDTO assignment = new AssignmentDTO();
-        ProfileDTO owner = new ProfileDTO();
+        ProfileDto owner = new ProfileDto();
         owner.setId("1");
         owner.setFirstName("firstName");
         owner.setLastName("lastname");
@@ -156,8 +155,8 @@ public class ContextControllerTest {
         assertThat(result.getBody().toString(), containsString("Error in assignees"));
         assertThat(result.getBody().toString(), containsString("At least one assignee is required"));
 
-        ProfileDTO assignee = new ProfileDTO();
-        List<ProfileDTO> assignees = new ArrayList<>();
+        ProfileDto assignee = new ProfileDto();
+        List<ProfileDto> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
 
@@ -192,12 +191,12 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        ProfileDTO assignee = new ProfileDTO();
+        ProfileDto assignee = new ProfileDto();
         assignee.setId("12345");
         assignee.setFirstName("firstname01");
         assignee.setLastName("lastname01");
         assignee.setUsername("firstname01");
-        List<ProfileDTO> assignees = new ArrayList<>();
+        List<ProfileDto> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
 
@@ -216,7 +215,7 @@ public class ContextControllerTest {
         assertThat(result.getBody().toString(), containsString("Error in owner"));
         assertThat(result.getBody().toString(), containsString("A Owner is required"));
 
-        ProfileDTO owner = new ProfileDTO();
+        ProfileDto owner = new ProfileDto();
         assignment.setOwner(owner);
 
         //testing empty owner
@@ -250,16 +249,16 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        ProfileDTO assignee = new ProfileDTO();
+        ProfileDto assignee = new ProfileDto();
         assignee.setId("12345");
         assignee.setFirstName("firstname01");
         assignee.setLastName("lastname01");
         assignee.setUsername("firstname01");
-        List<ProfileDTO> assignees = new ArrayList<>();
+        List<ProfileDto> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
 
-        ProfileDTO owner = new ProfileDTO();
+        ProfileDto owner = new ProfileDto();
         owner.setId("12345");
         owner.setFirstName("firstname01");
         owner.setLastName("lastname01");
@@ -304,16 +303,16 @@ public class ContextControllerTest {
 
         AssignmentDTO assignment = new AssignmentDTO();
 
-        ProfileDTO assignee = new ProfileDTO();
+        ProfileDto assignee = new ProfileDto();
         assignee.setId("12345");
         assignee.setFirstName("firstname01");
         assignee.setLastName("lastname01");
         assignee.setUsername("firstname01");
-        List<ProfileDTO> assignees = new ArrayList<>();
+        List<ProfileDto> assignees = new ArrayList<>();
         assignees.add(assignee);
         assignment.setAssignees(assignees);
 
-        ProfileDTO owner = new ProfileDTO();
+        ProfileDto owner = new ProfileDto();
         owner.setId("12345");
         owner.setFirstName("firstname01");
         owner.setLastName("lastname01");
@@ -453,10 +452,10 @@ public class ContextControllerTest {
         assertNotNull("Context id is null", result.getBody().getId());
         assertNotNull("Collection id is null", result.getBody().getCollection().getId());
 
-        ProfileDTO ownerResult = result.getBody().getOwner();
+        ProfileDto ownerResult = result.getBody().getOwner();
         assertNotNull("Owner id is null", ownerResult.getId());
 
-        List<ProfileDTO> profiles = result.getBody().getAssignees();
+        List<ProfileDto> profiles = result.getBody().getAssignees();
         assertEquals("Wrong list size for assignees", 2, profiles.size());
         assertNotNull("Profile1 id is null", profiles.get(0).getId());
 
@@ -484,7 +483,7 @@ public class ContextControllerTest {
 
         assertNotNull("Collection id is null", result.getCollection().getId());
 
-        List<ProfileDTO> profiles = result.getAssignees();
+        List<ProfileDto> profiles = result.getAssignees();
         assertEquals("Wrong list size for assignees", 2, profiles.size());
         assertNotNull("Profile1 id is null", profiles.get(0).getId());
         assertEquals("Wrong first name in owner", "Karol", profiles.get(0).getFirstName());
@@ -500,8 +499,8 @@ public class ContextControllerTest {
 
     @Test
     public void getAssignedContexts() throws Exception {
-        List<ContextGetAssignedResponseDto> contexts = new ArrayList<>();
-        ContextGetAssignedResponseDto contextAssigned = new ContextGetAssignedResponseDto();
+        List<ContextAssignedGetResponseDto> contexts = new ArrayList<>();
+        ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
         contextAssigned.setId(UUID.randomUUID());
         contextAssigned.setCollection(new CollectionDTO(UUID.randomUUID().toString()));
 
@@ -518,18 +517,18 @@ public class ContextControllerTest {
         contextAssigned.setOwnerResponse(ownerData);
         contexts.add(contextAssigned);
 
-        when(contextService.getContextsAssigned(any(UUID.class))).thenReturn(contexts);
+        when(contextService.getAssignedContexts(any(UUID.class))).thenReturn(contexts);
 
-        ResponseEntity<List<ContextGetAssignedResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextAssignedGetResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
 
-        verify(contextService, times(1)).getContextsAssigned(any(UUID.class));
+        verify(contextService, times(1)).getAssignedContexts(any(UUID.class));
 
-        List<ContextGetAssignedResponseDto> list = response.getBody();
+        List<ContextAssignedGetResponseDto> list = response.getBody();
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, list.size());
 
-        ContextGetAssignedResponseDto result = list.get(0);
+        ContextAssignedGetResponseDto result = list.get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 

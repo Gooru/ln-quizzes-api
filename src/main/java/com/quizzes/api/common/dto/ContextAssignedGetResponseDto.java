@@ -1,15 +1,14 @@
 package com.quizzes.api.common.dto;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Map;
 
-public class ContextGetAssignedResponseDto extends CommonContextGetResponseDto {
+public class ContextAssignedGetResponseDto extends CommonContextGetResponseDto {
 
-    private transient ProfileDTO owner;
+    private transient ProfileDto owner;
 
     @ApiModelProperty(hidden = true)
     @SerializedName("owner")
@@ -19,14 +18,14 @@ public class ContextGetAssignedResponseDto extends CommonContextGetResponseDto {
     @SerializedName("contextData")
     private Map<String, Object> contextResponse;
 
-    public ContextGetAssignedResponseDto() {
+    public ContextAssignedGetResponseDto() {
     }
 
-    public ProfileDTO getOwner() {
+    public ProfileDto getOwner() {
         return owner;
     }
 
-    public void setOwner(ProfileDTO owner) {
+    public void setOwner(ProfileDto owner) {
         this.owner = owner;
     }
 

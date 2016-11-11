@@ -1,21 +1,21 @@
 package com.quizzes.api.common.dto;
 
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import java.util.List;
 
 public class ContextGetCreatedResponseDto extends CommonContextGetResponseDto {
 
-    private List<ProfileDTO> assignees;
+    private List<ProfileDto> assignees;
 
     public ContextGetCreatedResponseDto() {
     }
 
-    public List<ProfileDTO> getAssignees() {
+    public List<ProfileDto> getAssignees() {
         return assignees;
     }
 
-    public void setAssignees(List<ProfileDTO> assignees) {
+    public void setAssignees(List<ProfileDto> assignees) {
         this.assignees = assignees;
     }
 }

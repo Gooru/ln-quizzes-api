@@ -1,12 +1,11 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
+import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextAssignedEntity;
@@ -83,7 +82,7 @@ public class ContextServiceTest {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
         assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
 
-        ProfileDTO ownerDTO = new ProfileDTO();
+        ProfileDto ownerDTO = new ProfileDto();
         ownerDTO.setId("external-id");
         assignmentDTO.setOwner(ownerDTO);
 
@@ -93,10 +92,10 @@ public class ContextServiceTest {
         contextDataMock.setContextMap(contextMapMock);
         assignmentDTO.setContextData(contextDataMock);
 
-        List<ProfileDTO> assignees = new ArrayList<>();
-        ProfileDTO profile1 = new ProfileDTO();
+        List<ProfileDto> assignees = new ArrayList<>();
+        ProfileDto profile1 = new ProfileDto();
         profile1.setId("1");
-        ProfileDTO profile2 = new ProfileDTO();
+        ProfileDto profile2 = new ProfileDto();
         profile1.setId("2");
         assignees.add(profile1);
         assignees.add(profile2);
@@ -145,7 +144,7 @@ public class ContextServiceTest {
         AssignmentDTO assignmentDTO = new AssignmentDTO();
         assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
 
-        ProfileDTO ownerDTO = new ProfileDTO();
+        ProfileDto ownerDTO = new ProfileDto();
         ownerDTO.setId("external-id");
         assignmentDTO.setOwner(ownerDTO);
 
@@ -155,8 +154,8 @@ public class ContextServiceTest {
         contextDataMock.setContextMap(contextMapMock);
         assignmentDTO.setContextData(contextDataMock);
 
-        List<ProfileDTO> assignees = new ArrayList<>();
-        ProfileDTO profile1 = new ProfileDTO();
+        List<ProfileDto> assignees = new ArrayList<>();
+        ProfileDto profile1 = new ProfileDto();
         profile1.setId("1");
         assignees.add(profile1);
         assignmentDTO.setAssignees(assignees);
@@ -210,10 +209,10 @@ public class ContextServiceTest {
         metadata.setMetadata(metadataMap);
         contextDataMock.setContextData(metadata);
 
-        List<ProfileDTO> assignees = new ArrayList<>();
-        ProfileDTO profile1 = new ProfileDTO();
+        List<ProfileDto> assignees = new ArrayList<>();
+        ProfileDto profile1 = new ProfileDto();
         profile1.setId(UUID.randomUUID().toString());
-        ProfileDTO profile2 = new ProfileDTO();
+        ProfileDto profile2 = new ProfileDto();
         profile2.setId(UUID.randomUUID().toString());
         assignees.add(profile1);
         assignees.add(profile2);
@@ -254,8 +253,8 @@ public class ContextServiceTest {
         metadata.setMetadata(metadataMap);
         contextDataMock.setContextData(metadata);
 
-        List<ProfileDTO> assignees = new ArrayList<>();
-        ProfileDTO profile1 = new ProfileDTO();
+        List<ProfileDto> assignees = new ArrayList<>();
+        ProfileDto profile1 = new ProfileDto();
         profile1.setId(UUID.randomUUID().toString());
         List<UUID> ids = new ArrayList<>();
         ids.add(UUID.randomUUID());
@@ -406,7 +405,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void getContextsAssigned(){
+    public void getAssignedContexts(){
         Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
                 "    \"metadata\": {\n" +
                 "      \"description\": \"First Partial\",\n" +
@@ -437,11 +436,11 @@ public class ContextServiceTest {
         when(contextRepository.findContextsAssignedByProfileId(any(UUID.class))).thenReturn(list);
         when(jsonParser.parseMap(any(String.class))).thenReturn(map);
 
-        List<ContextGetAssignedResponseDto> result = contextService.getContextsAssigned(UUID.randomUUID());
+        List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID());
 
         verify(contextRepository, times(1)).findContextsAssignedByProfileId(any(UUID.class));
 
-        ContextGetAssignedResponseDto resultEntity = result.get(0);
+        ContextAssignedGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());
 
         assertNotNull("First object is null", resultEntity);
