@@ -8,7 +8,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.model.entities.ContextAssignedEntity;
+import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -426,12 +426,12 @@ public class ContextServiceTest {
         Map<String, Object> map = new HashMap<>();
         map.put("key", new HashMap<>());
 
-        ContextAssignedEntity contextAssignedEntity = new ContextAssignedEntity();
-        contextAssignedEntity.setContext(context);
-        contextAssignedEntity.setOwner(owner);
+        AssignedContextEntity assignedContextEntity = new AssignedContextEntity();
+        assignedContextEntity.setContext(context);
+        assignedContextEntity.setOwner(owner);
 
-        List<ContextAssignedEntity> list = new ArrayList<>();
-        list.add(contextAssignedEntity);
+        List<AssignedContextEntity> list = new ArrayList<>();
+        list.add(assignedContextEntity);
 
         when(contextRepository.findAssignedContextsByProfileId(any(UUID.class))).thenReturn(list);
         when(jsonParser.parseMap(any(String.class))).thenReturn(map);

@@ -9,7 +9,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.model.entities.ContextAssignedEntity;
+import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -156,12 +156,12 @@ public class ContextService {
     }
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
-        List<ContextAssignedEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
+        List<AssignedContextEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
         Context context = null;
         Profile owner = null;
 
         List<ContextAssignedGetResponseDto> result = new ArrayList<>();
-        for (ContextAssignedEntity entity : contexts) {
+        for (AssignedContextEntity entity : contexts) {
             context = entity.getContext();
             owner = entity.getOwner();
 
@@ -172,8 +172,8 @@ public class ContextService {
             Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
             contextAssigned.setContextResponse(contextDataMap);
 
-            Map<String, Object> ownerData = jsonParser.parseMap(owner.getProfileData());
-            contextAssigned.setOwnerResponse(ownerData);
+            Map<String, Object> ownerDataMap = jsonParser.parseMap(owner.getProfileData());
+            contextAssigned.setOwnerResponse(ownerDataMap);
             result.add(contextAssigned);
         }
         return result;

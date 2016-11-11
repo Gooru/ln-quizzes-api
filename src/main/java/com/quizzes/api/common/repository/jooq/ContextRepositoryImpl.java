@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.entities.ContextAssignedEntity;
+import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Profile;
@@ -72,7 +72,7 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public List<ContextAssignedEntity> findAssignedContextsByProfileId(UUID profileId){
+    public List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId){
         //We do not have to return the group
         Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
                 "    \"metadata\": {\n" +
@@ -91,12 +91,12 @@ public class ContextRepositoryImpl implements ContextRepository {
                 "\"username\":\"dartavia\"\n" +
                 "}",null);
 
-        ContextAssignedEntity contextAssignedEntity = new ContextAssignedEntity();
-        contextAssignedEntity.setContext(context);
-        contextAssignedEntity.setOwner(owner);
+        AssignedContextEntity assignedContextEntity = new AssignedContextEntity();
+        assignedContextEntity.setContext(context);
+        assignedContextEntity.setOwner(owner);
 
-        List<ContextAssignedEntity> list = new ArrayList<>();
-        list.add(contextAssignedEntity);
+        List<AssignedContextEntity> list = new ArrayList<>();
+        list.add(assignedContextEntity);
 
         return list;
     }

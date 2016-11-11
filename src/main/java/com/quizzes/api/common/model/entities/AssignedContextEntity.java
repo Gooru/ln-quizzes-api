@@ -3,7 +3,7 @@ package com.quizzes.api.common.model.entities;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 
-public class ContextAssignedEntity {
+public class AssignedContextEntity {
 
     private Context context;
     private Profile owner;
