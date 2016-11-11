@@ -192,7 +192,7 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        List<ContextGetCreatedResponseDto> list = getContextGetCreatedResponseDto(profileId);
+        List<ContextGetCreatedResponseDto> list = contextService.getContextGetCreatedResponseDto(profileId);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
@@ -275,7 +275,7 @@ public class ContextController {
         ProfileDTO ownerDTO = new ProfileDTO();
         ownerDTO.setId(group.getOwnerProfileId().toString());
 
-        List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
+        List<GroupProfile> assignees = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
         List<ProfileDTO> assigneesDTO = new ArrayList<>();
         for (GroupProfile assignee : assignees){
             ProfileDTO assigneeDTO = new ProfileDTO();
@@ -303,43 +303,4 @@ public class ContextController {
         return contextGetResponseDto;
     }
 
-    private List<ContextGetCreatedResponseDto> getContextGetCreatedResponseDto(UUID profileId){
-
-        List<ContextGetCreatedResponseDto> result = new ArrayList<>();
-        List<Context> contexts = contextService.getContextByOwnerId(profileId);
-
-        for (Context context : contexts){
-            CollectionDTO collectionDTO = new CollectionDTO();
-            collectionDTO.setId(context.getCollectionId().toString());
-
-            List<GroupProfile> assignees = groupProfileService.getGroupProfilesByGroupId(context.getGroupId());
-            List<ProfileDTO> assigneesDTO = new ArrayList<>();
-            for (GroupProfile assignee : assignees){
-                ProfileDTO assigneeDTO = new ProfileDTO();
-                assigneeDTO.setId(assignee.getId().toString());
-                assigneesDTO.add(assigneeDTO);
-            }
-
-            CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
-
-            ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
-            contextGetCreatedResponseDto.setId(context.getId());
-            contextGetCreatedResponseDto.setCollection(collectionDTO);
-            contextGetCreatedResponseDto.setAssignees(assigneesDTO);
-
-            Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
-
-            Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
-            Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
-            contextDataDto.setContextMap(contextMap);
-            contextDataDto.setMetadata(metadata);
-
-            contextGetCreatedResponseDto.setContextData(contextDataDto);
-
-            result.add(contextGetCreatedResponseDto);
-
-        }
-
-        return result;
-    }
 }

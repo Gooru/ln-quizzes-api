@@ -1,6 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.CommonContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
@@ -132,6 +134,46 @@ public class ContextService {
 
         return contextRepository.findByOwnerId(profileId);
 
+    }
+
+    public List<ContextGetCreatedResponseDto> getContextGetCreatedResponseDto(UUID profileId){
+
+        List<ContextGetCreatedResponseDto> result = new ArrayList<>();
+        List<Context> contexts = getContextByOwnerId(profileId);
+
+        for (Context context : contexts){
+            CollectionDTO collectionDTO = new CollectionDTO();
+            collectionDTO.setId(context.getCollectionId().toString());
+
+            List<GroupProfile> assignees = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
+            List<ProfileDTO> assigneesDTO = new ArrayList<>();
+            for (GroupProfile assignee : assignees){
+                ProfileDTO assigneeDTO = new ProfileDTO();
+                assigneeDTO.setId(assignee.getId().toString());
+                assigneesDTO.add(assigneeDTO);
+            }
+
+            CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
+
+            ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
+            contextGetCreatedResponseDto.setId(context.getId());
+            contextGetCreatedResponseDto.setCollection(collectionDTO);
+            contextGetCreatedResponseDto.setAssignees(assigneesDTO);
+
+            Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+
+            Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
+            Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
+            contextDataDto.setContextMap(contextMap);
+            contextDataDto.setMetadata(metadata);
+
+            contextGetCreatedResponseDto.setContextData(contextDataDto);
+
+            result.add(contextGetCreatedResponseDto);
+
+        }
+
+        return result;
     }
 
     private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {

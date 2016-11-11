@@ -9,5 +9,5 @@ public interface GroupProfileRepository {
 
     void save(GroupProfile groupProfile);
 
-    List<GroupProfile> getGroupProfilesByGroupId(UUID id);
+    List<GroupProfile> findGroupProfilesByGroupId(UUID id);
 }
