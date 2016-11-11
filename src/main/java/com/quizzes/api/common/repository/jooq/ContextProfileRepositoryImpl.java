@@ -6,6 +6,8 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -33,6 +35,19 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
         contextProfile.setIsComplete(false);
         contextProfile.setCurrentResourceId(UUID.randomUUID());
         return contextProfile;
+    }
+
+    @Override
+    public List<UUID> findContextProfileIdsByContextId(UUID contextId){
+        List<UUID> ids = new ArrayList<>();
+        ids.add(UUID.randomUUID());
+        ids.add(UUID.randomUUID());
+        return ids;
+    }
+
+    @Override
+    public void delete(UUID id){
+        //TODO: Implement functionality
     }
 
 }

@@ -19,8 +19,8 @@ import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
-import org.jooq.tools.json.JSONArray;
 import com.quizzes.api.common.service.content.CollectionContentService;
+import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ContextService {
@@ -93,13 +94,22 @@ public class ContextService {
         return null;
     }
 
-    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto) {
+    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Gson gson = new Gson();
         Context context = contextRepository.findById(contextId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
+
+        List<ProfileDTO> profiles = contextPutRequestDto.getAssignees();
+        if (profiles != null && profiles.size() > 0) {
+            List<UUID> contextProfileIds = contextProfileService.findContextProfileIdsByContextId(contextId);
+            addContextProfiles(profiles, contextProfileIds, lms, contextId);
+            deleteContextProfiles(profiles, contextProfileIds);
+        }
+
+        //Update ContextData
         ContextDataDTO contextDataDTO = gson.fromJson(context.getContextData(), ContextDataDTO.class);
         contextDataDTO.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         contextDataDTO.setMetadata(contextPutRequestDto.getContextData().getMetadata());
@@ -215,6 +225,34 @@ public class ContextService {
             profile = findProfile(profileDTO, lms);
             groupProfileService.save(new GroupProfile(null, groupId, profile.getId(), null));
         }
+    }
+
+    private void deleteOldContextProfiles(List<UUID> idsToDelete) {
+        for (UUID id : idsToDelete) {
+            contextProfileService.delete(id);
+        }
+    }
+
+    private void addContextProfiles(List<ProfileDTO> profiles, List<UUID> contextProfileIds, Lms lms, UUID contextId) {
+        List<ProfileDTO> idsToAdd = profiles.stream()
+                .filter(e -> (contextProfileIds.stream()
+                        .filter(d -> e.getId().equals(d.toString()))
+                        .count()) < 1)
+                .collect(Collectors.toList());
+
+        for (ProfileDTO profileDTO : idsToAdd) {
+            Profile profile = findProfile(profileDTO, lms);
+            contextProfileService.save(new ContextProfile(null, contextId, profile.getId(), null, null, null));
+        }
+    }
+
+    private void deleteContextProfiles(List<ProfileDTO> profiles, List<UUID> contextProfileIds) {
+        List<UUID> idsToDelete = contextProfileIds.stream()
+                .filter(e -> (profiles.stream()
+                        .filter(d -> d.getId().equals(e.toString()))
+                        .count()) < 1)
+                .collect(Collectors.toList());
+        deleteOldContextProfiles(idsToDelete);
     }
 
 }
