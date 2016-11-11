@@ -120,8 +120,8 @@ dependencies {
 
     compile("org.postgresql:postgresql:9.4.1211")
 
-    compile("io.springfox:springfox-swagger2:2.5.0")
-    compile("io.springfox:springfox-swagger-ui:2.5.0")
+    compile("io.springfox:springfox-swagger2:2.4.0")
+    compile("io.springfox:springfox-swagger-ui:2.4.0")
 
     compile("org.flywaydb:flyway-core:4.0.3")
 
