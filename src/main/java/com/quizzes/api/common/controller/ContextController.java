@@ -2,7 +2,7 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
-import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -184,17 +184,17 @@ public class ContextController {
     @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", responseContainer = "List",
-                    response = ContextGetCreatedResponseDto.class)
+                    response = CreatedContextGetResponseDto.class)
     })
     @RequestMapping(path = "/v1/contexts/created",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ContextGetCreatedResponseDto>> getContextsCreated(
+    public ResponseEntity<List<CreatedContextGetResponseDto>> findCreatedContexts(
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId,
             @ApiParam(value = "optional query params", required = true, name = "filterMap")
             @RequestParam Map<String, String> filterMap) throws Exception {
 
-        List<ContextGetCreatedResponseDto> list = contextService.getContextGetCreatedResponseDto(profileId);
+        List<CreatedContextGetResponseDto> list = contextService.findCreatedContexts(profileId);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }

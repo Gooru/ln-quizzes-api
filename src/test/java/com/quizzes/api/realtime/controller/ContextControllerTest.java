@@ -4,7 +4,7 @@ import com.google.gson.JsonArray;
 import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
-import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -467,7 +467,7 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void getContextsCreated() throws Exception {
+    public void findCreatedContexts() throws Exception {
 
         List<Context> contextsCreatedByOwner = new ArrayList<>();
 
@@ -482,13 +482,13 @@ public class ContextControllerTest {
 
         when(contextService.findContextByOwnerId(any(UUID.class))).thenReturn(contextsCreatedByOwner);
 
-        List<ContextGetCreatedResponseDto> contextGetCreatedResponseDtos = new ArrayList<>();
-        ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
-        contextGetCreatedResponseDto.setId(UUID.randomUUID());
+        List<CreatedContextGetResponseDto> createdContextGetResponseDtos = new ArrayList<>();
+        CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
+        createdContextGetResponseDto.setId(UUID.randomUUID());
         CollectionDTO collectionDto = new CollectionDTO();
         collectionDto.setId(UUID.randomUUID().toString());
-        contextGetCreatedResponseDto.setCollection(collectionDto);
-        contextGetCreatedResponseDto.setId(UUID.randomUUID());
+        createdContextGetResponseDto.setCollection(collectionDto);
+        createdContextGetResponseDto.setId(UUID.randomUUID());
         List<ProfileDTO> assignees = new ArrayList<>();
         ProfileDTO asignee1 = new ProfileDTO();
         asignee1.setId(UUID.randomUUID().toString());
@@ -496,7 +496,7 @@ public class ContextControllerTest {
         ProfileDTO asignee2 = new ProfileDTO();
         asignee2.setId(UUID.randomUUID().toString());
         assignees.add(asignee2);
-        contextGetCreatedResponseDto.setAssignees(assignees);
+        createdContextGetResponseDto.setAssignees(assignees);
         CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
         Map<String, String> contextMap = new HashMap<>();
         contextMap.put("classId", "9e8f32bd-04fd-42c2-97f9-36addd23d850");
@@ -505,21 +505,21 @@ public class ContextControllerTest {
         metadata.put("description", "First Partial");
         metadata.put("title", "Math 1st Grade");
         contextDataDto.setMetadata(metadata);
-        contextGetCreatedResponseDto.setContextData(contextDataDto);
-        contextGetCreatedResponseDtos.add(contextGetCreatedResponseDto);
+        createdContextGetResponseDto.setContextData(contextDataDto);
+        createdContextGetResponseDtos.add(createdContextGetResponseDto);
 
-        when(contextService.getContextGetCreatedResponseDto(any(UUID.class))).thenReturn(contextGetCreatedResponseDtos);
+        when(contextService.findCreatedContexts(any(UUID.class))).thenReturn(createdContextGetResponseDtos);
 
         Map<String, String> filter = new HashMap<>();
         filter.put("classId", UUID.randomUUID().toString());
-        ResponseEntity<List<ContextGetCreatedResponseDto>> response = controller
-                .getContextsCreated(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
+        ResponseEntity<List<CreatedContextGetResponseDto>> response = controller
+                .findCreatedContexts(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        ContextGetCreatedResponseDto result = response.getBody().get(0);
+        CreatedContextGetResponseDto result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 

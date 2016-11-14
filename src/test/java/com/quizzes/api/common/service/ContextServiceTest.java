@@ -1,7 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
@@ -423,7 +423,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void getContextGetCreatedResponseDto() {
+    public void findCreatedContexts() {
         UUID groupId = UUID.randomUUID();
 
         List<Context> contexts = new ArrayList<>();
@@ -451,7 +451,7 @@ public class ContextServiceTest {
 
         when(groupProfileService.findGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
 
-        List<ContextGetCreatedResponseDto> result = contextService.getContextGetCreatedResponseDto(UUID.randomUUID());
+        List<CreatedContextGetResponseDto> result = contextService.findCreatedContexts(UUID.randomUUID());
         verify(contextRepository, times(1)).findByOwnerId(any(UUID.class));
         verify(groupProfileService, times(1)).findGroupProfilesByGroupId(any(UUID.class));
 

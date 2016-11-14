@@ -2,7 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
@@ -146,9 +146,12 @@ public class ContextService {
 
     }
 
-    public List<ContextGetCreatedResponseDto> getContextGetCreatedResponseDto(UUID profileId){
+    public List<CreatedContextGetResponseDto> findCreatedContexts(UUID profileId){
+        //TODO: this method is doing multiple DB queries, 1 to get the created context list and then
+        //TODO: for each one it is doing a new query to get the assignees
+        //TODO: REFACTOR this to return the complete information in ONE new entity
 
-        List<ContextGetCreatedResponseDto> result = new ArrayList<>();
+        List<CreatedContextGetResponseDto> result = new ArrayList<>();
         List<Context> contexts = findContextByOwnerId(profileId);
 
         for (Context context : contexts){
@@ -165,10 +168,10 @@ public class ContextService {
 
             CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
 
-            ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
-            contextGetCreatedResponseDto.setId(context.getId());
-            contextGetCreatedResponseDto.setCollection(collectionDTO);
-            contextGetCreatedResponseDto.setAssignees(assigneesDTO);
+            CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
+            createdContextGetResponseDto.setId(context.getId());
+            createdContextGetResponseDto.setCollection(collectionDTO);
+            createdContextGetResponseDto.setAssignees(assigneesDTO);
 
             Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
 
@@ -177,9 +180,9 @@ public class ContextService {
             contextDataDto.setContextMap(contextMap);
             contextDataDto.setMetadata(metadata);
 
-            contextGetCreatedResponseDto.setContextData(contextDataDto);
+            createdContextGetResponseDto.setContextData(contextDataDto);
 
-            result.add(contextGetCreatedResponseDto);
+            result.add(createdContextGetResponseDto);
 
         }
 
