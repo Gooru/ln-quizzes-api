@@ -159,8 +159,7 @@ public class ContextService {
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
         List<AssignedContextEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
-
-        List<ContextAssignedGetResponseDto> result = contexts.stream()
+        return contexts.stream()
                 .map(entity -> {
                     Context context = entity.getContext();
                     Profile owner = entity.getOwner();
@@ -178,7 +177,6 @@ public class ContextService {
                     return contextAssigned;
                 })
                 .collect(Collectors.toList());
-            return result;
     }
 
     private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
