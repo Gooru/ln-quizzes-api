@@ -16,12 +16,12 @@ public class AssignmentDTO {
 
     @NotNull(message = "{assignment.owner.not_null}")
     @Valid
-    private ProfileDTO owner;
+    private ProfileDto owner;
 
     @NotNull(message = "{assignment.assignees.not_null}")
     @Size(min = 1, message = "{assignment.assignees.size}")
     @Valid
-    private List<ProfileDTO> assignees;
+    private List<ProfileDto> assignees;
 
     @NotNull(message = "{assignment.context_data.not_null}")
     private ContextDataDTO contextData;
@@ -37,19 +37,19 @@ public class AssignmentDTO {
         this.externalCollectionId = externalCollectionId;
     }
 
-    public ProfileDTO getOwner() {
+    public ProfileDto getOwner() {
         return owner;
     }
 
-    public void setOwner(ProfileDTO owner) {
+    public void setOwner(ProfileDto owner) {
         this.owner = owner;
     }
 
-    public List<ProfileDTO> getAssignees() {
+    public List<ProfileDto> getAssignees() {
         return assignees;
     }
 
-    public void setAssignees(List<ProfileDTO> assignees) {
+    public void setAssignees(List<ProfileDto> assignees) {
         this.assignees = assignees;
     }
 

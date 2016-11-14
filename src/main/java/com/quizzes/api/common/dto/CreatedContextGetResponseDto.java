@@ -4,21 +4,11 @@ import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import java.util.List;
 
-public class ContextGetResponseDto extends CommonContextGetResponseDto {
-
-    private ProfileDto owner;
+public class CreatedContextGetResponseDto extends CommonContextGetResponseDto {
 
     private List<ProfileDto> assignees;
 
-    public ContextGetResponseDto() {
-    }
-
-    public ProfileDto getOwner() {
-        return owner;
-    }
-
-    public void setOwner(ProfileDto owner) {
-        this.owner = owner;
+    public CreatedContextGetResponseDto() {
     }
 
     public List<ProfileDto> getAssignees() {

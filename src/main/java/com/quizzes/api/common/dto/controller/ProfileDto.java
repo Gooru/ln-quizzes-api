@@ -3,7 +3,7 @@ package com.quizzes.api.common.dto.controller;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class ProfileDTO {
+public class ProfileDto {
 
     @NotNull(message = "{profile.id.not_null}")
     @Size(min=1, message = "{profile.id.size}")
@@ -18,7 +18,7 @@ public class ProfileDTO {
     @Size(min=1, message = "{profile.username.size}")
     private String username;
 
-    public ProfileDTO() {
+    public ProfileDto() {
     }
 
     public String getId() {
