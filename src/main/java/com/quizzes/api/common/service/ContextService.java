@@ -31,7 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ContextService {
@@ -157,26 +159,26 @@ public class ContextService {
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
         List<AssignedContextEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
-        Context context = null;
-        Profile owner = null;
 
-        List<ContextAssignedGetResponseDto> result = new ArrayList<>();
-        for (AssignedContextEntity entity : contexts) {
-            context = entity.getContext();
-            owner = entity.getOwner();
+        List<ContextAssignedGetResponseDto> result = contexts.stream()
+                .map(entity -> {
+                    Context context = entity.getContext();
+                    Profile owner = entity.getOwner();
 
-            ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
-            contextAssigned.setId(context.getId());
-            contextAssigned.setCollection(new CollectionDTO(context.getCollectionId().toString()));
+                    ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
+                    contextAssigned.setId(context.getId());
+                    contextAssigned.setCollection(new CollectionDTO(context.getCollectionId().toString()));
 
-            Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
-            contextAssigned.setContextResponse(contextDataMap);
+                    Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+                    contextAssigned.setContextResponse(contextDataMap);
 
-            Map<String, Object> ownerDataMap = jsonParser.parseMap(owner.getProfileData());
-            contextAssigned.setOwnerResponse(ownerDataMap);
-            result.add(contextAssigned);
-        }
-        return result;
+                    Map<String, Object> ownerDataMap = jsonParser.parseMap(owner.getProfileData());
+                    contextAssigned.setOwnerResponse(ownerDataMap);
+
+                    return contextAssigned;
+                })
+                .collect(Collectors.toList());
+            return result;
     }
 
     private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
