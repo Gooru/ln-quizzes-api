@@ -1,6 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.CommonContextGetResponseDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
@@ -136,6 +138,55 @@ public class ContextService {
         //TODO: replace this by findById method
         return contextRepository.mockedFindById(contextId);
 
+    }
+
+    public List<Context> findContextByOwnerId(UUID profileId) {
+
+        return contextRepository.findByOwnerId(profileId);
+
+    }
+
+    public List<CreatedContextGetResponseDto> findCreatedContexts(UUID profileId){
+        //TODO: this method is doing multiple DB queries, 1 to get the created context list and then
+        //TODO: for each one it is doing a new query to get the assignees
+        //TODO: REFACTOR this to return the complete information in ONE new entity
+
+        List<CreatedContextGetResponseDto> result = new ArrayList<>();
+        List<Context> contexts = findContextByOwnerId(profileId);
+
+        for (Context context : contexts){
+            CollectionDTO collectionDTO = new CollectionDTO();
+            collectionDTO.setId(context.getCollectionId().toString());
+
+            List<GroupProfile> assignees = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
+            List<ProfileDTO> assigneesDTO = new ArrayList<>();
+            for (GroupProfile assignee : assignees){
+                ProfileDTO assigneeDTO = new ProfileDTO();
+                assigneeDTO.setId(assignee.getId().toString());
+                assigneesDTO.add(assigneeDTO);
+            }
+
+            CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
+
+            CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
+            createdContextGetResponseDto.setId(context.getId());
+            createdContextGetResponseDto.setCollection(collectionDTO);
+            createdContextGetResponseDto.setAssignees(assigneesDTO);
+
+            Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+
+            Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
+            Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
+            contextDataDto.setContextMap(contextMap);
+            contextDataDto.setMetadata(metadata);
+
+            createdContextGetResponseDto.setContextData(contextDataDto);
+
+            result.add(createdContextGetResponseDto);
+
+        }
+
+        return result;
     }
 
     private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {

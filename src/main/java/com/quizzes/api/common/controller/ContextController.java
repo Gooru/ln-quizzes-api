@@ -2,7 +2,7 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetAssignedResponseDto;
-import com.quizzes.api.common.dto.ContextGetCreatedResponseDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -184,57 +184,17 @@ public class ContextController {
     @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", responseContainer = "List",
-                    response = ContextGetCreatedResponseDto.class)
+                    response = CreatedContextGetResponseDto.class)
     })
     @RequestMapping(path = "/v1/contexts/created",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ContextGetCreatedResponseDto>> getContextsCreated(
+    public ResponseEntity<List<CreatedContextGetResponseDto>> findCreatedContexts(
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId,
             @ApiParam(value = "optional query params", required = true, name = "filterMap")
             @RequestParam Map<String, String> filterMap) throws Exception {
 
-        ContextGetCreatedResponseDto contextGetCreatedResponseDto = new ContextGetCreatedResponseDto();
-        contextGetCreatedResponseDto.setId(UUID.randomUUID());
-
-        CollectionDTO collection = new CollectionDTO();
-        collection.setId(UUID.randomUUID().toString());
-        contextGetCreatedResponseDto.setCollection(collection);
-
-        List<ProfileDTO> profiles = new ArrayList<>();
-
-        ProfileDTO profile1 = new ProfileDTO();
-        profile1.setId(UUID.randomUUID().toString());
-        profile1.setFirstName("Karol");
-        profile1.setLastName("Fernandez");
-        profile1.setUsername("karol1");
-
-        ProfileDTO profile2 = new ProfileDTO();
-        profile2.setId(UUID.randomUUID().toString());
-        profile2.setFirstName("Roger");
-        profile2.setLastName("Stevens");
-        profile2.setUsername("rogersteve");
-
-        profiles.add(profile1);
-        profiles.add(profile2);
-
-        contextGetCreatedResponseDto.setAssignees(profiles);
-
-        ContextGetAssignedResponseDto.ContextDataDto contextDataDTO = new ContextGetAssignedResponseDto.ContextDataDto();
-
-        Map<String, String> contextMap = new HashMap<>();
-        contextMap.put("classId", UUID.randomUUID().toString());
-        contextDataDTO.setContextMap(contextMap);
-
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("title", "Math 1st Grade");
-        metadata.put("description", "First Partial");
-        contextDataDTO.setMetadata(metadata);
-
-        contextGetCreatedResponseDto.setContextData(contextDataDTO);
-
-        List<ContextGetCreatedResponseDto> list = new ArrayList<>();
-        list.add(contextGetCreatedResponseDto);
+        List<CreatedContextGetResponseDto> list = contextService.findCreatedContexts(profileId);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
@@ -344,4 +304,5 @@ public class ContextController {
 
         return contextGetResponseDto;
     }
+
 }
