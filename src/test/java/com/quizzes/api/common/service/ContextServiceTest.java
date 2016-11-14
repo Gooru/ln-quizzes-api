@@ -3,6 +3,7 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDto;
@@ -38,7 +39,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -405,7 +405,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void getAssignedContexts(){
+    public void getAssignedContexts() {
         Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
                 "    \"metadata\": {\n" +
                 "      \"description\": \"First Partial\",\n" +
@@ -421,7 +421,7 @@ public class ContextServiceTest {
                 "\"firstName\":\"David\",\n" +
                 "\"lastName\":\"Artavia\",\n" +
                 "\"username\":\"dartavia\"\n" +
-                "}",null);
+                "}", null);
 
         Map<String, Object> map = new HashMap<>();
         map.put("key", new HashMap<>());
@@ -454,4 +454,65 @@ public class ContextServiceTest {
         assertNull("Context is not null", resultEntity.getContextData());
     }
 
+    @Test
+    public void findContextByOwnerId() {
+        List<Context> contextsByOwner = new ArrayList<>();
+
+        Context context = new Context();
+        context.setId(UUID.randomUUID());
+        context.setCollectionId(UUID.randomUUID());
+        context.setGroupId(UUID.randomUUID());
+        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        contextsByOwner.add(context);
+
+        when(contextRepository.findByOwnerId(any(UUID.class))).thenReturn(contextsByOwner);
+
+        List<Context> result = contextService.findContextByOwnerId(UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findByOwnerId(any(UUID.class));
+        assertNotNull("Context by owner is null", result);
+
+    }
+
+    @Test
+    public void findCreatedContexts() {
+        UUID groupId = UUID.randomUUID();
+
+        List<Context> contexts = new ArrayList<>();
+        Context context = new Context();
+        context.setId(UUID.randomUUID());
+        context.setCollectionId(UUID.randomUUID());
+        context.setGroupId(groupId);
+        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        contexts.add(context);
+
+        when(contextRepository.findByOwnerId(any(UUID.class))).thenReturn(contexts);
+
+        List<GroupProfile> groupProfiles = new ArrayList<>();
+        GroupProfile assignee1 = new GroupProfile();
+        assignee1.setGroupId(groupId);
+        assignee1.setId(UUID.randomUUID());
+        assignee1.setProfileId(UUID.randomUUID());
+        groupProfiles.add(assignee1);
+        GroupProfile assignee2 = new GroupProfile();
+        assignee2.setGroupId(groupId);
+        assignee2.setId(UUID.randomUUID());
+        assignee2.setProfileId(UUID.randomUUID());
+        groupProfiles.add(assignee2);
+
+        when(groupProfileService.findGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
+
+        List<CreatedContextGetResponseDto> result = contextService.findCreatedContexts(UUID.randomUUID());
+        verify(contextRepository, times(1)).findByOwnerId(any(UUID.class));
+        verify(groupProfileService, times(1)).findGroupProfilesByGroupId(any(UUID.class));
+
+        assertNotNull("Created contexts list in null", result);
+        assertEquals("No created contexts", 1, result.size());
+        assertNotNull("Context has no Collection", result.get(0).getCollection());
+        assertNotNull("Context has no assignees", result.get(0).getAssignees());
+        assertEquals("Wrong number of assignees", 2, result.get(0).getAssignees().size());
+
+    }
 }

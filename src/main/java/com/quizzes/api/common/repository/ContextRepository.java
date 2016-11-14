@@ -14,6 +14,8 @@ public interface ContextRepository {
 
     Context mockedFindById(UUID id);
 
+    List<Context> findByOwnerId(UUID profileId);
+
     Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId);
 
     UUID findCollectionIdByContextId(UUID contextId);

@@ -38,7 +38,7 @@ public class GroupProfileServiceTest {
     }
 
     @Test
-    public void getGroupProfilesByGroupId() throws Exception {
+    public void findGroupProfilesByGroupId() throws Exception {
         List<GroupProfile> profiles = new ArrayList<>();
         UUID groupId = UUID.randomUUID();
         GroupProfile assignee1 = new GroupProfile(UUID.randomUUID(), groupId, UUID.randomUUID(), null);
@@ -49,6 +49,7 @@ public class GroupProfileServiceTest {
         when(groupProfileRepository.findGroupProfilesByGroupId(groupId)).thenReturn(profiles);
 
         List<GroupProfile> result = groupProfileService.findGroupProfilesByGroupId(groupId);
+        verify(groupProfileRepository, times(1)).findGroupProfilesByGroupId(any(UUID.class));
         assertNotNull("Response is null", result);
         assertEquals("Wrong id", 2, result.size());
         assertSame("Wrong data type", result.getClass(), ArrayList.class);

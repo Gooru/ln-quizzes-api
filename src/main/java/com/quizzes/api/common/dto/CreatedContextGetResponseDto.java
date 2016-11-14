@@ -4,11 +4,11 @@ import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import java.util.List;
 
-public class ContextGetCreatedResponseDto extends CommonContextGetResponseDto {
+public class CreatedContextGetResponseDto extends CommonContextGetResponseDto {
 
     private List<ProfileDto> assignees;
 
-    public ContextGetCreatedResponseDto() {
+    public CreatedContextGetResponseDto() {
     }
 
     public List<ProfileDto> getAssignees() {
