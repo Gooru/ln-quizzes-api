@@ -6,6 +6,7 @@ public class CollectionDto {
 
     private String title;
 
+
     public CollectionDto() {
     }
 

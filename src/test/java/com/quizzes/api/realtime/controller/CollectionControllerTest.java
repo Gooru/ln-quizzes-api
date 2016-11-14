@@ -7,10 +7,8 @@ import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
 import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
 import com.quizzes.api.common.dto.controller.response.InteractionDTO;
 import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
-import com.quizzes.api.common.dto.controller.response.QuestionType;
+import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Collection;
-import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.common.service.ResourceService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
@@ -66,7 +64,7 @@ public class CollectionControllerTest {
         ChoiceDTO choiceDto3 = new ChoiceDTO("option 3", false, "C");
         choices.add(choiceDto3);
         InteractionDTO interactionDto = new InteractionDTO(true, 10, "mocked Interaction", choices);
-        QuestionDataDTO questionDataDto = new QuestionDataDTO("mocked Question Data", QuestionType.SingleChoice, answers, "mocked body", interactionDto);
+        QuestionDataDTO questionDataDto = new QuestionDataDTO("mocked Question Data", QuestionTypeEnum.SingleChoice, answers, "mocked body", interactionDto);
         CollectionDataResourceDTO collectionDataResourceDto1 = new CollectionDataResourceDTO(UUID.randomUUID(),
                 true, questionDataDto);
         List<CollectionDataResourceDTO> collectionDataResourceDtos = new ArrayList<>();
@@ -81,7 +79,7 @@ public class CollectionControllerTest {
         ChoiceDTO choiceDto5 = new ChoiceDTO("False", false, "F");
         choices2.add(choiceDto5);
         InteractionDTO interactionDto2 = new InteractionDTO(true, 10, "mocked Interaction", choices2);
-        QuestionDataDTO questionDataDto2 = new QuestionDataDTO("mocked Question Data", QuestionType.TrueFalse, answers2, "mocked body", interactionDto2);
+        QuestionDataDTO questionDataDto2 = new QuestionDataDTO("mocked Question Data", QuestionTypeEnum.TrueFalse, answers2, "mocked body", interactionDto2);
         CollectionDataResourceDTO collectionDataResourceDto2 = new CollectionDataResourceDTO(UUID.randomUUID(),
                 true, questionDataDto2);
         collectionDataResourceDtos.add(collectionDataResourceDto2);

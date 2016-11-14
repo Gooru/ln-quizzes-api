@@ -71,26 +71,20 @@ public class ContextService {
     CollectionContentService collectionContentService;
 
     public Context createContext(AssignmentDTO assignmentDTO, Lms lms) {
-        //Get OwnerProfile
         Profile owner = findProfile(assignmentDTO.getOwner(), lms);
-
-        //Create a new copy of the collection
-        //TODO: Go to gooru to get the collection in transform the result into a quizzes collection
-
         Collection collection =
                 collectionContentService.createCollectionCopy(assignmentDTO.getExternalCollectionId(), owner);
 
         if (collection != null) {
-            collection = collectionService.save(collection);
-
-            Group group = groupService.createGroup(collection.getOwnerProfileId());
+            Group group = groupService.createGroup(owner.getId());
             assignProfilesToGroup(group.getId(), assignmentDTO.getAssignees(), lms);
 
-            Context context = new Context(null, collection.getId(), group.getId(),
-                    new Gson().toJson(assignmentDTO.getContextData()), null);
-            context = contextRepository.save(context);
+            Context context = new Context();
+            context.setCollectionId(collection.getId());
+            context.setGroupId(group.getId());
+            context.setContextData(new Gson().toJson(assignmentDTO.getContextData()));
 
-            return context;
+            return contextRepository.save(context);
         }
 
         return null;
@@ -191,21 +185,6 @@ public class ContextService {
         return result;
     }
 
-    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (ContextProfileEvent context : attempts) {
-            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
-            if (data.containsKey("answer") && data.get("answer").toString() != null) {
-                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
-                data.put("answer", answers);
-            } else {
-                data.put("answer", new JSONArray());
-            }
-            list.add(data);
-        }
-        return list;
-    }
-
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
         List<AssignedContextEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
         return contexts.stream()
@@ -228,6 +207,21 @@ public class ContextService {
                 .collect(Collectors.toList());
     }
 
+    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (ContextProfileEvent context : attempts) {
+            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
+            if (data.containsKey("answer") && data.get("answer").toString() != null) {
+                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
+                data.put("answer", answers);
+            } else {
+                data.put("answer", new JSONArray());
+            }
+            list.add(data);
+        }
+        return list;
+    }
+
     private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
         ContextProfile contextProfile =
                 contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
@@ -237,20 +231,25 @@ public class ContextService {
         return contextProfile;
     }
 
-    private Profile findProfile(ProfileDto profileDto, Lms lms) {
-        Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lms);
+    private Profile findProfile(ProfileDto profileDto, Lms lmsId) {
+        Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lmsId);
         if (profile == null) {
-            profile = profileService
-                    .save(new Profile(null, profileDto.getId(), lms, new Gson().toJson(profileDto), null));
+            profile = new Profile();
+            profile.setExternalId(profileDto.getId());
+            profile.setLmsId(lmsId);
+            profile.setProfileData(new Gson().toJson(profileDto));
+            profile = profileService.save(profile);
         }
         return profile;
     }
 
-    private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lms) {
-        Profile profile = null;
+    private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lmsId) {
         for (ProfileDto profileDto : profiles) {
-            profile = findProfile(profileDto, lms);
-            groupProfileService.save(new GroupProfile(null, groupId, profile.getId(), null));
+            Profile profile = findProfile(profileDto, lmsId);
+            GroupProfile groupProfile = new GroupProfile();
+            groupProfile.setGroupId(groupId);
+            groupProfile.setProfileId(profile.getId());
+            groupProfileService.save(groupProfile);
         }
     }
 
@@ -260,16 +259,19 @@ public class ContextService {
         }
     }
 
-    private void addContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds, Lms lms, UUID contextId) {
-        List<ProfileDto> idsToAdd = profiles.stream()
+    private void addContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds, Lms lmsId, UUID contextId) {
+        List<ProfileDto> newProfiles = profiles.stream()
                 .filter(e -> (contextProfileIds.stream()
                         .filter(d -> e.getId().equals(d.toString()))
                         .count()) < 1)
                 .collect(Collectors.toList());
 
-        for (ProfileDto profileDto : idsToAdd) {
-            Profile profile = findProfile(profileDto, lms);
-            contextProfileService.save(new ContextProfile(null, contextId, profile.getId(), null, null, null));
+        for (ProfileDto profileDto : newProfiles) {
+            Profile profile = findProfile(profileDto, lmsId);
+            ContextProfile contextProfile = new ContextProfile();
+            contextProfile.setContextId(contextId);
+            contextProfile.setProfileId(profile.getId());
+            contextProfileService.save(contextProfile);
         }
     }
 

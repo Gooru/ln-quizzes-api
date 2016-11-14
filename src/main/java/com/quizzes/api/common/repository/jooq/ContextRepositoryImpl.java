@@ -119,23 +119,14 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     private Context insertContext(final Context context) {
-        return new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "{\n" +
-                "    \"metadata\": {\n" +
-                "      \"description\": \"First Partial\",\n" +
-                "      \"title\": \"Math 1st Grade\"\n" +
-                "    },\n" +
-                "    \"contextMap\": {\n" +
-                "      \"classId\": \"4ef71420-dde9-4d2f-822e-5abb2c0b9c8c\"\n" +
-                "    }\n" +
-                "  }", null);
-//        return jooq.insertInto(CONTEXT)
-//                .set(CONTEXT.ID, UUID.randomUUID())
-//                .set(CONTEXT.COLLECTION_ID, context.getCollectionId())
-//                .set(CONTEXT.GROUP_ID, context.getGroupId())
-//                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
-//                .returning()
-//                .fetchOne()
-//                .into(Context.class);
+        return jooq.insertInto(CONTEXT)
+                .set(CONTEXT.ID, UUID.randomUUID())
+                .set(CONTEXT.COLLECTION_ID, context.getCollectionId())
+                .set(CONTEXT.GROUP_ID, context.getGroupId())
+                .set(CONTEXT.CONTEXT_DATA, context.getContextData())
+                .returning()
+                .fetchOne()
+                .into(Context.class);
     }
 
     private Context updateContext(final Context context) {

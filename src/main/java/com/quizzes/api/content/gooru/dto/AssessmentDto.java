@@ -9,6 +9,7 @@ public class AssessmentDto extends CollectionDto {
     @SerializedName("question")
     private List<QuestionDto> questions;
 
+
     public AssessmentDto() {
     }
 
