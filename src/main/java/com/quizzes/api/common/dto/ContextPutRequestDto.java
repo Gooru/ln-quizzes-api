@@ -1,24 +1,24 @@
 package com.quizzes.api.common.dto;
 
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import java.util.List;
 import java.util.Map;
 
 public class ContextPutRequestDto {
 
-    private List<ProfileDTO> assignees;
+    private List<ProfileDto> assignees;
 
     private MetadataDTO contextData;
 
     public ContextPutRequestDto() {
     }
 
-    public List<ProfileDTO> getAssignees() {
+    public List<ProfileDto> getAssignees() {
         return assignees;
     }
 
-    public void setAssignees(List<ProfileDTO> assignees) {
+    public void setAssignees(List<ProfileDto> assignees) {
         this.assignees = assignees;
     }
 

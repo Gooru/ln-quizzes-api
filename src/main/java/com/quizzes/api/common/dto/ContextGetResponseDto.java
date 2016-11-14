@@ -1,31 +1,31 @@
 package com.quizzes.api.common.dto;
 
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import java.util.List;
 
 public class ContextGetResponseDto extends CommonContextGetResponseDto {
 
-    private ProfileDTO owner;
+    private ProfileDto owner;
 
-    private List<ProfileDTO> assignees;
+    private List<ProfileDto> assignees;
 
     public ContextGetResponseDto() {
     }
 
-    public ProfileDTO getOwner() {
+    public ProfileDto getOwner() {
         return owner;
     }
 
-    public void setOwner(ProfileDTO owner) {
+    public void setOwner(ProfileDto owner) {
         this.owner = owner;
     }
 
-    public List<ProfileDTO> getAssignees() {
+    public List<ProfileDto> getAssignees() {
         return assignees;
     }
 
-    public void setAssignees(List<ProfileDTO> assignees) {
+    public void setAssignees(List<ProfileDto> assignees) {
         this.assignees = assignees;
     }
 }

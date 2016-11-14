@@ -11,7 +11,7 @@ public class CommonContextGetResponseDto {
 
     private CollectionDTO collection;
 
-    private ContextDataDto contextData;
+    private transient ContextDataDto contextData;
 
     public CommonContextGetResponseDto() {
     }

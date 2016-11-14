@@ -2,14 +2,16 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
-import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
+import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
 import com.quizzes.api.common.dto.controller.CollectionDTO;
 import com.quizzes.api.common.dto.controller.ContextDataDTO;
-import com.quizzes.api.common.dto.controller.ProfileDTO;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -102,7 +104,7 @@ public class ContextService {
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
 
-        List<ProfileDTO> profiles = contextPutRequestDto.getAssignees();
+        List<ProfileDto> profiles = contextPutRequestDto.getAssignees();
         if (profiles != null && profiles.size() > 0) {
             List<UUID> contextProfileIds = contextProfileService.findContextProfileIdsByContextId(contextId);
             addContextProfiles(profiles, contextProfileIds, lms, contextId);
@@ -146,7 +148,7 @@ public class ContextService {
 
     }
 
-    public List<CreatedContextGetResponseDto> findCreatedContexts(UUID profileId){
+    public List<CreatedContextGetResponseDto> findCreatedContexts(UUID profileId) {
         //TODO: this method is doing multiple DB queries, 1 to get the created context list and then
         //TODO: for each one it is doing a new query to get the assignees
         //TODO: REFACTOR this to return the complete information in ONE new entity
@@ -154,14 +156,14 @@ public class ContextService {
         List<CreatedContextGetResponseDto> result = new ArrayList<>();
         List<Context> contexts = findContextByOwnerId(profileId);
 
-        for (Context context : contexts){
+        for (Context context : contexts) {
             CollectionDTO collectionDTO = new CollectionDTO();
             collectionDTO.setId(context.getCollectionId().toString());
 
             List<GroupProfile> assignees = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
-            List<ProfileDTO> assigneesDTO = new ArrayList<>();
-            for (GroupProfile assignee : assignees){
-                ProfileDTO assigneeDTO = new ProfileDTO();
+            List<ProfileDto> assigneesDTO = new ArrayList<>();
+            for (GroupProfile assignee : assignees) {
+                ProfileDto assigneeDTO = new ProfileDto();
                 assigneeDTO.setId(assignee.getId().toString());
                 assigneesDTO.add(assigneeDTO);
             }
@@ -173,10 +175,10 @@ public class ContextService {
             createdContextGetResponseDto.setCollection(collectionDTO);
             createdContextGetResponseDto.setAssignees(assigneesDTO);
 
-            Map<String,Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+            Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
 
-            Map<String,String> contextMap = (Map<String,String>)contextDataMap.get("contextMap");
-            Map<String,String> metadata = (Map<String,String>)contextDataMap.get("metadata");
+            Map<String, String> contextMap = (Map<String, String>) contextDataMap.get("contextMap");
+            Map<String, String> metadata = (Map<String, String>) contextDataMap.get("metadata");
             contextDataDto.setContextMap(contextMap);
             contextDataDto.setMetadata(metadata);
 
@@ -204,6 +206,28 @@ public class ContextService {
         return list;
     }
 
+    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
+        List<AssignedContextEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
+        return contexts.stream()
+                .map(entity -> {
+                    Context context = entity.getContext();
+                    Profile owner = entity.getOwner();
+
+                    ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
+                    contextAssigned.setId(context.getId());
+                    contextAssigned.setCollection(new CollectionDTO(context.getCollectionId().toString()));
+
+                    Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
+                    contextAssigned.setContextResponse(contextDataMap);
+
+                    Map<String, Object> ownerDataMap = jsonParser.parseMap(owner.getProfileData());
+                    contextAssigned.setOwnerResponse(ownerDataMap);
+
+                    return contextAssigned;
+                })
+                .collect(Collectors.toList());
+    }
+
     private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
         ContextProfile contextProfile =
                 contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
@@ -213,19 +237,19 @@ public class ContextService {
         return contextProfile;
     }
 
-    private Profile findProfile(ProfileDTO profileDTO, Lms lms) {
-        Profile profile = profileService.findByExternalIdAndLmsId(profileDTO.getId(), lms);
+    private Profile findProfile(ProfileDto profileDto, Lms lms) {
+        Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lms);
         if (profile == null) {
             profile = profileService
-                    .save(new Profile(null, profileDTO.getId(), lms, new Gson().toJson(profileDTO), null));
+                    .save(new Profile(null, profileDto.getId(), lms, new Gson().toJson(profileDto), null));
         }
         return profile;
     }
 
-    private void assignProfilesToGroup(UUID groupId, List<ProfileDTO> profiles, Lms lms) {
+    private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lms) {
         Profile profile = null;
-        for (ProfileDTO profileDTO : profiles) {
-            profile = findProfile(profileDTO, lms);
+        for (ProfileDto profileDto : profiles) {
+            profile = findProfile(profileDto, lms);
             groupProfileService.save(new GroupProfile(null, groupId, profile.getId(), null));
         }
     }
@@ -236,20 +260,20 @@ public class ContextService {
         }
     }
 
-    private void addContextProfiles(List<ProfileDTO> profiles, List<UUID> contextProfileIds, Lms lms, UUID contextId) {
-        List<ProfileDTO> idsToAdd = profiles.stream()
+    private void addContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds, Lms lms, UUID contextId) {
+        List<ProfileDto> idsToAdd = profiles.stream()
                 .filter(e -> (contextProfileIds.stream()
                         .filter(d -> e.getId().equals(d.toString()))
                         .count()) < 1)
                 .collect(Collectors.toList());
 
-        for (ProfileDTO profileDTO : idsToAdd) {
-            Profile profile = findProfile(profileDTO, lms);
+        for (ProfileDto profileDto : idsToAdd) {
+            Profile profile = findProfile(profileDto, lms);
             contextProfileService.save(new ContextProfile(null, contextId, profile.getId(), null, null, null));
         }
     }
 
-    private void deleteContextProfiles(List<ProfileDTO> profiles, List<UUID> contextProfileIds) {
+    private void deleteContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds) {
         List<UUID> idsToDelete = contextProfileIds.stream()
                 .filter(e -> (profiles.stream()
                         .filter(d -> d.getId().equals(e.toString()))
