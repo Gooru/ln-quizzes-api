@@ -185,21 +185,6 @@ public class ContextService {
         return result;
     }
 
-    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (ContextProfileEvent context : attempts) {
-            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
-            if (data.containsKey("answer") && data.get("answer").toString() != null) {
-                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
-                data.put("answer", answers);
-            } else {
-                data.put("answer", new JSONArray());
-            }
-            list.add(data);
-        }
-        return list;
-    }
-
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
         List<AssignedContextEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
         return contexts.stream()
@@ -220,6 +205,21 @@ public class ContextService {
                     return contextAssigned;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (ContextProfileEvent context : attempts) {
+            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
+            if (data.containsKey("answer") && data.get("answer").toString() != null) {
+                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
+                data.put("answer", answers);
+            } else {
+                data.put("answer", new JSONArray());
+            }
+            list.add(data);
+        }
+        return list;
     }
 
     private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
@@ -244,10 +244,12 @@ public class ContextService {
     }
 
     private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lmsId) {
-        Profile profile = null;
         for (ProfileDto profileDto : profiles) {
-            profile = findProfile(profileDto, lmsId);
-            groupProfileService.save(new GroupProfile(null, groupId, profile.getId(), null));
+            Profile profile = findProfile(profileDto, lmsId);
+            GroupProfile groupProfile = new GroupProfile();
+            groupProfile.setGroupId(groupId);
+            groupProfile.setProfileId(profile.getId());
+            groupProfileService.save(groupProfile);
         }
     }
 
@@ -257,16 +259,19 @@ public class ContextService {
         }
     }
 
-    private void addContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds, Lms lms, UUID contextId) {
-        List<ProfileDto> idsToAdd = profiles.stream()
+    private void addContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds, Lms lmsId, UUID contextId) {
+        List<ProfileDto> newProfiles = profiles.stream()
                 .filter(e -> (contextProfileIds.stream()
                         .filter(d -> e.getId().equals(d.toString()))
                         .count()) < 1)
                 .collect(Collectors.toList());
 
-        for (ProfileDto profileDto : idsToAdd) {
-            Profile profile = findProfile(profileDto, lms);
-            contextProfileService.save(new ContextProfile(null, contextId, profile.getId(), null, null, null));
+        for (ProfileDto profileDto : newProfiles) {
+            Profile profile = findProfile(profileDto, lmsId);
+            ContextProfile contextProfile = new ContextProfile();
+            contextProfile.setContextId(contextId);
+            contextProfile.setProfileId(profile.getId());
+            contextProfileService.save(contextProfile);
         }
     }
 
