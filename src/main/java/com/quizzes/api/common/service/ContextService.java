@@ -171,12 +171,7 @@ public class ContextService {
 
             Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
 
-            Map<String, String> contextMap = (Map<String, String>) contextDataMap.get("contextMap");
-            Map<String, String> metadata = (Map<String, String>) contextDataMap.get("metadata");
-            contextDataDto.setContextMap(contextMap);
-            contextDataDto.setMetadata(metadata);
-
-            createdContextGetResponseDto.setContextData(contextDataDto);
+            createdContextGetResponseDto.setContextResponse(contextDataMap);
 
             result.add(createdContextGetResponseDto);
 
