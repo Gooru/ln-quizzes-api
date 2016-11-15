@@ -168,10 +168,8 @@ public class ContextService {
             createdContextGetResponseDto.setId(context.getId());
             createdContextGetResponseDto.setCollection(collectionDTO);
             createdContextGetResponseDto.setAssignees(assigneesDTO);
-
-            Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
-
-            createdContextGetResponseDto.setContextResponse(contextDataMap);
+            
+            createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(context.getContextData()));
 
             result.add(createdContextGetResponseDto);
 
