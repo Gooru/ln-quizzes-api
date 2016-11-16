@@ -1,8 +1,10 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
+import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
@@ -12,6 +14,7 @@ import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -129,11 +132,32 @@ public class ContextService {
         return result;
     }
 
-    public Context getContext(UUID contextId) {
+    public ContextGetResponseDto getContext(UUID contextId) {
+        ContextOwnerEntity contextAndOwner = contextRepository.findContextAndOwnerByContextId(contextId);
+        List<Profile> assignees = profileService.findAssigneesByContextId(contextId);
 
-        //TODO: replace this by findById method
-        return contextRepository.mockedFindById(contextId);
+        ContextGetResponseDto response = new ContextGetResponseDto();
 
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(contextAndOwner.getCollectionId().toString());
+
+        response.setCollection(collectionDto);
+        response.setId(contextId);
+        response.setContextDataResponse(jsonParser.parseMap(contextAndOwner.getContextData()));
+
+        Map<String, Object> owner = jsonParser.parseMap(contextAndOwner.getProfileData());
+        owner.put("id", contextAndOwner.getProfileId());
+        response.setOwnerResponse(owner);
+
+        response.setAssigneesResponse(assignees.stream()
+                .map(profile -> {
+                    Map<String, Object> assignee = jsonParser.parseMap(profile.getProfileData());
+                    assignee.put("id", profile.getId());
+                    return assignee;
+                })
+                .collect(Collectors.toList()));
+
+        return response;
     }
 
     public List<Context> findContextByOwnerId(UUID profileId) {
@@ -168,7 +192,7 @@ public class ContextService {
             createdContextGetResponseDto.setId(context.getId());
             createdContextGetResponseDto.setCollection(collectionDto);
             createdContextGetResponseDto.setAssignees(assigneesDTO);
-            
+
             createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(context.getContextData()));
 
             result.add(createdContextGetResponseDto);
@@ -230,7 +254,11 @@ public class ContextService {
             profile = new Profile();
             profile.setExternalId(profileDto.getId());
             profile.setLmsId(lmsId);
-            profile.setProfileData(new Gson().toJson(profileDto));
+
+            JsonObject jsonObject = new Gson().toJsonTree(profileDto).getAsJsonObject();
+            jsonObject.remove("id");
+
+            profile.setProfileData(jsonObject.toString());
             profile = profileService.save(profile);
         }
         return profile;

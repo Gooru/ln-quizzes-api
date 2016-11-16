@@ -1,6 +1,5 @@
 package com.quizzes.api.common.controller;
 
-import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
@@ -8,14 +7,10 @@ import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
-import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.Group;
-import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.service.ContextService;
 import com.quizzes.api.common.service.ContextServiceDummy;
 import com.quizzes.api.common.service.GroupProfileService;
@@ -174,7 +169,7 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        ContextGetResponseDto contextGetResponseDto = getContextGetResponseDto(contextId);
+        ContextGetResponseDto contextGetResponseDto = contextService.getContext(contextId);
 
         return new ResponseEntity<>(contextGetResponseDto, HttpStatus.OK);
     }
@@ -232,45 +227,6 @@ public class ContextController {
         }
 
         return new ResponseEntity<>(new ContextIdResponseDto(context.getId()), HttpStatus.OK);
-    }
-
-    private ContextGetResponseDto getContextGetResponseDto(UUID contextId) {
-
-        Context context = contextService.getContext(contextId);
-
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(context.getCollectionId().toString());
-
-        Group group = groupService.findById(context.getGroupId());
-        ProfileDto ownerDTO = new ProfileDto();
-        ownerDTO.setId(group.getOwnerProfileId().toString());
-
-        List<GroupProfile> assignees = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
-        List<ProfileDto> assigneesDTO = new ArrayList<>();
-        for (GroupProfile assignee : assignees) {
-            ProfileDto assigneeDTO = new ProfileDto();
-            assigneeDTO.setId(assignee.getId().toString());
-            assigneesDTO.add(assigneeDTO);
-        }
-
-        CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
-
-        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
-        contextGetResponseDto.setId(contextId);
-        contextGetResponseDto.setCollection(collectionDto);
-        contextGetResponseDto.setOwner(ownerDTO);
-        contextGetResponseDto.setAssignees(assigneesDTO);
-
-        Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
-
-        Map<String, String> contextMap = (Map<String, String>) contextDataMap.get("contextMap");
-        Map<String, String> metadata = (Map<String, String>) contextDataMap.get("metadata");
-        contextDataDto.setContextMap(contextMap);
-        contextDataDto.setMetadata(metadata);
-
-        contextGetResponseDto.setContextData(contextDataDto);
-
-        return contextGetResponseDto;
     }
 
 }
