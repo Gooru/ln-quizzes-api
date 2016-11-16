@@ -160,7 +160,7 @@ public class ContextService {
             return response;
         }
 
-        logger.error("Getting context: " + contextId + " was not found");
+        logger.info("Getting context: " + contextId + " was not found");
         return null;
     }
 
