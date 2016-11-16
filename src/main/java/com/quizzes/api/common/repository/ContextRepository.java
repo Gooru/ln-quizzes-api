@@ -1,6 +1,7 @@
 package com.quizzes.api.common.repository;
 
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.tables.pojos.Context;
 
 import java.util.List;
@@ -12,8 +13,6 @@ public interface ContextRepository {
 
     Context findById(UUID id);
 
-    Context mockedFindById(UUID id);
-
     List<Context> findByOwnerId(UUID profileId);
 
     Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId);
@@ -21,5 +20,7 @@ public interface ContextRepository {
     UUID findCollectionIdByContextId(UUID contextId);
 
     List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId);
+
+    ContextOwnerEntity findContextAndOwnerByContextId(UUID contextId);
 
 }

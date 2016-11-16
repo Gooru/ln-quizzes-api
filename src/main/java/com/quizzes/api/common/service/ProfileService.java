@@ -6,6 +6,7 @@ import com.quizzes.api.common.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,5 +25,9 @@ public class ProfileService {
 
     public Profile save(Profile profile) {
         return profileRepository.save(profile);
+    }
+
+    public List<Profile> findAssigneesDataByContextId(UUID contextId){
+        return profileRepository.findAssigneesDataByContextId(contextId);
     }
 }

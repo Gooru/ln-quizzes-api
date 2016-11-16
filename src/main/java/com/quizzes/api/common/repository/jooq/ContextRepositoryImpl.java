@@ -1,6 +1,7 @@
 package com.quizzes.api.common.repository.jooq;
 
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.Profile;
@@ -14,6 +15,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
+import static com.quizzes.api.common.model.tables.Profile.PROFILE;
+import static com.quizzes.api.common.model.tables.Group.GROUP;
+import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class ContextRepositoryImpl implements ContextRepository {
@@ -32,33 +36,14 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Context findById(UUID id) {
-        String contextData = "{\"metadata\":{\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
-                "\"contextMap\": {\"classId\": \"4ef71420-dde9-4d2f-822e-5abb2c0b9c8c\"}}";
-
-        Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                contextData, null);
-
-        return context;
-
-//        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
-//                .from(CONTEXT)
-//                .where(CONTEXT.ID.eq(id))
-//                .fetchOneInto(Context.class);
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
+                .from(CONTEXT)
+                .where(CONTEXT.ID.eq(id))
+                .fetchOneInto(Context.class);
     }
 
     @Override
-    public Context mockedFindById(UUID id) {
-        Context result = new Context();
-        result.setId(UUID.randomUUID());
-        result.setCollectionId(UUID.randomUUID());
-        result.setGroupId(UUID.randomUUID());
-        result.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
-                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
-        return result;
-    }
-
-    @Override
-    public List<Context> findByOwnerId(UUID profileId){
+    public List<Context> findByOwnerId(UUID profileId) {
         //TODO: this is a mock, replace with a jooq impl
         List<Context> result = new ArrayList<>();
 
@@ -84,12 +69,12 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public UUID findCollectionIdByContextId(UUID contextId){
+    public UUID findCollectionIdByContextId(UUID contextId) {
         return UUID.randomUUID();
     }
 
     @Override
-    public List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId){
+    public List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId) {
         //We do not have to return the group
         Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
                 "    \"metadata\": {\n" +
@@ -106,7 +91,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                 "\"firstName\":\"David\",\n" +
                 "\"lastName\":\"Artavia\",\n" +
                 "\"username\":\"dartavia\"\n" +
-                "}",null);
+                "}", null);
 
         AssignedContextEntity assignedContextEntity = new AssignedContextEntity();
         assignedContextEntity.setContext(context);
@@ -116,6 +101,16 @@ public class ContextRepositoryImpl implements ContextRepository {
         list.add(assignedContextEntity);
 
         return list;
+    }
+
+    @Override
+    public ContextOwnerEntity findContextAndOwnerByContextId(UUID contextId) {
+        return jooq.select(CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, PROFILE.ID.as("ProfileId"), PROFILE.PROFILE_DATA)
+                .from(CONTEXT)
+                .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
+                .join(PROFILE).on(PROFILE.ID.eq(GROUP.OWNER_PROFILE_ID))
+                .where(CONTEXT.ID.eq(contextId))
+                .fetchOneInto(ContextOwnerEntity.class);
     }
 
     private Context insertContext(final Context context) {

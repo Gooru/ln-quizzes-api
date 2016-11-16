@@ -1,5 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
@@ -7,9 +8,13 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
+import static com.quizzes.api.common.model.tables.Context.CONTEXT;
+import static com.quizzes.api.common.model.tables.Group.GROUP;
 import static com.quizzes.api.common.model.tables.Profile.PROFILE;
+import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class ProfileRepositoryImpl implements ProfileRepository {
@@ -55,6 +60,17 @@ public class ProfileRepositoryImpl implements ProfileRepository {
 //                "      \"lastName\": \"Stevens\",\n" +
 //                "      \"username\": \"rogersteve\"\n" +
 //                "    }", null);
+    }
+
+    @Override
+    public List<Profile> findAssigneesDataByContextId(UUID contextId){
+        return jooq.select(PROFILE.ID, PROFILE.PROFILE_DATA)
+                .from(CONTEXT)
+                .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
+                .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(GROUP.ID))
+                .join(PROFILE).on(PROFILE.ID.eq(GROUP_PROFILE.PROFILE_ID))
+                .where(CONTEXT.ID.eq(contextId))
+                .fetchInto(Profile.class);
     }
 
     private Profile insertProfile(final Profile profile) {
