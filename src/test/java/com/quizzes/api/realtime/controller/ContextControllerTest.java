@@ -18,8 +18,6 @@ import com.quizzes.api.common.dto.controller.response.AnswerDTO;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.Group;
-import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.service.ContextService;
 import com.quizzes.api.common.service.GroupProfileService;
 import com.quizzes.api.common.service.GroupService;
@@ -399,70 +397,49 @@ public class ContextControllerTest {
 
     @Test
     public void getContext() throws Exception {
-        Context context = new Context();
-        UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        context.setGroupId(UUID.randomUUID());
-        context.setCollectionId(UUID.randomUUID());
-        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
-                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}");
+        ContextGetResponseDto response = new ContextGetResponseDto();
+        UUID id = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        UUID assigneeId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
 
-        when(contextService.getContext(any(UUID.class))).thenReturn(context);
+        List<Map<String, Object>> assignees = new ArrayList<>();
 
-        Group group = new Group();
-        group.setId(UUID.randomUUID());
-        group.setOwnerProfileId(UUID.randomUUID());
+        Map<String, Object> assignee = new HashMap<>();
+        assignee.put("id", assigneeId);
+        assignees.add(assignee);
 
-        when(groupService.findById(any(UUID.class))).thenReturn(group);
+        Map<String, Object> owner = new HashMap<>();
+        owner.put("id", ownerId);
 
-        List<GroupProfile> groupProfiles = new ArrayList<>();
+        Map<String, Object> contextData = new HashMap<>();
+        contextData.put("metadata", new HashMap<>());
+        contextData.put("contextData", new HashMap<>());
 
-        GroupProfile asignee1 = new GroupProfile();
-        asignee1.setGroupId(group.getId());
-        asignee1.setId(UUID.randomUUID());
-        asignee1.setProfileId(UUID.randomUUID());
-        groupProfiles.add(asignee1);
+        CollectionDTO collectionDTO = new CollectionDTO();
+        collectionDTO.setId(String.valueOf(collectionId));
 
-        GroupProfile asignee2 = new GroupProfile();
-        asignee2.setGroupId(group.getId());
-        asignee2.setId(UUID.randomUUID());
-        asignee2.setProfileId(UUID.randomUUID());
-        groupProfiles.add(asignee2);
+        response.setId(id);
+        response.setContextDataResponse(contextData);
+        response.setCollection(collectionDTO);
+        response.setOwnerResponse(owner);
+        response.setAssigneesResponse(assignees);
 
-        when(groupProfileService.findGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
-
-        Map<String, Object> contextDataMap = new HashMap<>();
-        Map<String, String> contextMap = new HashMap<>();
-        contextMap.put("classId", UUID.randomUUID().toString());
-        contextDataMap.put("contextMap", contextMap);
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("title", "Math 1st Grade");
-        metadata.put("description", "First Partial");
-        contextDataMap.put("metadata", metadata);
-
-        when(jsonParser.parseMap(any(String.class))).thenReturn(contextDataMap);
+        when(contextService.getContext(any(UUID.class))).thenReturn(response);
 
         ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
 
+        verify(contextService, times(1)).getContext(any(UUID.class));
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
-        assertNotNull("Body is null", result.getBody());
 
-        assertNotNull("Context id is null", result.getBody().getId());
-        assertNotNull("Collection id is null", result.getBody().getCollection().getId());
+        ContextGetResponseDto resultDto = result.getBody();
 
-        ProfileDto ownerResult = result.getBody().getOwner();
-        assertNotNull("Owner id is null", ownerResult.getId());
-
-        List<ProfileDto> profiles = result.getBody().getAssignees();
-        assertEquals("Wrong list size for assignees", 2, profiles.size());
-        assertNotNull("Profile1 id is null", profiles.get(0).getId());
-
-        CommonContextGetResponseDto.ContextDataDto contextResult = result.getBody().getContextData();
-        assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
-        assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
-        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
-        assertEquals("Key description with invalid value in metadata", "First Partial", contextResult.getMetadata().get("description"));
+        assertNotNull("Context id is null", resultDto.getId());
+        assertEquals("Wrong collection id", collectionId.toString(), resultDto.getCollection().getId());
+        assertEquals("Wrong contextData", contextData, resultDto.getContextDataResponse());
+        assertEquals("Wrong owner data", owner, resultDto.getOwnerResponse());
+        assertEquals("Wrong assignees size", 1, resultDto.getAssigneesResponse().size());
     }
 
     @Test

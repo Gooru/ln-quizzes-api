@@ -1,31 +1,54 @@
 package com.quizzes.api.common.dto;
 
+import com.google.gson.annotations.SerializedName;
 import com.quizzes.api.common.dto.controller.ProfileDto;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
+import java.util.Map;
 
 public class ContextGetResponseDto extends CommonContextGetResponseDto {
 
-    private ProfileDto owner;
+    private transient ProfileDto owner;
 
-    private List<ProfileDto> assignees;
+    @ApiModelProperty(hidden = true)
+    @SerializedName("owner")
+    private Map<String, Object> ownerResponse;
+
+    private transient List<ProfileDto> assignees;
+
+    @ApiModelProperty(hidden = true)
+    @SerializedName("assignees")
+    private List<Map<String, Object>> assigneesResponse;
+
+    @ApiModelProperty(hidden = true)
+    @SerializedName("contextData")
+    private Map<String, Object> contextDataResponse;
 
     public ContextGetResponseDto() {
     }
 
-    public ProfileDto getOwner() {
-        return owner;
+    public Map<String, Object> getOwnerResponse() {
+        return ownerResponse;
     }
 
-    public void setOwner(ProfileDto owner) {
-        this.owner = owner;
+    public void setOwnerResponse(Map<String, Object> ownerResponse) {
+        this.ownerResponse = ownerResponse;
     }
 
-    public List<ProfileDto> getAssignees() {
-        return assignees;
+    public List<Map<String, Object>> getAssigneesResponse() {
+        return assigneesResponse;
     }
 
-    public void setAssignees(List<ProfileDto> assignees) {
-        this.assignees = assignees;
+    public void setAssigneesResponse(List<Map<String, Object>> assigneesResponse) {
+        this.assigneesResponse = assigneesResponse;
+    }
+
+    public Map<String, Object> getContextDataResponse() {
+        return contextDataResponse;
+    }
+
+    public void setContextDataResponse(Map<String, Object> contextDataResponse) {
+        this.contextDataResponse = contextDataResponse;
     }
 }

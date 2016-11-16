@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
+import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDTO;
@@ -10,6 +11,7 @@ import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -26,14 +28,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -77,6 +80,9 @@ public class ContextServiceTest {
 
     @Mock
     CollectionContentService collectionContentService;
+
+    @Mock
+    ContextOwnerEntity contextOwnerEntity;
 
     @Test
     public void createContextFindProfile() throws Exception {
@@ -384,25 +390,35 @@ public class ContextServiceTest {
 
     @Test
     public void getContext() throws Exception {
-        Context context = new Context();
-        UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        context.setGroupId(UUID.randomUUID());
-        context.setCollectionId(UUID.randomUUID());
-        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
-                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}");
+        Profile assignee = new Profile();
+        assignee.setId( UUID.randomUUID());
+        assignee.setProfileData("{\n" +
+                "\"firstName\":\"Student\",\n" +
+                "\"lastName\":\"student\",\n" +
+                "\"username\":\"userstudent\"\n" +
+                "}");
 
-        when(contextRepository.mockedFindById(any(UUID.class))).thenReturn(context);
+        List<Profile> assignees = new ArrayList<>();
+        assignees.add(assignee);
 
-        Context result = contextService.getContext(UUID.randomUUID());
+        when(contextOwnerEntity.getCollectionId()).thenReturn(UUID.randomUUID());
+        when(contextOwnerEntity.getProfileId()).thenReturn(UUID.randomUUID());
+
+        when(jsonParser.parseMap(any(String.class))).thenReturn(new HashMap<>());
+
+        when(contextRepository.findContextAndOwnerByContextId(any(UUID.class))).thenReturn(contextOwnerEntity);
+        when(profileService.findAssigneesByContextId(any(UUID.class))).thenReturn(assignees);
+
+        ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findContextAndOwnerByContextId(any(UUID.class));
+        verify(profileService, times(1)).findAssigneesByContextId(any(UUID.class));
 
         assertNotNull("Result is Null", result);
-
-
         assertNotNull("Context id is null", result.getId());
-        assertNotNull("Collection id is null", result.getCollectionId());
-        assertNotNull("Group is null", result.getGroupId());
-        assertNotNull("ContextData is null", result.getContextData());
+        assertNotNull("Owner id is null", result.getOwnerResponse().get("id"));
+        assertFalse("ContextData is empty", result.getContextDataResponse().isEmpty());
+        assertEquals("Size of the list is wrong", 1, result.getAssigneesResponse().size());
     }
 
     @Test
