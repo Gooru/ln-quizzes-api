@@ -1,5 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
+import com.quizzes.api.common.model.entities.ContextByOwner;
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -11,9 +12,12 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
+import static com.quizzes.api.common.model.tables.Group.GROUP;
+import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class ContextRepositoryImpl implements ContextRepository {
@@ -72,6 +76,16 @@ public class ContextRepositoryImpl implements ContextRepository {
         result.add(context);
 
         return result;
+    }
+
+    @Override
+    public Map<UUID, List<ContextByOwner>> findContextByOwnerId(UUID profileId){
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, GROUP_PROFILE.PROFILE_ID.as("assigneeId"))
+                .from(CONTEXT)
+                .join(GROUP).on(CONTEXT.GROUP_ID.eq(GROUP.ID))
+                .join(GROUP_PROFILE).on(CONTEXT.GROUP_ID.eq(GROUP_PROFILE.GROUP_ID))
+                .where(GROUP.OWNER_PROFILE_ID.eq(profileId))
+                .fetchGroups(CONTEXT.ID, ContextByOwner.class);
     }
 
     @Override
