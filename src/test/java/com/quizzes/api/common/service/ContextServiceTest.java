@@ -388,10 +388,14 @@ public class ContextServiceTest {
         Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
-    @Test(expected = ContentNotFoundException.class)
-    public void getContextException() throws Exception {
+    @Test
+    public void getContextNotFound() throws Exception {
         when(contextRepository.findContextAndOwnerByContextId(any(UUID.class))).thenReturn(null);
         ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
+
+        assertNull("Result is not null", result);
+        verify(contextRepository, times(1)).findContextAndOwnerByContextId(any(UUID.class));
+        verify(profileService, times(0)).findAssigneesByContextId(any(UUID.class));
     }
 
     @Test

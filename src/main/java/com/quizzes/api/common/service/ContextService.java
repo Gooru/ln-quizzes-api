@@ -133,35 +133,35 @@ public class ContextService {
     }
 
     public ContextGetResponseDto getContext(UUID contextId) {
-        ContextOwnerEntity contextAndOwner = contextRepository.findContextAndOwnerByContextId(contextId);
-        if (contextAndOwner == null) {
-            logger.error("Error getting context: " + contextId + " was not found");
-            throw new ContentNotFoundException("We couldn't find a context with id: " + contextId);
+        ContextOwnerEntity contextOwner = contextRepository.findContextAndOwnerByContextId(contextId);
+        if (contextOwner != null) {
+            ContextGetResponseDto response = new ContextGetResponseDto();
+            List<Profile> assignees = profileService.findAssigneesByContextId(contextId);
+
+            CollectionDto collectionDto = new CollectionDto();
+            collectionDto.setId(contextOwner.getCollectionId().toString());
+
+            response.setCollection(collectionDto);
+            response.setId(contextId);
+            response.setContextDataResponse(jsonParser.parseMap(contextOwner.getContextData()));
+
+            Map<String, Object> owner = jsonParser.parseMap(contextOwner.getProfileData());
+            owner.put("id", contextOwner.getProfileId());
+            response.setOwnerResponse(owner);
+
+            response.setAssigneesResponse(assignees.stream()
+                    .map(profile -> {
+                        Map<String, Object> assignee = jsonParser.parseMap(profile.getProfileData());
+                        assignee.put("id", profile.getId());
+                        return assignee;
+                    })
+                    .collect(Collectors.toList()));
+
+            return response;
         }
-        List<Profile> assignees = profileService.findAssigneesByContextId(contextId);
 
-        ContextGetResponseDto response = new ContextGetResponseDto();
-
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(contextAndOwner.getCollectionId().toString());
-
-        response.setCollection(collectionDto);
-        response.setId(contextId);
-        response.setContextDataResponse(jsonParser.parseMap(contextAndOwner.getContextData()));
-
-        Map<String, Object> owner = jsonParser.parseMap(contextAndOwner.getProfileData());
-        owner.put("id", contextAndOwner.getProfileId());
-        response.setOwnerResponse(owner);
-
-        response.setAssigneesResponse(assignees.stream()
-                .map(profile -> {
-                    Map<String, Object> assignee = jsonParser.parseMap(profile.getProfileData());
-                    assignee.put("id", profile.getId());
-                    return assignee;
-                })
-                .collect(Collectors.toList()));
-
-        return response;
+        logger.error("Getting context: " + contextId + " was not found");
+        return null;
     }
 
     public List<Context> findContextByOwnerId(UUID profileId) {

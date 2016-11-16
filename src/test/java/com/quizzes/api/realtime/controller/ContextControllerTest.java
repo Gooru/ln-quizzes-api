@@ -443,6 +443,18 @@ public class ContextControllerTest {
     }
 
     @Test
+    public void getContextNotFound() throws Exception {
+        when(contextService.getContext(any(UUID.class))).thenReturn(null);
+
+        ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+
+        verify(contextService, times(1)).getContext(any(UUID.class));
+        assertNotNull("Response Entity is null", result);
+        assertNull("Response body is not null", result.getBody());
+        assertEquals("Invalid status code", HttpStatus.NOT_FOUND, result.getStatusCode());
+    }
+
+    @Test
     public void findCreatedContexts() throws Exception {
 
         List<Context> contextsCreatedByOwner = new ArrayList<>();
