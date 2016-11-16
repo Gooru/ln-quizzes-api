@@ -3,6 +3,7 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.Expose;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
@@ -258,10 +259,10 @@ public class ContextService {
             profile.setExternalId(profileDto.getId());
             profile.setLmsId(lmsId);
 
-            GsonBuilder builder = new GsonBuilder();
-            Gson gson = builder.excludeFieldsWithoutExposeAnnotation().create();
+            JsonObject jsonObject = new Gson().toJsonTree(profileDto).getAsJsonObject();
+            jsonObject.remove("id");
 
-            profile.setProfileData(gson.toJson(profileDto));
+            profile.setProfileData(jsonObject.toString());
             profile = profileService.save(profile);
         }
         return profile;
