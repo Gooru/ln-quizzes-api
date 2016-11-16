@@ -3,12 +3,12 @@ package com.quizzes.api.common.dto.controller.response;
 import java.util.List;
 import java.util.UUID;
 
-public class CollectionDataDTO {
+public class CollectionDataDto {
     UUID id;
     boolean isCollection;
-    List<CollectionDataResourceDTO> resources;
+    List<CollectionDataResourceDto> resources;
 
-    public CollectionDataDTO(UUID id, boolean isCollection, List<CollectionDataResourceDTO> resources) {
+    public CollectionDataDto(UUID id, boolean isCollection, List<CollectionDataResourceDto> resources) {
         this.id = id;
         this.isCollection = isCollection;
         this.resources = resources;
@@ -22,7 +22,7 @@ public class CollectionDataDTO {
         return isCollection;
     }
 
-    public List<CollectionDataResourceDTO> getResources() {
+    public List<CollectionDataResourceDto> getResources() {
         return resources;
     }
 }

@@ -1,10 +1,10 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
-import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
-import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
-import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
+import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
+import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
+import com.quizzes.api.common.dto.controller.response.QuestionDataDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Resource;
@@ -45,7 +45,7 @@ public class CollectionService {
         return collectionRepository.save(collection);
     }
 
-    public Collection findOrCreateCollection(CollectionDTO id) {
+    public Collection findOrCreateCollection(CollectionDto id) {
         return null;
     }
 
@@ -53,19 +53,19 @@ public class CollectionService {
         return collectionRepository.findById(id);
     }
 
-    public CollectionDataDTO getCollection(UUID collectionId){
-        CollectionDataDTO result = null;
+    public CollectionDataDto getCollection(UUID collectionId){
+        CollectionDataDto result = null;
         Collection collection = findById(collectionId);
         if (collection != null) {
             List<Resource> resources = resourceService.findResourcesByCollectionId(collectionId);
-            List<CollectionDataResourceDTO> resourcesDTO = new ArrayList<>();
+            List<CollectionDataResourceDto> resourcesDTO = new ArrayList<>();
             for (Resource resource : resources) {
-                QuestionDataDTO questionDataDTO = gson.fromJson(resource.getResourceData(), QuestionDataDTO.class);
-                CollectionDataResourceDTO resourceDTO = new CollectionDataResourceDTO(resource.getId(), resource.getIsResource(), questionDataDTO);
+                QuestionDataDto questionDataDto = gson.fromJson(resource.getResourceData(), QuestionDataDto.class);
+                CollectionDataResourceDto resourceDTO = new CollectionDataResourceDto(resource.getId(), resource.getIsResource(), questionDataDto);
                 resourcesDTO.add(resourceDTO);
             }
 
-            result = new CollectionDataDTO(collection.getId(), collection.getIsCollection(), resourcesDTO);
+            result = new CollectionDataDto(collection.getId(), collection.getIsCollection(), resourcesDTO);
         }
         //TODO: if collection == null then return an error status ans error code;
 

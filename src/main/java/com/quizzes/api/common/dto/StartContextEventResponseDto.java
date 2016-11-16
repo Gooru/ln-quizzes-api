@@ -1,6 +1,6 @@
 package com.quizzes.api.common.dto.controller.response;
 
-import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.CollectionDto;
 
 import java.util.List;
 import java.util.Map;
@@ -10,7 +10,7 @@ public class StartContextEventResponseDto {
 
     private UUID id;
 
-    private CollectionDTO collection;
+    private CollectionDto collection;
 
     private UUID currentResourceId;
 
@@ -20,7 +20,7 @@ public class StartContextEventResponseDto {
     public StartContextEventResponseDto() {
     }
 
-    public StartContextEventResponseDto(UUID id, CollectionDTO collection, UUID currentResourceId,
+    public StartContextEventResponseDto(UUID id, CollectionDto collection, UUID currentResourceId,
                                         List<Map<String, Object>> attempt) {
         this.id = id;
         this.collection = collection;
@@ -36,11 +36,11 @@ public class StartContextEventResponseDto {
         this.id = id;
     }
 
-    public CollectionDTO getCollection() {
+    public CollectionDto getCollection() {
         return collection;
     }
 
-    public void setCollection(CollectionDTO collection) {
+    public void setCollection(CollectionDto collection) {
         this.collection = collection;
     }
 

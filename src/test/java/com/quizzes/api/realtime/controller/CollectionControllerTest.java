@@ -1,12 +1,12 @@
 package com.quizzes.api.realtime.controller;
 
 import com.google.common.collect.Lists;
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
-import com.quizzes.api.common.dto.controller.response.ChoiceDTO;
-import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
-import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDTO;
-import com.quizzes.api.common.dto.controller.response.InteractionDTO;
-import com.quizzes.api.common.dto.controller.response.QuestionDataDTO;
+import com.quizzes.api.common.dto.controller.response.AnswerDto;
+import com.quizzes.api.common.dto.controller.response.ChoiceDto;
+import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
+import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
+import com.quizzes.api.common.dto.controller.response.InteractionDto;
+import com.quizzes.api.common.dto.controller.response.QuestionDataDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.service.CollectionService;
@@ -53,49 +53,49 @@ public class CollectionControllerTest {
     @Test
     public void getCollection() throws Exception {
 
-        List<AnswerDTO> answers = new ArrayList<>();
-        AnswerDTO answerDto = new AnswerDTO("A");
+        List<AnswerDto> answers = new ArrayList<>();
+        AnswerDto answerDto = new AnswerDto("A");
         answers.add(answerDto);
-        List<ChoiceDTO> choices = new ArrayList<>();
-        ChoiceDTO choiceDto1 = new ChoiceDTO("option 1", false, "A");
+        List<ChoiceDto> choices = new ArrayList<>();
+        ChoiceDto choiceDto1 = new ChoiceDto("option 1", false, "A");
         choices.add(choiceDto1);
-        ChoiceDTO choiceDto2 = new ChoiceDTO("option 2", false, "B");
+        ChoiceDto choiceDto2 = new ChoiceDto("option 2", false, "B");
         choices.add(choiceDto2);
-        ChoiceDTO choiceDto3 = new ChoiceDTO("option 3", false, "C");
+        ChoiceDto choiceDto3 = new ChoiceDto("option 3", false, "C");
         choices.add(choiceDto3);
-        InteractionDTO interactionDto = new InteractionDTO(true, 10, "mocked Interaction", choices);
-        QuestionDataDTO questionDataDto = new QuestionDataDTO("mocked Question Data", QuestionTypeEnum.SingleChoice, answers, "mocked body", interactionDto);
-        CollectionDataResourceDTO collectionDataResourceDto1 = new CollectionDataResourceDTO(UUID.randomUUID(),
+        InteractionDto interactionDto = new InteractionDto(true, 10, "mocked Interaction", choices);
+        QuestionDataDto questionDataDto = new QuestionDataDto("mocked Question Data", QuestionTypeEnum.SingleChoice, answers, "mocked body", interactionDto);
+        CollectionDataResourceDto collectionDataResourceDto1 = new CollectionDataResourceDto(UUID.randomUUID(),
                 true, questionDataDto);
-        List<CollectionDataResourceDTO> collectionDataResourceDtos = new ArrayList<>();
+        List<CollectionDataResourceDto> collectionDataResourceDtos = new ArrayList<>();
         collectionDataResourceDtos.add(collectionDataResourceDto1);
 
-        List<AnswerDTO> answers2 = new ArrayList<>();
-        AnswerDTO answerDto2 = new AnswerDTO("T");
+        List<AnswerDto> answers2 = new ArrayList<>();
+        AnswerDto answerDto2 = new AnswerDto("T");
         answers2.add(answerDto2);
-        List<ChoiceDTO> choices2 = new ArrayList<>();
-        ChoiceDTO choiceDto4 = new ChoiceDTO("True", false, "T");
+        List<ChoiceDto> choices2 = new ArrayList<>();
+        ChoiceDto choiceDto4 = new ChoiceDto("True", false, "T");
         choices2.add(choiceDto4);
-        ChoiceDTO choiceDto5 = new ChoiceDTO("False", false, "F");
+        ChoiceDto choiceDto5 = new ChoiceDto("False", false, "F");
         choices2.add(choiceDto5);
-        InteractionDTO interactionDto2 = new InteractionDTO(true, 10, "mocked Interaction", choices2);
-        QuestionDataDTO questionDataDto2 = new QuestionDataDTO("mocked Question Data", QuestionTypeEnum.TrueFalse, answers2, "mocked body", interactionDto2);
-        CollectionDataResourceDTO collectionDataResourceDto2 = new CollectionDataResourceDTO(UUID.randomUUID(),
+        InteractionDto interactionDto2 = new InteractionDto(true, 10, "mocked Interaction", choices2);
+        QuestionDataDto questionDataDto2 = new QuestionDataDto("mocked Question Data", QuestionTypeEnum.TrueFalse, answers2, "mocked body", interactionDto2);
+        CollectionDataResourceDto collectionDataResourceDto2 = new CollectionDataResourceDto(UUID.randomUUID(),
                 true, questionDataDto2);
         collectionDataResourceDtos.add(collectionDataResourceDto2);
 
-        CollectionDataDTO collectionDto = new CollectionDataDTO(UUID.randomUUID(), false, collectionDataResourceDtos);
+        CollectionDataDto collectionDto = new CollectionDataDto(UUID.randomUUID(), false, collectionDataResourceDtos);
 
         when(collectionService.getCollection(any(UUID.class))).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDataDTO> result = collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
+        ResponseEntity<CollectionDataDto> result = collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
 
         verify(collectionService, times(1)).getCollection(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Response Body is Null", result.getBody());
-        assertSame(result.getBody().getClass(), CollectionDataDTO.class);
+        assertSame(result.getBody().getClass(), CollectionDataDto.class);
     }
 
     @Test
