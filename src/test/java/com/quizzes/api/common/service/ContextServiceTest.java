@@ -388,6 +388,12 @@ public class ContextServiceTest {
         Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
+    @Test(expected = ContentNotFoundException.class)
+    public void getContextException() throws Exception {
+        when(contextRepository.findContextAndOwnerByContextId(any(UUID.class))).thenReturn(null);
+        ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
+    }
+
     @Test
     public void getContext() throws Exception {
         Profile assignee = new Profile();

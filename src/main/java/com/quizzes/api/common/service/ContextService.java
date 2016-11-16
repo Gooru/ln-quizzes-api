@@ -138,6 +138,10 @@ public class ContextService {
 
     public ContextGetResponseDto getContext(UUID contextId) {
         ContextOwnerEntity contextAndOwner = contextRepository.findContextAndOwnerByContextId(contextId);
+        if (contextAndOwner == null) {
+            logger.error("Error getting context: " + contextId + " was not found");
+            throw new ContentNotFoundException("We couldn't find a context with id: " + contextId);
+        }
         List<Profile> assignees = profileService.findAssigneesByContextId(contextId);
 
         ContextGetResponseDto response = new ContextGetResponseDto();
