@@ -1,11 +1,11 @@
 package com.quizzes.api.common.dto.controller.response;
 
-public class ChoiceDTO {
+public class ChoiceDto {
     String  text;
     boolean isFixed;
     String  value;
 
-    public ChoiceDTO(String text, boolean isFixed, String value) {
+    public ChoiceDto(String text, boolean isFixed, String value) {
         this.text = text;
         this.isFixed = isFixed;
         this.value = value;

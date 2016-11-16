@@ -1,7 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.ContextPutRequestDto;
-import com.quizzes.api.common.dto.controller.AssignmentDTO;
+import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ import java.util.UUID;
 @Service
 public class ContextServiceDummy {
 
-    public Context createContext(AssignmentDTO body, Lms lms) {
+    public Context createContext(AssignmentDto body, Lms lms) {
         Context context = generateMockContext();
 
         return context;

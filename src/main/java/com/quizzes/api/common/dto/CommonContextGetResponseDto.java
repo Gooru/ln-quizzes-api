@@ -1,6 +1,6 @@
 package com.quizzes.api.common.dto;
 
-import com.quizzes.api.common.dto.controller.CollectionDTO;
+import com.quizzes.api.common.dto.controller.CollectionDto;
 
 import java.util.Map;
 import java.util.UUID;
@@ -9,7 +9,7 @@ public class CommonContextGetResponseDto {
 
     private UUID id;
 
-    private CollectionDTO collection;
+    private CollectionDto collection;
 
     private transient ContextDataDto contextData;
 
@@ -24,11 +24,11 @@ public class CommonContextGetResponseDto {
         this.id = id;
     }
 
-    public CollectionDTO getCollection() {
+    public CollectionDto getCollection() {
         return collection;
     }
 
-    public void setCollection(CollectionDTO collection) {
+    public void setCollection(CollectionDto collection) {
         this.collection = collection;
     }
 

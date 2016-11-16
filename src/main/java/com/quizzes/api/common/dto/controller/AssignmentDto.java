@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * This class is used to get the specific body context (json) in the endpoints
  */
-public class AssignmentDTO {
+public class AssignmentDto {
 
     @NotNull(message = "{assignment.external.collection.id.not_null}")
     @Valid
@@ -24,9 +24,9 @@ public class AssignmentDTO {
     private List<ProfileDto> assignees;
 
     @NotNull(message = "{assignment.context_data.not_null}")
-    private ContextDataDTO contextData;
+    private ContextDataDto contextData;
 
-    public AssignmentDTO() {
+    public AssignmentDto() {
     }
 
     public String getExternalCollectionId() {
@@ -53,11 +53,11 @@ public class AssignmentDTO {
         this.assignees = assignees;
     }
 
-    public ContextDataDTO getContextData() {
+    public ContextDataDto getContextData() {
         return contextData;
     }
 
-    public void setContextData(ContextDataDTO contextData) {
+    public void setContextData(ContextDataDto contextData) {
         this.contextData = contextData;
     }
 

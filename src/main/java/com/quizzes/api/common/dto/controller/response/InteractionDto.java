@@ -2,13 +2,13 @@ package com.quizzes.api.common.dto.controller.response;
 
 import java.util.List;
 
-public class InteractionDTO {
+public class InteractionDto {
     boolean shuffle;
     int maxChoices;
     String prompt;
-    List<ChoiceDTO> choices;
+    List<ChoiceDto> choices;
 
-    public InteractionDTO(boolean shuffle, int maxChoices, String prompt, List<ChoiceDTO> choices) {
+    public InteractionDto(boolean shuffle, int maxChoices, String prompt, List<ChoiceDto> choices) {
         this.shuffle = shuffle;
         this.maxChoices = maxChoices;
         this.prompt = prompt;
@@ -27,7 +27,7 @@ public class InteractionDTO {
         return prompt;
     }
 
-    public List<ChoiceDTO> getChoices() {
+    public List<ChoiceDto> getChoices() {
         return choices;
     }
 }

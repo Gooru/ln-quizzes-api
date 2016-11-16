@@ -5,8 +5,8 @@ import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
-import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.ContextDataDTO;
+import com.quizzes.api.common.dto.controller.AssignmentDto;
+import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
@@ -86,18 +86,18 @@ public class ContextServiceTest {
 
     @Test
     public void createContextFindProfile() throws Exception {
-        AssignmentDTO assignmentDTO = new AssignmentDTO();
-        assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
+        AssignmentDto assignmentDto = new AssignmentDto();
+        assignmentDto.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDto ownerDTO = new ProfileDto();
         ownerDTO.setId("external-id");
-        assignmentDTO.setOwner(ownerDTO);
+        assignmentDto.setOwner(ownerDTO);
 
-        ContextDataDTO contextDataMock = new ContextDataDTO();
+        ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
-        assignmentDTO.setContextData(contextDataMock);
+        assignmentDto.setContextData(contextDataMock);
 
         List<ProfileDto> assignees = new ArrayList<>();
         ProfileDto profile1 = new ProfileDto();
@@ -106,7 +106,7 @@ public class ContextServiceTest {
         profile1.setId("2");
         assignees.add(profile1);
         assignees.add(profile2);
-        assignmentDTO.setAssignees(assignees);
+        assignmentDto.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
 
@@ -125,12 +125,12 @@ public class ContextServiceTest {
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
+                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
-        Context result = contextService.createContext(assignmentDTO, lms);
+        Context result = contextService.createContext(assignmentDto, lms);
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
@@ -148,24 +148,24 @@ public class ContextServiceTest {
 
     @Test
     public void createContextCreateProfile() throws Exception {
-        AssignmentDTO assignmentDTO = new AssignmentDTO();
-        assignmentDTO.setExternalCollectionId(UUID.randomUUID().toString());
+        AssignmentDto assignmentDto = new AssignmentDto();
+        assignmentDto.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDto ownerDTO = new ProfileDto();
         ownerDTO.setId("external-id");
-        assignmentDTO.setOwner(ownerDTO);
+        assignmentDto.setOwner(ownerDTO);
 
-        ContextDataDTO contextDataMock = new ContextDataDTO();
+        ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
-        assignmentDTO.setContextData(contextDataMock);
+        assignmentDto.setContextData(contextDataMock);
 
         List<ProfileDto> assignees = new ArrayList<>();
         ProfileDto profile1 = new ProfileDto();
         profile1.setId("1");
         assignees.add(profile1);
-        assignmentDTO.setAssignees(assignees);
+        assignmentDto.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
 
@@ -185,12 +185,12 @@ public class ContextServiceTest {
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDTO.getContextData()), null);
+                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
-        Context result = contextService.createContext(assignmentDTO, lms);
+        Context result = contextService.createContext(assignmentDto, lms);
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(1)).save(any(GroupProfile.class));

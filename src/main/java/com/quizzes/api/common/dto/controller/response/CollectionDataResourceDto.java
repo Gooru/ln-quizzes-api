@@ -2,12 +2,12 @@ package com.quizzes.api.common.dto.controller.response;
 
 import java.util.UUID;
 
-public class CollectionDataResourceDTO {
+public class CollectionDataResourceDto {
     UUID id;
     boolean isResource;
-    QuestionDataDTO questionData;
+    QuestionDataDto questionData;
 
-    public CollectionDataResourceDTO(UUID id, boolean isResource, QuestionDataDTO questionData) {
+    public CollectionDataResourceDto(UUID id, boolean isResource, QuestionDataDto questionData) {
         this.id = id;
         this.isResource = isResource;
         this.questionData = questionData;
@@ -21,7 +21,7 @@ public class CollectionDataResourceDTO {
         return isResource;
     }
 
-    public QuestionDataDTO getQuestionData() {
+    public QuestionDataDto getQuestionData() {
         return questionData;
     }
 }
