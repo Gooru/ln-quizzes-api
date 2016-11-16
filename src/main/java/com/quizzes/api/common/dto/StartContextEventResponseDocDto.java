@@ -1,7 +1,7 @@
 package com.quizzes.api.common.dto;
 
-import com.quizzes.api.common.dto.controller.CollectionDTO;
-import com.quizzes.api.common.dto.controller.response.AttemptDTO;
+import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.dto.controller.response.AttemptDto;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,18 +10,18 @@ public class StartContextEventResponseDocDto {
 
     private UUID id;
 
-    private CollectionDTO collection;
+    private CollectionDto collection;
 
     private UUID currentResourceId;
 
-    private List<AttemptDTO> attempt;
+    private List<AttemptDto> attempt;
 
 
     public StartContextEventResponseDocDto() {
     }
 
-    public StartContextEventResponseDocDto(UUID id, CollectionDTO collection, UUID currentResourceId,
-                                           List<AttemptDTO> attempt) {
+    public StartContextEventResponseDocDto(UUID id, CollectionDto collection, UUID currentResourceId,
+                                           List<AttemptDto> attempt) {
         this.id = id;
         this.collection = collection;
         this.currentResourceId = currentResourceId;
@@ -36,11 +36,11 @@ public class StartContextEventResponseDocDto {
         this.id = id;
     }
 
-    public CollectionDTO getCollection() {
+    public CollectionDto getCollection() {
         return collection;
     }
 
-    public void setCollection(CollectionDTO collection) {
+    public void setCollection(CollectionDto collection) {
         this.collection = collection;
     }
 
@@ -52,11 +52,11 @@ public class StartContextEventResponseDocDto {
         this.currentResourceId = currentResourceId;
     }
 
-    public List<AttemptDTO> getAttempt() {
+    public List<AttemptDto> getAttempt() {
         return attempt;
     }
 
-    public void setAttempt(List<AttemptDTO> attempt) {
+    public void setAttempt(List<AttemptDto> attempt) {
         this.attempt = attempt;
     }
 

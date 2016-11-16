@@ -1,6 +1,6 @@
 package com.quizzes.api.realtime.controller;
 
-import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
+import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import io.swagger.annotations.ApiOperation;
@@ -46,15 +46,15 @@ public class CollectionController extends AbstractRealTimeController {
 
     @ApiOperation(value ="Get a collection by it's collection ID",
                     notes = "Gets Collection data, including Resources and Answers (in case of Question).")
-    @ApiResponses(@ApiResponse(code = 200, message = "Body", response = CollectionDataDTO.class))
+    @ApiResponses(@ApiResponse(code = 200, message = "Body", response = CollectionDataDto.class))
     @RequestMapping(path = "/v1/collection/{collectionId}",
                     method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionDataDTO> getCollection(@PathVariable UUID collectionId,
+    public ResponseEntity<CollectionDataDto> getCollection(@PathVariable UUID collectionId,
                                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
-        CollectionDataDTO result = collectionService.getCollection(collectionId);
+        CollectionDataDto result = collectionService.getCollection(collectionId);
 
         return new ResponseEntity(result, HttpStatus.OK);
     }

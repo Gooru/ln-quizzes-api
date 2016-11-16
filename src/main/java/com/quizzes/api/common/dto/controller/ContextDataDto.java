@@ -2,7 +2,7 @@ package com.quizzes.api.common.dto.controller;
 
 import java.util.Map;
 
-public class ContextDataDTO {
+public class ContextDataDto {
     private Map<String, String> metadata;
     private Map<String, String> contextMap;
 

@@ -5,10 +5,10 @@ import java.util.UUID;
 /**
  * The request body will be converted into this object.
  */
-public class ProfileIdDTO {
+public class ProfileIdDto {
     private UUID profileId;
 
-    public ProfileIdDTO() {
+    public ProfileIdDto() {
     }
 
     public UUID getProfileId() {

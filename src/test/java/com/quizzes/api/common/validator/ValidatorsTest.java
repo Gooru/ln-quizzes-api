@@ -1,8 +1,8 @@
 package com.quizzes.api.common.validator;
 
-import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
-import com.quizzes.api.common.dto.controller.ContextDataDTO;
+import com.quizzes.api.common.dto.controller.AssignmentDto;
+import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -37,23 +37,23 @@ public class ValidatorsTest {
                 validator.validate(profile);
         assertEquals(4, constraintViolations.size());
     }
-    
+
     @Test
-    public void testCollectionDTO() {
+    public void testCollectionDto() {
 
-        CollectionDTO collection = new CollectionDTO();
+        CollectionDto collection = new CollectionDto();
 
-        Set<ConstraintViolation<CollectionDTO>> constraintViolations =
+        Set<ConstraintViolation<CollectionDto>> constraintViolations =
                 validator.validate(collection);
         assertEquals(1, constraintViolations.size());
     }
 
     @Test
-    public void testAssignmentDTO() {
+    public void testAssignmentDto() {
 
-        AssignmentDTO assignment = new AssignmentDTO();
+        AssignmentDto assignment = new AssignmentDto();
 
-        Set<ConstraintViolation<AssignmentDTO>> constraintViolations =
+        Set<ConstraintViolation<AssignmentDto>> constraintViolations =
                 validator.validate(assignment);
         assertEquals(4, constraintViolations.size());
     }
@@ -61,7 +61,7 @@ public class ValidatorsTest {
     @Test
     public void testContext() {
 
-        AssignmentDTO assignment = new AssignmentDTO();
+        AssignmentDto assignment = new AssignmentDto();
         ProfileDto owner = new ProfileDto();
         assignment.setOwner(owner);
         ProfileDto assignee = new ProfileDto();
@@ -69,10 +69,10 @@ public class ValidatorsTest {
         assignees.add(assignee);
         assignment.setAssignees(assignees);
         assignment.setExternalCollectionId(UUID.randomUUID().toString());
-        ContextDataDTO contextData = new ContextDataDTO();
+        ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
-        Set<ConstraintViolation<AssignmentDTO>> constraintViolations =
+        Set<ConstraintViolation<AssignmentDto>> constraintViolations =
                 validator.validate(assignment);
         assertEquals(8, constraintViolations.size());
     }

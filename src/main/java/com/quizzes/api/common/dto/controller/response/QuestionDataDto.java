@@ -4,14 +4,14 @@ import com.quizzes.api.common.enums.QuestionTypeEnum;
 
 import java.util.List;
 
-public class QuestionDataDTO {
+public class QuestionDataDto {
     String title;
     QuestionTypeEnum type;
-    List<AnswerDTO> correctAnswer;
+    List<AnswerDto> correctAnswer;
     String body;
-    InteractionDTO interaction;
+    InteractionDto interaction;
 
-    public QuestionDataDTO(String title, QuestionTypeEnum type, List<AnswerDTO> correctAnswer, String body, InteractionDTO interaction) {
+    public QuestionDataDto(String title, QuestionTypeEnum type, List<AnswerDto> correctAnswer, String body, InteractionDto interaction) {
         this.title = title;
         this.type = type;
         this.correctAnswer = correctAnswer;
@@ -27,7 +27,7 @@ public class QuestionDataDTO {
         return type;
     }
 
-    public List<AnswerDTO> getCorrectAnswer() {
+    public List<AnswerDto> getCorrectAnswer() {
         return correctAnswer;
     }
 
@@ -35,7 +35,7 @@ public class QuestionDataDTO {
         return body;
     }
 
-    public InteractionDTO getInteraction() {
+    public InteractionDto getInteraction() {
         return interaction;
     }
 }

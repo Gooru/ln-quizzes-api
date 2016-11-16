@@ -1,20 +1,20 @@
-package com.quizzes.api.common.dto.controller.request;
-
-import com.quizzes.api.common.dto.controller.response.AnswerDTO;
+package com.quizzes.api.common.dto.controller.response;
 
 import java.util.List;
 import java.util.UUID;
 
-public class ResourceDTO {
+public class AttemptDto {
     UUID id;
     long timeSpent;
     int reaction;
-    List<AnswerDTO> answer;
+    int score;
+    List<AnswerDto> answer;
 
-    public ResourceDTO(UUID id, long timeSpent, int reaction, List<AnswerDTO> answer) {
+    public AttemptDto(UUID id, long timeSpent, int reaction, int score, List<AnswerDto> answer) {
         this.id = id;
         this.timeSpent = timeSpent;
         this.reaction = reaction;
+        this.score = score;
         this.answer = answer;
     }
 
@@ -30,7 +30,11 @@ public class ResourceDTO {
         return reaction;
     }
 
-    public List<AnswerDTO> getAnswer() {
+    public int getScore() {
+        return score;
+    }
+
+    public List<AnswerDto> getAnswer() {
         return answer;
     }
 }

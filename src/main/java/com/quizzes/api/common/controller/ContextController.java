@@ -1,21 +1,16 @@
 package com.quizzes.api.common.controller;
 
-import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
-import com.quizzes.api.common.dto.controller.AssignmentDTO;
-import com.quizzes.api.common.dto.controller.CollectionDTO;
-import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDTO;
+import com.quizzes.api.common.dto.controller.AssignmentDto;
+import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.Group;
-import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.service.ContextService;
 import com.quizzes.api.common.service.ContextServiceDummy;
 import com.quizzes.api.common.service.GroupProfileService;
@@ -78,13 +73,13 @@ public class ContextController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@ApiParam(value = "Json body", required = true, name = "Body")
-                                           @RequestBody AssignmentDTO assignmentDTO,
+                                           @RequestBody AssignmentDto assignmentDto,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<AssignmentDTO>> constraintViolations = validator.validate(assignmentDTO);
+        Set<ConstraintViolation<AssignmentDto>> constraintViolations = validator.validate(assignmentDto);
 
         if (!constraintViolations.isEmpty()) {
             List<String> constraintErrors = new ArrayList<>();
@@ -99,9 +94,9 @@ public class ContextController {
         //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
         Context context = null;
         if (Lms.quizzes.equals(Lms.valueOf(lmsId))) {
-            context = contextServiceDummy.createContext(assignmentDTO, Lms.valueOf(lmsId));
+            context = contextServiceDummy.createContext(assignmentDto, Lms.valueOf(lmsId));
         } else {
-            context = contextService.createContext(assignmentDTO, Lms.valueOf(lmsId));
+            context = contextService.createContext(assignmentDto, Lms.valueOf(lmsId));
         }
 
         ContextIdResponseDto result = new ContextIdResponseDto(context.getId());
@@ -139,7 +134,7 @@ public class ContextController {
     public ResponseEntity<Void> onResourceEvent(@PathVariable String resourceId,
                                                 @PathVariable String contextId,
                                                 @ApiParam(value = "Json body", required = true, name = "Body")
-                                                @RequestBody OnResourceEventRequestDTO onResourceEventRequestDTO,
+                                                @RequestBody OnResourceEventRequestDto onResourceEventRequestDto,
                                                 @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                 @RequestHeader(value = "profile-id") UUID profileId) {
 
