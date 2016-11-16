@@ -63,7 +63,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
-    public List<Profile> findAssigneesDataByContextId(UUID contextId){
+    public List<Profile> findAssigneesByContextId(UUID contextId){
         return jooq.select(PROFILE.ID, PROFILE.PROFILE_DATA)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))

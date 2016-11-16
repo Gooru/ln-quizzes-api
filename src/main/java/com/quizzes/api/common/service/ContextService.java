@@ -137,7 +137,7 @@ public class ContextService {
 
     public ContextGetResponseDto getContext(UUID contextId) {
         ContextOwnerEntity contextAndOwner = contextRepository.findContextAndOwnerByContextId(contextId);
-        List<Profile> assignees = profileService.findAssigneesDataByContextId(contextId);
+        List<Profile> assignees = profileService.findAssigneesByContextId(contextId);
 
         ContextGetResponseDto response = new ContextGetResponseDto();
 

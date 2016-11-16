@@ -407,12 +407,12 @@ public class ContextServiceTest {
         when(jsonParser.parseMap(any(String.class))).thenReturn(new HashMap<>());
 
         when(contextRepository.findContextAndOwnerByContextId(any(UUID.class))).thenReturn(contextOwnerEntity);
-        when(profileService.findAssigneesDataByContextId(any(UUID.class))).thenReturn(assignees);
+        when(profileService.findAssigneesByContextId(any(UUID.class))).thenReturn(assignees);
 
         ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
 
         verify(contextRepository, times(1)).findContextAndOwnerByContextId(any(UUID.class));
-        verify(profileService, times(1)).findAssigneesDataByContextId(any(UUID.class));
+        verify(profileService, times(1)).findAssigneesByContextId(any(UUID.class));
 
         assertNotNull("Result is Null", result);
         assertNotNull("Context id is null", result.getId());
