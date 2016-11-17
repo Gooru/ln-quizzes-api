@@ -19,7 +19,7 @@ public interface ContextRepository {
 
     UUID findCollectionIdByContextId(UUID contextId);
 
-    List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId);
+    List<ContextOwnerEntity> findAssignedContextsByProfileId(UUID profileId);
 
     ContextOwnerEntity findContextAndOwnerByContextId(UUID contextId);
 

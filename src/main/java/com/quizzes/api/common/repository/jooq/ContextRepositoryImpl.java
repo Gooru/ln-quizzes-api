@@ -74,41 +74,22 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId) {
-        //We do not have to return the group
-        Context context = new Context(UUID.randomUUID(), UUID.randomUUID(), null, "{\n" +
-                "    \"metadata\": {\n" +
-                "      \"description\": \"First Partial\",\n" +
-                "      \"title\": \"Math 1st Grade\"\n" +
-                "    },\n" +
-                "    \"contextMap\": {\n" +
-                "      \"classId\": \"4ef71420-dde9-4d2f-822e-5abb2c0b9c8c\"\n" +
-                "    }\n" +
-                "  }", null);
-
-        Profile owner = new Profile(UUID.randomUUID(), "23423424", Lms.its_learning, "{\n" +
-                "\"id\":\"9dc0dddb-f6c2-4884-97ed-66318a9958db\",\n" +
-                "\"firstName\":\"David\",\n" +
-                "\"lastName\":\"Artavia\",\n" +
-                "\"username\":\"dartavia\"\n" +
-                "}", null);
-
-        AssignedContextEntity assignedContextEntity = new AssignedContextEntity();
-        assignedContextEntity.setContext(context);
-        assignedContextEntity.setOwner(owner);
-
-        List<AssignedContextEntity> list = new ArrayList<>();
-        list.add(assignedContextEntity);
-
-        return list;
+    public List<ContextOwnerEntity> findAssignedContextsByProfileId(UUID profileId) {
+        return jooq.select(CONTEXT.ID.as("ContextId"), CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA,
+                GROUP.OWNER_PROFILE_ID.as("OwnerId"))
+                .from(CONTEXT)
+                .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
+                .join(GROUP).on(GROUP.ID.eq(GROUP_PROFILE.GROUP_ID))
+                .where(GROUP_PROFILE.PROFILE_ID.eq(profileId))
+                .fetchInto(ContextOwnerEntity.class);
     }
 
     @Override
     public ContextOwnerEntity findContextAndOwnerByContextId(UUID contextId) {
-        return jooq.select(CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, PROFILE.ID.as("ProfileId"), PROFILE.PROFILE_DATA)
+        return jooq.select(CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA,
+                GROUP.OWNER_PROFILE_ID.as("OwnerId"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .join(PROFILE).on(PROFILE.ID.eq(GROUP.OWNER_PROFILE_ID))
                 .where(CONTEXT.ID.eq(contextId))
                 .fetchOneInto(ContextOwnerEntity.class);
     }

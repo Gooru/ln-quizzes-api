@@ -1,27 +1,49 @@
 package com.quizzes.api.common.model.entities;
 
-import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.Profile;
+import java.util.UUID;
 
-public class AssignedContextEntity {
+public interface AssignedContextEntity {
+    UUID getCollectionId();
 
-    private Context context;
-    private Profile owner;
+    void setCollectionId(UUID collectionId);
 
+    UUID getContextId();
 
-    public Context getContext() {
-        return context;
-    }
+    void setContextId(UUID contextId);
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
+    UUID getProfileId();
 
-    public Profile getOwner() {
-        return owner;
-    }
+    void setProfileId(UUID profileId);
 
-    public void setOwner(Profile owner) {
-        this.owner = owner;
-    }
+    String getProfileData();
+
+    void setProfileData(String profileData);
+
+    String getContextData();
+
+    void setContextData(String contextData);
+
 }
+
+//public class AssignedContextEntity {
+//
+//    private Context context;
+//    private Profile owner;
+//
+//
+//    public Context getContext() {
+//        return context;
+//    }
+//
+//    public void setContext(Context context) {
+//        this.context = context;
+//    }
+//
+//    public Profile getOwner() {
+//        return owner;
+//    }
+//
+//    public void setOwner(Profile owner) {
+//        this.owner = owner;
+//    }
+//}

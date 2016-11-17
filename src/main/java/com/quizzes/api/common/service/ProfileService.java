@@ -27,7 +27,7 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
-    public List<Profile> findAssigneesByContextId(UUID contextId){
-        return profileRepository.findAssigneesByContextId(contextId);
+    public List<UUID> findAssignedIdsByContextId(UUID contextId){
+        return profileRepository.findAssignedIdsByContextId(contextId);
     }
 }
