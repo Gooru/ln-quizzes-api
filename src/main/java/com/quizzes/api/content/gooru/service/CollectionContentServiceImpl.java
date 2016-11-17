@@ -29,6 +29,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
     private static final String RESOURCE_TITLE = "title";
     private static final String RESOURCE_TYPE = "type";
     private static final String RESOURCE_CORRECT_ANSWER = "correctAnswer";
+    private static final String ANSWER_VALUE = "value";
 
     private static final Map<String, String> questionTypeMap;
 
@@ -95,10 +96,10 @@ public class CollectionContentServiceImpl implements CollectionContentService {
 
     private List<Map<String, String>> getCorrectAnswers(List<AnswerDto> answers) {
         return answers.stream()
-                .filter(answer -> answer.isCorrect())
+                .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
                 .map(answer -> {
                     Map<String, String> answerValue = new HashMap<>();
-                    answerValue.put("value", answer.getAnswerText());
+                    answerValue.put(ANSWER_VALUE, answer.getAnswerText());
                     return answerValue;
                 })
                 .collect(Collectors.toList());

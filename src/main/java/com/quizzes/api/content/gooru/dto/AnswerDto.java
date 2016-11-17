@@ -11,7 +11,7 @@ public class AnswerDto {
     private String answerType;
 
     @SerializedName("is_correct")
-    private boolean isCorrect;
+    private String isCorrect;
 
     private int sequence;
 
@@ -34,11 +34,11 @@ public class AnswerDto {
         this.answerType = answerType;
     }
 
-    public boolean isCorrect() {
+    public String isCorrect() {
         return isCorrect;
     }
 
-    public void setIsCorrect(boolean isCorrect) {
+    public void setIsCorrect(String isCorrect) {
         this.isCorrect = isCorrect;
     }
 
