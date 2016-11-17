@@ -31,7 +31,8 @@ public class ResourceRepositoryImpl implements ResourceRepository {
         Resource resource1 = new Resource();
         resource1.setId(UUID.randomUUID());
         resource1.setIsResource(false);
-        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"SingleChoice\"," +
+        resource1.setSequence((short) 1);
+        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"single_choice\"," +
                 "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
                 " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
                 " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\",\"isFixed\":" +
@@ -41,7 +42,8 @@ public class ResourceRepositoryImpl implements ResourceRepository {
         Resource resource2 = new Resource();
         resource2.setId(UUID.randomUUID());
         resource2.setIsResource(false);
-        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"True/False\",\"correctAnswer\":" +
+        resource2.setSequence((short) 2);
+        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"true_false\",\"correctAnswer\":" +
                 " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
                 " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
                 "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");

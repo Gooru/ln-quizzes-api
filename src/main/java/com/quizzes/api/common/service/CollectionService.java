@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CollectionService {
@@ -58,14 +59,18 @@ public class CollectionService {
         Collection collection = findById(collectionId);
         if (collection != null) {
             List<Resource> resources = resourceService.findResourcesByCollectionId(collectionId);
-            List<CollectionDataResourceDto> resourcesDTO = new ArrayList<>();
-            for (Resource resource : resources) {
-                QuestionDataDto questionDataDto = gson.fromJson(resource.getResourceData(), QuestionDataDto.class);
-                CollectionDataResourceDto resourceDTO = new CollectionDataResourceDto(resource.getId(), resource.getIsResource(), questionDataDto);
-                resourcesDTO.add(resourceDTO);
-            }
-
-            result = new CollectionDataDto(collection.getId(), collection.getIsCollection(), resourcesDTO);
+            List<CollectionDataResourceDto> collectionDataResourceDtoList =
+                    resources.stream().map(resource -> {
+                        QuestionDataDto questionDataDto =
+                                gson.fromJson(resource.getResourceData(), QuestionDataDto.class);
+                        return new CollectionDataResourceDto(resource.getId(),
+                                resource.getIsResource(),
+                                resource.getSequence(),
+                                questionDataDto);
+                    }).collect(Collectors.toList());
+            result = new CollectionDataDto(collection.getId(),
+                    collection.getIsCollection(),
+                    collectionDataResourceDtoList);
         }
         //TODO: if collection == null then return an error status ans error code;
 

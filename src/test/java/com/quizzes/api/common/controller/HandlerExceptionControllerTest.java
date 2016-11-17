@@ -39,12 +39,11 @@ public class HandlerExceptionControllerTest {
     @Test
     public void handleException() throws Exception {
         Exception exceptionMock = new Exception("New Error");
-        ExceptionMessage result = controller.handleException(exceptionMock);
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong exception", "Exception", result.getException());
-        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
-        assertEquals("Wrong message exception", "New Error", result.getMessage());
+        ExceptionMessage exceptionMessage = controller.handleException(exceptionMock);
+        assertNotNull("Exception Message is null", exceptionMessage);
+        assertEquals("Wrong message exception", "Internal Server Error", exceptionMessage.getMessage());
+        assertEquals("Wrong status code", HttpStatus.INTERNAL_SERVER_ERROR.value(), exceptionMessage.getStatus());
+        assertEquals("Wrong exception", "New Error", exceptionMessage.getException());
     }
 
     @Test

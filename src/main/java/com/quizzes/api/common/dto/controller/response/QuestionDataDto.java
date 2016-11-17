@@ -1,17 +1,17 @@
 package com.quizzes.api.common.dto.controller.response;
 
-import com.quizzes.api.common.enums.QuestionTypeEnum;
-
 import java.util.List;
 
 public class QuestionDataDto {
-    String title;
-    QuestionTypeEnum type;
-    List<AnswerDto> correctAnswer;
-    String body;
-    InteractionDto interaction;
 
-    public QuestionDataDto(String title, QuestionTypeEnum type, List<AnswerDto> correctAnswer, String body, InteractionDto interaction) {
+    private String title;
+    private String type;
+    private List<AnswerDto> correctAnswer;
+    private String body;
+    private InteractionDto interaction;
+
+    public QuestionDataDto(String title, String type, List<AnswerDto> correctAnswer,
+                           String body, InteractionDto interaction) {
         this.title = title;
         this.type = type;
         this.correctAnswer = correctAnswer;
@@ -23,7 +23,7 @@ public class QuestionDataDto {
         return title;
     }
 
-    public QuestionTypeEnum getType() {
+    public String getType() {
         return type;
     }
 
@@ -38,4 +38,5 @@ public class QuestionDataDto {
     public InteractionDto getInteraction() {
         return interaction;
     }
+
 }

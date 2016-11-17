@@ -3,6 +3,8 @@ package com.quizzes.api.common.controller;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 @ControllerAdvice
 @RestController
 public class HandlerExceptionController {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * Handles exceptions with incorrect properties in json
@@ -38,14 +42,15 @@ public class HandlerExceptionController {
     }
 
     /**
-     * Handles basic exceptions
+     * Handles any general exception
      *
-     * @return Message exception and status 400
+     * @return Exception message with status code 500
      */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = Exception.class)
     public ExceptionMessage handleException(Exception e) {
-        return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(), Exception.class.getSimpleName());
+        logger.error("Internal Server Error", e);
+        return new ExceptionMessage("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
 }
