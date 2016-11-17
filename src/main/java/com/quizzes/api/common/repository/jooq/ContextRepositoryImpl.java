@@ -1,10 +1,7 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
-import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +12,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
-import static com.quizzes.api.common.model.tables.Profile.PROFILE;
 import static com.quizzes.api.common.model.tables.Group.GROUP;
 import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
 

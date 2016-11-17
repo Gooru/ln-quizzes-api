@@ -10,7 +10,6 @@ import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
@@ -33,10 +32,8 @@ import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;

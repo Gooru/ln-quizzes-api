@@ -1,6 +1,5 @@
 package com.quizzes.api.common.repository;
 
-import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.tables.pojos.Context;
 
