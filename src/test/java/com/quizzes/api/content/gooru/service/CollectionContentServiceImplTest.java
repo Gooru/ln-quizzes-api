@@ -50,17 +50,17 @@ public class CollectionContentServiceImplTest {
 
         AnswerDto answerMultipleChoice1 = new AnswerDto();
         answerMultipleChoice1.setAnswerText("Answer Multiple Choice 1 text");
-        answerMultipleChoice1.setIsCorrect(false);
+        answerMultipleChoice1.setIsCorrect("false");
         answerMultipleChoice1.setSequence(1);
 
         AnswerDto answerMultipleChoice2 = new AnswerDto();
         answerMultipleChoice2.setAnswerText("Answer Multiple Choice 2 text");
-        answerMultipleChoice2.setIsCorrect(true);
+        answerMultipleChoice2.setIsCorrect("true");
         answerMultipleChoice2.setSequence(2);
 
         AnswerDto answerMultipleChoice3 = new AnswerDto();
         answerMultipleChoice3.setAnswerText("Answer Multiple Choice 3 text");
-        answerMultipleChoice3.setIsCorrect(true);
+        answerMultipleChoice3.setIsCorrect("true");
         answerMultipleChoice3.setSequence(2);
 
         List<AnswerDto> answerMultipleChoiceList = new ArrayList<>();
@@ -77,12 +77,12 @@ public class CollectionContentServiceImplTest {
 
         AnswerDto answerTrueFalse1 = new AnswerDto();
         answerTrueFalse1.setAnswerText("Answer True False 1 text");
-        answerTrueFalse1.setIsCorrect(true);
+        answerTrueFalse1.setIsCorrect("true");
         answerTrueFalse1.setSequence(1);
 
         AnswerDto answerTrueFalse2 = new AnswerDto();
         answerTrueFalse2.setAnswerText("Answer True False 1 text");
-        answerTrueFalse2.setIsCorrect(true);
+        answerTrueFalse2.setIsCorrect("true");
         answerTrueFalse2.setSequence(1);
 
         List<AnswerDto> answerTrueFalseList = new ArrayList<>();

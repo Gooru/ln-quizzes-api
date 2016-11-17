@@ -14,5 +14,5 @@ public interface ProfileRepository {
 
     Profile save(Profile id);
 
-    List<Profile> findAssigneesByContextId(UUID contextId);
+    List<UUID> findAssignedIdsByContextId(UUID contextId);
 }

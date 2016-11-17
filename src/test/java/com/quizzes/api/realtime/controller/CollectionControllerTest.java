@@ -64,9 +64,10 @@ public class CollectionControllerTest {
         ChoiceDto choiceDto3 = new ChoiceDto("option 3", false, "C");
         choices.add(choiceDto3);
         InteractionDto interactionDto = new InteractionDto(true, 10, "mocked Interaction", choices);
-        QuestionDataDto questionDataDto = new QuestionDataDto("mocked Question Data", QuestionTypeEnum.SingleChoice, answers, "mocked body", interactionDto);
+        QuestionDataDto questionDataDto = new QuestionDataDto("mocked Question Data",
+                QuestionTypeEnum.SingleChoice.getLiteral(), answers, "mocked body", interactionDto);
         CollectionDataResourceDto collectionDataResourceDto1 = new CollectionDataResourceDto(UUID.randomUUID(),
-                true, questionDataDto);
+                true, 1, questionDataDto);
         List<CollectionDataResourceDto> collectionDataResourceDtos = new ArrayList<>();
         collectionDataResourceDtos.add(collectionDataResourceDto1);
 
@@ -79,16 +80,18 @@ public class CollectionControllerTest {
         ChoiceDto choiceDto5 = new ChoiceDto("False", false, "F");
         choices2.add(choiceDto5);
         InteractionDto interactionDto2 = new InteractionDto(true, 10, "mocked Interaction", choices2);
-        QuestionDataDto questionDataDto2 = new QuestionDataDto("mocked Question Data", QuestionTypeEnum.TrueFalse, answers2, "mocked body", interactionDto2);
+        QuestionDataDto questionDataDto2 = new QuestionDataDto("mocked Question Data",
+                QuestionTypeEnum.TrueFalse.getLiteral(), answers2, "mocked body", interactionDto2);
         CollectionDataResourceDto collectionDataResourceDto2 = new CollectionDataResourceDto(UUID.randomUUID(),
-                true, questionDataDto2);
+                true, 2, questionDataDto2);
         collectionDataResourceDtos.add(collectionDataResourceDto2);
 
         CollectionDataDto collectionDto = new CollectionDataDto(UUID.randomUUID(), false, collectionDataResourceDtos);
 
         when(collectionService.getCollection(any(UUID.class))).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDataDto> result = collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
+        ResponseEntity<CollectionDataDto> result =
+                collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
 
         verify(collectionService, times(1)).getCollection(any(UUID.class));
 

@@ -3,17 +3,17 @@ package com.quizzes.api.common.model.entities;
 import java.util.UUID;
 
 public interface ContextOwnerEntity {
+    UUID getContextId();
+
+    void setContextId(UUID contextId);
+
     UUID getCollectionId();
 
     void setCollectionId(UUID collectionId);
 
-    UUID getProfileId();
+    UUID getOwnerId();
 
-    void setProfileId(UUID profileId);
-
-    String getProfileData();
-
-    void setProfileData(String profileData);
+    void setOwnerId(UUID profileId);
 
     String getContextData();
 

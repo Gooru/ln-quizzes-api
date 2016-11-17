@@ -63,14 +63,13 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
-    public List<Profile> findAssigneesByContextId(UUID contextId){
-        return jooq.select(PROFILE.ID, PROFILE.PROFILE_DATA)
+    public List<UUID> findAssignedIdsByContextId(UUID contextId){
+        return jooq.select(GROUP_PROFILE.PROFILE_ID)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(GROUP.ID))
-                .join(PROFILE).on(PROFILE.ID.eq(GROUP_PROFILE.PROFILE_ID))
                 .where(CONTEXT.ID.eq(contextId))
-                .fetchInto(Profile.class);
+                .fetchInto(UUID.class);
     }
 
     private Profile insertProfile(final Profile profile) {

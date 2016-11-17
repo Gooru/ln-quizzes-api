@@ -8,11 +8,11 @@ import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDto;
 import com.quizzes.api.common.dto.controller.request.ResourceDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
@@ -404,14 +404,11 @@ public class ContextControllerTest {
         UUID assigneeId = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
 
-        List<Map<String, Object>> assignees = new ArrayList<>();
+        List<IdResponseDto> assignees = new ArrayList<>();
 
-        Map<String, Object> assignee = new HashMap<>();
-        assignee.put("id", assigneeId);
+        IdResponseDto assignee = new IdResponseDto();
+        assignee.setId(assigneeId);
         assignees.add(assignee);
-
-        Map<String, Object> owner = new HashMap<>();
-        owner.put("id", ownerId);
 
         Map<String, Object> contextData = new HashMap<>();
         contextData.put("metadata", new HashMap<>());
@@ -423,8 +420,11 @@ public class ContextControllerTest {
         response.setId(id);
         response.setContextDataResponse(contextData);
         response.setCollection(collectionDto);
-        response.setOwnerResponse(owner);
-        response.setAssigneesResponse(assignees);
+
+        IdResponseDto owner = new IdResponseDto();
+        owner.setId(ownerId);
+        response.setOwner(owner);
+        response.setAssignees(assignees);
 
         when(contextService.getContext(any(UUID.class))).thenReturn(response);
 
@@ -439,8 +439,21 @@ public class ContextControllerTest {
         assertNotNull("Context id is null", resultDto.getId());
         assertEquals("Wrong collection id", collectionId.toString(), resultDto.getCollection().getId());
         assertEquals("Wrong contextData", contextData, resultDto.getContextDataResponse());
-        assertEquals("Wrong owner data", owner, resultDto.getOwnerResponse());
-        assertEquals("Wrong assignees size", 1, resultDto.getAssigneesResponse().size());
+        assertEquals("Wrong owner id", ownerId, resultDto.getOwner().getId());
+        assertEquals("Wrong assignees size", 1, resultDto.getAssignees().size());
+        assertEquals("Wrong first assignee id", assigneeId, resultDto.getAssignees().get(0).getId());
+    }
+
+    @Test
+    public void getContextNotFound() throws Exception {
+        when(contextService.getContext(any(UUID.class))).thenReturn(null);
+
+        ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+
+        verify(contextService, times(1)).getContext(any(UUID.class));
+        assertNotNull("Response Entity is null", result);
+        assertNull("Response body is not null", result.getBody());
+        assertEquals("Invalid status code", HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
     @Test
@@ -523,14 +536,11 @@ public class ContextControllerTest {
         Map<String, Object> contextDataMap = new HashMap<>();
         contextDataMap.put("contextMap", new HashMap<>());
         contextDataMap.put("metaData", new HashMap<>());
-        contextAssigned.setContextResponse(contextDataMap);
+        contextAssigned.setContextDataResponse(contextDataMap);
 
-        Map<String, Object> ownerData = new HashMap<>();
-        ownerData.put("id", UUID.randomUUID().toString());
-        ownerData.put("firstName", "name");
-        ownerData.put("lastName", "last");
-        ownerData.put("username", "username");
-        contextAssigned.setOwnerResponse(ownerData);
+        IdResponseDto ownerData = new IdResponseDto();
+        ownerData.setId(UUID.randomUUID());
+        contextAssigned.setOwner(ownerData);
         contexts.add(contextAssigned);
 
         when(contextService.getAssignedContexts(any(UUID.class))).thenReturn(contexts);
@@ -550,13 +560,10 @@ public class ContextControllerTest {
 
         assertNotNull("Collection id is null", result.getCollection().getId());
 
-        Map<String, Object> ownerResult = result.getOwnerResponse();
-        assertNotNull("Owner id is null", ownerResult.get("id"));
-        assertNotNull("First name id is null", ownerResult.get("firstName"));
-        assertNotNull("Last name id is null", ownerResult.get("lastName"));
-        assertNotNull("Username id is null", ownerResult.get("username"));
+        IdResponseDto ownerResult = result.getOwner();
+        assertNotNull("Owner id is null", ownerResult);
 
-        Map<String, Object> contextResult = result.getContextResponse();
+        Map<String, Object> contextResult = result.getContextDataResponse();
         assertEquals("Wrong size inside context result", 2, contextResult.size());
         assertTrue("Missing metaData key in context result", contextResult.containsKey("metaData"));
         assertTrue("Missing contextMap key in context result", contextResult.containsKey("contextMap"));

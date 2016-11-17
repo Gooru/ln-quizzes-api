@@ -5,6 +5,9 @@ import java.util.UUID;
 public class IdResponseDto {
     private UUID id;
 
+    public IdResponseDto() {
+    }
+
     public UUID getId() {
         return id;
     }

@@ -6,15 +6,14 @@ import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
-import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
@@ -134,31 +133,36 @@ public class ContextService {
     }
 
     public ContextGetResponseDto getContext(UUID contextId) {
-        ContextOwnerEntity contextAndOwner = contextRepository.findContextAndOwnerByContextId(contextId);
-        List<Profile> assignees = profileService.findAssigneesByContextId(contextId);
+        ContextOwnerEntity contextOwner = contextRepository.findContextAndOwnerByContextId(contextId);
+        if (contextOwner != null) {
+            ContextGetResponseDto response = new ContextGetResponseDto();
+            List<UUID> assignees = profileService.findAssignedIdsByContextId(contextId);
 
-        ContextGetResponseDto response = new ContextGetResponseDto();
+            CollectionDto collectionDto = new CollectionDto();
+            collectionDto.setId(contextOwner.getCollectionId().toString());
 
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(contextAndOwner.getCollectionId().toString());
+            response.setCollection(collectionDto);
+            response.setId(contextId);
+            String x = contextOwner.getContextData();
+            response.setContextDataResponse(jsonParser.parseMap(contextOwner.getContextData()));
 
-        response.setCollection(collectionDto);
-        response.setId(contextId);
-        response.setContextDataResponse(jsonParser.parseMap(contextAndOwner.getContextData()));
+            IdResponseDto ownerId = new IdResponseDto();
+            ownerId.setId(contextOwner.getOwnerId());
+            response.setOwner(ownerId);
 
-        Map<String, Object> owner = jsonParser.parseMap(contextAndOwner.getProfileData());
-        owner.put("id", contextAndOwner.getProfileId());
-        response.setOwnerResponse(owner);
+            response.setAssignees(assignees.stream()
+                    .map(assigneeId -> {
+                        IdResponseDto id = new IdResponseDto();
+                        id.setId(assigneeId);
+                        return id;
+                    })
+                    .collect(Collectors.toList()));
 
-        response.setAssigneesResponse(assignees.stream()
-                .map(profile -> {
-                    Map<String, Object> assignee = jsonParser.parseMap(profile.getProfileData());
-                    assignee.put("id", profile.getId());
-                    return assignee;
-                })
-                .collect(Collectors.toList()));
+            return response;
+        }
 
-        return response;
+        logger.info("Getting context: " + contextId + " was not found");
+        return null;
     }
 
     public List<Context> findContextByOwnerId(UUID profileId) {
@@ -196,23 +200,23 @@ public class ContextService {
     }
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID profileId) {
-        List<AssignedContextEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
+        List<ContextOwnerEntity> contexts = contextRepository.findAssignedContextsByProfileId(profileId);
         return contexts.stream()
                 .map(entity -> {
-                    Context context = entity.getContext();
-                    Profile owner = entity.getOwner();
+                    ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
 
-                    ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
-                    contextAssigned.setId(context.getId());
-                    contextAssigned.setCollection(new CollectionDto(context.getCollectionId().toString()));
+                    CollectionDto collectionDto = new CollectionDto();
+                    collectionDto.setId(entity.getCollectionId().toString());
 
-                    Map<String, Object> contextDataMap = jsonParser.parseMap(context.getContextData());
-                    contextAssigned.setContextResponse(contextDataMap);
+                    response.setCollection(collectionDto);
+                    response.setId(entity.getContextId());
+                    response.setContextDataResponse(jsonParser.parseMap(entity.getContextData()));
 
-                    Map<String, Object> ownerDataMap = jsonParser.parseMap(owner.getProfileData());
-                    contextAssigned.setOwnerResponse(ownerDataMap);
+                    IdResponseDto ownerId = new IdResponseDto();
+                    ownerId.setId(entity.getOwnerId());
+                    response.setOwner(ownerId);
 
-                    return contextAssigned;
+                    return response;
                 })
                 .collect(Collectors.toList());
     }
