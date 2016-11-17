@@ -10,6 +10,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
@@ -30,6 +31,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -481,43 +484,52 @@ public class ContextServiceTest {
 
     @Test
     public void findCreatedContexts() {
-        UUID groupId = UUID.randomUUID();
+        Map<UUID, List<ContextByOwnerEntity>> contextsMap = new HashMap<>();
+        UUID contextId = UUID.randomUUID();
+        ContextByOwnerEntity row1 = new ContextByOwnerEntity();
+        row1.setId(contextId);
+        row1.setCollectionId(UUID.randomUUID());
+        row1.setGroupId(UUID.randomUUID());
+        row1.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
+        row1.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        row1.setAssigneeId(UUID.randomUUID());
+        List<ContextByOwnerEntity> contextByOwnerEntityList1 = new ArrayList<>();
+        contextByOwnerEntityList1.add(row1);
+        contextsMap.put(contextId, contextByOwnerEntityList1);
 
-        List<Context> contexts = new ArrayList<>();
-        Context context = new Context();
-        context.setId(UUID.randomUUID());
-        context.setCollectionId(UUID.randomUUID());
-        context.setGroupId(groupId);
-        context.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+        contextId = UUID.randomUUID();
+        UUID groupId =  UUID.randomUUID();
+        ContextByOwnerEntity row2 = new ContextByOwnerEntity();
+        row2.setId(contextId);
+        row2.setCollectionId(UUID.randomUUID());
+        row2.setGroupId(groupId);
+        row2.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
                 "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
-        contexts.add(context);
+        row2.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        row2.setAssigneeId(UUID.randomUUID());
+        List<ContextByOwnerEntity> contextByOwnerEntityList2 = new ArrayList<>();
+        contextByOwnerEntityList2.add(row2);
+        ContextByOwnerEntity row3 = new ContextByOwnerEntity();
+        row3.setId(contextId);
+        row3.setCollectionId(UUID.randomUUID());
+        row3.setGroupId(groupId);
+        row3.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        row3.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        row3.setAssigneeId(UUID.randomUUID());
+        contextByOwnerEntityList2.add(row3);
+        contextsMap.put(contextId, contextByOwnerEntityList2);
 
-        when(contextRepository.findByOwnerId(any(UUID.class))).thenReturn(contexts);
-
-        List<GroupProfile> groupProfiles = new ArrayList<>();
-        GroupProfile assignee1 = new GroupProfile();
-        assignee1.setGroupId(groupId);
-        assignee1.setId(UUID.randomUUID());
-        assignee1.setProfileId(UUID.randomUUID());
-        groupProfiles.add(assignee1);
-        GroupProfile assignee2 = new GroupProfile();
-        assignee2.setGroupId(groupId);
-        assignee2.setId(UUID.randomUUID());
-        assignee2.setProfileId(UUID.randomUUID());
-        groupProfiles.add(assignee2);
-
-        when(groupProfileService.findGroupProfilesByGroupId(any(UUID.class))).thenReturn(groupProfiles);
+        when(contextRepository.findContextByOwnerId(any(UUID.class))).thenReturn(contextsMap);
 
         List<CreatedContextGetResponseDto> result = contextService.findCreatedContexts(UUID.randomUUID());
-        verify(contextRepository, times(1)).findByOwnerId(any(UUID.class));
-        verify(groupProfileService, times(1)).findGroupProfilesByGroupId(any(UUID.class));
+        verify(contextRepository, times(1)).findContextByOwnerId(any(UUID.class));
 
         assertNotNull("Created contexts list in null", result);
-        assertEquals("No created contexts", 1, result.size());
+        assertEquals("Created contexts doesn't match", 2, result.size());
         assertNotNull("Context has no Collection", result.get(0).getCollection());
         assertNotNull("Context has no assignees", result.get(0).getAssignees());
-        assertEquals("Wrong number of assignees", 2, result.get(0).getAssignees().size());
-
     }
 
     private ContextOwnerEntity getContextOwnerEntityMock(){

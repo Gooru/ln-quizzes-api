@@ -16,4 +16,3 @@ public class IdResponseDto {
         this.id = id;
     }
 }
-

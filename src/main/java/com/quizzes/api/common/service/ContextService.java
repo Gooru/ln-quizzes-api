@@ -2,7 +2,6 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -14,6 +13,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
@@ -172,38 +172,30 @@ public class ContextService {
     }
 
     public List<CreatedContextGetResponseDto> findCreatedContexts(UUID profileId) {
-        //TODO: this method is doing multiple DB queries, 1 to get the created context list and then
-        //TODO: for each one it is doing a new query to get the assignees
-        //TODO: REFACTOR this to return the complete information in ONE new entity
-
         List<CreatedContextGetResponseDto> result = new ArrayList<>();
-        List<Context> contexts = findContextByOwnerId(profileId);
+        Map<UUID, List<ContextByOwnerEntity>> contextByOwnerList = contextRepository.findContextByOwnerId(profileId);
 
-        for (Context context : contexts) {
-            CollectionDto collectionDto = new CollectionDto();
-            collectionDto.setId(context.getCollectionId().toString());
+        if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
+            contextByOwnerList.forEach(
+                    (key, value) -> {
+                        CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
+                        createdContextGetResponseDto.setId(key);
+                        if (!value.isEmpty()) {
+                            ContextByOwnerEntity firstEntryValue = value.get(0);
+                            createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(firstEntryValue.getContextData()));
+                            CollectionDto collectionDto = new CollectionDto(firstEntryValue.getCollectionId().toString());
+                            createdContextGetResponseDto.setCollection(collectionDto);
+                            List<IdResponseDto> assignees = value.stream().map(profile -> {
+                                IdResponseDto assignee = new IdResponseDto();
+                                assignee.setId(profile.getAssigneeId());
+                                return assignee;}).collect(Collectors.toList());
+                            createdContextGetResponseDto.setAssignees(assignees);
+                        }
+                        result.add(createdContextGetResponseDto);
 
-            List<GroupProfile> assignees = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
-            List<ProfileDto> assigneesDTO = new ArrayList<>();
-            for (GroupProfile assignee : assignees) {
-                ProfileDto assigneeDTO = new ProfileDto();
-                assigneeDTO.setId(assignee.getId().toString());
-                assigneesDTO.add(assigneeDTO);
-            }
-
-            CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
-
-            CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
-            createdContextGetResponseDto.setId(context.getId());
-            createdContextGetResponseDto.setCollection(collectionDto);
-            createdContextGetResponseDto.setAssignees(assigneesDTO);
-
-            createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(context.getContextData()));
-
-            result.add(createdContextGetResponseDto);
-
+                    }
+            );
         }
-
         return result;
     }
 

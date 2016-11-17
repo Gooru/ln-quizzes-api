@@ -479,12 +479,12 @@ public class ContextControllerTest {
         collectionDto.setId(UUID.randomUUID().toString());
         createdContextGetResponseDto.setCollection(collectionDto);
         createdContextGetResponseDto.setId(UUID.randomUUID());
-        List<ProfileDto> assignees = new ArrayList<>();
-        ProfileDto asignee1 = new ProfileDto();
-        asignee1.setId(UUID.randomUUID().toString());
+        List<IdResponseDto> assignees = new ArrayList<>();
+        IdResponseDto asignee1 = new IdResponseDto();
+        asignee1.setId(UUID.randomUUID());
         assignees.add(asignee1);
-        ProfileDto asignee2 = new ProfileDto();
-        asignee2.setId(UUID.randomUUID().toString());
+        IdResponseDto asignee2 = new IdResponseDto();
+        asignee2.setId(UUID.randomUUID());
         assignees.add(asignee2);
         createdContextGetResponseDto.setAssignees(assignees);
         CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
@@ -515,7 +515,7 @@ public class ContextControllerTest {
 
         assertNotNull("Collection id is null", result.getCollection().getId());
 
-        List<ProfileDto> profiles = result.getAssignees();
+        List<IdResponseDto> profiles = result.getAssignees();
         assertEquals("Wrong list size for assignees", 2, profiles.size());
         assertNotNull("Profile1 id is null", profiles.get(0).getId());
 

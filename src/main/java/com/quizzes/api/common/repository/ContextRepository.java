@@ -1,9 +1,11 @@
 package com.quizzes.api.common.repository;
 
+import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.tables.pojos.Context;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public interface ContextRepository {
@@ -13,6 +15,8 @@ public interface ContextRepository {
     Context findById(UUID id);
 
     List<Context> findByOwnerId(UUID profileId);
+
+    Map<UUID, List<ContextByOwnerEntity>> findContextByOwnerId(UUID profileId);
 
     Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId);
 
