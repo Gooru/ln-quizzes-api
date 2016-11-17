@@ -10,7 +10,7 @@ import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
-import com.quizzes.api.common.model.entities.ContextByOwner;
+import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -480,24 +480,42 @@ public class ContextServiceTest {
 
     @Test
     public void findCreatedContexts() {
-        Map<UUID, List<ContextByOwner>> contextsMap = new HashMap<>();
+        Map<UUID, List<ContextByOwnerEntity>> contextsMap = new HashMap<>();
         UUID contextId = UUID.randomUUID();
-        ContextByOwner row1 = new ContextByOwner(contextId, UUID.randomUUID(), UUID.randomUUID(), "{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
-                "\"contextMap\": {\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}", Timestamp.valueOf(LocalDateTime.now()), UUID.randomUUID());
-        List<ContextByOwner> contextByOwnerList1 = new ArrayList<>();
-        contextByOwnerList1.add(row1);
-        contextsMap.put(contextId, contextByOwnerList1);
+        ContextByOwnerEntity row1 = new ContextByOwnerEntity();
+        row1.setId(contextId);
+        row1.setCollectionId(UUID.randomUUID());
+        row1.setGroupId(UUID.randomUUID());
+        row1.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
+                "\"contextMap\": {\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
+        row1.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        row1.setAssigneeId(UUID.randomUUID());
+        List<ContextByOwnerEntity> contextByOwnerEntityList1 = new ArrayList<>();
+        contextByOwnerEntityList1.add(row1);
+        contextsMap.put(contextId, contextByOwnerEntityList1);
 
         contextId = UUID.randomUUID();
         UUID groupId =  UUID.randomUUID();
-        ContextByOwner row2 = new ContextByOwner(contextId, UUID.randomUUID(), groupId, "{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
-                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}", Timestamp.valueOf(LocalDateTime.now()), UUID.randomUUID());
-        List<ContextByOwner> contextByOwnerList2 = new ArrayList<>();
-        contextByOwnerList2.add(row2);
-        ContextByOwner row3 = new ContextByOwner(contextId, UUID.randomUUID(), groupId, "{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
-                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}", Timestamp.valueOf(LocalDateTime.now()), UUID.randomUUID());
-        contextByOwnerList2.add(row3);
-        contextsMap.put(contextId, contextByOwnerList2);
+        ContextByOwnerEntity row2 = new ContextByOwnerEntity();
+        row2.setId(contextId);
+        row2.setCollectionId(UUID.randomUUID());
+        row2.setGroupId(groupId);
+        row2.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        row2.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        row2.setAssigneeId(UUID.randomUUID());
+        List<ContextByOwnerEntity> contextByOwnerEntityList2 = new ArrayList<>();
+        contextByOwnerEntityList2.add(row2);
+        ContextByOwnerEntity row3 = new ContextByOwnerEntity();
+        row3.setId(contextId);
+        row3.setCollectionId(UUID.randomUUID());
+        row3.setGroupId(groupId);
+        row3.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
+                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        row3.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
+        row3.setAssigneeId(UUID.randomUUID());
+        contextByOwnerEntityList2.add(row3);
+        contextsMap.put(contextId, contextByOwnerEntityList2);
 
         when(contextRepository.findContextByOwnerId(any(UUID.class))).thenReturn(contextsMap);
 
@@ -508,7 +526,5 @@ public class ContextServiceTest {
         assertEquals("Created contexts doesn't match", 2, result.size());
         assertNotNull("Context has no Collection", result.get(0).getCollection());
         assertNotNull("Context has no assignees", result.get(0).getAssignees());
-        assertEquals("Wrong number of assignees", 2, result.get(0).getAssignees().size());
-
     }
 }

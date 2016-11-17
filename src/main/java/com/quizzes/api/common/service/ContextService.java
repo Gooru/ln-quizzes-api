@@ -10,7 +10,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDTO;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.model.entities.ContextByOwner;
+import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
@@ -144,30 +144,29 @@ public class ContextService {
 
     public List<CreatedContextGetResponseDto> findCreatedContexts(UUID profileId) {
         List<CreatedContextGetResponseDto> result = new ArrayList<>();
-        Map<UUID, List<ContextByOwner>> contextByOwnerList = contextRepository.findContextByOwnerId(profileId);
+        Map<UUID, List<ContextByOwnerEntity>> contextByOwnerList = contextRepository.findContextByOwnerId(profileId);
 
-        for (Map.Entry<UUID, List<ContextByOwner>> contextByOwnerEntry : contextByOwnerList.entrySet()) {
-            CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
-            createdContextGetResponseDto.setId(contextByOwnerEntry.getKey());
-            List<ContextByOwner> contextByOwnerValueList = contextByOwnerEntry.getValue();
-            if (!contextByOwnerValueList.isEmpty()){
-                ContextByOwner firstEntryValue = contextByOwnerValueList.get(0);
-                createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(firstEntryValue.getContextData()));
-                CollectionDTO collectionDto = new CollectionDTO(firstEntryValue.getCollectionId().toString());
-                createdContextGetResponseDto.setCollection(collectionDto);
-                List<ProfileDto> assignees = new ArrayList<>();
-                for (ContextByOwner  contextByOwnerValueEntry : contextByOwnerValueList){
-                    ProfileDto assignee = new ProfileDto();
-                    assignee.setId(contextByOwnerValueEntry.getAssigneeId().toString());
-                    assignees.add(assignee);
-                }
-                createdContextGetResponseDto.setAssignees(assignees);
-            }
+        if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
+            contextByOwnerList.forEach(
+                    (k, v) -> {
+                        CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
+                        createdContextGetResponseDto.setId(k);
+                        if (!v.isEmpty()) {
+                            ContextByOwnerEntity firstEntryValue = v.get(0);
+                            createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(firstEntryValue.getContextData()));
+                            CollectionDTO collectionDto = new CollectionDTO(firstEntryValue.getCollectionId().toString());
+                            createdContextGetResponseDto.setCollection(collectionDto);
+                            List<ProfileDto> assignees = v.stream().map(p -> {
+                                ProfileDto assignee = new ProfileDto();
+                                assignee.setId(p.getId().toString());
+                                return assignee;}).collect(Collectors.toList());
+                            createdContextGetResponseDto.setAssignees(assignees);
+                        }
+                        result.add(createdContextGetResponseDto);
 
-            result.add(createdContextGetResponseDto);
-
+                    }
+            );
         }
-
         return result;
     }
 

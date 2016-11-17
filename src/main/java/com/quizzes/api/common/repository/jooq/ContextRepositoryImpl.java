@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.entities.ContextByOwner;
+import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
 import com.quizzes.api.common.model.entities.AssignedContextEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -79,13 +79,13 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public Map<UUID, List<ContextByOwner>> findContextByOwnerId(UUID profileId){
+    public Map<UUID, List<ContextByOwnerEntity>> findContextByOwnerId(UUID profileId){
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, GROUP_PROFILE.PROFILE_ID.as("assigneeId"))
                 .from(CONTEXT)
                 .join(GROUP).on(CONTEXT.GROUP_ID.eq(GROUP.ID))
                 .join(GROUP_PROFILE).on(CONTEXT.GROUP_ID.eq(GROUP_PROFILE.GROUP_ID))
                 .where(GROUP.OWNER_PROFILE_ID.eq(profileId))
-                .fetchGroups(CONTEXT.ID, ContextByOwner.class);
+                .fetchGroups(CONTEXT.ID, ContextByOwnerEntity.class);
     }
 
     @Override
