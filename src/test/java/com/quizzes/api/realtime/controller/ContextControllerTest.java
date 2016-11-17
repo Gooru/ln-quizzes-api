@@ -12,7 +12,7 @@ import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.dto.controller.UuidDto;
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDto;
 import com.quizzes.api.common.dto.controller.request.ResourceDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
@@ -466,11 +466,11 @@ public class ContextControllerTest {
         collectionDto.setId(UUID.randomUUID().toString());
         createdContextGetResponseDto.setCollection(collectionDto);
         createdContextGetResponseDto.setId(UUID.randomUUID());
-        List<UuidDto> assignees = new ArrayList<>();
-        UuidDto asignee1 = new UuidDto();
+        List<IdResponseDto> assignees = new ArrayList<>();
+        IdResponseDto asignee1 = new IdResponseDto();
         asignee1.setId(UUID.randomUUID());
         assignees.add(asignee1);
-        UuidDto asignee2 = new UuidDto();
+        IdResponseDto asignee2 = new IdResponseDto();
         asignee2.setId(UUID.randomUUID());
         assignees.add(asignee2);
         createdContextGetResponseDto.setAssignees(assignees);
@@ -502,7 +502,7 @@ public class ContextControllerTest {
 
         assertNotNull("Collection id is null", result.getCollection().getId());
 
-        List<UuidDto> profiles = result.getAssignees();
+        List<IdResponseDto> profiles = result.getAssignees();
         assertEquals("Wrong list size for assignees", 2, profiles.size());
         assertNotNull("Profile1 id is null", profiles.get(0).getId());
 

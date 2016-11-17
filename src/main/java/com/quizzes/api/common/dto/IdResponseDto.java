@@ -1,8 +1,8 @@
-package com.quizzes.api.common.dto.controller;
+package com.quizzes.api.common.dto;
 
 import java.util.UUID;
 
-public class UuidDto {
+public class IdResponseDto {
     private UUID id;
 
     public UUID getId() {

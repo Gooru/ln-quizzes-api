@@ -10,7 +10,7 @@ import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.dto.controller.UuidDto;
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
@@ -181,9 +181,9 @@ public class ContextService {
                             createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(firstEntryValue.getContextData()));
                             CollectionDto collectionDto = new CollectionDto(firstEntryValue.getCollectionId().toString());
                             createdContextGetResponseDto.setCollection(collectionDto);
-                            List<UuidDto> assignees = value.stream().map(profile -> {
-                                UuidDto assignee = new UuidDto();
-                                assignee.setId(profile.getId());
+                            List<IdResponseDto> assignees = value.stream().map(profile -> {
+                                IdResponseDto assignee = new IdResponseDto();
+                                assignee.setId(profile.getAssigneeId());
                                 return assignee;}).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
                         }
