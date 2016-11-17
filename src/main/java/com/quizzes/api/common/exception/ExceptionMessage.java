@@ -1,6 +1,7 @@
 package com.quizzes.api.common.exception;
 
 public class ExceptionMessage {
+
     private String message;
     private int status;
     private String exception;
@@ -34,4 +35,5 @@ public class ExceptionMessage {
     public void setException(String exception) {
         this.exception = exception;
     }
+
 }
