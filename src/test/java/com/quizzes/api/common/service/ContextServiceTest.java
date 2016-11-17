@@ -389,6 +389,16 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void getContextNotFound() throws Exception {
+        when(contextRepository.findContextAndOwnerByContextId(any(UUID.class))).thenReturn(null);
+        ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
+
+        assertNull("Result is not null", result);
+        verify(contextRepository, times(1)).findContextAndOwnerByContextId(any(UUID.class));
+        verify(profileService, times(0)).findAssigneesByContextId(any(UUID.class));
+    }
+
+    @Test
     public void getContext() throws Exception {
         Profile assignee = new Profile();
         assignee.setId( UUID.randomUUID());

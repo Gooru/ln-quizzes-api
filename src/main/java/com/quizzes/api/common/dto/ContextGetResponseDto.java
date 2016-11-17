@@ -28,6 +28,14 @@ public class ContextGetResponseDto extends CommonContextGetResponseDto {
     public ContextGetResponseDto() {
     }
 
+    public ProfileDto getOwner() {
+        return owner;
+    }
+
+    public List<ProfileDto> getAssignees() {
+        return assignees;
+    }
+
     public Map<String, Object> getOwnerResponse() {
         return ownerResponse;
     }
