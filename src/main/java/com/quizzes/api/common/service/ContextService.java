@@ -10,6 +10,7 @@ import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.controller.UuidDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
@@ -172,17 +173,17 @@ public class ContextService {
 
         if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
             contextByOwnerList.forEach(
-                    (k, v) -> {
+                    (key, value) -> {
                         CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
-                        createdContextGetResponseDto.setId(k);
-                        if (!v.isEmpty()) {
-                            ContextByOwnerEntity firstEntryValue = v.get(0);
+                        createdContextGetResponseDto.setId(key);
+                        if (!value.isEmpty()) {
+                            ContextByOwnerEntity firstEntryValue = value.get(0);
                             createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(firstEntryValue.getContextData()));
                             CollectionDto collectionDto = new CollectionDto(firstEntryValue.getCollectionId().toString());
                             createdContextGetResponseDto.setCollection(collectionDto);
-                            List<ProfileDto> assignees = v.stream().map(p -> {
-                                ProfileDto assignee = new ProfileDto();
-                                assignee.setId(p.getId().toString());
+                            List<UuidDto> assignees = value.stream().map(profile -> {
+                                UuidDto assignee = new UuidDto();
+                                assignee.setId(profile.getId());
                                 return assignee;}).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
                         }

@@ -1,7 +1,7 @@
 package com.quizzes.api.common.dto;
 
 import com.google.gson.annotations.SerializedName;
-import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.controller.UuidDto;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class CreatedContextGetResponseDto extends CommonContextGetResponseDto {
 
-    private List<ProfileDto> assignees;
+    private List<UuidDto> assignees;
 
     @ApiModelProperty(hidden = true)
     @SerializedName("contextData")
@@ -18,11 +18,11 @@ public class CreatedContextGetResponseDto extends CommonContextGetResponseDto {
     public CreatedContextGetResponseDto() {
     }
 
-    public List<ProfileDto> getAssignees() {
+    public List<UuidDto> getAssignees() {
         return assignees;
     }
 
-    public void setAssignees(List<ProfileDto> assignees) {
+    public void setAssignees(List<UuidDto> assignees) {
         this.assignees = assignees;
     }
 
