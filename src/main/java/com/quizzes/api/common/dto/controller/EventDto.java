@@ -7,13 +7,13 @@ import java.util.Map;
  * This class is used to set the specific response for endpoints with this format.
  * This object will be converted in json format
  */
-public class EventDTO {
+public class EventDto {
 
     private String contextId;
     private String currenteResourceId;
     private ArrayList<Map<String, String>> collectionStatus;
 
-    public EventDTO() {
+    public EventDto() {
     }
 
     public String getContextId() {

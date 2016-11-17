@@ -1,7 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
-import com.quizzes.api.common.dto.controller.response.CollectionDataDTO;
+import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Resource;
@@ -138,13 +138,13 @@ public class CollectionServiceTest {
         resources.add(resource2);
         when(resourceService.findResourcesByCollectionId(collection.getId())).thenReturn(resources);
 
-        CollectionDataDTO result = collectionService.getCollection(UUID.randomUUID());
+        CollectionDataDto result = collectionService.getCollection(UUID.randomUUID());
 
         verify(collectionRepository, times(1)).findById(any(UUID.class));
         verify(resourceService, times(1)).findResourcesByCollectionId(any(UUID.class));
 
         assertNotNull("Result is Null", result);
-        assertSame(result.getClass(), CollectionDataDTO.class);
+        assertSame(result.getClass(), CollectionDataDto.class);
     }
 
     @Test

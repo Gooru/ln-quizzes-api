@@ -1,21 +1,29 @@
 package com.quizzes.api.common.dto.controller;
 
+import com.google.gson.annotations.Expose;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class ProfileDto {
 
     @NotNull(message = "{profile.id.not_null}")
-    @Size(min=1, message = "{profile.id.size}")
+    @Size(min = 1, message = "{profile.id.size}")
     private String id;
+
+    @Expose
     @NotNull(message = "{profile.first_name.not_null}")
-    @Size(min=1, message = "{profile.first_name.size}")
+    @Size(min = 1, message = "{profile.first_name.size}")
     private String firstName;
+
+    @Expose
     @NotNull(message = "{profile.last_name.not_null}")
-    @Size(min=1, message = "{profile.last_name.size}")
+    @Size(min = 1, message = "{profile.last_name.size}")
     private String lastName;
+
+    @Expose
     @NotNull(message = "{profile.username.not_null}")
-    @Size(min=1, message = "{profile.username.size}")
+    @Size(min = 1, message = "{profile.username.size}")
     private String username;
 
     public ProfileDto() {
@@ -52,4 +60,5 @@ public class ProfileDto {
     public void setUsername(String username) {
         this.username = username;
     }
+
 }

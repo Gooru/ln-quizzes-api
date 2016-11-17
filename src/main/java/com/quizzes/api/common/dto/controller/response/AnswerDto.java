@@ -1,9 +1,9 @@
 package com.quizzes.api.common.dto.controller.response;
 
-public class AnswerDTO {
+public class AnswerDto {
     String value;
 
-    public AnswerDTO(String value) {
+    public AnswerDto(String value) {
         this.value = value;
     }
 
