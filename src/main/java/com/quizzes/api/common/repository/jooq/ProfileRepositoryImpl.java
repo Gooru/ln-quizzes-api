@@ -47,19 +47,21 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
+    public UUID findIdByExternalIdAndLmsId(String externalId, Lms lmsId) {
+        return jooq.select(PROFILE.ID)
+                .from(PROFILE)
+                .where(PROFILE.EXTERNAL_ID.eq(externalId))
+                .and(PROFILE.LMS_ID.eq(lmsId))
+                .fetchOneInto(UUID.class);
+    }
+
+    @Override
     public Profile findByExternalIdAndLmsId(String externalId, Lms lmsId) {
         return jooq.select()
                 .from(PROFILE)
                 .where(PROFILE.EXTERNAL_ID.eq(externalId))
                 .and(PROFILE.LMS_ID.eq(lmsId))
                 .fetchOneInto(Profile.class);
-
-//        return new Profile(UUID.randomUUID(), "2423424", Lms.quizzes, "{\n" +
-//                "      \"id\": \"18b4a2f4-f0df-489d-93a8-11e104d6768b\",\n" +
-//                "      \"firstName\": \"Roger\",\n" +
-//                "      \"lastName\": \"Stevens\",\n" +
-//                "      \"username\": \"rogersteve\"\n" +
-//                "    }", null);
     }
 
     @Override

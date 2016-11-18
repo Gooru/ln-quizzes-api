@@ -1,5 +1,6 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
@@ -17,6 +18,13 @@ public class ProfileService {
 
     public Profile findById(UUID id) {
         return null;
+    }
+
+    public IdResponseDto findIdByExternalIdAndLmsId(String externalId, Lms lms) {
+        UUID id = profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
+        IdResponseDto result = new IdResponseDto();
+        result.setId(id);
+        return result;
     }
 
     public Profile findByExternalIdAndLmsId(String externalId, Lms lms) {

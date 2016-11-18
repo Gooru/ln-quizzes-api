@@ -10,6 +10,8 @@ public interface ProfileRepository {
 
     Profile findById(UUID id);
 
+    UUID findIdByExternalIdAndLmsId(String externalId, Lms lmsId);
+
     Profile findByExternalIdAndLmsId(String externalId, Lms lmsId);
 
     Profile save(Profile id);
