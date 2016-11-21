@@ -490,7 +490,7 @@ public class ContextServiceTest {
         when(row1.getId()).thenReturn(contextId);
         when(row1.getCollectionId()).thenReturn(UUID.randomUUID());
         when(row1.getGroupId()).thenReturn(UUID.randomUUID());
-        when(row1.getAssigneeId()).thenReturn(UUID.randomUUID());
+        when(row1.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row1.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
                         "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
                         "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
@@ -504,7 +504,7 @@ public class ContextServiceTest {
         when(row2.getId()).thenReturn(contextId);
         when(row2.getCollectionId()).thenReturn(UUID.randomUUID());
         when(row2.getGroupId()).thenReturn(groupId);
-        when(row2.getAssigneeId()).thenReturn(UUID.randomUUID());
+        when(row2.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row2.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
                         "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
                         "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
@@ -515,7 +515,7 @@ public class ContextServiceTest {
         when(row3.getId()).thenReturn(contextId);
         when(row3.getCollectionId()).thenReturn(UUID.randomUUID());
         when(row3.getGroupId()).thenReturn(groupId);
-        when(row3.getAssigneeId()).thenReturn(UUID.randomUUID());
+        when(row3.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row3.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
                         "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
                         "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");

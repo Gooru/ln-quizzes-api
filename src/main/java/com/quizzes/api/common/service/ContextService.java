@@ -188,7 +188,7 @@ public class ContextService {
                             createdContextGetResponseDto.setCollection(collectionDto);
                             List<IdResponseDto> assignees = value.stream().map(profile -> {
                                 IdResponseDto assignee = new IdResponseDto();
-                                assignee.setId(profile.getAssigneeId());
+                                assignee.setId(profile.getAssigneeProfileId());
                                 return assignee;}).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
                         }

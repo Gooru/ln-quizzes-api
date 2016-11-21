@@ -4,8 +4,8 @@ import java.util.UUID;
 
 public interface ContextAssigneeEntity extends ContextEntity {
 
-    UUID getAssigneeId();
+    UUID getAssigneeProfileId();
 
-    void setAssigneeId(UUID assigneeId);
+    void setAssigneeProfileId(UUID assigneeId);
 
 }
