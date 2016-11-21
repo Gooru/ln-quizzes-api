@@ -4,25 +4,36 @@ import java.util.List;
 import java.util.UUID;
 
 public class CollectionDataDto {
-    UUID id;
-    boolean isCollection;
-    List<CollectionDataResourceDto> resources;
+    private UUID id;
 
-    public CollectionDataDto(UUID id, boolean isCollection, List<CollectionDataResourceDto> resources) {
-        this.id = id;
-        this.isCollection = isCollection;
-        this.resources = resources;
+    private boolean isCollection;
+
+    private List<CollectionDataResourceDto> resources;
+
+    public CollectionDataDto() {
     }
 
     public UUID getId() {
         return id;
     }
 
-    public boolean getIsCollection() {
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public boolean isCollection() {
         return isCollection;
+    }
+
+    public void setCollection(boolean collection) {
+        isCollection = collection;
     }
 
     public List<CollectionDataResourceDto> getResources() {
         return resources;
+    }
+
+    public void setResources(List<CollectionDataResourceDto> resources) {
+        this.resources = resources;
     }
 }
