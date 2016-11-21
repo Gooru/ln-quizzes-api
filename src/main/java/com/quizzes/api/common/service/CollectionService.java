@@ -63,7 +63,7 @@ public class CollectionService {
         if (collection != null) {
             result = new CollectionDataDto();
             result.setId(collectionId);
-            result.setCollection(collection.getIsCollection());
+            result.setIsCollection(collection.getIsCollection());
             List<Resource> resources = resourceService.findByCollectionId(collectionId);
             List<CollectionDataResourceDto> resourceList =
                     resources.stream().map(resource -> {

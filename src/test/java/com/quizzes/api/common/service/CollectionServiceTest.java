@@ -166,7 +166,7 @@ public class CollectionServiceTest {
 
         assertNotNull("Result is Null", result);
         assertEquals("Collection id is wrong", collectionId, result.getId());
-        assertFalse("isCollection field is true", result.isCollection());
+        assertFalse("isCollection field is true", result.getIsCollection());
         assertEquals("Resource list size is wrong", 2, result.getResources().size());
 
         CollectionDataResourceDto resultResource = result.getResources().get(0);

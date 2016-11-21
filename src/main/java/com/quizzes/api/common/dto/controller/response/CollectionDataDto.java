@@ -21,11 +21,11 @@ public class CollectionDataDto {
         this.id = id;
     }
 
-    public boolean isCollection() {
+    public boolean getIsCollection() {
         return isCollection;
     }
 
-    public void setCollection(boolean collection) {
+    public void setIsCollection(boolean collection) {
         isCollection = collection;
     }
 

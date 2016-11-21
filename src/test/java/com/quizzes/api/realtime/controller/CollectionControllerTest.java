@@ -83,7 +83,7 @@ public class CollectionControllerTest {
         CollectionDataDto collectionDto = new CollectionDataDto();
         UUID collectionId = UUID.randomUUID();
         collectionDto.setId(collectionId);
-        collectionDto.setCollection(false);
+        collectionDto.setIsCollection(false);
         collectionDto.setResources(resources);
 
         when(collectionService.getCollection(any(UUID.class))).thenReturn(collectionDto);
@@ -98,7 +98,7 @@ public class CollectionControllerTest {
 
         CollectionDataDto response = result.getBody();
         assertNotNull("Response Body is Null", response);
-        assertFalse("IsCollection is true", response.isCollection());
+        assertFalse("IsCollection is true", response.getIsCollection());
         assertEquals("Wrong size in resources", 2, response.getResources().size());
 
         CollectionDataResourceDto responseResoource = response.getResources().get(1);
