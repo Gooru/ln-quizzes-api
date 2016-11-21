@@ -25,8 +25,8 @@ public class CollectionDataDto {
         return isCollection;
     }
 
-    public void setIsCollection(boolean collection) {
-        isCollection = collection;
+    public void setIsCollection(boolean isCollection) {
+        this.isCollection = isCollection;
     }
 
     public List<CollectionDataResourceDto> getResources() {

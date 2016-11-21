@@ -38,8 +38,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
 
     @Override
     public Collection findById(UUID collectionId) {
-        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
-                COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCK)
+        return jooq.select(COLLECTION.ID, COLLECTION.COLLECTION_DATA, COLLECTION.IS_COLLECTION)
                 .from(COLLECTION)
                 .where(COLLECTION.ID.eq(collectionId))
                 .fetchOneInto(Collection.class);
