@@ -8,6 +8,7 @@ import com.quizzes.api.content.gooru.dto.TokenRequestDto;
 import com.quizzes.api.content.gooru.dto.TokenResponseDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -22,6 +23,12 @@ public abstract class AbstractGooruRestClient {
     @Value("${content.api.url}")
     private String contentApiUrl;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private Gson gsonPretty;
+
     public String generateAnonymousToken() {
         String endpointUrl = getContentApiUrl() + "/api/nucleus-auth/v1/token";
         TokenRequestDto tokenRequest = new TokenRequestDto(CLIENT_KEY, CLIENT_ID, "anonymous");
@@ -33,14 +40,12 @@ public abstract class AbstractGooruRestClient {
         }
 
         try {
-            RestTemplate restTemplate = RestTemplateBuilder.buildRestTemplate();
             TokenResponseDto tokenResponse =
                     restTemplate.postForObject(endpointUrl, tokenRequest, TokenResponseDto.class);
 
             if (logger.isDebugEnabled()) {
-                Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 logger.debug("Response from: " + endpointUrl);
-                logger.debug("Body: " + gson.toJson(tokenResponse));
+                logger.debug("Body: " + gsonPretty.toJson(tokenResponse));
             }
 
             return tokenResponse.getToken();
