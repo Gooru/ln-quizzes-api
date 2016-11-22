@@ -10,7 +10,7 @@ import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.model.entities.ContextByOwnerEntity;
+import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
@@ -31,8 +31,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +42,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -390,11 +389,11 @@ public class ContextServiceTest {
 
     @Test
     public void getContextNotFound() throws Exception {
-        when(contextRepository.findContextAndOwnerByContextId(any(UUID.class))).thenReturn(null);
+        when(contextRepository.findContextOwnerByContextId(any(UUID.class))).thenReturn(null);
         ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
 
         assertNull("Result is not null", result);
-        verify(contextRepository, times(1)).findContextAndOwnerByContextId(any(UUID.class));
+        verify(contextRepository, times(1)).findContextOwnerByContextId(any(UUID.class));
         verify(profileService, times(0)).findAssignedIdsByContextId(any(UUID.class));
     }
 
@@ -406,19 +405,19 @@ public class ContextServiceTest {
         assignees.add(assignee);
 
         when(contextOwnerEntity.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(contextOwnerEntity.getOwnerId()).thenReturn(UUID.randomUUID());
+        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(UUID.randomUUID());
         when(contextOwnerEntity.getContextData()).thenReturn("\"metadata\":{}");
 
         Map<String, Object> map = new HashMap<>();
         map.put("key", "value");
         when(jsonParser.parseMap(any(String.class))).thenReturn(map);
 
-        when(contextRepository.findContextAndOwnerByContextId(any(UUID.class))).thenReturn(getContextOwnerEntityMock());
+        when(contextRepository.findContextOwnerByContextId(any(UUID.class))).thenReturn(contextOwnerEntity);
         when(profileService.findAssignedIdsByContextId(any(UUID.class))).thenReturn(assignees);
 
         ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
 
-        verify(contextRepository, times(1)).findContextAndOwnerByContextId(any(UUID.class));
+        verify(contextRepository, times(1)).findContextOwnerByContextId(any(UUID.class));
         verify(profileService, times(1)).findAssignedIdsByContextId(any(UUID.class));
 
         assertNotNull("Result is Null", result);
@@ -430,9 +429,9 @@ public class ContextServiceTest {
 
     @Test
     public void getAssignedContexts() {
-        when(contextOwnerEntity.getContextId()).thenReturn(UUID.randomUUID());
+        when(contextOwnerEntity.getId()).thenReturn(UUID.randomUUID());
         when(contextOwnerEntity.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(contextOwnerEntity.getOwnerId()).thenReturn(UUID.randomUUID());
+        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(UUID.randomUUID());
         when(contextOwnerEntity.getContextData()).thenReturn("context");
 
         Map<String, Object> map = new HashMap<>();
@@ -440,13 +439,13 @@ public class ContextServiceTest {
         when(jsonParser.parseMap(any(String.class))).thenReturn(map);
 
         List<ContextOwnerEntity> list = new ArrayList<>();
-        list.add(getContextOwnerEntityMock());
+        list.add(contextOwnerEntity);
 
-        when(contextRepository.findAssignedContextsByProfileId(any(UUID.class))).thenReturn(list);
+        when(contextRepository.findContextOwnerByAssigneeId(any(UUID.class))).thenReturn(list);
 
         List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID());
 
-        verify(contextRepository, times(1)).findAssignedContextsByProfileId(any(UUID.class));
+        verify(contextRepository, times(1)).findContextOwnerByAssigneeId(any(UUID.class));
 
         ContextAssignedGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());
@@ -484,47 +483,49 @@ public class ContextServiceTest {
 
     @Test
     public void findCreatedContexts() {
-        Map<UUID, List<ContextByOwnerEntity>> contextsMap = new HashMap<>();
+        Map<UUID, List<ContextAssigneeEntity>> contextsMap = new HashMap<>();
         UUID contextId = UUID.randomUUID();
-        ContextByOwnerEntity row1 = new ContextByOwnerEntity();
-        row1.setId(contextId);
-        row1.setCollectionId(UUID.randomUUID());
-        row1.setGroupId(UUID.randomUUID());
-        row1.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 1st Grade\"}," +
-                "\"contextMap\": {\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
-        row1.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        row1.setAssigneeId(UUID.randomUUID());
-        List<ContextByOwnerEntity> contextByOwnerEntityList1 = new ArrayList<>();
-        contextByOwnerEntityList1.add(row1);
-        contextsMap.put(contextId, contextByOwnerEntityList1);
 
-        contextId = UUID.randomUUID();
+        ContextAssigneeEntity row1 = mock(ContextAssigneeEntity.class);
+        when(row1.getId()).thenReturn(contextId);
+        when(row1.getCollectionId()).thenReturn(UUID.randomUUID());
+        when(row1.getGroupId()).thenReturn(UUID.randomUUID());
+        when(row1.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
+        when(row1.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
+                        "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
+                        "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
+        List<ContextAssigneeEntity> contextAssigneeEntityList1 = new ArrayList<>();
+        contextAssigneeEntityList1.add(row1);
+        contextsMap.put(contextId, contextAssigneeEntityList1);
+
         UUID groupId =  UUID.randomUUID();
-        ContextByOwnerEntity row2 = new ContextByOwnerEntity();
-        row2.setId(contextId);
-        row2.setCollectionId(UUID.randomUUID());
-        row2.setGroupId(groupId);
-        row2.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
-                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
-        row2.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        row2.setAssigneeId(UUID.randomUUID());
-        List<ContextByOwnerEntity> contextByOwnerEntityList2 = new ArrayList<>();
-        contextByOwnerEntityList2.add(row2);
-        ContextByOwnerEntity row3 = new ContextByOwnerEntity();
-        row3.setId(contextId);
-        row3.setCollectionId(UUID.randomUUID());
-        row3.setGroupId(groupId);
-        row3.setContextData("{\"metadata\": {\"description\": \"First Partial\",\"title\": \"Math 2nd Grade\"}," +
-                "\"contextMap\": {\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
-        row3.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
-        row3.setAssigneeId(UUID.randomUUID());
-        contextByOwnerEntityList2.add(row3);
-        contextsMap.put(contextId, contextByOwnerEntityList2);
+        contextId = UUID.randomUUID();
+        ContextAssigneeEntity row2 = mock(ContextAssigneeEntity.class);
+        when(row2.getId()).thenReturn(contextId);
+        when(row2.getCollectionId()).thenReturn(UUID.randomUUID());
+        when(row2.getGroupId()).thenReturn(groupId);
+        when(row2.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
+        when(row2.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
+                        "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
+                        "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        List<ContextAssigneeEntity> contextAssigneeEntityList2 = new ArrayList<>();
+        contextAssigneeEntityList2.add(row2);
 
-        when(contextRepository.findContextByOwnerId(any(UUID.class))).thenReturn(contextsMap);
+        ContextAssigneeEntity row3 = mock(ContextAssigneeEntity.class);
+        when(row3.getId()).thenReturn(contextId);
+        when(row3.getCollectionId()).thenReturn(UUID.randomUUID());
+        when(row3.getGroupId()).thenReturn(groupId);
+        when(row3.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
+        when(row3.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
+                        "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
+                        "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        contextAssigneeEntityList2.add(row3);
+        contextsMap.put(contextId, contextAssigneeEntityList2);
+
+        when(contextRepository.findContextAssigneeByOwnerId(any(UUID.class))).thenReturn(contextsMap);
 
         List<CreatedContextGetResponseDto> result = contextService.findCreatedContexts(UUID.randomUUID());
-        verify(contextRepository, times(1)).findContextByOwnerId(any(UUID.class));
+        verify(contextRepository, times(1)).findContextAssigneeByOwnerId(any(UUID.class));
 
         assertNotNull("Created contexts list in null", result);
         assertEquals("Created contexts doesn't match", 2, result.size());
@@ -532,47 +533,4 @@ public class ContextServiceTest {
         assertNotNull("Context has no assignees", result.get(0).getAssignees());
     }
 
-    private ContextOwnerEntity getContextOwnerEntityMock(){
-        return new ContextOwnerEntity() {
-            @Override
-            public UUID getContextId() {
-                return UUID.randomUUID();
-            }
-
-            @Override
-            public void setContextId(UUID contextId) {
-
-            }
-
-            @Override
-            public UUID getCollectionId() {
-                return UUID.randomUUID();
-            }
-
-            @Override
-            public void setCollectionId(UUID collectionId) {
-
-            }
-
-            @Override
-            public UUID getOwnerId() {
-                return UUID.randomUUID();
-            }
-
-            @Override
-            public void setOwnerId(UUID profileId) {
-
-            }
-
-            @Override
-            public String getContextData() {
-                return "\"metadata\":{}";
-            }
-
-            @Override
-            public void setContextData(String contextData) {
-
-            }
-        };
-    }
 }
