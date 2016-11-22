@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.quizzes.api.common.model.tables.Collection.COLLECTION;
 import static com.quizzes.api.common.model.tables.Resource.RESOURCE;
 
 @Repository
@@ -26,29 +27,12 @@ public class ResourceRepositoryImpl implements ResourceRepository {
         }
     }
 
-    public List<Resource> findResourcesByCollectionId(UUID collectionId){
-        List<Resource> resources = new ArrayList<>();
-        Resource resource1 = new Resource();
-        resource1.setId(UUID.randomUUID());
-        resource1.setIsResource(false);
-        resource1.setSequence((short) 1);
-        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"single_choice\"," +
-                "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
-                " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
-                " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\",\"isFixed\":" +
-                " false,\"value\": \"B\"},{\"text\": \"option 3\",\"isFixed\": false,\"value\": \"C\"}]}}");
-        resources.add(resource1);
-
-        Resource resource2 = new Resource();
-        resource2.setId(UUID.randomUUID());
-        resource2.setIsResource(false);
-        resource2.setSequence((short) 2);
-        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"true_false\",\"correctAnswer\":" +
-                " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
-                " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
-                "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
-        resources.add(resource2);
-        return resources;
+    public List<Resource> findByCollectionId(UUID collectionId){
+        return jooq.select(RESOURCE.ID, RESOURCE.SEQUENCE, RESOURCE.IS_RESOURCE, RESOURCE.RESOURCE_DATA)
+                .from(RESOURCE)
+                .where(RESOURCE.COLLECTION_ID.eq(collectionId))
+                .and(RESOURCE.IS_DELETED.eq(false))
+                .fetchInto(Resource.class);
     }
 
     private Resource insertResource(final Resource resource) {
