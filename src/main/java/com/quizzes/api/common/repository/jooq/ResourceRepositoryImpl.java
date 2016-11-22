@@ -6,11 +6,10 @@ import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.Collection.COLLECTION;
+import static com.quizzes.api.common.model.tables.Context.CONTEXT;
 import static com.quizzes.api.common.model.tables.Resource.RESOURCE;
 
 @Repository
@@ -27,12 +26,23 @@ public class ResourceRepositoryImpl implements ResourceRepository {
         }
     }
 
-    public List<Resource> findByCollectionId(UUID collectionId){
+    public List<Resource> findByCollectionId(UUID collectionId) {
         return jooq.select(RESOURCE.ID, RESOURCE.SEQUENCE, RESOURCE.IS_RESOURCE, RESOURCE.RESOURCE_DATA)
                 .from(RESOURCE)
                 .where(RESOURCE.COLLECTION_ID.eq(collectionId))
                 .and(RESOURCE.IS_DELETED.eq(false))
                 .fetchInto(Resource.class);
+    }
+
+    @Override
+    public Resource findFirstByOrderBySequenceAscByContextId(UUID contextId) {
+        return jooq.select(RESOURCE.ID, RESOURCE.SEQUENCE, RESOURCE.IS_RESOURCE, RESOURCE.RESOURCE_DATA)
+                .from(RESOURCE)
+                .join(CONTEXT).on(CONTEXT.COLLECTION_ID.eq(RESOURCE.COLLECTION_ID))
+                .where(CONTEXT.ID.eq(contextId))
+                .and(RESOURCE.IS_DELETED.eq(false))
+                .fetchAny()
+                .into(Resource.class);
     }
 
     private Resource insertResource(final Resource resource) {

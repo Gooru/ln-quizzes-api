@@ -63,4 +63,10 @@ public class ResourceServiceTest {
         assertSame("Result contents are not Resources", Resource.class, result.get(0).getClass());
     }
 
+    @Test
+    public void findFirstByOrderBySequenceAscByContextId() {
+        Resource result = resourceService.findFirstByOrderBySequenceAscByContextId(UUID.randomUUID());
+        verify(resourceRepository, times(1)).findFirstByOrderBySequenceAscByContextId(any(UUID.class));
+    }
+
 }

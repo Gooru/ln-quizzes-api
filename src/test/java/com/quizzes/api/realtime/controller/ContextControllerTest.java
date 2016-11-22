@@ -338,42 +338,6 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void startContextEvent() throws Exception {
-        UUID id = UUID.randomUUID();
-        UUID resourceId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        CollectionDto collection = new CollectionDto();
-        collection.setId(String.valueOf(collectionId));
-
-        StartContextEventResponseDto startContext = new StartContextEventResponseDto();
-        startContext.setId(id);
-        startContext.setCurrentResourceId(resourceId);
-        startContext.setCollection(collection);
-
-        List<Map<String, Object>> list = new ArrayList<>();
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("answer", new JsonArray());
-        list.add(map);
-
-        startContext.setAttempt(list);
-
-        when(contextService.startContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
-
-        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(UUID.randomUUID(), "quizzes", UUID.randomUUID());
-
-        verify(contextService, times(1)).startContextEvent(any(UUID.class), any(UUID.class));
-
-        StartContextEventResponseDto resultBody = result.getBody();
-        assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
-        assertEquals("Wrong resource id is null", resourceId, resultBody.getCurrentResourceId());
-        assertEquals("Wrong id", id, resultBody.getId());
-        assertEquals("Wrong collection id", collection.getId(), resultBody.getCollection().getId());
-        assertEquals("Wrong collection id", 1, resultBody.getAttempt().size());
-        assertTrue("Answer key not found", resultBody.getAttempt().get(0).containsKey("answer"));
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-    }
-
-    @Test
     public void registerResource() throws Exception {
         AnswerDto answerDto = new AnswerDto("1");
         List<AnswerDto> answerDtoList = new ArrayList<>();
