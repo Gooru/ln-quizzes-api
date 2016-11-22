@@ -31,7 +31,7 @@ public class ProfileController {
             value = "Find Profile by External ID",
             notes = "This is a temporal endpoint to retrieve Profile data by its External ID and Client ID.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = IdResponseDto.class),
+            @ApiResponse(code = 200, message = "Returns the Profile ID", response = IdResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/profile-by-external-id/{externalId}",
             method = RequestMethod.GET,

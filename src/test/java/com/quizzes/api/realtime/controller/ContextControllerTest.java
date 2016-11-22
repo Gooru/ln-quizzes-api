@@ -5,7 +5,6 @@ import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
-import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
@@ -102,8 +101,8 @@ public class ContextControllerTest {
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         Object resultBody = result.getBody();
-        assertSame(resultBody.getClass(), ContextIdResponseDto.class);
-        assertEquals("Response body is wrong", ((ContextIdResponseDto) resultBody).getId(), context.getId());
+        assertSame(resultBody.getClass(), IdResponseDto.class);
+        assertEquals("Response body is wrong", ((IdResponseDto) resultBody).getId(), context.getId());
     }
 
     @Ignore
@@ -575,7 +574,7 @@ public class ContextControllerTest {
                 UUID.randomUUID(), "{\"context\":\"value\"}", null);
         when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
-        ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
+        ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
                 new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
 
         verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class));
@@ -588,7 +587,7 @@ public class ContextControllerTest {
     @Test(expected = IllegalArgumentException.class)
     public void updateContextException() throws Exception {
         when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(null);
-        ResponseEntity<ContextIdResponseDto> result = controller.updateContext(UUID.randomUUID(),
+        ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
                 new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
     }
 
