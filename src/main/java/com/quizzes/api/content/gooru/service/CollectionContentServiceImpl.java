@@ -17,6 +17,7 @@ import com.quizzes.api.content.gooru.rest.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,9 +27,21 @@ import java.util.stream.Collectors;
 public class CollectionContentServiceImpl implements CollectionContentService {
 
     private static final String COLLECTION_TITLE = "title";
-    private static final String RESOURCE_TITLE = "title";
-    private static final String RESOURCE_TYPE = "type";
-    private static final String RESOURCE_CORRECT_ANSWER = "correctAnswer";
+    private static final String QUESTION_TITLE = "title";
+    private static final String QUESTION_TYPE = "type";
+    private static final String QUESTION_CORRECT_ANSWER = "correctAnswer";
+    private static final String QUESTION_BODY = "body";
+    private static final String QUESTION_INTERACTION = "interaction";
+    private static final String INTERACTION_SHUFFLE = "shuffle";
+    private static final String INTERACTION_MAX_CHOICES = "maxChoices";
+    private static final String INTERACTION_PROMPT = "prompt";
+    private static final String INTERACTION_CHOICES = "choices";
+    private static final String CHOICE_TEXT = "text";
+    private static final String CHOICE_VALUE = "value";
+    private static final String CHOICE_IS_FIXED = "isFixed";
+    private static final String CHOICE_SEQUENCE = "sequence";
+
+
     private static final String ANSWER_VALUE = "value";
 
     private static final Map<String, String> questionTypeMap;
@@ -66,24 +79,56 @@ public class CollectionContentServiceImpl implements CollectionContentService {
 
         collection = collectionService.save(collection);
 
-        for(QuestionDto questionDto : assessmentDto.getQuestions()) {
-            Resource resource = new Resource();
-            resource.setExternalId(questionDto.getId());
-            resource.setLmsId(Lms.gooru);
-            resource.setCollectionId(collection.getId());
-            resource.setOwnerProfileId(owner.getId());
-            resource.setIsResource(false);
-            resource.setSequence((short) questionDto.getSequence());
-            Map<String, Object> resourceDataMap = new HashMap<>();
-            resourceDataMap.put(RESOURCE_TITLE, questionDto.getTitle());
-            resourceDataMap.put(RESOURCE_TYPE, mapQuestionType(questionDto.getContentSubformat()));
-            resourceDataMap.put(RESOURCE_CORRECT_ANSWER, getCorrectAnswers(questionDto.getAnswers()));
-            resource.setResourceData(new Gson().toJson(resourceDataMap));
-
-            resourceService.save(resource);
-        }
+        copyQuestions(collection, owner, assessmentDto.getQuestions());
 
         return collection;
+    }
+
+    private void copyQuestions(Collection collection, Profile owner, List<QuestionDto> questions) {
+        if (questions != null) {
+            for (QuestionDto questionDto : questions) {
+                Resource resource = new Resource();
+                resource.setExternalId(questionDto.getId());
+                resource.setLmsId(Lms.gooru);
+                resource.setCollectionId(collection.getId());
+                resource.setOwnerProfileId(owner.getId());
+                resource.setIsResource(false);
+                resource.setSequence((short) questionDto.getSequence());
+                Map<String, Object> resourceDataMap = new HashMap<>();
+                resourceDataMap.put(QUESTION_TITLE, questionDto.getTitle());
+                resourceDataMap.put(QUESTION_TYPE, mapQuestionType(questionDto.getContentSubformat()));
+                resourceDataMap.put(QUESTION_CORRECT_ANSWER, getCorrectAnswers(questionDto.getAnswers()));
+                resourceDataMap.put(QUESTION_BODY, questionDto.getTitle());
+                resourceDataMap.put(QUESTION_INTERACTION, createInteraction(questionDto.getAnswers()));
+                resource.setResourceData(new Gson().toJson(resourceDataMap));
+
+                resourceService.save(resource);
+            }
+        }
+    }
+
+    private Map<String, Object> createInteraction(List<AnswerDto> answers) {
+        Map<String, Object> interactionDataMap = new HashMap<>();
+        interactionDataMap.put(INTERACTION_SHUFFLE, false);
+        interactionDataMap.put(INTERACTION_MAX_CHOICES, 0);
+        interactionDataMap.put(INTERACTION_PROMPT, "");
+
+        List<Map<String, Object>> choices = new ArrayList<>();
+        if (answers != null) {
+            choices = answers.stream()
+                    .map(answer -> {
+                        Map<String, Object> choiceDataMap = new HashMap<>();
+                        choiceDataMap.put(CHOICE_TEXT, answer.getAnswerText());
+                        choiceDataMap.put(CHOICE_VALUE, answer.getAnswerText());
+                        choiceDataMap.put(CHOICE_SEQUENCE, answer.getSequence());
+                        choiceDataMap.put(CHOICE_IS_FIXED, true);
+                        return choiceDataMap;
+                    })
+                    .collect(Collectors.toList());
+        }
+        interactionDataMap.put(INTERACTION_CHOICES, choices);
+
+        return interactionDataMap;
     }
 
     private String mapQuestionType(String gooruQuestionType) {
@@ -95,14 +140,18 @@ public class CollectionContentServiceImpl implements CollectionContentService {
     }
 
     private List<Map<String, String>> getCorrectAnswers(List<AnswerDto> answers) {
-        return answers.stream()
-                .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
-                .map(answer -> {
-                    Map<String, String> answerValue = new HashMap<>();
-                    answerValue.put(ANSWER_VALUE, answer.getAnswerText());
-                    return answerValue;
-                })
-                .collect(Collectors.toList());
+        List<Map<String, String>> correctAnswers = new ArrayList<>();
+        if (answers != null) {
+            correctAnswers = answers.stream()
+                    .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
+                    .map(answer -> {
+                        Map<String, String> answerValue = new HashMap<>();
+                        answerValue.put(ANSWER_VALUE, answer.getAnswerText());
+                        return answerValue;
+                    })
+                    .collect(Collectors.toList());
+        }
+        return correctAnswers;
     }
 
 }

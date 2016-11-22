@@ -13,4 +13,9 @@ public class GsonConfiguration {
         return new GsonBuilder().create();
     }
 
+    @Bean
+    public Gson gsonPretty() {
+        return new GsonBuilder().setPrettyPrinting().create();
+    }
+
 }

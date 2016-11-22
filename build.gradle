@@ -128,6 +128,7 @@ dependencies {
     testCompile("junit:junit")
     testCompile("org.springframework:spring-test");
     testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile("org.powermock:powermock-mockito-release-full:1.6.4")
 }
 
 configurations {

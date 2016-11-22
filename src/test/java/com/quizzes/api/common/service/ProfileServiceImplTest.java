@@ -1,5 +1,6 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
@@ -39,6 +40,20 @@ public class ProfileServiceImplTest {
         Profile result = profileService.findById(id);
         verify(profileService, times(1)).findById(eq(id));
         assertNull("Response is not null", result);
+    }
+
+    @Test
+    public void findIdByExternalIdAndLmsId() throws Exception {
+        UUID id = UUID.randomUUID();
+        Lms lms = Lms.its_learning;
+        when(profileRepository
+                .findIdByExternalIdAndLmsId("external-id", Lms.its_learning))
+                .thenReturn(id);
+
+        IdResponseDto result = profileService.findIdByExternalIdAndLmsId("external-id", lms);
+        verify(profileRepository, times(1)).findIdByExternalIdAndLmsId(eq("external-id"), eq(lms));
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id", id, result.getId());
     }
 
     @Test

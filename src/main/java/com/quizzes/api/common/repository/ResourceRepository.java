@@ -9,6 +9,6 @@ public interface ResourceRepository {
 
     Resource save(Resource resource);
 
-    List<Resource> findResourcesByCollectionId(UUID collectionId);
+    List<Resource> findByCollectionId(UUID collectionId);
 
 }
