@@ -18,6 +18,8 @@ public class GroupProfileService {
         groupProfileRepository.save(groupProfile);
     }
 
+    public void clearGroup(UUID groupId) { groupProfileRepository.clearGroup(groupId);}
+
     public List<GroupProfile> findGroupProfilesByGroupId(UUID id){
         return groupProfileRepository.findGroupProfilesByGroupId(id);
     }

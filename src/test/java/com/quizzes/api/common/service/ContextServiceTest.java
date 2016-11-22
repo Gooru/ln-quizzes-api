@@ -22,11 +22,13 @@ import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
@@ -229,19 +231,36 @@ public class ContextServiceTest {
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
         Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
-        Profile profile = new Profile(UUID.randomUUID(), "234", Lms.its_learning, "{body}", null);
+
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
+
+        List<UUID> externalProfileIdsToFind = new ArrayList<>();
+        //we are looking for this 2 profiles in the DB
+        externalProfileIdsToFind.add(UUID.fromString(profile1.getId()));
+        externalProfileIdsToFind.add(UUID.fromString(profile2.getId()));
+        List<UUID> foundExternalProfileIds = new ArrayList<>();
+        //this means only 1 out of 2 assignees exist in this context group
+        foundExternalProfileIds.add(UUID.fromString(profile1.getId()));
+
+        when(profileService.findExternalProfileIds(externalProfileIdsToFind, Lms.its_learning)).thenReturn(foundExternalProfileIds);
+
+        when(profileService.save(any(Profile.class))).thenReturn(new Profile());
+
+        List<UUID> profileIds = new ArrayList<>();
+        //we know that there are 2 profiles created in the context group, these are the assignee ids
+        profileIds.add(UUID.randomUUID());
+        profileIds.add(UUID.randomUUID());
+
+        when(profileService.findProfileIdsByExternalIdAndLms(externalProfileIdsToFind, Lms.its_learning)).thenReturn(profileIds);
+
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-        when(profileService.save(any(Profile.class))).thenReturn(profile);
-        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(null);
 
         Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
         contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
         verify(contextRepository, times(1)).findById(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(profileService, times(2)).save(any(Profile.class));
-        verify(contextProfileService, times(2)).save(any(ContextProfile.class));
+        verify(profileService, times(1)).save(any(List.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());

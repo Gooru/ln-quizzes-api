@@ -9,5 +9,7 @@ public interface GroupProfileRepository {
 
     void save(GroupProfile groupProfile);
 
+    void clearGroup(UUID groupId);
+
     List<GroupProfile> findGroupProfilesByGroupId(UUID id);
 }

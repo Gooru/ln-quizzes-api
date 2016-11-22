@@ -27,6 +27,13 @@ public class GroupProfileRepositoryImpl implements GroupProfileRepository {
                 .execute();
     }
 
+    @Override
+    public void clearGroup(UUID groupId) {
+        jooq.deleteFrom(GROUP_PROFILE)
+            .where(GROUP_PROFILE.GROUP_ID.eq(groupId))
+            .execute();
+    }
+
     public List<GroupProfile> findGroupProfilesByGroupId(UUID id){
         List<GroupProfile> groupProfiles = new ArrayList<>();
 

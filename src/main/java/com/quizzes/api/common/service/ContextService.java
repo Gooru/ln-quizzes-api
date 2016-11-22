@@ -1,6 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
@@ -25,6 +27,7 @@ import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
+import com.quizzes.api.config.GsonConfiguration;
 import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +51,8 @@ public class ContextService {
 
     @Autowired
     JsonParser jsonParser;
+
+    private Gson gson = new GsonConfiguration().gson();
 
     @Autowired
     ContextProfileEventService contextProfileEventService;
@@ -93,6 +98,13 @@ public class ContextService {
         return null;
     }
 
+    /**
+     *
+     * @param contextId the id of the context to update
+     * @param contextPutRequestDto the assignees and contextData to update
+     * @param lms the LMS id
+     * @return the updated Context
+     */
     public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Gson gson = new Gson();
         Context context = contextRepository.findById(contextId);
@@ -102,15 +114,39 @@ public class ContextService {
         }
 
         List<ProfileDto> profiles = contextPutRequestDto.getAssignees();
-        if (profiles != null && profiles.size() > 0) {
-            List<UUID> contextProfileIds = contextProfileService.findContextProfileIdsByContextId(contextId);
-            addContextProfiles(profiles, contextProfileIds, lms, contextId);
-            deleteContextProfiles(profiles, contextProfileIds);
+        List<UUID> requestExternalProfileIds = profiles.stream().map(profile -> UUID.fromString(profile.getId())).collect(Collectors.toList());
+        //deletes all the groupProfiles for the group in 1 operation
+        groupProfileService.clearGroup(context.getGroupId());
+
+        //checks if the assignees exists, if not, creates the assignee profile
+        if (profiles != null && !profiles.isEmpty()){
+            List<UUID> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
+            //we are creating new profiles
+            //we are not updating existing info of existing profiles
+            List<Profile> notFoundProfiles = profiles.stream()
+                    .filter(profile -> !foundExternalProfileIds.contains(profile.getId()))
+                    .map(profile -> {Profile newProfile = new Profile();
+                                    newProfile.setExternalId(profile.getId());
+                                    newProfile.setLmsId(lms);
+                                    newProfile.setProfileData(profileDtoToJson(profile).toString());
+                                    return newProfile;
+                                    }).collect(Collectors.toList());
+            profileService.save(notFoundProfiles);
         }
+        //At this point all the assignees in the context to update exists
+        //now we need to get the profileIds of that assignees to add them to the group
+        List<UUID> profileIds = profileService.findProfileIdsByExternalIdAndLms(requestExternalProfileIds, lms);
+
+        //adds all the assignees to the group
+        profileIds.forEach(id -> {
+            GroupProfile newGroupProfile = new GroupProfile();
+            newGroupProfile.setGroupId(context.getGroupId());
+            newGroupProfile.setProfileId(id);
+            groupProfileService.save(newGroupProfile);
+        });
 
         //Update ContextData
         ContextDataDto contextDataDto = gson.fromJson(context.getContextData(), ContextDataDto.class);
-        contextDataDto.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         contextDataDto.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         context.setContextData(gson.toJson(contextDataDto));
         return contextRepository.save(context);
@@ -252,8 +288,7 @@ public class ContextService {
             profile.setExternalId(profileDto.getId());
             profile.setLmsId(lmsId);
 
-            JsonObject jsonObject = new Gson().toJsonTree(profileDto).getAsJsonObject();
-            jsonObject.remove("id");
+            JsonObject jsonObject = profileDtoToJson(profileDto);
 
             profile.setProfileData(jsonObject.toString());
             profile = profileService.save(profile);
@@ -302,4 +337,10 @@ public class ContextService {
         deleteOldContextProfiles(idsToDelete);
     }
 
+    private JsonObject profileDtoToJson(ProfileDto profileDto){
+        JsonElement jsonElement = gson.toJsonTree(profileDto);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        jsonObject.remove("id");
+        return jsonObject;
+    }
 }
