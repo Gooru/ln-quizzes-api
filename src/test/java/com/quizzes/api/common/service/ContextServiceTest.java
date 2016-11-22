@@ -303,10 +303,10 @@ public class ContextServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setCurrentResourceId(contextProfileId);
 
-        Map<String, String> eventData = new HashMap<>();
+        Map<String, Object> eventData = new HashMap<>();
         eventData.put("id", UUID.randomUUID().toString());
-        eventData.put("timeSpend", "1478623337");
-        eventData.put("reaction", UUID.randomUUID().toString());
+        eventData.put("timeSpent", System.currentTimeMillis());
+        eventData.put("reaction", 5);
         eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
 
         ContextProfileEvent contextProfileEvent =
@@ -350,10 +350,10 @@ public class ContextServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setCurrentResourceId(contextProfileId);
 
-        Map<String, String> eventData = new HashMap<>();
+        Map<String, Object> eventData = new HashMap<>();
         eventData.put("id", UUID.randomUUID().toString());
-        eventData.put("timeSpend", "1478623337");
-        eventData.put("reaction", UUID.randomUUID().toString());
+        eventData.put("timeSpent", System.currentTimeMillis());
+        eventData.put("reaction", 5);
         eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
 
         ContextProfileEvent contextProfileEvent =
