@@ -32,7 +32,7 @@ public class ResourceServiceTest {
     private ResourceRepository resourceRepository;
 
     @Test
-    public void getResourcesByCollectionId() {
+    public void findByCollectionId() {
         List<Resource> resources = new ArrayList<>();
         Resource resource1 = new Resource();
         resource1.setId(UUID.randomUUID());
@@ -52,16 +52,15 @@ public class ResourceServiceTest {
                 " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
                 "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
         resources.add(resource2);
-        when(resourceRepository.findResourcesByCollectionId(any(UUID.class))).thenReturn(resources);
+        when(resourceRepository.findByCollectionId(any(UUID.class))).thenReturn(resources);
 
-        List<Resource> result = resourceService.findResourcesByCollectionId(UUID.randomUUID());
-        verify(resourceRepository, times(1)).findResourcesByCollectionId(any(UUID.class));
+        List<Resource> result = resourceService.findByCollectionId(UUID.randomUUID());
+        verify(resourceRepository, times(1)).findByCollectionId(any(UUID.class));
 
         assertNotNull("Result is null", result);
         assertEquals("Resources size doesn't match", 2, result.size());
         assertSame("Result is not a List", ArrayList.class, result.getClass());
         assertSame("Result contents are not Resources", Resource.class, result.get(0).getClass());
-
     }
 
 }

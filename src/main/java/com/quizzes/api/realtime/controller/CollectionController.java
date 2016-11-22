@@ -46,7 +46,10 @@ public class CollectionController extends AbstractRealTimeController {
 
     @ApiOperation(value ="Get a collection by it's collection ID",
                     notes = "Gets Collection data, including Resources and Answers (in case of Question).")
-    @ApiResponses(@ApiResponse(code = 200, message = "Body", response = CollectionDataDto.class))
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Body", response = CollectionDataDto.class),
+        @ApiResponse(code = 404, message = "Not found")
+    })
     @RequestMapping(path = "/v1/collection/{collectionId}",
                     method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
@@ -56,7 +59,7 @@ public class CollectionController extends AbstractRealTimeController {
 
         CollectionDataDto result = collectionService.getCollection(collectionId);
 
-        return new ResponseEntity(result, HttpStatus.OK);
+        return new ResponseEntity<>(result, result != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
     @ApiOperation(value = "Find collections on air by class", notes = "Find collections on air by class")

@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
+import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Resource;
@@ -15,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +52,9 @@ public class CollectionServiceTest {
 
     @Mock
     private ResourceService resourceService;
+
+    @Mock
+    private JsonParser jsonParser;
 
     @Test
     public void findByExternalIdAndLmsId() throws Exception {
@@ -111,16 +116,31 @@ public class CollectionServiceTest {
     }
 
     @Test
+    public void getCollectionNull() throws Exception {
+        when(collectionRepository.findById(any(UUID.class))).thenReturn(null);
+
+        CollectionDataDto result = collectionService.getCollection(UUID.randomUUID());
+
+        verify(collectionRepository, times(1)).findById(any(UUID.class));
+        verify(resourceService, times(0)).findByCollectionId(any(UUID.class));
+
+        assertNull("Result is not Null", result);
+    }
+
+    @Test
     public void getCollection() throws Exception {
         Collection collection = new Collection();
-        collection.setId(UUID.randomUUID());
+        UUID collectionId = UUID.randomUUID();
+        collection.setId(collectionId);
         collection.setIsCollection(false);
-        when(collectionRepository.findById(any(UUID.class))).thenReturn(collection);
+        when(collectionRepository.findById(collectionId)).thenReturn(collection);
 
         List<Resource> resources = new ArrayList<>();
         Resource resource1 = new Resource();
-        resource1.setId(UUID.randomUUID());
-        resource1.setIsResource(true);
+        UUID resourceId = UUID.randomUUID();
+        resource1.setId(resourceId);
+        resource1.setIsResource(false);
+        resource1.setSequence((short) 1);
         resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"SingleChoice\"," +
                 "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
                 " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
@@ -130,20 +150,29 @@ public class CollectionServiceTest {
 
         Resource resource2 = new Resource();
         resource2.setId(UUID.randomUUID());
-        resource2.setIsResource(true);
+        resource2.setIsResource(false);
+        resource2.setSequence((short) 1);
         resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"True/False\",\"correctAnswer\":" +
                 " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
                 " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
                 "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
         resources.add(resource2);
-        when(resourceService.findResourcesByCollectionId(collection.getId())).thenReturn(resources);
+        when(resourceService.findByCollectionId(collection.getId())).thenReturn(resources);
 
-        CollectionDataDto result = collectionService.getCollection(UUID.randomUUID());
+        CollectionDataDto result = collectionService.getCollection(collectionId);
 
         verify(collectionRepository, times(1)).findById(any(UUID.class));
-        verify(resourceService, times(1)).findResourcesByCollectionId(any(UUID.class));
+        verify(resourceService, times(1)).findByCollectionId(collectionId);
 
         assertNotNull("Result is Null", result);
+        assertEquals("Collection id is wrong", collectionId, result.getId());
+        assertFalse("isCollection field is true", result.getIsCollection());
+        assertEquals("Resource list size is wrong", 2, result.getResources().size());
+
+        CollectionDataResourceDto resultResource = result.getResources().get(0);
+        assertFalse("IsResource field is true", resultResource.getIsResource());
+        assertEquals("Wrong resource id", resourceId, resultResource.getId());
+        assertEquals("Wrong sequence", 1, resultResource.getSequence());
         assertSame(result.getClass(), CollectionDataDto.class);
     }
 
