@@ -9,6 +9,7 @@ import com.quizzes.api.common.dto.controller.response.InteractionDto;
 import com.quizzes.api.common.dto.controller.response.QuestionDataDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.model.enums.Lms;
+import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.common.service.ResourceService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
@@ -23,10 +24,16 @@ import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -52,41 +59,32 @@ public class CollectionControllerTest {
 
     @Test
     public void getCollection() throws Exception {
+        Map<String, Object> map = new HashMap<>();
+        map.put("key", "value");
 
-        List<AnswerDto> answers = new ArrayList<>();
-        AnswerDto answerDto = new AnswerDto("A");
-        answers.add(answerDto);
-        List<ChoiceDto> choices = new ArrayList<>();
-        ChoiceDto choiceDto1 = new ChoiceDto("option 1", false, "A");
-        choices.add(choiceDto1);
-        ChoiceDto choiceDto2 = new ChoiceDto("option 2", false, "B");
-        choices.add(choiceDto2);
-        ChoiceDto choiceDto3 = new ChoiceDto("option 3", false, "C");
-        choices.add(choiceDto3);
-        InteractionDto interactionDto = new InteractionDto(true, 10, "mocked Interaction", choices);
-        QuestionDataDto questionDataDto = new QuestionDataDto("mocked Question Data",
-                QuestionTypeEnum.SingleChoice.getLiteral(), answers, "mocked body", interactionDto);
-        CollectionDataResourceDto collectionDataResourceDto1 = new CollectionDataResourceDto(UUID.randomUUID(),
-                true, 1, questionDataDto);
-        List<CollectionDataResourceDto> collectionDataResourceDtos = new ArrayList<>();
-        collectionDataResourceDtos.add(collectionDataResourceDto1);
+        CollectionDataResourceDto resource1 = new CollectionDataResourceDto();
+        UUID resourceId1 = UUID.randomUUID();
+        resource1.setId(resourceId1);
+        resource1.setSequence(1);
+        resource1.setIsResource(false);
+        resource1.setQuestions(map);
 
-        List<AnswerDto> answers2 = new ArrayList<>();
-        AnswerDto answerDto2 = new AnswerDto("T");
-        answers2.add(answerDto2);
-        List<ChoiceDto> choices2 = new ArrayList<>();
-        ChoiceDto choiceDto4 = new ChoiceDto("True", false, "T");
-        choices2.add(choiceDto4);
-        ChoiceDto choiceDto5 = new ChoiceDto("False", false, "F");
-        choices2.add(choiceDto5);
-        InteractionDto interactionDto2 = new InteractionDto(true, 10, "mocked Interaction", choices2);
-        QuestionDataDto questionDataDto2 = new QuestionDataDto("mocked Question Data",
-                QuestionTypeEnum.TrueFalse.getLiteral(), answers2, "mocked body", interactionDto2);
-        CollectionDataResourceDto collectionDataResourceDto2 = new CollectionDataResourceDto(UUID.randomUUID(),
-                true, 2, questionDataDto2);
-        collectionDataResourceDtos.add(collectionDataResourceDto2);
+        CollectionDataResourceDto resource2 = new CollectionDataResourceDto();
+        UUID resourceId2 = UUID.randomUUID();
+        resource2.setId(resourceId2);
+        resource2.setIsResource(false);
+        resource2.setSequence(2);
+        resource2.setQuestions(map);
 
-        CollectionDataDto collectionDto = new CollectionDataDto(UUID.randomUUID(), false, collectionDataResourceDtos);
+        List<CollectionDataResourceDto> resources = new ArrayList<>();
+        resources.add(resource1);
+        resources.add(resource2);
+
+        CollectionDataDto collectionDto = new CollectionDataDto();
+        UUID collectionId = UUID.randomUUID();
+        collectionDto.setId(collectionId);
+        collectionDto.setIsCollection(false);
+        collectionDto.setResources(resources);
 
         when(collectionService.getCollection(any(UUID.class))).thenReturn(collectionDto);
 
@@ -97,8 +95,30 @@ public class CollectionControllerTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-        assertNotNull("Response Body is Null", result.getBody());
+
+        CollectionDataDto response = result.getBody();
+        assertNotNull("Response Body is Null", response);
+        assertFalse("IsCollection is true", response.getIsCollection());
+        assertEquals("Wrong size in resources", 2, response.getResources().size());
+
+        CollectionDataResourceDto responseResoource = response.getResources().get(1);
+        assertEquals("Wrong size in resources", 2, responseResoource.getSequence());
+        assertEquals("Wrong id for resource 2", resourceId2, responseResoource.getId());
+        assertFalse("Wrong id for resource 2", responseResoource.getIsResource());
         assertSame(result.getBody().getClass(), CollectionDataDto.class);
+    }
+
+    @Test
+    public void getCollectionNull() throws Exception {
+        when(collectionService.getCollection(any(UUID.class))).thenReturn(null);
+
+        ResponseEntity<CollectionDataDto> result =
+                collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
+
+        verify(collectionService, times(1)).getCollection(any(UUID.class));
+
+        assertNotNull("Response is not Null", result);
+        assertEquals("Invalid status code:", HttpStatus.NOT_FOUND, result.getStatusCode());
     }
 
     @Test

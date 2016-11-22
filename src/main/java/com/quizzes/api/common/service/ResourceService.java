@@ -18,8 +18,7 @@ public class ResourceService {
         return resourceRepository.save(resource);
     }
 
-    public List<Resource> findResourcesByCollectionId(UUID collectionId){
-        return resourceRepository.findResourcesByCollectionId(collectionId);
-
+    public List<Resource> findByCollectionId(UUID collectionId){
+        return resourceRepository.findByCollectionId(collectionId);
     }
 }
