@@ -20,7 +20,7 @@ public interface ProfileRepository {
 
     List<UUID> findAssignedIdsByContextId(UUID contextId);
 
-    List<UUID> findexternalProfileIds(List<UUID> externalProfileIds, Lms lms);
+    List<UUID> findExternalProfileIds(List<UUID> externalProfileIds, Lms lms);
 
     List<UUID> findProfileIdsByExternalIdAndLms(List<UUID> externalProfileIds, Lms lms);
 }

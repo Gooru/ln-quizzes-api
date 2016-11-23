@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
 import static com.quizzes.api.common.model.tables.Group.GROUP;
@@ -35,10 +36,8 @@ public class ProfileRepositoryImpl implements ProfileRepository {
 
     @Override
     public List<Profile> save(final List<Profile> profiles) {
-        List<Profile> result = new ArrayList<>();
-        profiles.forEach(profile -> { Profile newProfile = insertProfile(profile);
-                                        result.add(newProfile);});
-        return result;
+        return profiles.stream().map(profile -> { Profile newProfile = insertProfile(profile);
+                                        return newProfile;}).collect(Collectors.toList());
     }
 
     @Override
@@ -85,7 +84,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
-    public List<UUID> findexternalProfileIds(List<UUID> externalProfileIds, Lms lms){
+    public List<UUID> findExternalProfileIds(List<UUID> externalProfileIds, Lms lms){
         return jooq.select(PROFILE.EXTERNAL_ID)
                 .from(PROFILE)
                 .where(PROFILE.EXTERNAL_ID.in(externalProfileIds))

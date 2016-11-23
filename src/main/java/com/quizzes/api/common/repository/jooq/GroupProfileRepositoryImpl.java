@@ -28,7 +28,7 @@ public class GroupProfileRepositoryImpl implements GroupProfileRepository {
     }
 
     @Override
-    public void clearGroup(UUID groupId) {
+    public void delete(UUID groupId) {
         jooq.deleteFrom(GROUP_PROFILE)
             .where(GROUP_PROFILE.GROUP_ID.eq(groupId))
             .execute();

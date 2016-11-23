@@ -114,12 +114,12 @@ public class ContextService {
         }
 
         List<ProfileDto> profiles = contextPutRequestDto.getAssignees();
-        List<UUID> requestExternalProfileIds = profiles.stream().map(profile -> UUID.fromString(profile.getId())).collect(Collectors.toList());
         //deletes all the groupProfiles for the group in 1 operation
-        groupProfileService.clearGroup(context.getGroupId());
+        groupProfileService.delete(context.getGroupId());
 
         //checks if the assignees exists, if not, creates the assignee profile
         if (profiles != null && !profiles.isEmpty()){
+            List<UUID> requestExternalProfileIds = profiles.stream().map(profile -> UUID.fromString(profile.getId())).collect(Collectors.toList());
             List<UUID> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
             //we are creating new profiles
             //we are not updating existing info of existing profiles
@@ -128,22 +128,22 @@ public class ContextService {
                     .map(profile -> {Profile newProfile = new Profile();
                                     newProfile.setExternalId(profile.getId());
                                     newProfile.setLmsId(lms);
-                                    newProfile.setProfileData(profileDtoToJson(profile).toString());
+                                    newProfile.setProfileData(profileDtoToJsonObject(profile).toString());
                                     return newProfile;
                                     }).collect(Collectors.toList());
             profileService.save(notFoundProfiles);
-        }
-        //At this point all the assignees in the context to update exists
-        //now we need to get the profileIds of that assignees to add them to the group
-        List<UUID> profileIds = profileService.findProfileIdsByExternalIdAndLms(requestExternalProfileIds, lms);
+            //At this point all the assignees in the context to update exists
+            //now we need to get the profileIds of that assignees to add them to the group
+            List<UUID> profileIds = profileService.findProfileIdsByExternalIdAndLms(requestExternalProfileIds, lms);
 
-        //adds all the assignees to the group
-        profileIds.forEach(id -> {
-            GroupProfile newGroupProfile = new GroupProfile();
-            newGroupProfile.setGroupId(context.getGroupId());
-            newGroupProfile.setProfileId(id);
-            groupProfileService.save(newGroupProfile);
-        });
+            //adds all the assignees to the group
+            profileIds.forEach(id -> {
+                GroupProfile newGroupProfile = new GroupProfile();
+                newGroupProfile.setGroupId(context.getGroupId());
+                newGroupProfile.setProfileId(id);
+                groupProfileService.save(newGroupProfile);
+            });
+        }
 
         //Update ContextData
         ContextDataDto contextDataDto = gson.fromJson(context.getContextData(), ContextDataDto.class);
@@ -289,7 +289,7 @@ public class ContextService {
             profile.setExternalId(profileDto.getId());
             profile.setLmsId(lmsId);
 
-            JsonObject jsonObject = profileDtoToJson(profileDto);
+            JsonObject jsonObject = profileDtoToJsonObject(profileDto);
 
             profile.setProfileData(jsonObject.toString());
             profile = profileService.save(profile);
@@ -306,39 +306,8 @@ public class ContextService {
             groupProfileService.save(groupProfile);
         }
     }
-
-    private void deleteOldContextProfiles(List<UUID> idsToDelete) {
-        for (UUID id : idsToDelete) {
-            contextProfileService.delete(id);
-        }
-    }
-
-    private void addContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds, Lms lmsId, UUID contextId) {
-        List<ProfileDto> newProfiles = profiles.stream()
-                .filter(e -> (contextProfileIds.stream()
-                        .filter(d -> e.getId().equals(d.toString()))
-                        .count()) < 1)
-                .collect(Collectors.toList());
-
-        for (ProfileDto profileDto : newProfiles) {
-            Profile profile = findProfile(profileDto, lmsId);
-            ContextProfile contextProfile = new ContextProfile();
-            contextProfile.setContextId(contextId);
-            contextProfile.setProfileId(profile.getId());
-            contextProfileService.save(contextProfile);
-        }
-    }
-
-    private void deleteContextProfiles(List<ProfileDto> profiles, List<UUID> contextProfileIds) {
-        List<UUID> idsToDelete = contextProfileIds.stream()
-                .filter(e -> (profiles.stream()
-                        .filter(d -> d.getId().equals(e.toString()))
-                        .count()) < 1)
-                .collect(Collectors.toList());
-        deleteOldContextProfiles(idsToDelete);
-    }
-
-    private JsonObject profileDtoToJson(ProfileDto profileDto){
+    
+    private JsonObject profileDtoToJsonObject(ProfileDto profileDto){
         JsonElement jsonElement = gson.toJsonTree(profileDto);
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         jsonObject.remove("id");
