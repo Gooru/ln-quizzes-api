@@ -11,6 +11,6 @@ public interface ResourceRepository {
 
     List<Resource> findByCollectionId(UUID collectionId);
 
-    Resource findFirstByOrderBySequenceAscByContextId(UUID contextId);
+    Resource findFirstBySequenceByContextId(UUID contextId);
 
 }

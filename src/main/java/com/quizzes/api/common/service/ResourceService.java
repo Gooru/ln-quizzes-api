@@ -22,7 +22,7 @@ public class ResourceService {
         return resourceRepository.findByCollectionId(collectionId);
     }
 
-    public Resource findFirstByOrderBySequenceAscByContextId(UUID contextId){
-        return resourceRepository.findFirstByOrderBySequenceAscByContextId(contextId);
+    public Resource findFirstBySequenceByContextId(UUID contextId){
+        return resourceRepository.findFirstBySequenceByContextId(contextId);
     }
 }

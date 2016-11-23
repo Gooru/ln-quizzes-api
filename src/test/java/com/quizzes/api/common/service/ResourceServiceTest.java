@@ -65,8 +65,8 @@ public class ResourceServiceTest {
 
     @Test
     public void findFirstByOrderBySequenceAscByContextId() {
-        Resource result = resourceService.findFirstByOrderBySequenceAscByContextId(UUID.randomUUID());
-        verify(resourceRepository, times(1)).findFirstByOrderBySequenceAscByContextId(any(UUID.class));
+        Resource result = resourceService.findFirstBySequenceByContextId(UUID.randomUUID());
+        verify(resourceRepository, times(1)).findFirstBySequenceByContextId(any(UUID.class));
     }
 
 }

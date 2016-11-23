@@ -95,7 +95,7 @@ public class ContextEventServiceTest {
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
         when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
-        when(resourceService.findFirstByOrderBySequenceAscByContextId(any(UUID.class))).thenReturn(resource);
+        when(resourceService.findFirstBySequenceByContextId(any(UUID.class))).thenReturn(resource);
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
 
         when(contextRepository.findCollectionIdByContextId(any(UUID.class))).thenReturn(collectionId);
@@ -105,7 +105,7 @@ public class ContextEventServiceTest {
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(0)).findFirstByOrderBySequenceAscByContextId(any(UUID.class));
+        verify(resourceService, times(0)).findFirstBySequenceByContextId(any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
 
         assertNotNull("Response is Null", result);
@@ -159,7 +159,7 @@ public class ContextEventServiceTest {
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
         when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
-        when(resourceService.findFirstByOrderBySequenceAscByContextId(any(UUID.class))).thenReturn(resource);
+        when(resourceService.findFirstBySequenceByContextId(any(UUID.class))).thenReturn(resource);
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
 
         when(contextRepository.findCollectionIdByContextId(any(UUID.class))).thenReturn(collectionId);
@@ -169,7 +169,7 @@ public class ContextEventServiceTest {
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(1)).findFirstByOrderBySequenceAscByContextId(any(UUID.class));
+        verify(resourceService, times(1)).findFirstBySequenceByContextId(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
 
         assertNotNull("Response is Null", result);

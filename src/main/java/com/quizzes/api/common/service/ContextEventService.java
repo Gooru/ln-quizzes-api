@@ -50,7 +50,7 @@ public class ContextEventService {
         if (context != null) {
             ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
             if (contextProfile == null) {
-                Resource firstResource = resourceService.findFirstByOrderBySequenceAscByContextId(contextId);
+                Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
                 contextProfile = new ContextProfile();
                 contextProfile.setContextId(contextId);
                 contextProfile.setProfileId(profileId);
