@@ -1,7 +1,6 @@
 package com.quizzes.api.common.controller;
 
-import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
+import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.service.ContextEventService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -33,7 +32,7 @@ public class ContextEventController {
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDocDto.class),
+            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context/{contextId}/event/start",
             method = RequestMethod.POST,

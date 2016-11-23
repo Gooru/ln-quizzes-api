@@ -11,7 +11,6 @@ import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
@@ -19,13 +18,11 @@ import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.ContextProfile;
-import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
-import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +90,7 @@ public class ContextService {
         return null;
     }
 
-    public Context findById(UUID contextId){
+    public Context findById(UUID contextId) {
         return contextRepository.findById(contextId);
     }
 
@@ -131,7 +128,6 @@ public class ContextService {
 
             response.setCollection(collectionDto);
             response.setId(contextId);
-            String x = contextOwner.getContextData();
             response.setContextDataResponse(jsonParser.parseMap(contextOwner.getContextData()));
 
             IdResponseDto ownerId = new IdResponseDto();
@@ -177,7 +173,8 @@ public class ContextService {
                             List<IdResponseDto> assignees = value.stream().map(profile -> {
                                 IdResponseDto assignee = new IdResponseDto();
                                 assignee.setId(profile.getAssigneeProfileId());
-                                return assignee;}).collect(Collectors.toList());
+                                return assignee;
+                            }).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
                         }
                         result.add(createdContextGetResponseDto);

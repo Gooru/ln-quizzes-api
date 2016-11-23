@@ -1,17 +1,15 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.google.gson.Gson;
 import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+
+import static com.quizzes.api.common.model.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
 
 @Repository
 public class ContextProfileEventRepositoryImpl implements ContextProfileEventRepository {
@@ -20,20 +18,10 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     private DSLContext jooq;
 
     @Override
-    public List<ContextProfileEvent> findAttemptsByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
-
-        Map<String, Object> eventData = new HashMap<>();
-        eventData.put("id", UUID.randomUUID().toString());
-        eventData.put("timeSpent", System.currentTimeMillis());
-        eventData.put("reaction", 5);
-        eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
-
-        ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                        new Gson().toJson(eventData), null);
-
-        List<ContextProfileEvent> result = new ArrayList<>();
-        result.add(contextProfileEvent);
-        return result;
+    public List<ContextProfileEvent> findEventsByContextProfileId(UUID contextProfileId) {
+        return jooq.select(CONTEXT_PROFILE_EVENT.RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
+                .from(CONTEXT_PROFILE_EVENT)
+                .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
+                .fetchInto(ContextProfileEvent.class);
     }
 }
