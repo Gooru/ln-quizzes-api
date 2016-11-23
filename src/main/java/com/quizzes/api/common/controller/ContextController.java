@@ -82,26 +82,6 @@ public class ContextController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-
-    @ApiOperation(
-            value = "Start collection",
-            notes = "Sends event to start the Collection attempt associated to the context. " +
-                    "If the Collection attempt was not started previously there is not a start action executed. " +
-                    "In any case returns the current attempt status.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDocDto.class),
-            @ApiResponse(code = 500, message = "Bad request")})
-    @RequestMapping(path = "/v1/context/{contextId}/event/start",
-            method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StartContextEventResponseDto> startContextEvent(@PathVariable UUID contextId,
-                                                                          @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                                                          @RequestHeader(value = "profile-id") UUID profileId) {
-        StartContextEventResponseDto result = contextService.startContextEvent(contextId, profileId);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-
     @ApiOperation(value = "Register resource",
             notes = "Sends event to indicate current resource position and provides the data generated" +
                     " in the previous resource (this value could be null in case there is not previous resource)")

@@ -93,9 +93,13 @@ public class ContextService {
         return null;
     }
 
+    public Context findById(UUID contextId){
+        return contextRepository.findById(contextId);
+    }
+
     public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Gson gson = new Gson();
-        Context context = contextRepository.findById(contextId);
+        Context context = findById(contextId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
@@ -114,22 +118,6 @@ public class ContextService {
         contextDataDto.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         context.setContextData(gson.toJson(contextDataDto));
         return contextRepository.save(context);
-    }
-
-    public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile = findContextProfile(contextId, profileId);
-
-        CollectionDto collection = new CollectionDto();
-        collection.setId(String.valueOf(contextRepository.findCollectionIdByContextId(contextId)));
-
-        List<ContextProfileEvent> attempts = contextProfileEventService.findAttemptsByContextProfileIdAndResourceId(
-                contextProfile.getProfileId(), contextProfile.getCurrentResourceId());
-
-        List<Map<String, Object>> list = convertContextProfileToJson(attempts);
-
-        StartContextEventResponseDto result = new StartContextEventResponseDto(
-                UUID.randomUUID(), collection, contextProfile.getCurrentResourceId(), list);
-        return result;
     }
 
     public ContextGetResponseDto getContext(UUID contextId) {
@@ -220,30 +208,6 @@ public class ContextService {
                     return response;
                 })
                 .collect(Collectors.toList());
-    }
-
-    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (ContextProfileEvent context : attempts) {
-            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
-            if (data.containsKey("answer") && data.get("answer").toString() != null) {
-                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
-                data.put("answer", answers);
-            } else {
-                data.put("answer", new JSONArray());
-            }
-            list.add(data);
-        }
-        return list;
-    }
-
-    private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile =
-                contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
-        if (contextProfile == null) {
-            contextProfile = contextProfileService.save(new ContextProfile(null, contextId, profileId, null, null, null));
-        }
-        return contextProfile;
     }
 
     private Profile findProfile(ProfileDto profileDto, Lms lmsId) {
