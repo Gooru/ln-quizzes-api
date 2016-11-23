@@ -44,10 +44,10 @@ public class CollectionController extends AbstractRealTimeController {
         return collectionOnAir;
     }
 
-    @ApiOperation(value ="Get a collection by it's collection ID",
+    @ApiOperation(value ="Get a collection by its collection ID",
                     notes = "Gets Collection data, including Resources and Answers (in case of Question).")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Body", response = CollectionDataDto.class),
+        @ApiResponse(code = 200, message = "Returns the collection information", response = CollectionDataDto.class),
         @ApiResponse(code = 404, message = "Not found")
     })
     @RequestMapping(path = "/v1/collection/{collectionId}",
