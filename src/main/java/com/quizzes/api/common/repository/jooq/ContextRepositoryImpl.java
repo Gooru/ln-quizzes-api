@@ -88,7 +88,7 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public ContextOwnerEntity findContextOwnerByContextId(UUID contextId) {
-        return jooq.select(CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, GROUP.OWNER_PROFILE_ID)
+        return jooq.select(CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, GROUP.OWNER_PROFILE_ID)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .where(CONTEXT.ID.eq(contextId))
