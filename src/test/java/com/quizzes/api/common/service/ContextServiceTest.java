@@ -29,7 +29,6 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
-import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
@@ -225,7 +224,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void findById() {
+    public void findById(){
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
@@ -246,7 +245,7 @@ public class ContextServiceTest {
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
         ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
 
-        Map<String, String> metadataMap = new HashMap<>();
+        Map<String, Object> metadataMap = new HashMap<>();
         metadataMap.put("classId", "classId");
         metadata.setMetadata(metadataMap);
         contextDataMock.setContextData(metadata);
