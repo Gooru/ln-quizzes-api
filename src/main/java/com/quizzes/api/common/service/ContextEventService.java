@@ -1,14 +1,13 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
-import com.quizzes.api.common.service.content.CollectionContentService;
 import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,10 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ContextEventService {
@@ -49,6 +48,8 @@ public class ContextEventService {
         Context context = contextService.findById(contextId);
         if (context != null) {
             ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
+            //TODO: If context_profile is complete we need to remove all the events
+
             if (contextProfile == null) {
                 Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
                 contextProfile = new ContextProfile();
@@ -58,37 +59,36 @@ public class ContextEventService {
                 contextProfile = contextProfileService.save(contextProfile);
             }
 
-            //TODO: Implement the response functionality here (QZ-170)
-
             CollectionDto collection = new CollectionDto();
-            collection.setId(String.valueOf(contextRepository.findCollectionIdByContextId(contextId)));
+            collection.setId(context.getCollectionId().toString());
 
-            List<ContextProfileEvent> attempts = contextProfileEventService.findAttemptsByContextProfileIdAndResourceId(
-                    contextProfile.getProfileId(), contextProfile.getCurrentResourceId());
+            List<ContextProfileEvent> events = contextProfileEventService
+                    .findEventsByContextProfileId(contextProfile.getProfileId());
 
-            List<Map<String, Object>> list = convertContextProfileToJson(attempts);
-
-            return new StartContextEventResponseDto(
-                    UUID.randomUUID(), collection, contextProfile.getCurrentResourceId(), list);
+            StartContextEventResponseDto result = new StartContextEventResponseDto();
+            result.setId(contextId);
+            result.setCurrentResourceId(contextProfile.getCurrentResourceId());
+            result.setCollection(collection);
+            result.setEventsResponse(convertContextProfileToMap(events));
+            return result;
         }
         logger.error("Getting context: " + contextId + " was not found");
         throw new ContentNotFoundException("We couldn't find a context with id: " + contextId);
     }
 
-    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (ContextProfileEvent context : attempts) {
-            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
+    private List<Map<String, Object>> convertContextProfileToMap(List<ContextProfileEvent> events) {
+        return events.stream().map(event -> {
+            Map<String, Object> data = jsonParser.parseMap(event.getEventData());
+            data.remove("id");
+            data.put("resourceId", event.getId());
             if (data.containsKey("answer") && data.get("answer").toString() != null) {
                 List<Object> answers = jsonParser.parseList(data.get("answer").toString());
                 data.put("answer", answers);
             } else {
                 data.put("answer", new JSONArray());
             }
-            list.add(data);
-        }
-        return list;
+            return data;
+        }).collect(Collectors.toList());
     }
-
 
 }

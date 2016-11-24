@@ -1,9 +1,10 @@
 package com.quizzes.api.common.controller;
 
 import com.google.gson.JsonArray;
+import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.service.ContextEventService;
+import com.quizzes.api.common.service.ContextProfileService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -35,6 +36,9 @@ public class ContextEventControllerTest {
     @Mock
     private ContextEventService contextEventService;
 
+    @Mock
+    private ContextProfileService contextProfileService;
+
     @Test
     public void startContextEvent() throws Exception {
         UUID id = UUID.randomUUID();
@@ -53,7 +57,7 @@ public class ContextEventControllerTest {
         map.put("answer", new JsonArray());
         list.add(map);
 
-        startContext.setAttempt(list);
+        startContext.setEventsResponse(list);
 
         when(contextEventService.startContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
 
@@ -66,8 +70,8 @@ public class ContextEventControllerTest {
         assertEquals("Wrong resource id is null", resourceId, resultBody.getCurrentResourceId());
         assertEquals("Wrong id", id, resultBody.getId());
         assertEquals("Wrong collection id", collection.getId(), resultBody.getCollection().getId());
-        assertEquals("Wrong collection id", 1, resultBody.getAttempt().size());
-        assertTrue("Answer key not found", resultBody.getAttempt().get(0).containsKey("answer"));
+        assertEquals("Wrong collection id", 1, resultBody.getEventsResponse().size());
+        assertTrue("Answer key not found", resultBody.getEventsResponse().get(0).containsKey("answer"));
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
     }
 
