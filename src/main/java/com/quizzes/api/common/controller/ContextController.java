@@ -2,25 +2,19 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
-import com.quizzes.api.common.dto.ContextIdResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
-import com.quizzes.api.common.dto.StartContextEventResponseDocDto;
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDto;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
-import com.quizzes.api.common.service.ContextServiceDummy;
-import com.quizzes.api.common.service.GroupProfileService;
-import com.quizzes.api.common.service.GroupService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -51,23 +45,11 @@ public class ContextController {
     @Autowired
     private ContextService contextService;
 
-    @Autowired
-    private ContextServiceDummy contextServiceDummy;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private GroupProfileService groupProfileService;
-
-    @Autowired
-    private JsonParser jsonParser;
-
     @ApiOperation(
             value = "Creates an assignment",
             notes = "Creates an assignment of a collection (assessment) to a group of people (students) in " +
                     "a specified context, returning a generated Context ID.")
-    @ApiResponses({@ApiResponse(code = 200, message = "Context ID", response = ContextIdResponseDto.class),
+    @ApiResponses({@ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/context",
             method = RequestMethod.POST,
@@ -91,38 +73,12 @@ public class ContextController {
 //            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        //TODO: this is a temporary solution to get mocked or dummy data for "Quizzes"
-        Context context = null;
-        if (Lms.quizzes.equals(Lms.valueOf(lmsId))) {
-            context = contextServiceDummy.createContext(assignmentDto, Lms.valueOf(lmsId));
-        } else {
-            context = contextService.createContext(assignmentDto, Lms.valueOf(lmsId));
-        }
-
-        ContextIdResponseDto result = new ContextIdResponseDto(context.getId());
+        Context context = contextService.createContext(assignmentDto, Lms.valueOf(lmsId));
+        IdResponseDto result = new IdResponseDto();
+        result.setId(context.getId());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
-
-
-    @ApiOperation(
-            value = "Start collection",
-            notes = "Sends event to start the Collection attempt associated to the context. " +
-                    "If the Collection attempt was not started previously there is not a start action executed. " +
-                    "In any case returns the current attempt status.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDocDto.class),
-            @ApiResponse(code = 500, message = "Bad request")})
-    @RequestMapping(path = "/v1/context/{contextId}/event/start",
-            method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StartContextEventResponseDto> startContextEvent(@PathVariable UUID contextId,
-                                                                          @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                                                          @RequestHeader(value = "profile-id") UUID profileId) {
-        StartContextEventResponseDto result = contextService.startContextEvent(contextId, profileId);
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
 
     @ApiOperation(value = "Register resource",
             notes = "Sends event to indicate current resource position and provides the data generated" +
@@ -159,7 +115,7 @@ public class ContextController {
 
     @ApiOperation(value = "Get context", notes = "Gets the context information.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 200, message = "Returns the Context Information", response = ContextGetResponseDto.class),
             @ApiResponse(code = 400, message = "Invalid UUID"),
             @ApiResponse(code = 404, message = "Context id not found")
     })
@@ -211,11 +167,11 @@ public class ContextController {
 
     @ApiOperation(value = "Update context", notes = "Update the context metadata.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "ContextIdResponseDto", response = ContextIdResponseDto.class),
+            @ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
     })
     @RequestMapping(path = "/v1/context/{contextId}",
             method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ContextIdResponseDto> updateContext(
+    public ResponseEntity<IdResponseDto> updateContext(
             @PathVariable UUID contextId,
             @ApiParam(value = "Body", required = true, name = "Body")
             @RequestBody ContextPutRequestDto contextPutRequestDto,
@@ -228,7 +184,9 @@ public class ContextController {
             throw new IllegalArgumentException("Error trying to get the updated context");
         }
 
-        return new ResponseEntity<>(new ContextIdResponseDto(context.getId()), HttpStatus.OK);
+        IdResponseDto result = new IdResponseDto();
+        result.setId(context.getId());
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }

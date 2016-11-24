@@ -1,7 +1,6 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
@@ -13,22 +12,17 @@ import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.dto.controller.response.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.ContextProfile;
-import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
-import com.quizzes.api.config.GsonConfiguration;
-import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,12 +85,16 @@ public class ContextService {
             Context context = new Context();
             context.setCollectionId(collection.getId());
             context.setGroupId(group.getId());
-            context.setContextData(new Gson().toJson(assignmentDto.getContextData()));
+            context.setContextData(gson.toJson(assignmentDto.getContextData()));
 
             return contextRepository.save(context);
         }
 
         return null;
+    }
+
+    public Context findById(UUID contextId) {
+        return contextRepository.findById(contextId);
     }
 
     /**
@@ -107,7 +105,7 @@ public class ContextService {
      * @return the updated Context
      */
     public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
-        Context context = contextRepository.findById(contextId);
+        Context context = findById(contextId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
@@ -152,22 +150,6 @@ public class ContextService {
         return contextRepository.save(context);
     }
 
-    public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile = findContextProfile(contextId, profileId);
-
-        CollectionDto collection = new CollectionDto();
-        collection.setId(String.valueOf(contextRepository.findCollectionIdByContextId(contextId)));
-
-        List<ContextProfileEvent> attempts = contextProfileEventService.findAttemptsByContextProfileIdAndResourceId(
-                contextProfile.getProfileId(), contextProfile.getCurrentResourceId());
-
-        List<Map<String, Object>> list = convertContextProfileToJson(attempts);
-
-        StartContextEventResponseDto result = new StartContextEventResponseDto(
-                UUID.randomUUID(), collection, contextProfile.getCurrentResourceId(), list);
-        return result;
-    }
-
     public ContextGetResponseDto getContext(UUID contextId) {
         ContextOwnerEntity contextOwner = contextRepository.findContextOwnerByContextId(contextId);
         if (contextOwner != null) {
@@ -179,7 +161,6 @@ public class ContextService {
 
             response.setCollection(collectionDto);
             response.setId(contextId);
-            String x = contextOwner.getContextData();
             response.setContextDataResponse(jsonParser.parseMap(contextOwner.getContextData()));
 
             IdResponseDto ownerId = new IdResponseDto();
@@ -225,7 +206,8 @@ public class ContextService {
                             List<IdResponseDto> assignees = value.stream().map(profile -> {
                                 IdResponseDto assignee = new IdResponseDto();
                                 assignee.setId(profile.getAssigneeProfileId());
-                                return assignee;}).collect(Collectors.toList());
+                                return assignee;
+                            }).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
                         }
                         result.add(createdContextGetResponseDto);
@@ -256,30 +238,6 @@ public class ContextService {
                     return response;
                 })
                 .collect(Collectors.toList());
-    }
-
-    private List<Map<String, Object>> convertContextProfileToJson(List<ContextProfileEvent> attempts) {
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (ContextProfileEvent context : attempts) {
-            Map<String, Object> data = jsonParser.parseMap(context.getEventData());
-            if (data.containsKey("answer") && data.get("answer").toString() != null) {
-                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
-                data.put("answer", answers);
-            } else {
-                data.put("answer", new JSONArray());
-            }
-            list.add(data);
-        }
-        return list;
-    }
-
-    private ContextProfile findContextProfile(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile =
-                contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
-        if (contextProfile == null) {
-            contextProfile = contextProfileService.save(new ContextProfile(null, contextId, profileId, null, null, null));
-        }
-        return contextProfile;
     }
 
     private Profile findProfile(ProfileDto profileDto, Lms lmsId) {

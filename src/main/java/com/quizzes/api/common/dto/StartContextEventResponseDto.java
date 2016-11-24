@@ -1,6 +1,9 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.dto;
 
+import com.google.gson.annotations.SerializedName;
 import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.dto.controller.response.AttemptDto;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 import java.util.Map;
@@ -14,18 +17,13 @@ public class StartContextEventResponseDto {
 
     private UUID currentResourceId;
 
-    private List<Map<String, Object>> attempt;
+    @ApiModelProperty(hidden = true)
+    @SerializedName("events")
+    private List<Map<String, Object>> eventsResponse;
 
+    private transient List<AttemptDto> events;
 
     public StartContextEventResponseDto() {
-    }
-
-    public StartContextEventResponseDto(UUID id, CollectionDto collection, UUID currentResourceId,
-                                        List<Map<String, Object>> attempt) {
-        this.id = id;
-        this.collection = collection;
-        this.currentResourceId = currentResourceId;
-        this.attempt = attempt;
     }
 
     public UUID getId() {
@@ -52,12 +50,19 @@ public class StartContextEventResponseDto {
         this.currentResourceId = currentResourceId;
     }
 
-    public List<Map<String, Object>> getAttempt() {
-        return attempt;
+    public List<Map<String, Object>> getEventsResponse() {
+        return eventsResponse;
     }
 
-    public void setAttempt(List<Map<String, Object>> attempt) {
-        this.attempt = attempt;
+    public void setEventsResponse(List<Map<String, Object>> eventsResponse) {
+        this.eventsResponse = eventsResponse;
     }
 
+    public List<AttemptDto> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<AttemptDto> events) {
+        this.events = events;
+    }
 }

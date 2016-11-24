@@ -14,8 +14,8 @@ public class ContextProfileEventService {
     @Autowired
     ContextProfileEventRepository contextProfileEventRepository;
 
-    List<ContextProfileEvent> findAttemptsByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId){
-        return contextProfileEventRepository.findAttemptsByContextProfileIdAndResourceId(contextProfileId, resourceId);
+    List<ContextProfileEvent> findEventsByContextProfileId(UUID contextProfileId){
+        return contextProfileEventRepository.findEventsByContextProfileId(contextProfileId);
     }
 
 }
