@@ -1,6 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -14,7 +16,6 @@ import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
@@ -25,8 +26,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.boot.json.GsonJsonParser;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
@@ -45,7 +47,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ContextService.class, Gson.class})
 public class ContextServiceTest {
 
     @InjectMocks
@@ -64,7 +67,7 @@ public class ContextServiceTest {
     ContextProfileService contextProfileService;
 
     @Mock
-    JsonParser jsonParser = new GsonJsonParser();
+    JsonParser jsonParser;
 
     @Mock
     CollectionService collectionService;
@@ -80,6 +83,9 @@ public class ContextServiceTest {
 
     @Mock
     ContextOwnerEntity contextOwnerEntity;
+
+    @Mock
+    Gson gson;
 
     @Test
     public void createContextFindProfile() throws Exception {
@@ -187,6 +193,20 @@ public class ContextServiceTest {
 
         when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
+        ProfileDto anyProfile = new ProfileDto();
+        anyProfile.setId(UUID.randomUUID().toString());
+        anyProfile.setFirstName("Celso");
+        anyProfile.setLastName("Borges");
+        anyProfile.setUsername("cborges");
+
+        JsonElement jsonElement = new Gson().toJsonTree(anyProfile);
+
+        when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
+
+        String serializedContextData = new Gson().toJson(assignmentDto.getContextData());
+
+        when(gson.toJson(any(ProfileDto.class))).thenReturn(serializedContextData);
+
         Context result = contextService.createContext(assignmentDto, lms);
 
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
@@ -243,64 +263,52 @@ public class ContextServiceTest {
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
         Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
-        Profile profile = new Profile(UUID.randomUUID(), "234", Lms.its_learning, "{body}", null);
+
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
+
+        List<UUID> externalProfileIdsToFind = new ArrayList<>();
+        //we are looking for this 2 profiles in the DB
+        externalProfileIdsToFind.add(UUID.fromString(profile1.getId()));
+        externalProfileIdsToFind.add(UUID.fromString(profile2.getId()));
+        List<UUID> foundExternalProfileIds = new ArrayList<>();
+        //this means only 1 out of 2 assignees exist in this context group
+        foundExternalProfileIds.add(UUID.fromString(profile1.getId()));
+
+        when(profileService.findExternalProfileIds(externalProfileIdsToFind, Lms.its_learning)).thenReturn(foundExternalProfileIds);
+
+        when(profileService.save(any(Profile.class))).thenReturn(new Profile());
+
+        List<UUID> profileIds = new ArrayList<>();
+        //we know that there are 2 profiles created in the context group, these are the assignee ids
+        profileIds.add(UUID.randomUUID());
+        profileIds.add(UUID.randomUUID());
+
+        when(profileService.findProfileIdsByExternalIdAndLms(externalProfileIdsToFind, Lms.its_learning)).thenReturn(profileIds);
+
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-        when(profileService.save(any(Profile.class))).thenReturn(profile);
-        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(null);
+
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setId(UUID.randomUUID().toString());
+        profileDto.setFirstName("Keylor");
+        profileDto.setLastName("Navas");
+        profileDto.setUsername("knavas");
+
+        JsonElement jsonElement = new Gson().toJsonTree(profileDto);
+
+        when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
+
+        ContextDataDto contextDataDto = new Gson().fromJson(contextDataMock.getContextData().getMetadata().toString(), ContextDataDto.class);
+
+        when(gson.fromJson(any(String.class), any())).thenReturn(contextDataDto);
 
         Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
         contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
         verify(contextRepository, times(1)).findById(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(profileService, times(2)).save(any(Profile.class));
-        verify(contextProfileService, times(2)).save(any(ContextProfile.class));
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
-        assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
-        assertEquals("Wrong id for group", groupId, result.getGroupId());
-        assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
-    }
-
-    @Test
-    public void updateAndDelete() throws Exception {
-        ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
-        ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
-
-        Map<String, Object> metadataMap = new HashMap<>();
-        metadataMap.put("classId", "classId");
-        metadata.setMetadata(metadataMap);
-        contextDataMock.setContextData(metadata);
-
-        List<ProfileDto> assignees = new ArrayList<>();
-        ProfileDto profile1 = new ProfileDto();
-        profile1.setId(UUID.randomUUID().toString());
-        List<UUID> ids = new ArrayList<>();
-        ids.add(UUID.randomUUID());
-        assignees.add(profile1);
-        contextDataMock.setAssignees(assignees);
-
-        UUID id = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
-        Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
-        Profile profile = new Profile(UUID.randomUUID(), "234", Lms.its_learning, "{body}", null);
-        when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
-        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-        when(profileService.save(any(Profile.class))).thenReturn(profile);
-        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(null);
-        when(contextProfileService.findContextProfileIdsByContextId(any(UUID.class))).thenReturn(ids);
-
-        Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
-        contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
-
-        verify(contextRepository, times(1)).findById(any(UUID.class));
-        verify(contextRepository, times(1)).save(any(Context.class));
-        verify(profileService, times(1)).save(any(Profile.class));
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(contextProfileService, times(1)).delete(any(UUID.class));
+        verify(profileService, times(1)).save(any(List.class));
+        verify(gson, times(2)).toJsonTree(any(ProfileDto.class));
+        verify(gson, times(1)).fromJson(any(String.class), any());
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
@@ -461,4 +469,27 @@ public class ContextServiceTest {
         assertNotNull("Context has no assignees", result.get(0).getAssignees());
     }
 
+    @Test
+    public void profileDtoToJsonObject() throws Exception {
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setId(UUID.randomUUID().toString());
+        profileDto.setFirstName("Keylor");
+        profileDto.setLastName("Navas");
+        profileDto.setUsername("knavas");
+
+        JsonElement jsonElement = new Gson().toJsonTree(profileDto);
+
+        when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
+
+        JsonObject jsonObject = WhiteboxImpl.invokeMethod(contextService, "profileDtoToJsonObject", profileDto);
+
+        verify(gson, times(1)).toJsonTree(any(ProfileDto.class));
+
+        assertEquals(jsonObject.size(), 3);
+        assertEquals(jsonObject.get("firstName").getAsString(), "Keylor");
+        assertEquals(jsonObject.get("lastName").getAsString(), "Navas");
+        assertEquals(jsonObject.get("username").getAsString(), "knavas");
+        assertNull(jsonObject.get("id"));
+
+    }
 }

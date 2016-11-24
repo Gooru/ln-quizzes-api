@@ -35,7 +35,31 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
+    public List<Profile> save(List<Profile> profiles) {
+        return profileRepository.save(profiles);
+    }
+
     public List<UUID> findAssignedIdsByContextId(UUID contextId){
         return profileRepository.findAssignedIdsByContextId(contextId);
+    }
+
+    /**
+     * Finds the list of external profile Ids that exist in the profile table
+     * @param externalProfileIds The list of external profile Ids to find
+     * @param lms the profile lms
+     * @return The Id list of the found profiles
+     */
+    public List<UUID> findExternalProfileIds(List<UUID> externalProfileIds, Lms lms){
+        return profileRepository.findExternalProfileIds(externalProfileIds, lms);
+    }
+
+    /**
+     * Finds the list of external profile Ids that exist in the profile table
+     * @param externalProfileIds The list of external profile Ids to find
+     * @param lms the profile lms
+     * @return The Id list of the found profiles
+     */
+    public List<UUID> findProfileIdsByExternalIdAndLms(List<UUID> externalProfileIds, Lms lms){
+        return profileRepository.findProfileIdsByExternalIdAndLms(externalProfileIds, lms);
     }
 }

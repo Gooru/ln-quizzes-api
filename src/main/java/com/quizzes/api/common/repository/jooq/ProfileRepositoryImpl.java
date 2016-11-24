@@ -3,13 +3,16 @@ package com.quizzes.api.common.repository.jooq;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Profile;
+import com.quizzes.api.common.model.tables.records.ProfileRecord;
 import com.quizzes.api.common.repository.ProfileRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.quizzes.api.common.model.tables.Context.CONTEXT;
 import static com.quizzes.api.common.model.tables.Group.GROUP;
@@ -29,6 +32,12 @@ public class ProfileRepositoryImpl implements ProfileRepository {
         } else {
             return updateProfile(profile);
         }
+    }
+
+    @Override
+    public List<Profile> save(final List<Profile> profiles) {
+        return profiles.stream().map(profile -> { Profile newProfile = insertProfile(profile);
+                                        return newProfile;}).collect(Collectors.toList());
     }
 
     @Override
@@ -71,6 +80,24 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(GROUP.ID))
                 .where(CONTEXT.ID.eq(contextId))
+                .fetchInto(UUID.class);
+    }
+
+    @Override
+    public List<UUID> findExternalProfileIds(List<UUID> externalProfileIds, Lms lms){
+        return jooq.select(PROFILE.EXTERNAL_ID)
+                .from(PROFILE)
+                .where(PROFILE.EXTERNAL_ID.in(externalProfileIds))
+                .and(PROFILE.LMS_ID.eq(lms))
+                .fetchInto(UUID.class);
+    }
+
+    @Override
+    public List<UUID> findProfileIdsByExternalIdAndLms(List<UUID> externalProfileIds, Lms lms){
+        return jooq.select(PROFILE.ID)
+                .from(PROFILE)
+                .where(PROFILE.EXTERNAL_ID.in(externalProfileIds))
+                .and(PROFILE.LMS_ID.eq(lms))
                 .fetchInto(UUID.class);
     }
 

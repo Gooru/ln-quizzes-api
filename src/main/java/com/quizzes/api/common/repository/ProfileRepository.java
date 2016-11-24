@@ -16,5 +16,11 @@ public interface ProfileRepository {
 
     Profile save(Profile id);
 
+    List<Profile> save(List<Profile> profiles);
+
     List<UUID> findAssignedIdsByContextId(UUID contextId);
+
+    List<UUID> findExternalProfileIds(List<UUID> externalProfileIds, Lms lms);
+
+    List<UUID> findProfileIdsByExternalIdAndLms(List<UUID> externalProfileIds, Lms lms);
 }
