@@ -3,14 +3,14 @@ package com.quizzes.api.common.dto.controller;
 import java.util.Map;
 
 public class ContextDataDto {
-    private Map<String, String> metadata;
+    private Map<String, Object> metadata;
     private Map<String, String> contextMap;
 
-    public Map<String, String> getMetadata() {
+    public Map<String, Object> getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(Map<String, String> metadata) {
+    public void setMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
     }
 

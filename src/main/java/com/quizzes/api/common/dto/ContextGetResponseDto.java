@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
 import java.util.Map;
-import java.sql.Timestamp;
 
 public class ContextGetResponseDto extends CommonContextGetResponseDto {
 
@@ -16,16 +15,6 @@ public class ContextGetResponseDto extends CommonContextGetResponseDto {
     @ApiModelProperty(hidden = true)
     @SerializedName("contextData")
     private Map<String, Object> contextDataResponse;
-
-    private Timestamp startDate;
-
-    public long getStartDate(){
-      return startDate.getTime();
-    }
-
-    public void setStartDate(long startDate){
-      this.startDate = new Timestamp(startDate);
-    }
 
     public ContextGetResponseDto() {
     }

@@ -15,6 +15,7 @@ import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.ContextProfile;
+import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.tables.pojos.Group;
 import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
@@ -204,7 +205,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void findById() {
+    public void findById(){
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
@@ -225,7 +226,7 @@ public class ContextServiceTest {
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
         ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
 
-        Map<String, String> metadataMap = new HashMap<>();
+        Map<String, Object> metadataMap = new HashMap<>();
         metadataMap.put("classId", "classId");
         metadata.setMetadata(metadataMap);
         contextDataMock.setContextData(metadata);
@@ -269,7 +270,7 @@ public class ContextServiceTest {
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
         ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
 
-        Map<String, String> metadataMap = new HashMap<>();
+        Map<String, Object> metadataMap = new HashMap<>();
         metadataMap.put("classId", "classId");
         metadata.setMetadata(metadataMap);
         contextDataMock.setContextData(metadata);
@@ -351,7 +352,6 @@ public class ContextServiceTest {
         assertNotNull("Result is Null", result);
         assertNotNull("Context id is null", result.getId());
         assertNotNull("Owner id is null", result.getOwner().getId());
-        assertNotNull("Start Date is null", result.getStartDate());
         assertFalse("ContextData is empty", result.getContextDataResponse().isEmpty());
         assertEquals("Size of the list is wrong", 1, result.getAssignees().size());
     }
@@ -421,13 +421,13 @@ public class ContextServiceTest {
         when(row1.getGroupId()).thenReturn(UUID.randomUUID());
         when(row1.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row1.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
-                "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
+                        "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
+                        "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
         List<ContextAssigneeEntity> contextAssigneeEntityList1 = new ArrayList<>();
         contextAssigneeEntityList1.add(row1);
         contextsMap.put(contextId, contextAssigneeEntityList1);
 
-        UUID groupId = UUID.randomUUID();
+        UUID groupId =  UUID.randomUUID();
         contextId = UUID.randomUUID();
         ContextAssigneeEntity row2 = mock(ContextAssigneeEntity.class);
         when(row2.getId()).thenReturn(contextId);
@@ -435,8 +435,8 @@ public class ContextServiceTest {
         when(row2.getGroupId()).thenReturn(groupId);
         when(row2.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row2.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
-                "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+                        "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
+                        "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
         List<ContextAssigneeEntity> contextAssigneeEntityList2 = new ArrayList<>();
         contextAssigneeEntityList2.add(row2);
 
@@ -446,8 +446,8 @@ public class ContextServiceTest {
         when(row3.getGroupId()).thenReturn(groupId);
         when(row3.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row3.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
-                "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+                        "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
+                        "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
         contextAssigneeEntityList2.add(row3);
         contextsMap.put(contextId, contextAssigneeEntityList2);
 
