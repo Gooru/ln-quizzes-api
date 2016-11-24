@@ -9,7 +9,7 @@ public interface ContextOwnerEntity extends ContextEntity {
 
     void setOwnerProfileId(UUID ownerProfileId);
 
-    Timestamp getCreatedAt();
+    int getCreatedAt();
 
     void setCreatedAt(Timestamp createdAt);
 

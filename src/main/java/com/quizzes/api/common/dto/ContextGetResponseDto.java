@@ -19,12 +19,12 @@ public class ContextGetResponseDto extends CommonContextGetResponseDto {
 
     private Timestamp startDate;
 
-    public Timestamp getStartDate(){
-      return startDate;
+    public long getStartDate(){
+      return startDate.getTime();
     }
 
-    public void setStartDate(Timestamp startDate){
-      this.startDate = startDate;
+    public void setStartDate(long startDate){
+      this.startDate = new Timestamp(startDate);
     }
 
     public ContextGetResponseDto() {

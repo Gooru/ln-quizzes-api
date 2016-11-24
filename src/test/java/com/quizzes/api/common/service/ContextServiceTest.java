@@ -353,6 +353,7 @@ public class ContextServiceTest {
         assertNotNull("Result is Null", result);
         assertNotNull("Context id is null", result.getId());
         assertNotNull("Owner id is null", result.getOwner().getId());
+        assertNotNull("Start Date is null", result.getStartDate());
         assertFalse("ContextData is empty", result.getContextDataResponse().isEmpty());
         assertEquals("Size of the list is wrong", 1, result.getAssignees().size());
     }
