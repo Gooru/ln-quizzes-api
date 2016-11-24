@@ -52,7 +52,8 @@ public class ContextService {
     @Autowired
     JsonParser jsonParser;
 
-    private Gson gson = new GsonConfiguration().gson();
+    @Autowired
+    private Gson gson;
 
     @Autowired
     ContextProfileEventService contextProfileEventService;
@@ -106,7 +107,6 @@ public class ContextService {
      * @return the updated Context
      */
     public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
-        Gson gson = new Gson();
         Context context = contextRepository.findById(contextId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
@@ -306,7 +306,7 @@ public class ContextService {
             groupProfileService.save(groupProfile);
         }
     }
-    
+
     private JsonObject profileDtoToJsonObject(ProfileDto profileDto){
         JsonElement jsonElement = gson.toJsonTree(profileDto);
         JsonObject jsonObject = jsonElement.getAsJsonObject();

@@ -1,6 +1,9 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -22,14 +25,15 @@ import com.quizzes.api.common.model.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.boot.json.JsonParser;
 
@@ -49,7 +53,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ContextService.class, Gson.class})
 public class ContextServiceTest {
 
     @InjectMocks
@@ -84,6 +89,9 @@ public class ContextServiceTest {
 
     @Mock
     ContextOwnerEntity contextOwnerEntity;
+
+    @Mock
+    Gson gson;
 
     @Test
     public void createContextFindProfile() throws Exception {
@@ -254,12 +262,28 @@ public class ContextServiceTest {
 
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setId(UUID.randomUUID().toString());
+        profileDto.setFirstName("Keylor");
+        profileDto.setLastName("Navas");
+        profileDto.setUsername("knavas");
+
+        JsonElement jsonElement = new Gson().toJsonTree(profileDto);
+
+        when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
+
+        ContextDataDto contextDataDto = new Gson().fromJson(contextDataMock.getContextData().getMetadata().toString(), ContextDataDto.class);
+
+        when(gson.fromJson(any(String.class), any())).thenReturn(contextDataDto);
+
         Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
         contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
         verify(contextRepository, times(1)).findById(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
         verify(profileService, times(1)).save(any(List.class));
+        verify(gson, times(2)).toJsonTree(any(ProfileDto.class));
+        verify(gson, times(1)).fromJson(any(String.class), any());
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
@@ -466,13 +490,13 @@ public class ContextServiceTest {
         when(row1.getGroupId()).thenReturn(UUID.randomUUID());
         when(row1.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row1.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                        "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
-                        "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
+                "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
+                "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
         List<ContextAssigneeEntity> contextAssigneeEntityList1 = new ArrayList<>();
         contextAssigneeEntityList1.add(row1);
         contextsMap.put(contextId, contextAssigneeEntityList1);
 
-        UUID groupId =  UUID.randomUUID();
+        UUID groupId = UUID.randomUUID();
         contextId = UUID.randomUUID();
         ContextAssigneeEntity row2 = mock(ContextAssigneeEntity.class);
         when(row2.getId()).thenReturn(contextId);
@@ -480,8 +504,8 @@ public class ContextServiceTest {
         when(row2.getGroupId()).thenReturn(groupId);
         when(row2.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row2.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                        "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
-                        "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+                "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
+                "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
         List<ContextAssigneeEntity> contextAssigneeEntityList2 = new ArrayList<>();
         contextAssigneeEntityList2.add(row2);
 
@@ -491,8 +515,8 @@ public class ContextServiceTest {
         when(row3.getGroupId()).thenReturn(groupId);
         when(row3.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row3.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                        "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
-                        "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+                "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
+                "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
         contextAssigneeEntityList2.add(row3);
         contextsMap.put(contextId, contextAssigneeEntityList2);
 
@@ -507,4 +531,27 @@ public class ContextServiceTest {
         assertNotNull("Context has no assignees", result.get(0).getAssignees());
     }
 
+    @Test
+    public void profileDtoToJsonObject() throws Exception {
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setId(UUID.randomUUID().toString());
+        profileDto.setFirstName("Keylor");
+        profileDto.setLastName("Navas");
+        profileDto.setUsername("knavas");
+
+        JsonElement jsonElement = new Gson().toJsonTree(profileDto);
+
+        when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
+
+        JsonObject jsonObject = WhiteboxImpl.invokeMethod(contextService, "profileDtoToJsonObject", profileDto);
+
+        verify(gson, times(1)).toJsonTree(any(ProfileDto.class));
+
+        assertEquals(jsonObject.size(), 3);
+        assertEquals(jsonObject.get("firstName").getAsString(), "Keylor");
+        assertEquals(jsonObject.get("lastName").getAsString(), "Navas");
+        assertEquals(jsonObject.get("username").getAsString(), "knavas");
+        assertNull(jsonObject.get("id"));
+
+    }
 }
