@@ -183,9 +183,7 @@ public class ContextService {
     }
 
     public List<Context> findContextByOwnerId(UUID profileId) {
-
         return contextRepository.findByOwnerId(profileId);
-
     }
 
     public List<CreatedContextGetResponseDto> findCreatedContexts(UUID ownerId) {
