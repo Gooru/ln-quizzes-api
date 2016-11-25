@@ -97,22 +97,6 @@ public class ContextController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(
-            value = "Finish event",
-            notes = "Sends event to finish the current collection attempt.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Finish the current attempt"),
-            @ApiResponse(code = 500, message = "Bad request")
-    })
-    @RequestMapping(path = "/v1/context/{contextId}/event/end", method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> finishContextEvent(
-            @PathVariable UUID contextId,
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) {
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @ApiOperation(value = "Get context", notes = "Gets the context information.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the Context Information", response = ContextGetResponseDto.class),

@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -73,6 +75,16 @@ public class ContextEventControllerTest {
         assertEquals("Wrong collection id", 1, resultBody.getEventsResponse().size());
         assertTrue("Answer key not found", resultBody.getEventsResponse().get(0).containsKey("answer"));
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+    }
+
+    @Test
+    public void finishContextEvent() throws Exception {
+        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning", UUID.randomUUID());
+        verify(contextEventService, times(1)).finishContextEvent(any(UUID.class), any(UUID.class));
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertNull("Body is not null", result.getBody());
     }
 
 }

@@ -6,6 +6,7 @@ import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.tools.json.JSONArray;
@@ -43,37 +44,69 @@ public class ContextEventService {
     @Autowired
     ResourceService resourceService;
 
+    @Autowired
+    ProfileService profileService;
+
 
     public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
-        Context context = contextService.findById(contextId);
-        if (context != null) {
-            ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
-            //TODO: If context_profile is complete we need to remove all the events
+        Context context = validateContext(contextId);
+        validateProfileInContext(contextId, profileId);
 
-            if (contextProfile == null) {
-                Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
-                contextProfile = new ContextProfile();
-                contextProfile.setContextId(contextId);
-                contextProfile.setProfileId(profileId);
-                contextProfile.setCurrentResourceId(firstResource.getId());
-                contextProfile = contextProfileService.save(contextProfile);
-            }
+        ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
+        //TODO: If context_profile is complete we need to remove all the events
 
-            CollectionDto collection = new CollectionDto();
-            collection.setId(context.getCollectionId().toString());
-
-            List<ContextProfileEvent> events = contextProfileEventService
-                    .findEventsByContextProfileId(contextProfile.getProfileId());
-
-            StartContextEventResponseDto result = new StartContextEventResponseDto();
-            result.setId(contextId);
-            result.setCurrentResourceId(contextProfile.getCurrentResourceId());
-            result.setCollection(collection);
-            result.setEventsResponse(convertContextProfileToMap(events));
-            return result;
+        if (contextProfile == null) {
+            Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
+            contextProfile = new ContextProfile();
+            contextProfile.setContextId(contextId);
+            contextProfile.setProfileId(profileId);
+            contextProfile.setCurrentResourceId(firstResource.getId());
+            contextProfile = contextProfileService.save(contextProfile);
         }
-        logger.error("Getting context: " + contextId + " was not found");
-        throw new ContentNotFoundException("We couldn't find a context with id: " + contextId);
+
+        CollectionDto collection = new CollectionDto();
+        collection.setId(context.getCollectionId().toString());
+
+        List<ContextProfileEvent> events = contextProfileEventService
+                .findEventsByContextProfileId(contextProfile.getProfileId());
+
+        StartContextEventResponseDto result = new StartContextEventResponseDto();
+        result.setId(contextId);
+        result.setCurrentResourceId(contextProfile.getCurrentResourceId());
+        result.setCollection(collection);
+        result.setEventsResponse(convertContextProfileToMap(events));
+        return result;
+    }
+
+    private Context validateContext(UUID contextId) {
+        Context context = contextService.findById(contextId);
+        if (context == null) {
+            logger.error("Getting context: " + contextId + " was not found");
+            throw new ContentNotFoundException("We couldn't find a context with id: " + contextId);
+        }
+        return context;
+    }
+
+    private void validateProfileInContext(UUID contextId, UUID profileId) {
+        Profile profile = profileService.findAssigneeInContext(contextId, profileId);
+        if (profile == null) {
+            logger.error("Getting profile: " + profileId + " was not found");
+            throw new ContentNotFoundException("We couldn't find a profile with id: " + profileId
+                    + " for context " + contextId);
+        }
+    }
+
+    public void finishContextEvent(UUID contextId, UUID profileId) {
+        ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
+        if (contextProfile == null) {
+            logger.error("Getting context_profile: " + contextId + " was not found");
+            throw new ContentNotFoundException("We couldn't find a context with id: " + contextId + " for this user.");
+        }
+
+        if(!contextProfile.getIsComplete()) {
+            contextProfile.setIsComplete(true);
+            contextProfileService.save(contextProfile);
+        }
     }
 
     private List<Map<String, Object>> convertContextProfileToMap(List<ContextProfileEvent> events) {

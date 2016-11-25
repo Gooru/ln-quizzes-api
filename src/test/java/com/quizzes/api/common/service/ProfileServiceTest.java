@@ -16,6 +16,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 
-public class ProfileServiceImplTest {
+public class ProfileServiceTest {
 
     @InjectMocks
     private ProfileService profileService = Mockito.spy(ProfileService.class);
@@ -57,21 +58,12 @@ public class ProfileServiceImplTest {
     }
 
     @Test
-    public void findByExternalIdAndLmsId() throws Exception {
-        UUID id = UUID.randomUUID();
-        Profile profile = new Profile(id, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null);
-        Lms lms = Lms.its_learning;
-        when(profileRepository
-                .findByExternalIdAndLmsId("external-id", Lms.its_learning))
-                .thenReturn(profile);
-
-        Profile result = profileService.findByExternalIdAndLmsId("external-id", lms);
-        verify(profileRepository, times(1)).findByExternalIdAndLmsId(eq("external-id"), eq(lms));
+    public void findAssigneeInContext() throws Exception {
+        when(profileRepository.findAssigneeInContext(any(UUID.class), any(UUID.class))).thenReturn(new Profile());
+        Profile result = profileService.findAssigneeInContext(any(UUID.class), any(UUID.class));
+        verify(profileRepository, times(1)).findAssigneeInContext(any(UUID.class), any(UUID.class));
         assertNotNull("Response is null", result);
-        assertEquals("Wrong id", profile.getId(), result.getId());
-        assertEquals("Wrong profile data", "{\"firstName\":\"name\"}", result.getProfileData());
-        assertEquals("Wrong lms id", lms, result.getLmsId());
-        assertEquals("Wrong external id", "external-id", result.getExternalId());
+        assertEquals("Response is not a profile", Profile.class, result.getClass());
     }
 
     @Test

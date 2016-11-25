@@ -266,13 +266,13 @@ public class ContextServiceTest {
 
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
 
-        List<UUID> externalProfileIdsToFind = new ArrayList<>();
+        List<String> externalProfileIdsToFind = new ArrayList<>();
         //we are looking for this 2 profiles in the DB
-        externalProfileIdsToFind.add(UUID.fromString(profile1.getId()));
-        externalProfileIdsToFind.add(UUID.fromString(profile2.getId()));
-        List<UUID> foundExternalProfileIds = new ArrayList<>();
+        externalProfileIdsToFind.add(profile1.getId());
+        externalProfileIdsToFind.add(profile2.getId());
+        List<String> foundExternalProfileIds = new ArrayList<>();
         //this means only 1 out of 2 assignees exist in this context group
-        foundExternalProfileIds.add(UUID.fromString(profile1.getId()));
+        foundExternalProfileIds.add(profile1.getId());
 
         when(profileService.findExternalProfileIds(externalProfileIdsToFind, Lms.its_learning)).thenReturn(foundExternalProfileIds);
 
@@ -307,7 +307,7 @@ public class ContextServiceTest {
         verify(contextRepository, times(1)).findById(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
         verify(profileService, times(1)).save(any(List.class));
-        verify(gson, times(2)).toJsonTree(any(ProfileDto.class));
+        verify(gson, times(1)).toJsonTree(any(ProfileDto.class));
         verify(gson, times(1)).fromJson(any(String.class), any());
 
         assertNotNull("Response is Null", result);
