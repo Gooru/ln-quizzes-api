@@ -117,8 +117,8 @@ public class ContextService {
 
         //checks if the assignees exists, if not, creates the assignee profile
         if (profiles != null && !profiles.isEmpty()){
-            List<UUID> requestExternalProfileIds = profiles.stream().map(profile -> UUID.fromString(profile.getId())).collect(Collectors.toList());
-            List<UUID> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
+            List<String> requestExternalProfileIds = profiles.stream().map(profile -> profile.getId()).collect(Collectors.toList());
+            List<String> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
             //we are creating new profiles
             //we are not updating existing info of existing profiles
             List<Profile> notFoundProfiles = profiles.stream()
