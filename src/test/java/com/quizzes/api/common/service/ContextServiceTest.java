@@ -389,6 +389,7 @@ public class ContextServiceTest {
         assertNotNull("First object is null", resultEntity);
         assertNotNull("Id is null", resultEntity.getId());
         assertNotNull("Id is null", resultEntity.getCollection().getId());
+        assertNotNull("Created Date is null", resultEntity.getCreatedDate());
 
         assertFalse("Context response is empty", resultEntity.getContextDataResponse().isEmpty());
         assertNotNull("Owner is null", resultEntity.getOwner().getId());

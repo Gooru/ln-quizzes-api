@@ -4,12 +4,14 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 
 import java.util.Map;
 import java.util.UUID;
-
+import java.sql.Timestamp;
 public class CommonContextGetResponseDto {
 
     private UUID id;
 
     private CollectionDto collection;
+
+    private Timestamp createdDate;
 
     private transient ContextDataDto contextData;
 
@@ -30,6 +32,14 @@ public class CommonContextGetResponseDto {
 
     public void setCollection(CollectionDto collection) {
         this.collection = collection;
+    }
+
+    public long getCreatedDate(){
+        return this.createdDate.getTime();
+    }
+
+    public void setCreatedDate(Timestamp createdDate){
+      this.createdDate = createdDate;
     }
 
     public ContextDataDto getContextData() {

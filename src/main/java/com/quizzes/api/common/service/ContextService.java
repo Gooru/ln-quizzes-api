@@ -229,6 +229,7 @@ public class ContextService {
 
                     response.setCollection(collectionDto);
                     response.setId(context.getId());
+                    response.setCreatedDate(context.getCreatedAt());
                     response.setContextDataResponse(jsonParser.parseMap(context.getContextData()));
 
                     IdResponseDto ownerId = new IdResponseDto();
