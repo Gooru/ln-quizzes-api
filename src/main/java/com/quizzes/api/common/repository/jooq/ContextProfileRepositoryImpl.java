@@ -29,7 +29,15 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
     }
 
     @Override
-    public ContextProfile save(ContextProfile contextProfile) {
+    public ContextProfile save(final ContextProfile contextProfile) {
+        if (contextProfile.getId() == null) {
+            return insertContextProfile(contextProfile);
+        } else {
+            return updateContextProfile(contextProfile);
+        }
+    }
+
+    private ContextProfile insertContextProfile(ContextProfile contextProfile) {
         return jooq.insertInto(CONTEXT_PROFILE)
                 .set(CONTEXT_PROFILE.ID, UUID.randomUUID())
                 .set(CONTEXT_PROFILE.CONTEXT_ID, contextProfile.getContextId())
@@ -38,8 +46,17 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .returning()
                 .fetchOne()
                 .into(ContextProfile.class);
-
     }
+
+    private ContextProfile updateContextProfile(ContextProfile contextProfile) {
+        return jooq.update(CONTEXT_PROFILE)
+                .set(CONTEXT_PROFILE.IS_COMPLETE, true)
+                .where(CONTEXT_PROFILE.ID.eq(contextProfile.getId()))
+                .returning()
+                .fetchOne()
+                .into(ContextProfile.class);
+    }
+
 
     @Override
     public List<UUID> findContextProfileIdsByContextId(UUID contextId) {

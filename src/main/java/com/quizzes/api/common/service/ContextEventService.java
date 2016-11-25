@@ -96,6 +96,19 @@ public class ContextEventService {
         }
     }
 
+    public void finishContextEvent(UUID contextId, UUID profileId) {
+        ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
+        if (contextProfile == null) {
+            logger.error("Getting context_profile: " + contextId + " was not found");
+            throw new ContentNotFoundException("We couldn't find a context with id: " + contextId + " for this user.");
+        }
+
+        if(!contextProfile.getIsComplete()) {
+            contextProfile.setIsComplete(true);
+            contextProfileService.save(contextProfile);
+        }
+    }
+
     private List<Map<String, Object>> convertContextProfileToMap(List<ContextProfileEvent> events) {
         return events.stream().map(event -> {
             Map<String, Object> data = jsonParser.parseMap(event.getEventData());

@@ -313,6 +313,38 @@ public class ContextEventServiceTest {
         assertTrue("Response does not answer", result.containsKey("answer"));
         assertEquals("Answer is not an empty array", JSONArray.class, result.get("answer").getClass());
     }
+    
+    @Test
+    public void finishContextEvent() throws Exception {
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setIsComplete(false);
+
+        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+
+        contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+    }
+
+    @Test
+    public void finishContextEventDoNothing() throws Exception {
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setIsComplete(true);
+
+        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+
+        contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void finishContextEventException() throws Exception {
+        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
+    }
 
     @Test(expected = ContentNotFoundException.class)
     public void validateProfileInContext() throws Exception {

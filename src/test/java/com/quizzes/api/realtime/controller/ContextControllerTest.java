@@ -351,14 +351,6 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void finishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-        assertNull("Body is not null", result.getBody());
-    }
-
-    @Test
     public void getContext() throws Exception {
         ContextGetResponseDto response = new ContextGetResponseDto();
         UUID id = UUID.randomUUID();
