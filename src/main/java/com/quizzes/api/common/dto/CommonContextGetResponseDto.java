@@ -11,7 +11,7 @@ public class CommonContextGetResponseDto {
 
     private CollectionDto collection;
 
-    private Timestamp createdDate;
+    private long createdDate;
 
     private transient ContextDataDto contextData;
 
@@ -35,10 +35,10 @@ public class CommonContextGetResponseDto {
     }
 
     public long getCreatedDate(){
-        return this.createdDate.getTime();
+        return this.createdDate;
     }
 
-    public void setCreatedDate(Timestamp createdDate){
+    public void setCreatedDate(long createdDate){
       this.createdDate = createdDate;
     }
 

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.sql.Timestamp;
 
 @Service
 public class ContextService {
@@ -227,7 +228,7 @@ public class ContextService {
 
                     response.setCollection(collectionDto);
                     response.setId(context.getId());
-                    response.setCreatedDate(context.getCreatedAt());
+                    response.setCreatedDate(context.getCreatedAt().getTime());
                     response.setContextDataResponse(jsonParser.parseMap(context.getContextData()));
 
                     IdResponseDto ownerId = new IdResponseDto();
