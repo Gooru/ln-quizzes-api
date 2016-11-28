@@ -4,7 +4,7 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 
 import java.util.Map;
 import java.util.UUID;
-import java.sql.Timestamp;
+
 public class CommonContextGetResponseDto {
 
     private UUID id;
