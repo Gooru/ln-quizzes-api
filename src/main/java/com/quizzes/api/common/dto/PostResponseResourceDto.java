@@ -1,9 +1,9 @@
 package com.quizzes.api.common.dto;
 
-public class ResourcePostResponseDto extends ResourceCommonDto {
+public class PostResponseResourceDto extends CommonResourceDto {
     private int score;
 
-    public ResourcePostResponseDto() {
+    public PostResponseResourceDto() {
     }
 
     public int getScore() {

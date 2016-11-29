@@ -20,7 +20,7 @@ public class StartContextEventResponseDto {
     @SerializedName("events")
     private List<Map<String, Object>> eventsResponse;
 
-    private transient List<ResourcePostResponseDto> events;
+    private transient List<PostResponseResourceDto> events;
 
     public StartContextEventResponseDto() {
     }
@@ -57,11 +57,11 @@ public class StartContextEventResponseDto {
         this.eventsResponse = eventsResponse;
     }
 
-    public List<ResourcePostResponseDto> getEvents() {
+    public List<PostResponseResourceDto> getEvents() {
         return events;
     }
 
-    public void setEvents(List<ResourcePostResponseDto> events) {
+    public void setEvents(List<PostResponseResourceDto> events) {
         this.events = events;
     }
 }

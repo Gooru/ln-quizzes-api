@@ -5,7 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
-import com.quizzes.api.common.dto.ResourcePostRequestDto;
+import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -333,7 +333,7 @@ public class ContextEventServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
         UUID resourceId = UUID.randomUUID();;
-        ResourcePostRequestDto resourceDto = new ResourcePostRequestDto();
+        PostRequestResourceDto resourceDto = new PostRequestResourceDto();
         resourceDto.setResourceId(resourceId);
         body.setPreviousResource(resourceDto);
 

@@ -5,13 +5,13 @@ import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import java.util.List;
 import java.util.UUID;
 
-public class ResourceCommonDto {
+public class CommonResourceDto {
     private UUID resourceId;
     private long timeSpent;
     private int reaction;
     private List<AnswerDto> answer;
 
-    public ResourceCommonDto() {
+    public CommonResourceDto() {
     }
 
     public UUID getResourceId() {

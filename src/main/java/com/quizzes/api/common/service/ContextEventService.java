@@ -3,14 +3,10 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.stream.JsonReader;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
-import com.quizzes.api.common.dto.ResourceCommonDto;
-import com.quizzes.api.common.dto.ResourcePostRequestDto;
+import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -27,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
 
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -151,7 +146,7 @@ public class ContextEventService {
     }
 
     private void saveEvent(ContextProfile contextProfile, OnResourceEventPostRequestDto body) {
-        ResourcePostRequestDto resourceData = body.getPreviousResource();
+        PostRequestResourceDto resourceData = body.getPreviousResource();
 
         Resource previousResource = validateResource(resourceData.getResourceId());
         Map<String, Object> previousResourceData = jsonParser.parseMap(previousResource.getResourceData());
