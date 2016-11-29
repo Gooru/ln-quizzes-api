@@ -50,7 +50,7 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId){
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA,
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, //CONTEXT.MODIFIED_AT,
                 GROUP_PROFILE.PROFILE_ID.as("AssigneeProfileId"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))

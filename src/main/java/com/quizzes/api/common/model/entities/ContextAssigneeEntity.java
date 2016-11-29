@@ -1,6 +1,7 @@
 package com.quizzes.api.common.model.entities;
 
 import java.util.UUID;
+import java.sql.Timestamp;
 
 public interface ContextAssigneeEntity extends ContextEntity {
 
@@ -8,4 +9,11 @@ public interface ContextAssigneeEntity extends ContextEntity {
 
     void setAssigneeProfileId(UUID assigneeId);
 
+    Timestamp getCreatedDate();
+
+    void setCreatedDate(Timestamp createdDate);
+
+    Timestamp getModifiedDate();
+
+    void setModifiedDate(Timestamp modifiedDate);
 }

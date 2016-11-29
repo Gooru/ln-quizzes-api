@@ -191,6 +191,7 @@ public class ContextService {
         Map<UUID, List<ContextAssigneeEntity>> contextByOwnerList =
                 contextRepository.findContextAssigneeByOwnerId(ownerId);
 
+
         if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
             contextByOwnerList.forEach(
                     (key, value) -> {
@@ -207,6 +208,9 @@ public class ContextService {
                                 return assignee;
                             }).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
+                            createdContextGetResponseDto.setCreatedDate(firstEntryValue.getCreatedDate().getTime());
+                            createdContextGetResponseDto.setModifiedDate(firstEntryValue.getCreatedDate().getTime());
+                            //@TODO Change this value to getModifiedDate when it is available from the DB
                         }
                         result.add(createdContextGetResponseDto);
 
