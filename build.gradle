@@ -86,8 +86,8 @@ jooq {
                 // ...
             }
             target {
-                packageName = "com.quizzes.api.common"
-                // directory = ...
+                packageName = "com.quizzes.api.common.model"
+                directory = "src/main/java/"
             }
         }
     }

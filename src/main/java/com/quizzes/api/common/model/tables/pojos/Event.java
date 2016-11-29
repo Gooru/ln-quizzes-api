@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Event implements java.io.Serializable {
 
-	private static final long serialVersionUID = 325883639;
+	private static final long serialVersionUID = -869344718;
 
 	private java.util.UUID     id;
 	private java.util.UUID     eventIndex;

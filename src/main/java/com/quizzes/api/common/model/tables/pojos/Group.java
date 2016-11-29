@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Group implements java.io.Serializable {
 
-	private static final long serialVersionUID = -965621628;
+	private static final long serialVersionUID = 1767830719;
 
 	private java.util.UUID     id;
 	private java.util.UUID     ownerProfileId;

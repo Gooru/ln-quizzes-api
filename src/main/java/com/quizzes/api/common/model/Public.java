@@ -9,7 +9,7 @@ package com.quizzes.api.common.model;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Public extends org.jooq.impl.SchemaImpl {
 
-	private static final long serialVersionUID = 82642439;
+	private static final long serialVersionUID = -1393016547;
 
 	/**
 	 * The singleton instance of <code>public</code>

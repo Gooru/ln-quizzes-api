@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileEventRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord> implements org.jooq.Record5<java.util.UUID, java.util.UUID, java.util.UUID, java.lang.String, java.sql.Timestamp> {
 
-	private static final long serialVersionUID = -401990157;
+	private static final long serialVersionUID = 1510447256;
 
 	/**
 	 * Setter for <code>public.context_profile_event.id</code>.

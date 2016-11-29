@@ -9,32 +9,32 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Resource implements java.io.Serializable {
 
-	private static final long serialVersionUID = -1261559813;
+	private static final long serialVersionUID = -440400202;
 
-	private java.util.UUID                   id;
-	private java.lang.String                 externalId;
+	private java.util.UUID                         id;
+	private java.lang.String                       externalId;
 	private com.quizzes.api.common.model.enums.Lms lmsId;
-	private java.util.UUID                   collectionId;
-	private java.lang.Boolean                isResource;
-	private java.util.UUID                   ownerProfileId;
-	private java.lang.String                 resourceData;
-	private java.lang.Short                  sequence;
-	private java.lang.Boolean                isDeleted;
-	private java.sql.Timestamp               createdAt;
+	private java.util.UUID                         collectionId;
+	private java.lang.Boolean                      isResource;
+	private java.util.UUID                         ownerProfileId;
+	private java.lang.String                       resourceData;
+	private java.lang.Short                        sequence;
+	private java.lang.Boolean                      isDeleted;
+	private java.sql.Timestamp                     createdAt;
 
 	public Resource() {}
 
 	public Resource(
-		java.util.UUID                   id,
-		java.lang.String                 externalId,
+		java.util.UUID                         id,
+		java.lang.String                       externalId,
 		com.quizzes.api.common.model.enums.Lms lmsId,
-		java.util.UUID                   collectionId,
-		java.lang.Boolean                isResource,
-		java.util.UUID                   ownerProfileId,
-		java.lang.String                 resourceData,
-		java.lang.Short                  sequence,
-		java.lang.Boolean                isDeleted,
-		java.sql.Timestamp               createdAt
+		java.util.UUID                         collectionId,
+		java.lang.Boolean                      isResource,
+		java.util.UUID                         ownerProfileId,
+		java.lang.String                       resourceData,
+		java.lang.Short                        sequence,
+		java.lang.Boolean                      isDeleted,
+		java.sql.Timestamp                     createdAt
 	) {
 		this.id = id;
 		this.externalId = externalId;

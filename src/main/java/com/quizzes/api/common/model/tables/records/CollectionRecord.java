@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CollectionRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.common.model.tables.records.CollectionRecord> implements org.jooq.Record9<java.util.UUID, java.lang.String, com.quizzes.api.common.model.enums.Lms, java.lang.Boolean, java.util.UUID, java.lang.String, java.lang.Boolean, java.lang.Boolean, java.sql.Timestamp> {
 
-	private static final long serialVersionUID = -656512830;
+	private static final long serialVersionUID = 177512803;
 
 	/**
 	 * Setter for <code>public.collection.id</code>.
@@ -96,16 +96,16 @@ public class CollectionRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.
 	}
 
 	/**
-	 * Setter for <code>public.collection.is_lock</code>.
+	 * Setter for <code>public.collection.is_locked</code>.
 	 */
-	public void setIsLock(java.lang.Boolean value) {
+	public void setIsLocked(java.lang.Boolean value) {
 		setValue(6, value);
 	}
 
 	/**
-	 * Getter for <code>public.collection.is_lock</code>.
+	 * Getter for <code>public.collection.is_locked</code>.
 	 */
-	public java.lang.Boolean getIsLock() {
+	public java.lang.Boolean getIsLocked() {
 		return (java.lang.Boolean) getValue(6);
 	}
 
@@ -210,7 +210,7 @@ public class CollectionRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.
 	 */
 	@Override
 	public org.jooq.Field<java.lang.Boolean> field7() {
-		return com.quizzes.api.common.model.tables.Collection.COLLECTION.IS_LOCK;
+		return com.quizzes.api.common.model.tables.Collection.COLLECTION.IS_LOCKED;
 	}
 
 	/**
@@ -282,7 +282,7 @@ public class CollectionRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.
 	 */
 	@Override
 	public java.lang.Boolean value7() {
-		return getIsLock();
+		return getIsLocked();
 	}
 
 	/**
@@ -360,7 +360,7 @@ public class CollectionRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.
 	 */
 	@Override
 	public CollectionRecord value7(java.lang.Boolean value) {
-		setIsLock(value);
+		setIsLocked(value);
 		return this;
 	}
 
@@ -404,7 +404,7 @@ public class CollectionRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.
 	/**
 	 * Create a detached, initialised CollectionRecord
 	 */
-	public CollectionRecord(java.util.UUID id, java.lang.String externalId, com.quizzes.api.common.model.enums.Lms lmsId, java.lang.Boolean isCollection, java.util.UUID ownerProfileId, java.lang.String collectionData, java.lang.Boolean isLock, java.lang.Boolean isDeleted, java.sql.Timestamp createdAt) {
+	public CollectionRecord(java.util.UUID id, java.lang.String externalId, com.quizzes.api.common.model.enums.Lms lmsId, java.lang.Boolean isCollection, java.util.UUID ownerProfileId, java.lang.String collectionData, java.lang.Boolean isLocked, java.lang.Boolean isDeleted, java.sql.Timestamp createdAt) {
 		super(com.quizzes.api.common.model.tables.Collection.COLLECTION);
 
 		setValue(0, id);
@@ -413,7 +413,7 @@ public class CollectionRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.
 		setValue(3, isCollection);
 		setValue(4, ownerProfileId);
 		setValue(5, collectionData);
-		setValue(6, isLock);
+		setValue(6, isLocked);
 		setValue(7, isDeleted);
 		setValue(8, createdAt);
 	}

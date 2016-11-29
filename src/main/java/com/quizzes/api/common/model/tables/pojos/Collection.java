@@ -9,30 +9,30 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection implements java.io.Serializable {
 
-	private static final long serialVersionUID = 94858723;
+	private static final long serialVersionUID = -2052611300;
 
-	private java.util.UUID                   id;
-	private java.lang.String                 externalId;
+	private java.util.UUID                         id;
+	private java.lang.String                       externalId;
 	private com.quizzes.api.common.model.enums.Lms lmsId;
-	private java.lang.Boolean                isCollection;
-	private java.util.UUID                   ownerProfileId;
-	private java.lang.String                 collectionData;
-	private java.lang.Boolean                isLock;
-	private java.lang.Boolean                isDeleted;
-	private java.sql.Timestamp               createdAt;
+	private java.lang.Boolean                      isCollection;
+	private java.util.UUID                         ownerProfileId;
+	private java.lang.String                       collectionData;
+	private java.lang.Boolean                      isLocked;
+	private java.lang.Boolean                      isDeleted;
+	private java.sql.Timestamp                     createdAt;
 
 	public Collection() {}
 
 	public Collection(
-		java.util.UUID                   id,
-		java.lang.String                 externalId,
+		java.util.UUID                         id,
+		java.lang.String                       externalId,
 		com.quizzes.api.common.model.enums.Lms lmsId,
-		java.lang.Boolean                isCollection,
-		java.util.UUID                   ownerProfileId,
-		java.lang.String                 collectionData,
-		java.lang.Boolean                isLock,
-		java.lang.Boolean                isDeleted,
-		java.sql.Timestamp               createdAt
+		java.lang.Boolean                      isCollection,
+		java.util.UUID                         ownerProfileId,
+		java.lang.String                       collectionData,
+		java.lang.Boolean                      isLocked,
+		java.lang.Boolean                      isDeleted,
+		java.sql.Timestamp                     createdAt
 	) {
 		this.id = id;
 		this.externalId = externalId;
@@ -40,7 +40,7 @@ public class Collection implements java.io.Serializable {
 		this.isCollection = isCollection;
 		this.ownerProfileId = ownerProfileId;
 		this.collectionData = collectionData;
-		this.isLock = isLock;
+		this.isLocked = isLocked;
 		this.isDeleted = isDeleted;
 		this.createdAt = createdAt;
 	}
@@ -93,12 +93,12 @@ public class Collection implements java.io.Serializable {
 		this.collectionData = collectionData;
 	}
 
-	public java.lang.Boolean getIsLock() {
-		return this.isLock;
+	public java.lang.Boolean getIsLocked() {
+		return this.isLocked;
 	}
 
-	public void setIsLock(java.lang.Boolean isLock) {
-		this.isLock = isLock;
+	public void setIsLocked(java.lang.Boolean isLocked) {
+		this.isLocked = isLocked;
 	}
 
 	public java.lang.Boolean getIsDeleted() {

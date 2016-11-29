@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CollectionOnAirRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.common.model.tables.records.CollectionOnAirRecord> implements org.jooq.Record3<java.util.UUID, java.lang.String, java.lang.String> {
 
-	private static final long serialVersionUID = 1258011909;
+	private static final long serialVersionUID = -1345877386;
 
 	/**
 	 * Setter for <code>public.collection_on_air.id</code>.
