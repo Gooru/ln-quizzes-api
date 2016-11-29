@@ -30,7 +30,7 @@ public class ContextEventController {
     private ContextEventService contextEventService;
 
     @ApiOperation(
-            value = "Start collection",
+            value = "Start collection attempt",
             notes = "Sends event to start the Collection attempt associated to the context. " +
                     "If the Collection attempt was not started previously there is not a start action executed. " +
                     "In any case returns the current attempt status.")
@@ -49,13 +49,13 @@ public class ContextEventController {
     }
 
     @ApiOperation(
-            value = "Finish collection",
+            value = "Finish collection attempt",
             notes = "Sends event to finish the current collection attempt.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Finish the current attempt"),
             @ApiResponse(code = 500, message = "Bad request")
     })
-    @RequestMapping(path = "/v1/context/{contextId}/event/end", method = RequestMethod.POST,
+    @RequestMapping(path = "/v1/context/{contextId}/event/finish", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> finishContextEvent(
             @PathVariable UUID contextId,
@@ -65,20 +65,20 @@ public class ContextEventController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Add event",
+    @ApiOperation(value = "On resource event",
             notes = "Sends event to indicate current resource position and provides the data generated" +
                     " in the previous resource (this value could be null in case there is not previous resource)")
     @ApiResponses({@ApiResponse(code = 200, message = "OK")})
     @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> addEvent(@PathVariable UUID resourceId,
+    public ResponseEntity<Void> onResourceEvent(@PathVariable UUID resourceId,
                                          @PathVariable UUID contextId,
                                          @ApiParam(value = "Json body", required = true, name = "Body")
                                          @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
                                          @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                          @RequestHeader(value = "profile-id") UUID profileId) {
-        contextEventService.addEvent(contextId, resourceId, profileId, onResourceEventPostRequestDto);
+        contextEventService.onResourceEvent(contextId, resourceId, profileId, onResourceEventPostRequestDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

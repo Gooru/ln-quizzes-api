@@ -3,7 +3,6 @@ package com.quizzes.api.common.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;

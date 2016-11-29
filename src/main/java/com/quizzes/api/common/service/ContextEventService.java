@@ -1,8 +1,10 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.ResourceCommonDto;
 import com.quizzes.api.common.dto.ResourcePostRequestDto;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
 
+import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,6 +61,9 @@ public class ContextEventService {
 
     @Autowired
     JsonUtil jsonUtil;
+
+    @Autowired
+    Gson gson;
 
 
     public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
@@ -108,15 +114,11 @@ public class ContextEventService {
         }
     }
 
-    public void addEvent(UUID contextId, UUID resourceId, UUID profileId, OnResourceEventPostRequestDto body) {
+    public void onResourceEvent(UUID contextId, UUID resourceId, UUID profileId, OnResourceEventPostRequestDto body) {
         ContextProfile contextProfile = validateContextProfile(contextId, profileId);
         Resource resource = validateResource(resourceId);
+        saveEvent(contextProfile, body);
 
-        //TODO: We are not saving the event if resource is null, is that ok?
-        //TODO: We could add more validations here id, answers, etc, etc..
-        if (body.getPreviousResource() != null && body.getPreviousResource().getId() != null) {
-            saveEvent(contextProfile, body);
-        }
         contextProfile.setCurrentResourceId(resource.getId());
         contextProfileService.save(contextProfile);
     }
@@ -151,7 +153,7 @@ public class ContextEventService {
     private void saveEvent(ContextProfile contextProfile, OnResourceEventPostRequestDto body) {
         ResourcePostRequestDto resourceData = body.getPreviousResource();
 
-        Resource previousResource = validateResource(resourceData.getId());
+        Resource previousResource = validateResource(resourceData.getResourceId());
         Map<String, Object> previousResourceData = jsonParser.parseMap(previousResource.getResourceData());
 
         ContextProfileEvent event = contextProfileEventService.
@@ -164,12 +166,12 @@ public class ContextEventService {
         }
 
         //TODO: Add logic to calculate the score
-        List<Object> correctAnswers = jsonParser.parseList(previousResourceData.get("correctAnswer").toString());
+
+        JsonElement jsonAnswers = gson.toJsonTree(previousResourceData.get("correctAnswer"));
+        JsonArray correctAnswers = jsonAnswers.getAsJsonArray();
         List<AnswerDto> answers = resourceData.getAnswer();
         resourceData.setScore(100);
-
-        JsonObject resourceDataJsonObject = jsonUtil.removePropertyFromObject(resourceData, "id");
-        event.setEventData(resourceDataJsonObject.toString());
+        event.setEventData(gson.toJson(resourceData));
 
         contextProfileEventService.save(event);
     }
@@ -177,8 +179,6 @@ public class ContextEventService {
     private List<Map<String, Object>> convertContextProfileToMap(List<ContextProfileEvent> events) {
         return events.stream().map(event -> {
             Map<String, Object> data = jsonParser.parseMap(event.getEventData());
-            data.remove("id");
-            data.put("resourceId", event.getResourceId());
             if (data.containsKey("answer") && data.get("answer").toString() != null) {
                 List<Object> answers = jsonParser.parseList(data.get("answer").toString());
                 data.put("answer", answers);

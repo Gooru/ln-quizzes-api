@@ -6,11 +6,20 @@ import java.util.List;
 import java.util.UUID;
 
 public class ResourceCommonDto {
+    private UUID resourceId;
     private long timeSpent;
     private int reaction;
     private List<AnswerDto> answer;
 
     public ResourceCommonDto() {
+    }
+
+    public UUID getResourceId() {
+        return resourceId;
+    }
+
+    public void setResourceId(UUID resourceId) {
+        this.resourceId = resourceId;
     }
 
     public long getTimeSpent() {

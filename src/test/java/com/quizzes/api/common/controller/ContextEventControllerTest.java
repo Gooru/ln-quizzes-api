@@ -91,7 +91,7 @@ public class ContextEventControllerTest {
 
     @Test
     public void addEvent() throws Exception {
-        ResponseEntity<?> result = controller.addEvent(UUID.randomUUID(), UUID.randomUUID(), new OnResourceEventPostRequestDto(), "quizzes", UUID.randomUUID());
+        ResponseEntity<?> result = controller.onResourceEvent(UUID.randomUUID(), UUID.randomUUID(), new OnResourceEventPostRequestDto(), "quizzes", UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNull("Body is not null", result.getBody());

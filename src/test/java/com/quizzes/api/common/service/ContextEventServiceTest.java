@@ -1,6 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.ResourcePostRequestDto;
@@ -14,6 +16,7 @@ import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.utils.JsonUtil;
 import org.jooq.tools.json.JSONArray;
+import org.jooq.tools.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -41,7 +44,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ContextEventService.class)
+@PrepareForTest({ContextEventService.class, Gson.class})
 public class ContextEventServiceTest {
 
     @InjectMocks
@@ -70,6 +73,9 @@ public class ContextEventServiceTest {
 
     @Mock
     JsonUtil jsonUtil;
+
+    @Mock
+    Gson gson;
 
     @Test
     public void startContextEvent() throws Exception {
@@ -259,7 +265,7 @@ public class ContextEventServiceTest {
     @Test
     public void convertContextProfileToMapWithoutAnswers() throws Exception {
         Map<String, String> eventData = new HashMap<>();
-        eventData.put("id", UUID.randomUUID().toString());
+        eventData.put("resourceId", UUID.randomUUID().toString());
         eventData.put("timeSpend", "1478623337");
         eventData.put("reaction", UUID.randomUUID().toString());
         eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
@@ -273,6 +279,7 @@ public class ContextEventServiceTest {
 
         Map<String, Object> map = new HashMap<>();
         map.put("answer", "test");
+        map.put("resourceId", "test");
         List<Object> listMock = new ArrayList<>();
         listMock.add("[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
 
@@ -284,7 +291,6 @@ public class ContextEventServiceTest {
 
         Map<String, Object> result = contextProfilesMap.get(0);
         assertEquals("Wrong number of context profiles", 1, contextProfilesMap.size());
-        assertFalse("Response includes id", result.containsKey("id"));
         assertTrue("Response does not resourceId", result.containsKey("resourceId"));
         assertTrue("Response does not answer", result.containsKey("answer"));
         assertEquals("Answer is not an empty array", ArrayList.class, result.get("answer").getClass());
@@ -293,7 +299,7 @@ public class ContextEventServiceTest {
     @Test
     public void convertContextProfileToMap() throws Exception {
         Map<String, String> eventData = new HashMap<>();
-        eventData.put("id", UUID.randomUUID().toString());
+        eventData.put("resourceId", UUID.randomUUID().toString());
         eventData.put("timeSpend", "1478623337");
         eventData.put("reaction", UUID.randomUUID().toString());
         eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
@@ -307,6 +313,7 @@ public class ContextEventServiceTest {
 
         Map<String, Object> map = new HashMap<>();
         map.put("test", "test");
+        map.put("resourceId", "test");
 
         when(jsonParser.parseMap(any(String.class))).thenReturn(map);
 
@@ -315,98 +322,51 @@ public class ContextEventServiceTest {
 
         Map<String, Object> result = contextProfilesMap.get(0);
         assertEquals("Wrong number of context profiles", 1, contextProfilesMap.size());
-        assertFalse("Response includes id", result.containsKey("id"));
-        assertTrue("Response does not resourceId", result.containsKey("resourceId"));
-        assertTrue("Response does not answer", result.containsKey("answer"));
+        assertTrue("Response does not contain resourceId", result.containsKey("resourceId"));
+        assertTrue("Response does not contain answer", result.containsKey("answer"));
         assertEquals("Answer is not an empty array", JSONArray.class, result.get("answer").getClass());
     }
-
-
     
     @Test
-    public void addEvent() throws Exception {
+    public void onResourceEvent() throws Exception {
         Resource resource = new Resource();
         ContextProfile contextProfile = new ContextProfile();
         OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
         UUID resourceId = UUID.randomUUID();;
         ResourcePostRequestDto resourceDto = new ResourcePostRequestDto();
-        resourceDto.setId(resourceId);
+        resourceDto.setResourceId(resourceId);
         body.setPreviousResource(resourceDto);
 
         ContextProfileEvent event = new ContextProfileEvent();
 
-        List<Object> list = new ArrayList<>();
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("correctAnswer", "test");
-
         when(jsonUtil.removePropertyFromObject(any(Object.class), any(String.class))).thenReturn(new JsonObject());
-        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
-        when(jsonParser.parseList(any(String.class))).thenReturn(list);
+
+        Map<String, Object> mapAnswers = new HashMap<>();
+        mapAnswers.put("correctAnswer", "[{\"value\":\"test\"}]");
+
+        JSONObject object = new JSONObject();
+        object.put("correctAnswer", "[{\"value\":\"test\"}]");
+
+        JsonElement jsonAnswers = new Gson().toJsonTree(mapAnswers.get("correctAnswer"));
+        JsonArray correctAnswers = new JsonArray();
+        correctAnswers.add(jsonAnswers);
+
+        when(gson.toJsonTree(any(Map.class))).thenReturn(correctAnswers);
+
         when(contextProfileService.
                 findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
         when(resourceService.findById(any(UUID.class))).thenReturn(resource);
         when(contextProfileEventService.
                 findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class))).thenReturn(event);
 
-        contextEventService.addEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
+        contextEventService.onResourceEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
 
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(2)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
         verify(jsonParser, times(1)).parseMap(any(String.class));
-        verify(jsonParser, times(1)).parseList(any(String.class));
         verify(contextProfileEventService, times(1)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
-        verify(jsonUtil, times(1)).removePropertyFromObject(any(Object.class), any(String.class));
         verify(contextProfileEventService, times(1)).save(any(ContextProfileEvent.class));
-    }
-
-    @Test
-    public void addEventBodyNull() throws Exception {
-        Resource resource = new Resource();
-        ContextProfile contextProfile = new ContextProfile();
-        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
-        ResourcePostRequestDto resourceDto = new ResourcePostRequestDto();
-        body.setPreviousResource(resourceDto);
-
-        when(contextProfileService.
-                findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
-        when(resourceService.findById(any(UUID.class))).thenReturn(resource);
-
-        contextEventService.addEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
-
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(1)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(jsonParser, times(0)).parseMap(any(String.class));
-        verify(jsonParser, times(0)).parseList(any(String.class));
-        verify(contextProfileEventService, times(0)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
-        verify(jsonUtil, times(0)).removePropertyFromObject(any(Object.class), any(String.class));
-        verify(contextProfileEventService, times(0)).save(any(ContextProfileEvent.class));
-    }
-
-    @Test
-    public void addEventBodyIdNull() throws Exception {
-        Resource resource = new Resource();
-        ContextProfile contextProfile = new ContextProfile();
-        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
-
-        body.setPreviousResource(null);
-
-        when(contextProfileService.
-                findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
-        when(resourceService.findById(any(UUID.class))).thenReturn(resource);
-
-        contextEventService.addEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
-
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(1)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(jsonParser, times(0)).parseMap(any(String.class));
-        verify(jsonParser, times(0)).parseList(any(String.class));
-        verify(contextProfileEventService, times(0)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
-        verify(jsonUtil, times(0)).removePropertyFromObject(any(Object.class), any(String.class));
-        verify(contextProfileEventService, times(0)).save(any(ContextProfileEvent.class));
     }
 
     @Test

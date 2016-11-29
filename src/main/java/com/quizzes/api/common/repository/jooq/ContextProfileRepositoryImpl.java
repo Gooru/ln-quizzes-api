@@ -50,7 +50,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
 
     private ContextProfile updateContextProfile(ContextProfile contextProfile) {
         return jooq.update(CONTEXT_PROFILE)
-                .set(CONTEXT_PROFILE.IS_COMPLETE, true)
+                .set(CONTEXT_PROFILE.IS_COMPLETE, contextProfile.getIsComplete())
                 .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
                 .where(CONTEXT_PROFILE.ID.eq(contextProfile.getId()))
                 .returning()
