@@ -1,8 +1,10 @@
 package com.quizzes.api.common.controller;
 
 import com.google.gson.JsonArray;
+import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import com.quizzes.api.common.service.ContextEventService;
 import com.quizzes.api.common.service.ContextProfileService;
 import org.junit.Test;
@@ -86,5 +88,14 @@ public class ContextEventControllerTest {
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
     }
+
+    @Test
+    public void addEvent() throws Exception {
+        ResponseEntity<?> result = controller.addEvent(UUID.randomUUID(), UUID.randomUUID(), new OnResourceEventPostRequestDto(), "quizzes", UUID.randomUUID());
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertNull("Body is not null", result.getBody());
+    }
+
 
 }

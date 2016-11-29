@@ -7,5 +7,9 @@ import java.util.UUID;
 
 public interface ContextProfileEventRepository {
 
-    List<ContextProfileEvent> findEventsByContextProfileId(UUID contextProfileId);
+    List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId);
+
+    ContextProfileEvent save(ContextProfileEvent contextProfileEvent);
+
+    ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId);
 }

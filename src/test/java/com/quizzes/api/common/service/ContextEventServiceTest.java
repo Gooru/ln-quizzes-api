@@ -1,6 +1,9 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
+import com.quizzes.api.common.dto.ResourcePostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -9,6 +12,7 @@ import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
+import com.quizzes.api.common.utils.JsonUtil;
 import org.jooq.tools.json.JSONArray;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +68,9 @@ public class ContextEventServiceTest {
     @Mock
     ResourceService resourceService;
 
+    @Mock
+    JsonUtil jsonUtil;
+
     @Test
     public void startContextEvent() throws Exception {
         UUID collectionId = UUID.randomUUID();
@@ -105,18 +112,18 @@ public class ContextEventServiceTest {
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
         when(profileService.findAssigneeInContext(any(UUID.class), any(UUID.class))).thenReturn(new Profile());
-        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
         when(resourceService.findFirstBySequenceByContextId(any(UUID.class))).thenReturn(resource);
-        when(contextProfileEventService.findEventsByContextProfileId(any(UUID.class))).thenReturn(list);
+        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
         StartContextEventResponseDto result = contextEventService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(0)).findFirstBySequenceByContextId(any(UUID.class));
         verify(profileService, times(1)).findAssigneeInContext(any(UUID.class), any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(1)).findEventsByContextProfileId(any(UUID.class));
+        verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertNotNull("Id is Null", result.getId());
@@ -149,20 +156,20 @@ public class ContextEventServiceTest {
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
         when(profileService.findAssigneeInContext(any(UUID.class), any(UUID.class))).thenReturn(new Profile());
-        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
         when(resourceService.findFirstBySequenceByContextId(any(UUID.class))).thenReturn(resource);
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
 
-        when(contextProfileEventService.findEventsByContextProfileId(any(UUID.class))).thenReturn(list);
+        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
         StartContextEventResponseDto result = contextEventService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(profileService, times(1)).findAssigneeInContext(any(UUID.class), any(UUID.class));
-        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(1)).findFirstBySequenceByContextId(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(1)).findEventsByContextProfileId(any(UUID.class));
+        verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertNotNull("Id is Null", result.getId());
@@ -214,18 +221,18 @@ public class ContextEventServiceTest {
 
         when(profileService.findAssigneeInContext(any(UUID.class), any(UUID.class))).thenReturn(new Profile());
         when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
 
-        when(contextProfileEventService.findEventsByContextProfileId(any(UUID.class))).thenReturn(list);
+        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
         StartContextEventResponseDto result = contextEventService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(profileService, times(1)).findAssigneeInContext(any(UUID.class), any(UUID.class));
-        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(0)).findFirstBySequenceByContextId(any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(1)).findEventsByContextProfileId(any(UUID.class));
+        verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertNotNull("Id is Null", result.getId());
@@ -313,17 +320,105 @@ public class ContextEventServiceTest {
         assertTrue("Response does not answer", result.containsKey("answer"));
         assertEquals("Answer is not an empty array", JSONArray.class, result.get("answer").getClass());
     }
+
+
     
+    @Test
+    public void addEvent() throws Exception {
+        Resource resource = new Resource();
+        ContextProfile contextProfile = new ContextProfile();
+        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
+        UUID resourceId = UUID.randomUUID();;
+        ResourcePostRequestDto resourceDto = new ResourcePostRequestDto();
+        resourceDto.setId(resourceId);
+        body.setPreviousResource(resourceDto);
+
+        ContextProfileEvent event = new ContextProfileEvent();
+
+        List<Object> list = new ArrayList<>();
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("correctAnswer", "test");
+
+        when(jsonUtil.removePropertyFromObject(any(Object.class), any(String.class))).thenReturn(new JsonObject());
+        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
+        when(jsonParser.parseList(any(String.class))).thenReturn(list);
+        when(contextProfileService.
+                findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(resourceService.findById(any(UUID.class))).thenReturn(resource);
+        when(contextProfileEventService.
+                findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class))).thenReturn(event);
+
+        contextEventService.addEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
+
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(resourceService, times(2)).findById(any(UUID.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(jsonParser, times(1)).parseMap(any(String.class));
+        verify(jsonParser, times(1)).parseList(any(String.class));
+        verify(contextProfileEventService, times(1)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
+        verify(jsonUtil, times(1)).removePropertyFromObject(any(Object.class), any(String.class));
+        verify(contextProfileEventService, times(1)).save(any(ContextProfileEvent.class));
+    }
+
+    @Test
+    public void addEventBodyNull() throws Exception {
+        Resource resource = new Resource();
+        ContextProfile contextProfile = new ContextProfile();
+        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
+        ResourcePostRequestDto resourceDto = new ResourcePostRequestDto();
+        body.setPreviousResource(resourceDto);
+
+        when(contextProfileService.
+                findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(resourceService.findById(any(UUID.class))).thenReturn(resource);
+
+        contextEventService.addEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
+
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(resourceService, times(1)).findById(any(UUID.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(jsonParser, times(0)).parseMap(any(String.class));
+        verify(jsonParser, times(0)).parseList(any(String.class));
+        verify(contextProfileEventService, times(0)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
+        verify(jsonUtil, times(0)).removePropertyFromObject(any(Object.class), any(String.class));
+        verify(contextProfileEventService, times(0)).save(any(ContextProfileEvent.class));
+    }
+
+    @Test
+    public void addEventBodyIdNull() throws Exception {
+        Resource resource = new Resource();
+        ContextProfile contextProfile = new ContextProfile();
+        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
+
+        body.setPreviousResource(null);
+
+        when(contextProfileService.
+                findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(resourceService.findById(any(UUID.class))).thenReturn(resource);
+
+        contextEventService.addEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
+
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(resourceService, times(1)).findById(any(UUID.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(jsonParser, times(0)).parseMap(any(String.class));
+        verify(jsonParser, times(0)).parseList(any(String.class));
+        verify(contextProfileEventService, times(0)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
+        verify(jsonUtil, times(0)).removePropertyFromObject(any(Object.class), any(String.class));
+        verify(contextProfileEventService, times(0)).save(any(ContextProfileEvent.class));
+    }
+
     @Test
     public void finishContextEvent() throws Exception {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setIsComplete(false);
 
-        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
 
         contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
-        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
     }
 
@@ -332,17 +427,17 @@ public class ContextEventServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setIsComplete(true);
 
-        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
 
         contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
-        verify(contextProfileService, times(1)).findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
     }
 
     @Test(expected = ContentNotFoundException.class)
     public void finishContextEventException() throws Exception {
-        when(contextProfileService.findContextProfileByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
         contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
     }
 
@@ -366,6 +461,21 @@ public class ContextEventServiceTest {
         UUID contextId = UUID.randomUUID();
         when(contextService.findById(any(UUID.class))).thenReturn(new Context());
         Context result = WhiteboxImpl.invokeMethod(contextEventService, "validateContext", contextId);
+        assertNotNull("Response is Null", result);
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void validateResourceException() throws Exception {
+        UUID resourceId = UUID.randomUUID();
+        when(resourceService.findById(any(UUID.class))).thenReturn(null);
+        Resource result = WhiteboxImpl.invokeMethod(contextEventService, "validateResource", resourceId);
+    }
+
+    @Test
+    public void validateResource() throws Exception {
+        UUID resourceId = UUID.randomUUID();
+        when(resourceService.findById(any(UUID.class))).thenReturn(new Resource());
+        Resource result = WhiteboxImpl.invokeMethod(contextEventService, "validateResource", resourceId);
         assertNotNull("Response is Null", result);
     }
 

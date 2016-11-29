@@ -1,7 +1,15 @@
 package com.quizzes.api.common.service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
+import com.quizzes.api.common.dto.ResourceCommonDto;
+import com.quizzes.api.common.dto.ResourcePostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.model.tables.pojos.ContextProfile;
@@ -9,6 +17,7 @@ import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.tables.pojos.Profile;
 import com.quizzes.api.common.model.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
+import com.quizzes.api.common.utils.JsonUtil;
 import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,12 +56,15 @@ public class ContextEventService {
     @Autowired
     ProfileService profileService;
 
+    @Autowired
+    JsonUtil jsonUtil;
+
 
     public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
         Context context = validateContext(contextId);
         validateProfileInContext(contextId, profileId);
 
-        ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
+        ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
         //TODO: If context_profile is complete we need to remove all the events
 
         if (contextProfile == null) {
@@ -68,7 +80,7 @@ public class ContextEventService {
         collection.setId(context.getCollectionId().toString());
 
         List<ContextProfileEvent> events = contextProfileEventService
-                .findEventsByContextProfileId(contextProfile.getProfileId());
+                .findByContextProfileId(contextProfile.getId());
 
         StartContextEventResponseDto result = new StartContextEventResponseDto();
         result.setId(contextId);
@@ -87,6 +99,28 @@ public class ContextEventService {
         return context;
     }
 
+    public void finishContextEvent(UUID contextId, UUID profileId) {
+        ContextProfile contextProfile = validateContextProfile(contextId, profileId);
+
+        if (!contextProfile.getIsComplete()) {
+            contextProfile.setIsComplete(true);
+            contextProfileService.save(contextProfile);
+        }
+    }
+
+    public void addEvent(UUID contextId, UUID resourceId, UUID profileId, OnResourceEventPostRequestDto body) {
+        ContextProfile contextProfile = validateContextProfile(contextId, profileId);
+        Resource resource = validateResource(resourceId);
+
+        //TODO: We are not saving the event if resource is null, is that ok?
+        //TODO: We could add more validations here id, answers, etc, etc..
+        if (body.getPreviousResource() != null && body.getPreviousResource().getId() != null) {
+            saveEvent(contextProfile, body);
+        }
+        contextProfile.setCurrentResourceId(resource.getId());
+        contextProfileService.save(contextProfile);
+    }
+
     private void validateProfileInContext(UUID contextId, UUID profileId) {
         Profile profile = profileService.findAssigneeInContext(contextId, profileId);
         if (profile == null) {
@@ -96,24 +130,55 @@ public class ContextEventService {
         }
     }
 
-    public void finishContextEvent(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile = contextProfileService.findContextProfileByContextIdAndProfileId(contextId, profileId);
+    private Resource validateResource(UUID resourceId) {
+        Resource resource = resourceService.findById(resourceId);
+        if (resource == null) {
+            logger.error("Getting resource: " + resourceId + " was not found");
+            throw new ContentNotFoundException("We couldn't find a resource with id: " + resourceId);
+        }
+        return resource;
+    }
+
+    private ContextProfile validateContextProfile(UUID contextId, UUID profileId) {
+        ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
         if (contextProfile == null) {
             logger.error("Getting context_profile: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id: " + contextId + " for this user.");
         }
+        return contextProfile;
+    }
 
-        if(!contextProfile.getIsComplete()) {
-            contextProfile.setIsComplete(true);
-            contextProfileService.save(contextProfile);
+    private void saveEvent(ContextProfile contextProfile, OnResourceEventPostRequestDto body) {
+        ResourcePostRequestDto resourceData = body.getPreviousResource();
+
+        Resource previousResource = validateResource(resourceData.getId());
+        Map<String, Object> previousResourceData = jsonParser.parseMap(previousResource.getResourceData());
+
+        ContextProfileEvent event = contextProfileEventService.
+                findByContextProfileIdAndResourceId(contextProfile.getId(), previousResource.getId());
+
+        if(event == null){
+            event = new ContextProfileEvent();
+            event.setContextProfileId(contextProfile.getId());
+            event.setResourceId(previousResource.getId());
         }
+
+        //TODO: Add logic to calculate the score
+        List<Object> correctAnswers = jsonParser.parseList(previousResourceData.get("correctAnswer").toString());
+        List<AnswerDto> answers = resourceData.getAnswer();
+        resourceData.setScore(100);
+
+        JsonObject resourceDataJsonObject = jsonUtil.removePropertyFromObject(resourceData, "id");
+        event.setEventData(resourceDataJsonObject.toString());
+
+        contextProfileEventService.save(event);
     }
 
     private List<Map<String, Object>> convertContextProfileToMap(List<ContextProfileEvent> events) {
         return events.stream().map(event -> {
             Map<String, Object> data = jsonParser.parseMap(event.getEventData());
             data.remove("id");
-            data.put("resourceId", event.getId());
+            data.put("resourceId", event.getResourceId());
             if (data.containsKey("answer") && data.get("answer").toString() != null) {
                 List<Object> answers = jsonParser.parseList(data.get("answer").toString());
                 data.put("answer", answers);

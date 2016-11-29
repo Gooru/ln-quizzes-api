@@ -14,7 +14,7 @@ public class ContextProfileService {
     @Autowired
     ContextProfileRepository contextProfileRepository;
 
-    public ContextProfile findContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
+    public ContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId) {
         return contextProfileRepository.findByContextIdAndProfileId(contextId, profileId);
     }
 

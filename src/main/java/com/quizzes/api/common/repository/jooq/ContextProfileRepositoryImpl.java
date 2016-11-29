@@ -21,7 +21,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
     @Override
     public ContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId) {
         return jooq.select(CONTEXT_PROFILE.ID, CONTEXT_PROFILE.CONTEXT_ID, CONTEXT_PROFILE.CURRENT_RESOURCE_ID,
-                CONTEXT_PROFILE.IS_COMPLETE)
+                CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.PROFILE_ID)
                 .from(CONTEXT_PROFILE)
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
@@ -51,6 +51,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
     private ContextProfile updateContextProfile(ContextProfile contextProfile) {
         return jooq.update(CONTEXT_PROFILE)
                 .set(CONTEXT_PROFILE.IS_COMPLETE, true)
+                .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
                 .where(CONTEXT_PROFILE.ID.eq(contextProfile.getId()))
                 .returning()
                 .fetchOne()

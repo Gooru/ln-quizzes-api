@@ -6,7 +6,6 @@ import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
-import com.quizzes.api.common.dto.controller.request.OnResourceEventRequestDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -78,23 +77,6 @@ public class ContextController {
         result.setId(context.getId());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Register resource",
-            notes = "Sends event to indicate current resource position and provides the data generated" +
-                    " in the previous resource (this value could be null in case there is not previous resource)")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK")})
-    @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
-            method = RequestMethod.POST,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> onResourceEvent(@PathVariable String resourceId,
-                                                @PathVariable String contextId,
-                                                @ApiParam(value = "Json body", required = true, name = "Body")
-                                                @RequestBody OnResourceEventRequestDto onResourceEventRequestDto,
-                                                @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                                @RequestHeader(value = "profile-id") UUID profileId) {
-
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get context", notes = "Gets the context information.")
