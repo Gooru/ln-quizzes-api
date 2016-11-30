@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Group extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.GroupRecord> {
 
-	private static final long serialVersionUID = -161657030;
+	private static final long serialVersionUID = 754762751;
 
 	/**
 	 * The singleton instance of <code>public.group</code>
@@ -37,7 +37,7 @@ public class Group extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.
 	/**
 	 * The column <code>public.group.group_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.GroupRecord, java.lang.String> GROUP_DATA = createField("group_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.GroupRecord, java.lang.String> GROUP_DATA = createField("group_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.group.created_at</code>.
