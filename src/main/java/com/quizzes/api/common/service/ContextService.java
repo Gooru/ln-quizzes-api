@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.sql.Timestamp;
 
 @Service
 public class ContextService {
@@ -117,8 +118,8 @@ public class ContextService {
 
         //checks if the assignees exists, if not, creates the assignee profile
         if (profiles != null && !profiles.isEmpty()){
-            List<UUID> requestExternalProfileIds = profiles.stream().map(profile -> UUID.fromString(profile.getId())).collect(Collectors.toList());
-            List<UUID> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
+            List<String> requestExternalProfileIds = profiles.stream().map(profile -> profile.getId()).collect(Collectors.toList());
+            List<String> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
             //we are creating new profiles
             //we are not updating existing info of existing profiles
             List<Profile> notFoundProfiles = profiles.stream()
@@ -191,6 +192,7 @@ public class ContextService {
         Map<UUID, List<ContextAssigneeEntity>> contextByOwnerList =
                 contextRepository.findContextAssigneeByOwnerId(ownerId);
 
+
         if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
             contextByOwnerList.forEach(
                     (key, value) -> {
@@ -207,6 +209,9 @@ public class ContextService {
                                 return assignee;
                             }).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
+                            createdContextGetResponseDto.setCreatedDate(firstEntryValue.getCreatedAt().getTime());
+                            createdContextGetResponseDto.setModifiedDate(firstEntryValue.getCreatedAt().getTime());
+                            //@TODO Change this value to getModifiedAt when it is available from the DB
                         }
                         result.add(createdContextGetResponseDto);
 
@@ -227,6 +232,7 @@ public class ContextService {
 
                     response.setCollection(collectionDto);
                     response.setId(context.getId());
+                    response.setCreatedDate(context.getCreatedAt().getTime());
                     response.setContextDataResponse(jsonParser.parseMap(context.getContextData()));
 
                     IdResponseDto ownerId = new IdResponseDto();

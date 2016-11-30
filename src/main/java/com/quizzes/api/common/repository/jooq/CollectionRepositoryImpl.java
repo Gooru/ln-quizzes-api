@@ -20,7 +20,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
     @Override
     public Collection findByExternalIdAndLmsId(String externalId, Lms lmsId) {
         return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
-                COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCK)
+                COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
                 .where(COLLECTION.EXTERNAL_ID.eq(externalId))
                 .and(COLLECTION.LMS_ID.eq(lmsId))
@@ -52,7 +52,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
                 .set(COLLECTION.IS_COLLECTION, collection.getIsCollection())
                 .set(COLLECTION.OWNER_PROFILE_ID, collection.getOwnerProfileId())
                 .set(COLLECTION.COLLECTION_DATA, collection.getCollectionData())
-                .set(COLLECTION.IS_LOCK, collection.getIsLock())
+                .set(COLLECTION.IS_LOCKED, collection.getIsLocked())
                 .returning()
                 .fetchOne()
                 .into(Collection.class);

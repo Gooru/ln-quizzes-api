@@ -54,7 +54,7 @@ public class ProfileService {
      * @param lms                the profile lms
      * @return The Id list of the found profiles
      */
-    public List<UUID> findExternalProfileIds(List<UUID> externalProfileIds, Lms lms) {
+    public List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms){
         return profileRepository.findExternalProfileIds(externalProfileIds, lms);
     }
 
@@ -65,7 +65,7 @@ public class ProfileService {
      * @param lms                the profile lms
      * @return The Id list of the found profiles
      */
-    public List<UUID> findProfileIdsByExternalIdAndLms(List<UUID> externalProfileIds, Lms lms) {
+    public List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms){
         return profileRepository.findProfileIdsByExternalIdAndLms(externalProfileIds, lms);
     }
 

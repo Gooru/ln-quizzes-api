@@ -95,16 +95,16 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
-    public List<UUID> findExternalProfileIds(List<UUID> externalProfileIds, Lms lms) {
+    public List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms){
         return jooq.select(PROFILE.EXTERNAL_ID)
                 .from(PROFILE)
                 .where(PROFILE.EXTERNAL_ID.in(externalProfileIds))
                 .and(PROFILE.LMS_ID.eq(lms))
-                .fetchInto(UUID.class);
+                .fetchInto(String.class);
     }
 
     @Override
-    public List<UUID> findProfileIdsByExternalIdAndLms(List<UUID> externalProfileIds, Lms lms) {
+    public List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms){
         return jooq.select(PROFILE.ID)
                 .from(PROFILE)
                 .where(PROFILE.EXTERNAL_ID.in(externalProfileIds))

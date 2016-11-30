@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ResourceRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.common.model.tables.records.ResourceRecord> implements org.jooq.Record10<java.util.UUID, java.lang.String, com.quizzes.api.common.model.enums.Lms, java.util.UUID, java.lang.Boolean, java.util.UUID, java.lang.String, java.lang.Short, java.lang.Boolean, java.sql.Timestamp> {
 
-	private static final long serialVersionUID = 1602362913;
+	private static final long serialVersionUID = 112452016;
 
 	/**
 	 * Setter for <code>public.resource.id</code>.

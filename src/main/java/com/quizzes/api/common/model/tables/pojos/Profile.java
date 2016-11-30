@@ -9,22 +9,22 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Profile implements java.io.Serializable {
 
-	private static final long serialVersionUID = -1964424146;
+	private static final long serialVersionUID = 1845519935;
 
-	private java.util.UUID                   id;
-	private java.lang.String                 externalId;
+	private java.util.UUID                         id;
+	private java.lang.String                       externalId;
 	private com.quizzes.api.common.model.enums.Lms lmsId;
-	private java.lang.String                 profileData;
-	private java.sql.Timestamp               createdAt;
+	private java.lang.String                       profileData;
+	private java.sql.Timestamp                     createdAt;
 
 	public Profile() {}
 
 	public Profile(
-		java.util.UUID                   id,
-		java.lang.String                 externalId,
+		java.util.UUID                         id,
+		java.lang.String                       externalId,
 		com.quizzes.api.common.model.enums.Lms lmsId,
-		java.lang.String                 profileData,
-		java.sql.Timestamp               createdAt
+		java.lang.String                       profileData,
+		java.sql.Timestamp                     createdAt
 	) {
 		this.id = id;
 		this.externalId = externalId;

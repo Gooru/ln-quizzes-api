@@ -50,8 +50,8 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId){
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA,
-                GROUP_PROFILE.PROFILE_ID.as("assigneeProfileId"))
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, //CONTEXT.MODIFIED_AT,
+                GROUP_PROFILE.PROFILE_ID.as("AssigneeProfileId"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
@@ -78,7 +78,7 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, GROUP.OWNER_PROFILE_ID)
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, GROUP.OWNER_PROFILE_ID)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
