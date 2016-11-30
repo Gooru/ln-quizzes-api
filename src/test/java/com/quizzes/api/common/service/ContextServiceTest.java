@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Date;
+import java.sql.Timestamp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -369,6 +371,7 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getCollectionId()).thenReturn(UUID.randomUUID());
         when(contextOwnerEntity.getOwnerProfileId()).thenReturn(UUID.randomUUID());
         when(contextOwnerEntity.getContextData()).thenReturn("context");
+        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
 
         Map<String, Object> map = new HashMap<>();
         map.put("key", "value");
@@ -389,6 +392,8 @@ public class ContextServiceTest {
         assertNotNull("First object is null", resultEntity);
         assertNotNull("Id is null", resultEntity.getId());
         assertNotNull("Id is null", resultEntity.getCollection().getId());
+
+        assertNotNull("Created Date is null", resultEntity.getCreatedDate());
 
         assertFalse("Context response is empty", resultEntity.getContextDataResponse().isEmpty());
         assertNotNull("Owner is null", resultEntity.getOwner().getId());
@@ -430,6 +435,7 @@ public class ContextServiceTest {
         when(row1.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
                 "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
                 "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
+        when(row1.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
         List<ContextAssigneeEntity> contextAssigneeEntityList1 = new ArrayList<>();
         contextAssigneeEntityList1.add(row1);
         contextsMap.put(contextId, contextAssigneeEntityList1);
@@ -444,6 +450,7 @@ public class ContextServiceTest {
         when(row2.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
                 "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
                 "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        when(row2.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
         List<ContextAssigneeEntity> contextAssigneeEntityList2 = new ArrayList<>();
         contextAssigneeEntityList2.add(row2);
 
@@ -455,6 +462,7 @@ public class ContextServiceTest {
         when(row3.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
                 "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
                 "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
+        when(row3.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
         contextAssigneeEntityList2.add(row3);
         contextsMap.put(contextId, contextAssigneeEntityList2);
 
