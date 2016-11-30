@@ -103,7 +103,7 @@ public class ContextEventService {
                 contextProfileService.save(contextProfile);
             }
         } catch (Exception e) {
-            logger.error("We could not finish the context " + contextId + " for user " + profileId, e);
+            logger.error("We could not finish the context " + contextId, e);
             throw new InternalServerException("We could not finish the context " + contextId + ".", e);
         }
     }
