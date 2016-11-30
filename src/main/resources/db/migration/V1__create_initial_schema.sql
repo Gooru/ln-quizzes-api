@@ -1,6 +1,6 @@
 
 DROP EXTENSION IF EXISTS "uuid-ossp";
-CREATE EXTENSION "uuid-ossp";
+-- CREATE EXTENSION "uuid-ossp";
 
 DROP TYPE IF EXISTS LMS;
 CREATE TYPE LMS AS ENUM ('quizzes', 'gooru', 'its_learning');
@@ -24,6 +24,7 @@ CREATE TABLE collection
 (
     id                  UUID        PRIMARY KEY,
     external_id         VARCHAR(50) NOT NULL,
+    external_parent_id  VARCHAR(50) NOT NULL,
     lms_id              LMS         NOT NULL DEFAULT 'quizzes',
     is_collection       BOOLEAN     NOT NULL DEFAULT TRUE,
     owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
@@ -132,8 +133,8 @@ CREATE TABLE collection_on_air
 
 
 -- Filling temporal data
-Insert Into profile (id, external_id) values(uuid_generate_v1mc(), 'profile-external-id-1');
-Insert Into collection (id, external_id, owner_profile_id) values(uuid_generate_v1mc(), 'collection-external-id-1', (Select id From profile Limit 1));
-Insert Into collection (id, external_id, owner_profile_id) values(uuid_generate_v1mc(), 'profile-external-id-1', (Select id From profile Limit 1));
+-- Insert Into profile (id, external_id) values(uuid_generate_v1mc(), 'profile-external-id-1');
+-- Insert Into collection (id, external_id, owner_profile_id) values(uuid_generate_v1mc(), 'collection-external-id-1', (Select id From profile Limit 1));
+-- Insert Into collection (id, external_id, owner_profile_id) values(uuid_generate_v1mc(), 'profile-external-id-1', (Select id From profile Limit 1));
 --Insert Into context(id, collection_id, context_data) values(uuid_generate_v1mc(), (Select id From collection Limit 1), '{ "courseId": "abc", "classId": "def", "unitId": "ghi", "lessonId": "jkl" }');
 --Insert Into context(id, collection_id, context_data) values(uuid_generate_v1mc(), (Select id From collection Limit 1), '{ "courseId": "a123", "classId": "b123", "unitId": "c123", "lessonId": "d123" }');
