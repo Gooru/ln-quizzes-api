@@ -18,6 +18,10 @@ public class ResourceService {
         return resourceRepository.save(resource);
     }
 
+    public Resource findById(UUID resourceId) {
+        return resourceRepository.findById(resourceId);
+    }
+
     public List<Resource> findByCollectionId(UUID collectionId){
         return resourceRepository.findByCollectionId(collectionId);
     }

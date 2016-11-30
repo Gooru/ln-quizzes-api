@@ -1,13 +1,16 @@
 package com.quizzes.api.common.dto.controller.response;
 
 public class AnswerDto {
-    String value;
+    private String value;
 
-    public AnswerDto(String value) {
-        this.value = value;
+    public AnswerDto() {
     }
 
     public String getValue() {
         return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

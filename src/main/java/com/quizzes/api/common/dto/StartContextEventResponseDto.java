@@ -2,7 +2,6 @@ package com.quizzes.api.common.dto;
 
 import com.google.gson.annotations.SerializedName;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.controller.response.AttemptDto;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
@@ -21,7 +20,7 @@ public class StartContextEventResponseDto {
     @SerializedName("events")
     private List<Map<String, Object>> eventsResponse;
 
-    private transient List<AttemptDto> events;
+    private transient List<PostResponseResourceDto> events;
 
     public StartContextEventResponseDto() {
     }
@@ -58,11 +57,11 @@ public class StartContextEventResponseDto {
         this.eventsResponse = eventsResponse;
     }
 
-    public List<AttemptDto> getEvents() {
+    public List<PostResponseResourceDto> getEvents() {
         return events;
     }
 
-    public void setEvents(List<AttemptDto> events) {
+    public void setEvents(List<PostResponseResourceDto> events) {
         this.events = events;
     }
 }
