@@ -72,7 +72,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         collection.setLmsId(Lms.gooru);
         collection.setOwnerProfileId(owner.getId());
         collection.setIsCollection(false);
-        collection.setIsLock(false);
+        collection.setIsLocked(false);
         Map<String, Object> collectionDataMap = new HashMap<>();
         collectionDataMap.put(COLLECTION_TITLE, assessmentDto.getTitle());
         collection.setCollectionData(new Gson().toJson(collectionDataMap));

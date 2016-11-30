@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class GroupProfileRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.common.model.tables.records.GroupProfileRecord> implements org.jooq.Record4<java.util.UUID, java.util.UUID, java.util.UUID, java.sql.Timestamp> {
 
-	private static final long serialVersionUID = -1567796854;
+	private static final long serialVersionUID = 916550112;
 
 	/**
 	 * Setter for <code>public.group_profile.id</code>.

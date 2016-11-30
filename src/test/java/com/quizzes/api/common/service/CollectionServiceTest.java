@@ -73,7 +73,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
         assertEquals("Wrong collection data", "body", result.getCollectionData());
         assertTrue("isCollection is not true", result.getIsCollection());
-        assertFalse("isLock is not false", result.getIsLock());
+        assertFalse("isLock is not false", result.getIsLocked());
         assertFalse("isDeleted is not false", result.getIsDeleted());
         assertNull("createdAt is not null", result.getCreatedAt());
     }
@@ -95,7 +95,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
         assertEquals("Wrong collection data", "body", result.getCollectionData());
         assertTrue("isCollection is not true", result.getIsCollection());
-        assertFalse("isLock is not false", result.getIsLock());
+        assertFalse("isLock is not false", result.getIsLocked());
         assertFalse("isDeleted is not false", result.getIsDeleted());
         assertNull("createdAt is not null", result.getCreatedAt());
     }

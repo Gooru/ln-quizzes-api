@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class EventRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.common.model.tables.records.EventRecord> implements org.jooq.Record4<java.util.UUID, java.util.UUID, java.sql.Timestamp, java.lang.Object> {
 
-	private static final long serialVersionUID = 1419793836;
+	private static final long serialVersionUID = -525610452;
 
 	/**
 	 * Setter for <code>public.event.id</code>.

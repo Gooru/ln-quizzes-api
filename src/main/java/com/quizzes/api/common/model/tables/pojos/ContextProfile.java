@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1747831173;
+	private static final long serialVersionUID = 194922410;
 
 	private java.util.UUID     id;
 	private java.util.UUID     contextId;
