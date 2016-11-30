@@ -1,7 +1,7 @@
 package com.quizzes.api.common.repository;
 
-import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
-import com.quizzes.api.common.model.entities.ContextOwnerEntity;
+import com.quizzes.api.common.entities.ContextAssigneeEntity;
+import com.quizzes.api.common.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.tables.pojos.Context;
 
 import java.util.List;

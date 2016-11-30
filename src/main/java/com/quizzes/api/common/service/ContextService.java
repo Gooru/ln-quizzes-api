@@ -13,8 +13,8 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
-import com.quizzes.api.common.model.entities.ContextOwnerEntity;
+import com.quizzes.api.common.entities.ContextAssigneeEntity;
+import com.quizzes.api.common.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.sql.Timestamp;
 
 @Service
 public class ContextService {

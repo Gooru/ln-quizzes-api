@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Profile extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.ProfileRecord> {
 
-	private static final long serialVersionUID = 801803798;
+	private static final long serialVersionUID = 1988218651;
 
 	/**
 	 * The singleton instance of <code>public.profile</code>
@@ -42,7 +42,7 @@ public class Profile extends org.jooq.impl.TableImpl<com.quizzes.api.common.mode
 	/**
 	 * The column <code>public.profile.profile_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ProfileRecord, java.lang.String> PROFILE_DATA = createField("profile_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ProfileRecord, java.lang.String> PROFILE_DATA = createField("profile_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.profile.created_at</code>.

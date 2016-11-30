@@ -57,7 +57,7 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	/**
 	 * The column <code>public.collection.collection_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.lang.String> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.lang.String> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.collection.is_locked</code>.
