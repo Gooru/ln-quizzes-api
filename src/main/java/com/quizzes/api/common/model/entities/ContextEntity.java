@@ -2,6 +2,7 @@ package com.quizzes.api.common.model.entities;
 
 
 import java.util.UUID;
+import java.sql.Timestamp;
 
 public interface ContextEntity {
 
@@ -16,6 +17,10 @@ public interface ContextEntity {
     UUID getGroupId();
 
     void setGroupId(UUID groupId);
+
+    Timestamp getCreatedAt();
+
+    void setCreatedAt(Timestamp createdAt);
 
     String getContextData();
 

@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.sql.Timestamp;
 
 @Service
 public class ContextService {
@@ -208,9 +209,9 @@ public class ContextService {
                                 return assignee;
                             }).collect(Collectors.toList());
                             createdContextGetResponseDto.setAssignees(assignees);
-                            createdContextGetResponseDto.setCreatedDate(firstEntryValue.getCreatedDate().getTime());
-                            createdContextGetResponseDto.setModifiedDate(firstEntryValue.getCreatedDate().getTime());
-                            //@TODO Change this value to getModifiedDate when it is available from the DB
+                            createdContextGetResponseDto.setCreatedDate(firstEntryValue.getCreatedAt().getTime());
+                            createdContextGetResponseDto.setModifiedDate(firstEntryValue.getCreatedAt().getTime());
+                            //@TODO Change this value to getModifiedAt when it is available from the DB
                         }
                         result.add(createdContextGetResponseDto);
 
@@ -231,6 +232,7 @@ public class ContextService {
 
                     response.setCollection(collectionDto);
                     response.setId(context.getId());
+                    response.setCreatedDate(context.getCreatedAt().getTime());
                     response.setContextDataResponse(jsonParser.parseMap(context.getContextData()));
 
                     IdResponseDto ownerId = new IdResponseDto();
