@@ -29,7 +29,7 @@ CREATE TABLE collection
     is_collection       BOOLEAN     NOT NULL DEFAULT TRUE,
     owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
     collection_data     JSONB,
-    is_lock             BOOLEAN     NOT NULL DEFAULT FALSE,
+    is_locked           BOOLEAN     NOT NULL DEFAULT FALSE,
     is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT collection_external_id_lms_id_uc UNIQUE (external_id, lms_id)

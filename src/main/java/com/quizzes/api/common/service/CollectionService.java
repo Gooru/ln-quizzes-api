@@ -49,10 +49,6 @@ public class CollectionService {
         return collectionRepository.save(collection);
     }
 
-    public Collection findOrCreateCollection(CollectionDto id) {
-        return null;
-    }
-
     public Collection findById(UUID id) {
         return collectionRepository.findById(id);
     }

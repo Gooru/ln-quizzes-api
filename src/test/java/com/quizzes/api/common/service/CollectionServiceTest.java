@@ -60,8 +60,9 @@ public class CollectionServiceTest {
     public void findByExternalIdAndLmsId() throws Exception {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
-        Collection collection =
-                new Collection(id, "external-id", Lms.its_learning, true, profileId, "body", false, false, null);
+        Collection collection = new Collection(id, "external-id", "external-parent-id", Lms.its_learning,
+                true, profileId, "{}", false, false, null);
+
         doReturn(collection).when(collectionService).findByExternalIdAndLmsId("external-id", Lms.its_learning);
 
         Collection result = collectionService.findByExternalIdAndLmsId("external-id", Lms.its_learning);
@@ -69,9 +70,11 @@ public class CollectionServiceTest {
                 .findByExternalIdAndLmsId(Mockito.eq("external-id"), Mockito.eq(Lms.its_learning));
         assertNotNull("Response is null", result);
         assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong external id", "external-id", result.getExternalId());
+        assertEquals("Wrong external parent id", "external-parent-id", result.getExternalParentId());
         assertEquals("Wrong lms id", Lms.its_learning, result.getLmsId());
         assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
-        assertEquals("Wrong collection data", "body", result.getCollectionData());
+        assertEquals("Wrong collection data", "{}", result.getCollectionData());
         assertTrue("isCollection is not true", result.getIsCollection());
         assertFalse("isLock is not false", result.getIsLocked());
         assertFalse("isDeleted is not false", result.getIsDeleted());
@@ -82,8 +85,9 @@ public class CollectionServiceTest {
     public void save() throws Exception {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
-        Collection collection =
-                new Collection(null, "external-id", Lms.its_learning, true, profileId, "body", false, false, null);
+        Collection collection = new Collection(null, "external-id", "external-parent-id", Lms.its_learning,
+                true, profileId, "{}", false, false, null);
+
         doReturn(collection).when(collectionService).save(collection);
 
         Collection result = collectionService.save(collection);
@@ -91,9 +95,11 @@ public class CollectionServiceTest {
         verify(collectionService, times(1)).save(Mockito.eq(collection));
         assertNotNull("Response is null", result);
         assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong external id", "external-id", result.getExternalId());
+        assertEquals("Wrong external parent id", "external-parent-id", result.getExternalParentId());
         assertEquals("Wrong lms id", Lms.its_learning, result.getLmsId());
         assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
-        assertEquals("Wrong collection data", "body", result.getCollectionData());
+        assertEquals("Wrong collection data", "{}", result.getCollectionData());
         assertTrue("isCollection is not true", result.getIsCollection());
         assertFalse("isLock is not false", result.getIsLocked());
         assertFalse("isDeleted is not false", result.getIsDeleted());

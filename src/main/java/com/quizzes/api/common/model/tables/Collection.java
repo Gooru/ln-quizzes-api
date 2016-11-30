@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.CollectionRecord> {
 
-	private static final long serialVersionUID = -210081078;
+	private static final long serialVersionUID = -509033841;
 
 	/**
 	 * The singleton instance of <code>public.collection</code>
