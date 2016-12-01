@@ -1,6 +1,5 @@
 package com.quizzes.api.realtime.controller;
 
-import com.google.gson.JsonArray;
 import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
@@ -18,15 +17,12 @@ import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
-import com.quizzes.api.common.service.GroupProfileService;
-import com.quizzes.api.common.service.GroupService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -58,18 +54,9 @@ public class ContextControllerTest {
     @Mock
     private ContextService contextService;
 
-    @Mock
-    private GroupService groupService;
-
-    @Mock
-    private GroupProfileService groupProfileService;
-
-    @Mock
-    private JsonParser jsonParser;
-
     @Test
     public void assignContext() throws Exception {
-        Context context = new Context();
+        ContextGetResponseDto context = new ContextGetResponseDto();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
         when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
@@ -107,7 +94,7 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextEmptyAssignment() throws Exception {
-        Context context = new Context();
+        ContextGetResponseDto context = new ContextGetResponseDto();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
         when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
@@ -124,7 +111,7 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextStudentValidation() throws Exception {
-        Context context = new Context();
+        ContextGetResponseDto context = new ContextGetResponseDto();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
         when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
@@ -180,7 +167,7 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextTeacherValidation() throws Exception {
-        Context context = new Context();
+        ContextGetResponseDto context = new ContextGetResponseDto();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
         when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
@@ -238,7 +225,7 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextCollectionValidation() throws Exception {
-        Context context = new Context();
+        ContextGetResponseDto context = new ContextGetResponseDto();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
         when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
@@ -292,7 +279,7 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextContextValidation() throws Exception {
-        Context context = new Context();
+        ContextGetResponseDto context = new ContextGetResponseDto();
         UUID contextId = UUID.randomUUID();
         context.setId(contextId);
         when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);

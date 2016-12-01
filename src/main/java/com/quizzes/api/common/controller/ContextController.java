@@ -73,9 +73,9 @@ public class ContextController {
 //            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        Context context = contextService.createContext(assignmentDto, Lms.valueOf(lmsId));
+        ContextGetResponseDto contextGetResponseDto = contextService.createContext(assignmentDto, Lms.valueOf(lmsId));
         IdResponseDto result = new IdResponseDto();
-        result.setId(context.getId());
+        result.setId(contextGetResponseDto.getId());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
