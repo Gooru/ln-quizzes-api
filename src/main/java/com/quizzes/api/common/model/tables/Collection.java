@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.CollectionRecord> {
 
-	private static final long serialVersionUID = -2143785331;
+	private static final long serialVersionUID = -509033841;
 
 	/**
 	 * The singleton instance of <code>public.collection</code>
@@ -33,6 +33,11 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	 * The column <code>public.collection.external_id</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.lang.String> EXTERNAL_ID = createField("external_id", org.jooq.impl.SQLDataType.VARCHAR.length(50).nullable(false), this, "");
+
+	/**
+	 * The column <code>public.collection.external_parent_id</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.CollectionRecord, java.lang.String> EXTERNAL_PARENT_ID = createField("external_parent_id", org.jooq.impl.SQLDataType.VARCHAR.length(50).nullable(false), this, "");
 
 	/**
 	 * The column <code>public.collection.lms_id</code>.
