@@ -65,7 +65,9 @@ public class ContextController {
         Set<ConstraintViolation<AssignmentDto>> constraintViolations = validator.validate(assignmentDto);
 
         if (!constraintViolations.isEmpty()) {
-            List<String> constraintErrors = constraintViolations.stream().map(violation -> String.format("Error in %s: %s", violation.getPropertyPath(), violation.getMessage())).collect(Collectors.toList());
+            List<String> constraintErrors = constraintViolations
+                    .stream().map(violation -> String.format("Error in %s: %s", violation.getPropertyPath(),
+                            violation.getMessage())).collect(Collectors.toList());
             Map<String, Object> errors = new HashMap<>();
             errors.put("Errors", constraintErrors);
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
