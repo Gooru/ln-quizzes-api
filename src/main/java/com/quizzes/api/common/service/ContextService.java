@@ -81,7 +81,7 @@ public class ContextService {
      */
     public IdResponseDto createContext(AssignmentDto assignmentDto, Lms lms) {
         Profile owner = findOrCreateProfile(assignmentDto.getOwner(), lms);
-        Collection collection = collectionService.findByExternalIdAndLmsId(assignmentDto.getExternalCollectionId(), Lms.gooru);
+        Collection collection = collectionService.findByExternalId(assignmentDto.getExternalCollectionId());
         if (collection == null){
             collection = collectionContentService.createCollectionCopy(assignmentDto.getExternalCollectionId(), owner);
         }
