@@ -1,4 +1,4 @@
-package com.quizzes.api.common.model;
+package com.quizzes.api.common.jpa;
 
 
 import org.hibernate.HibernateException;

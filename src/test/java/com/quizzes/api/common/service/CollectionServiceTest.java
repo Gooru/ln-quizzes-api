@@ -57,16 +57,16 @@ public class CollectionServiceTest {
     private JsonParser jsonParser;
 
     @Test
-    public void findByExternalIdAndLmsId() throws Exception {
+    public void findByExternalId() throws Exception {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
         Collection collection =
                 new Collection(id, "external-id", Lms.its_learning, true, profileId, "body", false, false, null);
-        doReturn(collection).when(collectionService).findByExternalIdAndLmsId("external-id", Lms.its_learning);
+        doReturn(collection).when(collectionService).findByExternalId("external-id");
 
-        Collection result = collectionService.findByExternalIdAndLmsId("external-id", Lms.its_learning);
+        Collection result = collectionService.findByExternalId("external-id");
         verify(collectionService, times(1))
-                .findByExternalIdAndLmsId(Mockito.eq("external-id"), Mockito.eq(Lms.its_learning));
+                .findByExternalId(Mockito.eq("external-id"));
         assertNotNull("Response is null", result);
         assertEquals("Wrong id", id, result.getId());
         assertEquals("Wrong lms id", Lms.its_learning, result.getLmsId());

@@ -13,8 +13,8 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
-import com.quizzes.api.common.model.entities.ContextOwnerEntity;
+import com.quizzes.api.common.entities.ContextAssigneeEntity;
+import com.quizzes.api.common.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Collection;
 import com.quizzes.api.common.model.tables.pojos.Context;
@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.sql.Timestamp;
 
 @Service
 public class ContextService {
@@ -74,24 +73,32 @@ public class ContextService {
     @Autowired
     CollectionContentService collectionContentService;
 
-    public Context createContext(AssignmentDto assignmentDto, Lms lms) {
-        Profile owner = findProfile(assignmentDto.getOwner(), lms);
-        Collection collection =
-                collectionContentService.createCollectionCopy(assignmentDto.getExternalCollectionId(), owner);
-
-        if (collection != null) {
-            Group group = groupService.createGroup(owner.getId());
-            assignProfilesToGroup(group.getId(), assignmentDto.getAssignees(), lms);
-
-            Context context = new Context();
-            context.setCollectionId(collection.getId());
-            context.setGroupId(group.getId());
-            context.setContextData(gson.toJson(assignmentDto.getContextData()));
-
-            return contextRepository.save(context);
+    /**
+     * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same Collection
+     * @param assignmentDto  information about the new {@link Context}
+     * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
+     * @return The only value in the result is the context ID
+     */
+    public IdResponseDto createContext(AssignmentDto assignmentDto, Lms lms) {
+        Profile owner = findOrCreateProfile(assignmentDto.getOwner(), lms);
+        Collection collection = collectionService.findByExternalId(assignmentDto.getExternalCollectionId());
+        if (collection == null){
+            collection = collectionContentService.createCollectionCopy(assignmentDto.getExternalCollectionId(), owner);
         }
 
-        return null;
+        Group group = groupService.createGroup(owner.getId());
+        assignProfilesToGroup(group.getId(), assignmentDto.getAssignees(), lms);
+
+        Context context = new Context();
+        context.setCollectionId(collection.getId());
+        context.setGroupId(group.getId());
+        context.setContextData(gson.toJson(assignmentDto.getContextData()));
+
+        Context newContext = contextRepository.save(context);
+        IdResponseDto result = new IdResponseDto();
+        result.setId(newContext.getId());
+
+        return result;
     }
 
     public Context findById(UUID contextId) {
@@ -244,7 +251,14 @@ public class ContextService {
                 .collect(Collectors.toList());
     }
 
-    private Profile findProfile(ProfileDto profileDto, Lms lmsId) {
+    /**
+     * Looks for a {@link Profile} by External ID and {@link Lms}
+     * if the profile doesn't exists the {@link Profile} is created
+     * @param profileDto Profile data
+     * @param lmsId Lms
+     * @return the found or created Profile
+     */
+    private Profile findOrCreateProfile(ProfileDto profileDto, Lms lmsId) {
         Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lmsId);
         if (profile == null) {
             profile = new Profile();
@@ -261,7 +275,7 @@ public class ContextService {
 
     private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lmsId) {
         for (ProfileDto profileDto : profiles) {
-            Profile profile = findProfile(profileDto, lmsId);
+            Profile profile = findOrCreateProfile(profileDto, lmsId);
             GroupProfile groupProfile = new GroupProfile();
             groupProfile.setGroupId(groupId);
             groupProfile.setProfileId(profile.getId());

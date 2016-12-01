@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.ContextRecord> {
 
-	private static final long serialVersionUID = -165085212;
+	private static final long serialVersionUID = -1578051863;
 
 	/**
 	 * The singleton instance of <code>public.context</code>
@@ -42,7 +42,7 @@ public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.common.mode
 	/**
 	 * The column <code>public.context.context_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextRecord, java.lang.String> CONTEXT_DATA = createField("context_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextRecord, java.lang.String> CONTEXT_DATA = createField("context_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.context.created_at</code>.
