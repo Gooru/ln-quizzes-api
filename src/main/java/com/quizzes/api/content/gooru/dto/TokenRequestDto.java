@@ -41,7 +41,4 @@ public class TokenRequestDto {
         this.grantType = grantType;
     }
 
-    public String toString() {
-        return new Gson().toJson(this).toString();
-    }
 }

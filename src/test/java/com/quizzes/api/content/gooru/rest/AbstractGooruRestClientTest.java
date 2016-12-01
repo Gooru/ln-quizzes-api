@@ -54,7 +54,7 @@ public class AbstractGooruRestClientTest {
     }
 
     @Test(expected = InternalServerException.class)
-    public void generateUserTokenGeneratesException() throws Exception {
+    public void generateUserTokenMustThrowAnException() throws Exception {
 
         //Token is null, it will throw an InternalServerException
         doReturn(null).when(restTemplate)
