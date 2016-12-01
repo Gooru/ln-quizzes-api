@@ -2,7 +2,7 @@ package com.quizzes.api.content.gooru.rest;
 
 import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.content.gooru.dto.TokenResponseDto;
-import com.quizzes.api.content.gooru.dto.TokenUserRequestDto;
+import com.quizzes.api.content.gooru.dto.UserTokenRequestDto;
 import com.quizzes.api.content.gooru.dto.UserDataTokenDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +46,7 @@ public class AbstractGooruRestClientTest {
         token.setToken(userToken);
 
         doReturn(token).when(restTemplate)
-                .postForObject(any(String.class), any(TokenUserRequestDto.class), eq(TokenResponseDto.class));
+                .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
 
         String result = abstractGooruRestClient.generateUserToken(user);
         assertNotNull("Result is null", result);
@@ -57,7 +57,7 @@ public class AbstractGooruRestClientTest {
     public void generateUserTokenNull() throws Exception {
 
         doReturn(null).when(restTemplate)
-                .postForObject(any(String.class), any(TokenUserRequestDto.class), eq(TokenResponseDto.class));
+                .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
 
         String result = abstractGooruRestClient.generateUserToken(new UserDataTokenDto());
     }

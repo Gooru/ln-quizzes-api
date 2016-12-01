@@ -2,14 +2,14 @@ package com.quizzes.api.content.gooru.dto;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TokenUserRequestDto extends CommonTokenDto {
+public class UserTokenRequestDto extends CommonTokenDto {
 
     @SerializedName("return_url")
     private String returnUrl;
 
     private UserDataTokenDto user;
 
-    public TokenUserRequestDto() {
+    public UserTokenRequestDto() {
     }
 
     public String getReturnUrl() {

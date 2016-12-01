@@ -1,13 +1,12 @@
 package com.quizzes.api.content.gooru.rest;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.quizzes.api.common.exception.ContentProviderException;
 import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.content.gooru.dto.TokenRequestDto;
 import com.quizzes.api.content.gooru.dto.TokenResponseDto;
-import com.quizzes.api.content.gooru.dto.TokenUserRequestDto;
 import com.quizzes.api.content.gooru.dto.UserDataTokenDto;
+import com.quizzes.api.content.gooru.dto.UserTokenRequestDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,8 @@ public abstract class AbstractGooruRestClient {
     private static final String CLIENT_KEY = "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==";
     private static final String CLIENT_ID = "ba956a97-ae15-11e5-a302-f8a963065976";
     private static final String RETURN_URL = "http://www.gooru.org";
+    private static final String USER_GRANT_TYPE = "google";
+    private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -35,17 +36,16 @@ public abstract class AbstractGooruRestClient {
     public String generateUserToken(UserDataTokenDto user) {
         String endpointUrl = getContentApiUrl() + "/api/nucleus-auth/v1/authorize";
 
-        TokenUserRequestDto tokenUserRequest = new TokenUserRequestDto();
+        UserTokenRequestDto tokenUserRequest = new UserTokenRequestDto();
         tokenUserRequest.setClientKey(CLIENT_KEY);
-        tokenUserRequest.setGrantType("google");
+        tokenUserRequest.setGrantType(USER_GRANT_TYPE);
         tokenUserRequest.setClientId(CLIENT_ID);
         tokenUserRequest.setReturnUrl(RETURN_URL);
         tokenUserRequest.setUser(user);
 
         if (logger.isDebugEnabled()) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             logger.debug("POST Request to: " + endpointUrl);
-            logger.debug("Body: " + gson.toJson(tokenUserRequest));
+            logger.debug("Body: " + gsonPretty.toJson(tokenUserRequest));
         }
 
         try {
@@ -72,12 +72,11 @@ public abstract class AbstractGooruRestClient {
         TokenRequestDto tokenRequest = new TokenRequestDto();
         tokenRequest.setClientId(CLIENT_ID);
         tokenRequest.setClientKey(CLIENT_KEY);
-        tokenRequest.setGrantType("anonymous");
+        tokenRequest.setGrantType(ANONYMOUS_GRANT_TYPE);
 
         if (logger.isDebugEnabled()) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
             logger.debug("POST Request to: " + endpointUrl);
-            logger.debug("Body: " + gson.toJson(tokenRequest));
+            logger.debug("Body: " + gsonPretty.toJson(tokenRequest));
         }
 
         try {
