@@ -47,11 +47,11 @@ public class CollectionRepositoryImpl implements CollectionRepository {
         return jooq.insertInto(COLLECTION)
                 .set(COLLECTION.ID, UUID.randomUUID())
                 .set(COLLECTION.EXTERNAL_ID, collection.getExternalId())
+                .set(COLLECTION.EXTERNAL_PARENT_ID, collection.getExternalParentId())
                 .set(COLLECTION.LMS_ID, collection.getLmsId())
                 .set(COLLECTION.IS_COLLECTION, collection.getIsCollection())
                 .set(COLLECTION.OWNER_PROFILE_ID, collection.getOwnerProfileId())
                 .set(COLLECTION.COLLECTION_DATA, collection.getCollectionData())
-                .set(COLLECTION.IS_LOCKED, collection.getIsLocked())
                 .returning()
                 .fetchOne()
                 .into(Collection.class);

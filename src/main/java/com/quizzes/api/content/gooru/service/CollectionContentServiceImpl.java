@@ -68,7 +68,9 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         AssessmentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId);
 
         Collection collection = new Collection();
+        // TODO: The logic to obtain the correct external_id and external_parent_id must be implemented
         collection.setExternalId(assessmentDto.getId());
+        collection.setExternalParentId(externalCollectionId);
         collection.setLmsId(Lms.gooru);
         collection.setOwnerProfileId(owner.getId());
         collection.setIsCollection(false);
