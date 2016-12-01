@@ -1,8 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Profile;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

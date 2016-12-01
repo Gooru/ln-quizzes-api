@@ -1,6 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

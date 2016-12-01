@@ -1,7 +1,7 @@
 package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.model.enums.Lms;
+import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.ProfileService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @CrossOrigin
 @RestController("ProfileController")

@@ -1,6 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.model.tables.pojos.Group;
+import com.quizzes.api.common.model.jooq.tables.pojos.Group;
 import com.quizzes.api.common.repository.GroupRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

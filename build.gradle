@@ -86,13 +86,18 @@ jooq {
                 // ...
             }
             target {
-                packageName = "com.quizzes.api.common.model"
+                packageName = "com.quizzes.api.common.model.jooq"
                 directory = "src/main/java/"
             }
         }
     }
 }
 
+task deleteJooqSchema {
+    delete "src/main/java/com/quizzes/api/common/model/jooq"
+}
+
+deleteJooqSchema.onlyIf { project.hasProperty("generateJooq") }
 generateQuizzesJooqSchemaSource.onlyIf { project.hasProperty("generateJooq") }
 
 

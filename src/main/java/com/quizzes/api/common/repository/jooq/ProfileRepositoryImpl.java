@@ -1,7 +1,7 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Profile;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.quizzes.api.common.model.tables.Context.CONTEXT;
-import static com.quizzes.api.common.model.tables.Group.GROUP;
-import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
-import static com.quizzes.api.common.model.tables.Profile.PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
+import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
+import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.Profile.PROFILE;
 
 @Repository
 public class ProfileRepositoryImpl implements ProfileRepository {

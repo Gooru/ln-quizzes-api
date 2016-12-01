@@ -2,7 +2,7 @@ package com.quizzes.api.common.repository.jooq;
 
 import com.quizzes.api.common.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.entities.ContextOwnerEntity;
-import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.Context.CONTEXT;
-import static com.quizzes.api.common.model.tables.Group.GROUP;
-import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
+import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
+import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class ContextRepositoryImpl implements ContextRepository {

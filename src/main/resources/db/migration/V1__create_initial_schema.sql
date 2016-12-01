@@ -40,7 +40,7 @@ CREATE TABLE "group"
     group_data          JSONB,
     created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp
 );
-CREATE INDEX group_owner_profile_id_idx ON resource (owner_profile_id);
+CREATE INDEX group_owner_profile_id_idx ON "group" (owner_profile_id);
 
 CREATE TABLE group_profile
 (
@@ -50,29 +50,6 @@ CREATE TABLE group_profile
     created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT group_profile_group_id_profile_id_uc UNIQUE (group_id, profile_id)
 );
-
-CREATE TABLE resource
-(
-    id                  UUID        PRIMARY KEY,
-    external_id         VARCHAR(50) NOT NULL,
-    lms_id              LMS         NOT NULL DEFAULT 'quizzes',
-    collection_id       UUID        NOT NULL REFERENCES collection(id),
-    is_resource         BOOLEAN     NOT NULL DEFAULT TRUE,
-    owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
-    resource_data       JSONB,
-    sequence            SMALLINT    NOT NULL DEFAULT 0,
-    is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
-    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
-    updated_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
-    CONSTRAINT resource_external_id_lms_id_uc UNIQUE (external_id, lms_id)
-);
-CREATE INDEX resource_external_id_md5_idx ON resource (DECODE(MD5(external_id), 'HEX'));
-CREATE INDEX resource_collection_id_idx ON resource (collection_id);
-CREATE INDEX resource_owner_profile_id_idx ON resource (owner_profile_id);
-CREATE TRIGGER resource_updated_at_trigger
-BEFORE UPDATE
-ON resource
-FOR EACH ROW EXECUTE PROCEDURE _update_updated_at();
 
 CREATE TABLE collection
 (
@@ -93,6 +70,29 @@ CREATE INDEX collection_owner_profile_id_idx ON collection (owner_profile_id);
 CREATE TRIGGER collection_updated_at_trigger
     BEFORE UPDATE
     ON collection
+    FOR EACH ROW EXECUTE PROCEDURE _update_updated_at();
+
+CREATE TABLE resource
+(
+    id                  UUID        PRIMARY KEY,
+    external_id         VARCHAR(50) NOT NULL,
+    lms_id              LMS         NOT NULL DEFAULT 'quizzes',
+    collection_id       UUID        NOT NULL REFERENCES collection(id),
+    is_resource         BOOLEAN     NOT NULL DEFAULT TRUE,
+    owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
+    resource_data       JSONB,
+    sequence            SMALLINT    NOT NULL DEFAULT 0,
+    is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
+    updated_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT resource_external_id_lms_id_uc UNIQUE (external_id, lms_id)
+);
+CREATE INDEX resource_external_id_md5_idx ON resource (DECODE(MD5(external_id), 'HEX'));
+CREATE INDEX resource_collection_id_idx ON resource (collection_id);
+CREATE INDEX resource_owner_profile_id_idx ON resource (owner_profile_id);
+CREATE TRIGGER resource_updated_at_trigger
+    BEFORE UPDATE
+    ON resource
     FOR EACH ROW EXECUTE PROCEDURE _update_updated_at();
 
 CREATE TABLE context

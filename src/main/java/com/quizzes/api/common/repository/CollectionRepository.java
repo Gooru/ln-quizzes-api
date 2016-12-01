@@ -1,9 +1,8 @@
 package com.quizzes.api.common.repository;
 
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface CollectionRepository {
