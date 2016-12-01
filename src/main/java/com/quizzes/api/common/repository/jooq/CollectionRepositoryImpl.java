@@ -18,12 +18,11 @@ public class CollectionRepositoryImpl implements CollectionRepository {
     private DSLContext jooq;
 
     @Override
-    public Collection findByExternalIdAndLmsId(String externalId, Lms lmsId) {
+    public Collection findByExternalId(String externalId) {
         return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
                 COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
                 .where(COLLECTION.EXTERNAL_ID.eq(externalId))
-                .and(COLLECTION.LMS_ID.eq(lmsId))
                 .fetchOneInto(Collection.class);
     }
 

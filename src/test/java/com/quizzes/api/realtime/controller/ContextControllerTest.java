@@ -14,15 +14,12 @@ import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.enums.Lms;
 import com.quizzes.api.common.model.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
-import com.quizzes.api.common.service.GroupProfileService;
-import com.quizzes.api.common.service.GroupService;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -54,21 +51,12 @@ public class ContextControllerTest {
     @Mock
     private ContextService contextService;
 
-    @Mock
-    private GroupService groupService;
-
-    @Mock
-    private GroupProfileService groupProfileService;
-
-    @Mock
-    private JsonParser jsonParser;
-
     @Test
     public void assignContext() throws Exception {
-        Context context = new Context();
+        IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
+        idResponseDto.setId(contextId);
+        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
         AssignmentDto assignment = new AssignmentDto();
 
@@ -97,16 +85,16 @@ public class ContextControllerTest {
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         Object resultBody = result.getBody();
         assertSame(resultBody.getClass(), IdResponseDto.class);
-        assertEquals("Response body is wrong", ((IdResponseDto) resultBody).getId(), context.getId());
+        assertEquals("Response body is wrong", ((IdResponseDto) resultBody).getId(), idResponseDto.getId());
     }
 
     @Ignore
     @Test
     public void assignContextEmptyAssignment() throws Exception {
-        Context context = new Context();
+        IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
+        idResponseDto.setId(contextId);
+        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
         ResponseEntity<?> result = controller.assignContext(new AssignmentDto(), Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
@@ -120,10 +108,10 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextStudentValidation() throws Exception {
-        Context context = new Context();
+        IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
+        idResponseDto.setId(contextId);
+        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
         AssignmentDto assignment = new AssignmentDto();
         ProfileDto owner = new ProfileDto();
@@ -176,10 +164,10 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextTeacherValidation() throws Exception {
-        Context context = new Context();
+        IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
+        idResponseDto.setId(contextId);
+        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
         AssignmentDto assignment = new AssignmentDto();
 
@@ -234,10 +222,10 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextCollectionValidation() throws Exception {
-        Context context = new Context();
+        IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
+        idResponseDto.setId(contextId);
+        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
         AssignmentDto assignment = new AssignmentDto();
 
@@ -288,10 +276,10 @@ public class ContextControllerTest {
     @Ignore
     @Test
     public void assignContextContextValidation() throws Exception {
-        Context context = new Context();
+        IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
-        context.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(context);
+        idResponseDto.setId(contextId);
+        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
         AssignmentDto assignment = new AssignmentDto();
 
