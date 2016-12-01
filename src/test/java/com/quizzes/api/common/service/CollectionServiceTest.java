@@ -63,7 +63,7 @@ public class CollectionServiceTest {
         Collection collection = new Collection(id, "external-id", "external-parent-id", Lms.its_learning,
                 true, profileId, "{}", false, false, null);
 
-        doReturn(collection).when(collectionService).findByExternalIdAndLmsId("external-id", Lms.its_learning);
+        doReturn(collection).when(collectionService).findByExternalId("external-id");
 
         Collection result = collectionService.findByExternalId("external-id");
         verify(collectionService, times(1))

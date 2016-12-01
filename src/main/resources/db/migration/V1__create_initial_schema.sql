@@ -20,6 +20,24 @@ CREATE INDEX profile_external_id_md5_idx ON profile (DECODE(MD5(external_id), 'H
 -- WHERE DECODE(MD5(external_id), 'HEX') = DECODE(MD5('given-external-id'), 'HEX')
 -- AND external_id = given-external-id -- who knows when do we get a collision?
 
+CREATE TABLE "group"
+(
+    id                  UUID        PRIMARY KEY,
+    owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
+    group_data          JSONB,
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp
+);
+CREATE INDEX group_owner_profile_id_idx ON "group" (owner_profile_id);
+
+CREATE TABLE group_profile
+(
+    id                  UUID        PRIMARY KEY,
+    group_id            UUID        NOT NULL REFERENCES "group"(id),
+    profile_id          UUID        NOT NULL REFERENCES profile(id),
+    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
+    CONSTRAINT group_profile_group_id_profile_id_uc UNIQUE (group_id, profile_id)
+);
+
 CREATE TABLE collection
 (
     id                  UUID        PRIMARY KEY,
@@ -54,24 +72,6 @@ CREATE TABLE resource
 CREATE INDEX resource_external_id_md5_idx ON resource (DECODE(MD5(external_id), 'HEX'));
 CREATE INDEX resource_collection_id_idx ON resource (collection_id);
 CREATE INDEX resource_owner_profile_id_idx ON resource (owner_profile_id);
-
-CREATE TABLE "group"
-(
-    id                  UUID        PRIMARY KEY,
-    owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
-    group_data          JSONB,
-    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp
-);
-CREATE INDEX group_owner_profile_id_idx ON resource (owner_profile_id);
-
-CREATE TABLE group_profile
-(
-    id                  UUID        PRIMARY KEY,
-    group_id            UUID        NOT NULL REFERENCES "group"(id),
-    profile_id          UUID        NOT NULL REFERENCES profile(id),
-    created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
-    CONSTRAINT group_profile_group_id_profile_id_uc UNIQUE (group_id, profile_id)
-);
 
 CREATE TABLE context
 (
