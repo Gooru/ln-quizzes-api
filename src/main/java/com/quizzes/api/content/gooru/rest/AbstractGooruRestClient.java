@@ -35,8 +35,12 @@ public abstract class AbstractGooruRestClient {
     public String generateUserToken(UserDataTokenDto user) {
         String endpointUrl = getContentApiUrl() + "/api/nucleus-auth/v1/authorize";
 
-        TokenUserRequestDto tokenUserRequest =
-                new TokenUserRequestDto(CLIENT_KEY, CLIENT_ID, "google", RETURN_URL, user);
+        TokenUserRequestDto tokenUserRequest = new TokenUserRequestDto();
+        tokenUserRequest.setClientKey(CLIENT_KEY);
+        tokenUserRequest.setGrantType("google");
+        tokenUserRequest.setClientId(CLIENT_ID);
+        tokenUserRequest.setReturnUrl(RETURN_URL);
+        tokenUserRequest.setUser(user);
 
         if (logger.isDebugEnabled()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -65,7 +69,10 @@ public abstract class AbstractGooruRestClient {
 
     public String generateAnonymousToken() {
         String endpointUrl = getContentApiUrl() + "/api/nucleus-auth/v1/token";
-        TokenRequestDto tokenRequest = new TokenRequestDto(CLIENT_KEY, CLIENT_ID, "anonymous");
+        TokenRequestDto tokenRequest = new TokenRequestDto();
+        tokenRequest.setClientId(CLIENT_ID);
+        tokenRequest.setClientKey(CLIENT_KEY);
+        tokenRequest.setGrantType("anonymous");
 
         if (logger.isDebugEnabled()) {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();

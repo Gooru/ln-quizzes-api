@@ -39,7 +39,7 @@ public class AbstractGooruRestClientTest {
         UserDataTokenDto user = new UserDataTokenDto();
         user.setFirstName("Gooru");
         user.setLastName("My");
-        user.setIdentityId("mygooru@quizzes.com");
+        user.setEmail("mygooru@quizzes.com");
 
         String userToken = UUID.randomUUID().toString();
         TokenResponseDto token = new TokenResponseDto();
