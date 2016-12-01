@@ -138,7 +138,7 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
-        verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        verify(collectionService, times(1)).findByExternalId(any(String.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
         verify(profileService, times(0)).save(any(Profile.class));
@@ -182,7 +182,7 @@ public class ContextServiceTest {
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
         collectionResult.setOwnerProfileId(UUID.randomUUID());
-        when(collectionService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(collectionResult);
+        when(collectionService.findByExternalId(any(String.class))).thenReturn(collectionResult);
 
         //We create a new group for this new context
         Group groupResult = new Group();
@@ -202,7 +202,7 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
-        verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        verify(collectionService, times(1)).findByExternalId(any(String.class));
         //Creates the new group
         verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(profileService, times(3)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
@@ -274,7 +274,7 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
-        verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        verify(collectionService, times(1)).findByExternalId(any(String.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(1)).save(any(GroupProfile.class));
         verify(profileService, times(2)).save(any(Profile.class));
