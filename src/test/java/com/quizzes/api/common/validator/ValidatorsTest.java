@@ -35,7 +35,7 @@ public class ValidatorsTest {
 
         Set<ConstraintViolation<ProfileDto>> constraintViolations =
                 validator.validate(profile);
-        assertEquals(4, constraintViolations.size());
+        assertEquals(5, constraintViolations.size());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class ValidatorsTest {
 
         Set<ConstraintViolation<AssignmentDto>> constraintViolations =
                 validator.validate(assignment);
-        assertEquals(8, constraintViolations.size());
+        assertEquals(10, constraintViolations.size());
     }
 
 
