@@ -9,6 +9,8 @@ public interface ResourceRepository {
 
     Resource save(Resource resource);
 
+    Resource findById(UUID resourceId);
+
     List<Resource> findByCollectionId(UUID collectionId);
 
     Resource findFirstBySequenceByContextId(UUID contextId);

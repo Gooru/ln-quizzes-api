@@ -26,6 +26,14 @@ public class ResourceRepositoryImpl implements ResourceRepository {
         }
     }
 
+    public Resource findById(UUID resourceId) {
+        return jooq.select(RESOURCE.ID, RESOURCE.SEQUENCE, RESOURCE.IS_RESOURCE, RESOURCE.RESOURCE_DATA)
+                .from(RESOURCE)
+                .where(RESOURCE.ID.eq(resourceId))
+                .and(RESOURCE.IS_DELETED.eq(false))
+                .fetchOneInto(Resource.class);
+    }
+
     public List<Resource> findByCollectionId(UUID collectionId) {
         return jooq.select(RESOURCE.ID, RESOURCE.SEQUENCE, RESOURCE.IS_RESOURCE, RESOURCE.RESOURCE_DATA)
                 .from(RESOURCE)

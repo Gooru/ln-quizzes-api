@@ -14,17 +14,7 @@ public class CreatedContextGetResponseDto extends CommonContextGetResponseDto {
     @SerializedName("contextData")
     private Map<String, Object> contextResponse;
 
-    private long createdDate;
-
     private long modifiedDate;
-
-    public void setCreatedDate(long createdDate){
-      this.createdDate = createdDate;
-    }
-
-    public long getCreatedDate(){
-      return this.createdDate;
-    }
 
     public void setModifiedDate(long modifiedDate){
       this.modifiedDate = modifiedDate;

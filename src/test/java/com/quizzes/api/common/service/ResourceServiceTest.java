@@ -69,4 +69,18 @@ public class ResourceServiceTest {
         verify(resourceRepository, times(1)).findFirstBySequenceByContextId(any(UUID.class));
     }
 
+    @Test
+    public void save() {
+        Resource result = resourceService.save(new Resource());
+        verify(resourceRepository, times(1)).save(any(Resource.class));
+    }
+
+    @Test
+    public void findById() {
+        Resource result = resourceService.findById(UUID.randomUUID());
+        verify(resourceRepository, times(1)).findById(any(UUID.class));
+    }
+
+
+
 }

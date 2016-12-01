@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public interface ContextProfileRepository {
 
-    ContextProfile findByContextIdAndProfileId(UUID externalId, UUID profileId);
+    ContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId);
 
     List<UUID> findContextProfileIdsByContextId(UUID contextId);
 

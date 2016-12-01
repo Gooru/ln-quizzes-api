@@ -14,8 +14,16 @@ public class ContextProfileEventService {
     @Autowired
     ContextProfileEventRepository contextProfileEventRepository;
 
-    List<ContextProfileEvent> findEventsByContextProfileId(UUID contextProfileId){
-        return contextProfileEventRepository.findEventsByContextProfileId(contextProfileId);
+    List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId){
+        return contextProfileEventRepository.findByContextProfileId(contextProfileId);
+    }
+
+    ContextProfileEvent save(ContextProfileEvent contextProfileEvent){
+        return contextProfileEventRepository.save(contextProfileEvent);
+    }
+
+    ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
+        return contextProfileEventRepository.findByContextProfileIdAndResourceId(contextProfileId, resourceId);
     }
 
 }

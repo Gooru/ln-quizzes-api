@@ -49,12 +49,25 @@ public class ContextProfileEventServiceTest {
         List<ContextProfileEvent> list = new ArrayList<>();
         list.add(contextProfileEvent);
 
-        when(contextProfileEventRepository.findEventsByContextProfileId(any(UUID.class))).thenReturn(list);
+        when(contextProfileEventRepository.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
-        List<ContextProfileEvent> result = contextProfileEventService.findEventsByContextProfileId(UUID.randomUUID());
+        List<ContextProfileEvent> result = contextProfileEventService.findByContextProfileId(UUID.randomUUID());
 
-        verify(contextProfileEventRepository, times(1)).findEventsByContextProfileId(any(UUID.class));
+        verify(contextProfileEventRepository, times(1)).findByContextProfileId(any(UUID.class));
         assertNotNull("Response is Null", result);
+    }
+
+    @Test
+    public void findByContextProfileIdAndResourceId() throws Exception {
+        ContextProfileEvent result = contextProfileEventService.
+                findByContextProfileIdAndResourceId(UUID.randomUUID(), UUID.randomUUID());
+        verify(contextProfileEventRepository, times(1)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
+    }
+
+    @Test
+    public void save() throws Exception {
+        ContextProfileEvent result = contextProfileEventService.save(new ContextProfileEvent());
+        verify(contextProfileEventRepository, times(1)).save(any(ContextProfileEvent.class));
     }
 
 }

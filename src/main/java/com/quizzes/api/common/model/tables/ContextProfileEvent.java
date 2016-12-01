@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileEvent extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord> {
 
-	private static final long serialVersionUID = -448928264;
+	private static final long serialVersionUID = -413763459;
 
 	/**
 	 * The singleton instance of <code>public.context_profile_event</code>
@@ -42,7 +42,7 @@ public class ContextProfileEvent extends org.jooq.impl.TableImpl<com.quizzes.api
 	/**
 	 * The column <code>public.context_profile_event.event_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord, java.lang.String> EVENT_DATA = createField("event_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
+	public final org.jooq.TableField<com.quizzes.api.common.model.tables.records.ContextProfileEventRecord, java.lang.String> EVENT_DATA = createField("event_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.context_profile_event.created_at</code>.
