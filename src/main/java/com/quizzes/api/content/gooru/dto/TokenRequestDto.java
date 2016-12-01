@@ -17,12 +17,6 @@ public class TokenRequestDto {
     public TokenRequestDto() {
     }
 
-    public TokenRequestDto(String clientKey, String clientId, String grantType) {
-        this.clientKey = clientKey;
-        this.clientId = clientId;
-        this.grantType = grantType;
-    }
-
     public String getClientKey() {
         return clientKey;
     }
@@ -45,10 +39,6 @@ public class TokenRequestDto {
 
     public void setGrantType(String grantType) {
         this.grantType = grantType;
-    }
-
-    public String toString() {
-        return new Gson().toJson(this).toString();
     }
 
 }
