@@ -7,6 +7,7 @@ import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
@@ -135,8 +136,9 @@ public class ContextServiceTest {
 
         when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
-        Context result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
+        verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
         verify(profileService, times(0)).save(any(Profile.class));
@@ -146,9 +148,70 @@ public class ContextServiceTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
-        assertEquals("Wrong id for collection", collectionResult.getId(), result.getCollectionId());
-        assertEquals("Wrong id for group", groupResult.getId(), result.getGroupId());
-        assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
+    }
+
+    @Test
+    public void createContextWithExistingCollection() throws Exception {
+        String externalCollectionId = UUID.randomUUID().toString();
+
+        AssignmentDto assignmentDto = new AssignmentDto();
+        assignmentDto.setExternalCollectionId(externalCollectionId);
+
+        ProfileDto ownerDto = new ProfileDto();
+        ownerDto.setId("external-id1");
+        assignmentDto.setOwner(ownerDto);
+
+        ContextDataDto contextDataMock = new ContextDataDto();
+        Map<String, String> contextMapMock = new HashMap<>();
+        contextMapMock.put("classId", "classId");
+        contextDataMock.setContextMap(contextMapMock);
+        assignmentDto.setContextData(contextDataMock);
+
+        List<ProfileDto> assignees = new ArrayList<>();
+        ProfileDto profile1 = new ProfileDto();
+        profile1.setId("1");
+        ProfileDto profile2 = new ProfileDto();
+        profile1.setId("2");
+        assignees.add(profile1);
+        assignees.add(profile2);
+        assignmentDto.setAssignees(assignees);
+
+        Lms lms = Lms.its_learning;
+
+        //This means that the collection exists
+        Collection collectionResult = new Collection();
+        collectionResult.setId(UUID.randomUUID());
+        collectionResult.setOwnerProfileId(UUID.randomUUID());
+        when(collectionService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(collectionResult);
+
+        //We create a new group for this new context
+        Group groupResult = new Group();
+        groupResult.setId(UUID.randomUUID());
+        when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
+
+        //We assume all the profiles exists
+        //it doesn't matter if the profiles exists in this test or should be created
+        Profile profileResponse = new Profile();
+        UUID profileResponseId = UUID.randomUUID();
+        profileResponse.setId(profileResponseId);
+        when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
+
+        Context contextResult = new Context(UUID.randomUUID(),
+                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
+        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        IdResponseDto result = contextService.createContext(assignmentDto, lms);
+
+        verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        //Creates the new group
+        verify(groupService, times(1)).createGroup(any(UUID.class));
+        verify(profileService, times(3)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        //Adds the 2 Assignees to the new roup
+        verify(groupProfileService, times(2)).save(any(GroupProfile.class));
+        verify(contextRepository, times(1)).save(any(Context.class));
+
+        assertNotNull("Response is Null", result);
+        assertNotNull("Context ID is Null", result.getId());
     }
 
     @Test
@@ -209,8 +272,9 @@ public class ContextServiceTest {
 
         when(gson.toJson(any(ProfileDto.class))).thenReturn(serializedContextData);
 
-        Context result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
+        verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(1)).save(any(GroupProfile.class));
         verify(profileService, times(2)).save(any(Profile.class));
@@ -220,9 +284,6 @@ public class ContextServiceTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
-        assertEquals("Wrong id for collection", collectionResult.getId(), result.getCollectionId());
-        assertEquals("Wrong id for group", groupResult.getId(), result.getGroupId());
-        assertEquals("Wrong context data", "{\"contextMap\":{\"classId\":\"classId\"}}", result.getContextData());
     }
 
     @Test
