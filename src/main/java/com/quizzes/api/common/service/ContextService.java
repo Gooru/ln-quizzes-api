@@ -79,7 +79,7 @@ public class ContextService {
      * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
-    public ContextGetResponseDto createContext(AssignmentDto assignmentDto, Lms lms) {
+    public IdResponseDto createContext(AssignmentDto assignmentDto, Lms lms) {
         Profile owner = findOrCreateProfile(assignmentDto.getOwner(), lms);
         Collection collection = collectionService.findByExternalIdAndLmsId(assignmentDto.getExternalCollectionId(), Lms.gooru);
         if (collection == null){
@@ -95,7 +95,7 @@ public class ContextService {
         context.setContextData(gson.toJson(assignmentDto.getContextData()));
 
         Context newContext = contextRepository.save(context);
-        ContextGetResponseDto result = new ContextGetResponseDto();
+        IdResponseDto result = new IdResponseDto();
         result.setId(newContext.getId());
 
         return result;

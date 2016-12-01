@@ -7,6 +7,7 @@ import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
+import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
@@ -135,7 +136,7 @@ public class ContextServiceTest {
 
         when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
 
-        ContextGetResponseDto result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
         verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
@@ -199,7 +200,7 @@ public class ContextServiceTest {
                 collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        ContextGetResponseDto result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
         verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
         //Creates the new group
@@ -271,7 +272,7 @@ public class ContextServiceTest {
 
         when(gson.toJson(any(ProfileDto.class))).thenReturn(serializedContextData);
 
-        ContextGetResponseDto result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
         verify(collectionService, times(1)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
