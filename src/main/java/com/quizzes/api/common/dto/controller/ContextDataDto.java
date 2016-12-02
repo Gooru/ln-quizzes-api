@@ -1,16 +1,18 @@
 package com.quizzes.api.common.dto.controller;
 
+import com.quizzes.api.common.dto.MetadataDto;
+
 import java.util.Map;
 
 public class ContextDataDto {
-    private Map<String, Object> metadata;
+    private MetadataDto metadata;
     private Map<String, String> contextMap;
 
-    public Map<String, Object> getMetadata() {
+    public MetadataDto getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(Map<String, Object> metadata) {
+    public void setMetadata(MetadataDto metadata) {
         this.metadata = metadata;
     }
 

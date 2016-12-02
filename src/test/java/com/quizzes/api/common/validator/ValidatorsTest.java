@@ -1,6 +1,6 @@
 package com.quizzes.api.common.validator;
 
-import com.quizzes.api.common.dto.controller.AssignmentDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
@@ -51,9 +51,9 @@ public class ValidatorsTest {
     @Test
     public void testAssignmentDto() {
 
-        AssignmentDto assignment = new AssignmentDto();
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
 
-        Set<ConstraintViolation<AssignmentDto>> constraintViolations =
+        Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations =
                 validator.validate(assignment);
         assertEquals(4, constraintViolations.size());
     }
@@ -61,7 +61,7 @@ public class ValidatorsTest {
     @Test
     public void testContext() {
 
-        AssignmentDto assignment = new AssignmentDto();
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
         ProfileDto owner = new ProfileDto();
         assignment.setOwner(owner);
         ProfileDto assignee = new ProfileDto();
@@ -72,7 +72,7 @@ public class ValidatorsTest {
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
-        Set<ConstraintViolation<AssignmentDto>> constraintViolations =
+        Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations =
                 validator.validate(assignment);
         assertEquals(10, constraintViolations.size());
     }

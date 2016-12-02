@@ -1,4 +1,7 @@
-package com.quizzes.api.common.dto.controller;
+package com.quizzes.api.common.dto;
+
+import com.quizzes.api.common.dto.controller.ContextDataDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -8,7 +11,7 @@ import java.util.List;
 /**
  * This class is used to get the specific body context (json) in the endpoints
  */
-public class AssignmentDto {
+public class ContextPostRequestDto {
 
     @NotNull(message = "{assignment.external.collection.id.not_null}")
     @Valid
@@ -26,7 +29,7 @@ public class AssignmentDto {
     @NotNull(message = "{assignment.context_data.not_null}")
     private ContextDataDto contextData;
 
-    public AssignmentDto() {
+    public ContextPostRequestDto() {
     }
 
     public String getExternalCollectionId() {
