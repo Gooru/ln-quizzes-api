@@ -495,8 +495,8 @@ public class ContextControllerTest {
 
     @Test
     public void updateContext() throws Exception {
-        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
-                UUID.randomUUID(), "{\"context\":\"value\"}", null);
+        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                "{\"context\":\"value\"}", false, null, null);
         when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
         ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),

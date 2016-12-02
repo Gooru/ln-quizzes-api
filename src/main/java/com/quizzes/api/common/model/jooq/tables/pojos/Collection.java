@@ -9,10 +9,11 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection implements java.io.Serializable {
 
-	private static final long serialVersionUID = -1230458085;
+	private static final long serialVersionUID = 1080960865;
 
 	private java.util.UUID                              id;
 	private java.lang.String                            externalId;
+	private java.lang.String                            externalParentId;
 	private com.quizzes.api.common.model.jooq.enums.Lms lmsId;
 	private java.lang.Boolean                           isCollection;
 	private java.util.UUID                              ownerProfileId;
@@ -27,6 +28,7 @@ public class Collection implements java.io.Serializable {
 	public Collection(
 		java.util.UUID                              id,
 		java.lang.String                            externalId,
+		java.lang.String                            externalParentId,
 		com.quizzes.api.common.model.jooq.enums.Lms lmsId,
 		java.lang.Boolean                           isCollection,
 		java.util.UUID                              ownerProfileId,
@@ -38,6 +40,7 @@ public class Collection implements java.io.Serializable {
 	) {
 		this.id = id;
 		this.externalId = externalId;
+		this.externalParentId = externalParentId;
 		this.lmsId = lmsId;
 		this.isCollection = isCollection;
 		this.ownerProfileId = ownerProfileId;
@@ -62,6 +65,14 @@ public class Collection implements java.io.Serializable {
 
 	public void setExternalId(java.lang.String externalId) {
 		this.externalId = externalId;
+	}
+
+	public java.lang.String getExternalParentId() {
+		return this.externalParentId;
+	}
+
+	public void setExternalParentId(java.lang.String externalParentId) {
+		this.externalParentId = externalParentId;
 	}
 
 	public com.quizzes.api.common.model.jooq.enums.Lms getLmsId() {

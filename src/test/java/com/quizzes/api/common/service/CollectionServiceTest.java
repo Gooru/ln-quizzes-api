@@ -61,7 +61,7 @@ public class CollectionServiceTest {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
         Collection collection = new Collection(id, "external-id", "external-parent-id", Lms.its_learning,
-                true, profileId, "{}", false, false, null);
+                true, profileId, "{}", false, false, null, null);
 
         doReturn(collection).when(collectionService).findByExternalId("external-id");
 
@@ -86,7 +86,7 @@ public class CollectionServiceTest {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
         Collection collection = new Collection(null, "external-id", "external-parent-id", Lms.its_learning,
-                true, profileId, "{}", false, false, null);
+                true, profileId, "{}", false, false, null, null);
 
         doReturn(collection).when(collectionService).save(collection);
 

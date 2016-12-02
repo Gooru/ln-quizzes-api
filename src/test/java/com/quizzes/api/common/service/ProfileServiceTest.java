@@ -68,8 +68,8 @@ public class ProfileServiceTest {
 
     @Test
     public void save() throws Exception {
-        Profile mockProfile = new Profile(null, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null);
-
+        Profile mockProfile = new Profile(null, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null,
+                null);
         Profile profile = mockProfile;
         UUID id = UUID.randomUUID();
         profile.setId(id);

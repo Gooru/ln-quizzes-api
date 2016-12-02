@@ -12,8 +12,8 @@ import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.entities.ContextAssigneeEntity;
-import com.quizzes.api.common.entities.ContextOwnerEntity;
+import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
@@ -130,11 +130,12 @@ public class ContextServiceTest {
         groupResult.setId(UUID.randomUUID());
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
+        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
+                new Gson().toJson(assignmentDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class)))
+                .thenReturn(collectionResult);
 
         IdResponseDto result = contextService.createContext(assignmentDto, lms);
 
@@ -196,8 +197,8 @@ public class ContextServiceTest {
         profileResponse.setId(profileResponseId);
         when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
 
-        Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
+        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
+                new Gson().toJson(assignmentDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         IdResponseDto result = contextService.createContext(assignmentDto, lms);
@@ -252,11 +253,12 @@ public class ContextServiceTest {
         groupResult.setId(UUID.randomUUID());
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
+        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
+                new Gson().toJson(assignmentDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class)))
+                .thenReturn(collectionResult);
 
         ProfileDto anyProfile = new ProfileDto();
         anyProfile.setId(UUID.randomUUID().toString());
@@ -291,7 +293,12 @@ public class ContextServiceTest {
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
-        Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
+        Context contextResult = new Context();
+        contextResult.setId(id);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
 
         Context result = contextService.findById(UUID.randomUUID());
@@ -325,7 +332,12 @@ public class ContextServiceTest {
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
-        Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
+        Context contextResult = new Context();
+        contextResult.setId(id);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
 
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
 
@@ -337,7 +349,8 @@ public class ContextServiceTest {
         //this means only 1 out of 2 assignees exist in this context group
         foundExternalProfileIds.add(profile1.getId());
 
-        when(profileService.findExternalProfileIds(externalProfileIdsToFind, Lms.its_learning)).thenReturn(foundExternalProfileIds);
+        when(profileService.findExternalProfileIds(externalProfileIdsToFind, Lms.its_learning))
+                .thenReturn(foundExternalProfileIds);
 
         when(profileService.save(any(Profile.class))).thenReturn(new Profile());
 
@@ -346,7 +359,8 @@ public class ContextServiceTest {
         profileIds.add(UUID.randomUUID());
         profileIds.add(UUID.randomUUID());
 
-        when(profileService.findProfileIdsByExternalIdAndLms(externalProfileIdsToFind, Lms.its_learning)).thenReturn(profileIds);
+        when(profileService.findProfileIdsByExternalIdAndLms(externalProfileIdsToFind, Lms.its_learning))
+                .thenReturn(profileIds);
 
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
@@ -360,7 +374,8 @@ public class ContextServiceTest {
 
         when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
 
-        ContextDataDto contextDataDto = new Gson().fromJson(contextDataMock.getContextData().getMetadata().toString(), ContextDataDto.class);
+        ContextDataDto contextDataDto = new Gson().fromJson(contextDataMock.getContextData().getMetadata().toString(),
+                ContextDataDto.class);
 
         when(gson.fromJson(any(String.class), any())).thenReturn(contextDataDto);
 

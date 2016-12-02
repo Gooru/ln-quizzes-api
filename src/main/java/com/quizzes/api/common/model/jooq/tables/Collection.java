@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord> {
 
-	private static final long serialVersionUID = 174209963;
+	private static final long serialVersionUID = 290572731;
 
 	/**
 	 * The singleton instance of <code>public.collection</code>
@@ -35,6 +35,11 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, java.lang.String> EXTERNAL_ID = createField("external_id", org.jooq.impl.SQLDataType.VARCHAR.length(50).nullable(false), this, "");
 
 	/**
+	 * The column <code>public.collection.external_parent_id</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, java.lang.String> EXTERNAL_PARENT_ID = createField("external_parent_id", org.jooq.impl.SQLDataType.VARCHAR.length(50).nullable(false), this, "");
+
+	/**
 	 * The column <code>public.collection.lms_id</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, com.quizzes.api.common.model.jooq.enums.Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.jooq.enums.Lms.class), this, "");
@@ -52,7 +57,7 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	/**
 	 * The column <code>public.collection.collection_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, java.lang.String> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.binding.PostgresJsonbStringBinding());
+	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, java.lang.String> COLLECTION_DATA = createField("collection_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.collection.is_locked</code>.

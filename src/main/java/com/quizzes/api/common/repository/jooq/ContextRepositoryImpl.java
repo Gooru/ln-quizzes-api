@@ -1,7 +1,7 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.entities.ContextAssigneeEntity;
-import com.quizzes.api.common.entities.ContextOwnerEntity;
+import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;

@@ -41,17 +41,10 @@ public class ProfileRepositoryImpl implements ProfileRepository {
 
     @Override
     public Profile findById(UUID id) {
-        return new Profile(UUID.randomUUID(), "2423424", Lms.quizzes, "{\n" +
-                "      \"id\": \"18b4a2f4-f0df-489d-93a8-11e104d6768b\",\n" +
-                "      \"firstName\": \"Roger\",\n" +
-                "      \"lastName\": \"Stevens\",\n" +
-                "      \"username\": \"rogersteve\"\n" +
-                "    }", null);
-
-//        return jooq.select()
-//                .from(PROFILE)
-//                .where(PROFILE.ID.eq(id))
-//                .fetchOneInto(Profile.class);
+        return jooq.select()
+                .from(PROFILE)
+                .where(PROFILE.ID.eq(id))
+                .fetchOneInto(Profile.class);
     }
 
     @Override
@@ -124,19 +117,12 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     private Profile updateProfile(final Profile profile) {
-        return new Profile(UUID.randomUUID(), "2423424", Lms.quizzes, "{\n" +
-                "      \"id\": \"18b4a2f4-f0df-489d-93a8-11e104d6768b\",\n" +
-                "      \"firstName\": \"Roger\",\n" +
-                "      \"lastName\": \"Stevens\",\n" +
-                "      \"username\": \"rogersteve\"\n" +
-                "    }", null);
-
-//        return jooq.update(PROFILE)
-//                .set(PROFILE.PROFILE_DATA, profile.getProfileData())
-//                .where(PROFILE.ID.eq(profile.getId()))
-//                .returning()
-//                .fetchOne()
-//                .into(Profile.class);
+        return jooq.update(PROFILE)
+                .set(PROFILE.PROFILE_DATA, profile.getProfileData())
+                .where(PROFILE.ID.eq(profile.getId()))
+                .returning()
+                .fetchOne()
+                .into(Profile.class);
     }
 
 }

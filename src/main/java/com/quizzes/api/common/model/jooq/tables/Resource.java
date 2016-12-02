@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord> {
 
-	private static final long serialVersionUID = -396250056;
+	private static final long serialVersionUID = 1656039795;
 
 	/**
 	 * The singleton instance of <code>public.resource</code>
@@ -57,7 +57,7 @@ public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.mod
 	/**
 	 * The column <code>public.resource.resource_data</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord, java.lang.String> RESOURCE_DATA = createField("resource_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.binding.PostgresJsonbStringBinding());
+	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord, java.lang.String> RESOURCE_DATA = createField("resource_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.common.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.resource.sequence</code>.
