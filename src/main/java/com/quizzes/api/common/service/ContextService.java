@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,11 +75,13 @@ public class ContextService {
     CollectionContentService collectionContentService;
 
     /**
-     * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same Collection
+     * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same
+     * Collection
      * @param assignmentDto  information about the new {@link Context}
      * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
+    @Transactional
     public IdResponseDto createContext(AssignmentDto assignmentDto, Lms lms) {
         Profile owner = findOrCreateProfile(assignmentDto.getOwner(), lms);
         Collection collection = collectionService.findByExternalId(assignmentDto.getExternalCollectionId());
