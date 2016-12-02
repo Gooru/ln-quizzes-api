@@ -11,8 +11,8 @@ import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -502,8 +502,8 @@ public class ContextControllerTest {
 
     @Test
     public void updateContext() throws Exception {
-        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
-                UUID.randomUUID(), "{\"context\":\"value\"}", null);
+        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                "{\"context\":\"value\"}", false, null, null);
         when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
         ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),

@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.tables.pojos.GroupProfile;
+import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.common.repository.GroupProfileRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class GroupProfileRepositoryImpl implements GroupProfileRepository {

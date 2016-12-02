@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository;
 
-import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 
 import java.util.List;
 import java.util.UUID;

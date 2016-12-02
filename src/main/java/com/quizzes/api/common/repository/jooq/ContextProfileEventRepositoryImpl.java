@@ -1,7 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.Context.CONTEXT;
-import static com.quizzes.api.common.model.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
+import static com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
 
 @Repository
 public class ContextProfileEventRepositoryImpl implements ContextProfileEventRepository {

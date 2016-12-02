@@ -1,8 +1,8 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.entities.ContextAssigneeEntity;
-import com.quizzes.api.common.entities.ContextOwnerEntity;
-import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.Context.CONTEXT;
-import static com.quizzes.api.common.model.tables.Group.GROUP;
-import static com.quizzes.api.common.model.tables.GroupProfile.GROUP_PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
+import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
+import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class ContextRepositoryImpl implements ContextRepository {
@@ -50,8 +50,8 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId){
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, //CONTEXT.MODIFIED_AT,
-                GROUP_PROFILE.PROFILE_ID.as("AssigneeProfileId"))
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA,
+                CONTEXT.CREATED_AT, CONTEXT.UPDATED_AT, GROUP_PROFILE.PROFILE_ID.as("AssigneeProfileId"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
@@ -60,25 +60,9 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public Context findByCollectionIdAndGroupId(UUID collectionId, UUID groupId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
-                .from(CONTEXT)
-                .where(CONTEXT.COLLECTION_ID.eq(collectionId))
-                .and(CONTEXT.GROUP_ID.eq(groupId))
-                .fetchOneInto(Context.class);
-    }
-
-    @Override
-    public UUID findCollectionIdByContextId(UUID contextId) {
-        return jooq.select(CONTEXT.COLLECTION_ID)
-                .from(CONTEXT)
-                .where(CONTEXT.ID.eq(contextId))
-                .fetchOneInto(UUID.class);
-    }
-
-    @Override
     public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT, GROUP.OWNER_PROFILE_ID)
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
+                GROUP.OWNER_PROFILE_ID)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))

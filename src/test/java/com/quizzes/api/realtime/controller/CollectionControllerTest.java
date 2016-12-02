@@ -1,15 +1,9 @@
 package com.quizzes.api.realtime.controller;
 
 import com.google.common.collect.Lists;
-import com.quizzes.api.common.dto.controller.response.AnswerDto;
-import com.quizzes.api.common.dto.controller.response.ChoiceDto;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
 import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
-import com.quizzes.api.common.dto.controller.response.InteractionDto;
-import com.quizzes.api.common.dto.controller.response.QuestionDataDto;
-import com.quizzes.api.common.enums.QuestionTypeEnum;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Resource;
+import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.common.service.ResourceService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
@@ -24,14 +18,11 @@ import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;

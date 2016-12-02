@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.tables.pojos.ContextProfile;
+import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.repository.ContextProfileRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.ContextProfile.CONTEXT_PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
 
 @Repository
 public class ContextProfileRepositoryImpl implements ContextProfileRepository {
