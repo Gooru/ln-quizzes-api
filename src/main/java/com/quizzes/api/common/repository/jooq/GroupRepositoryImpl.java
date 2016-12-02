@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.tables.pojos.Group;
+import com.quizzes.api.common.model.jooq.tables.pojos.Group;
 import com.quizzes.api.common.repository.GroupRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.Group.GROUP;
+import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
 
 @Repository
 public class GroupRepositoryImpl implements GroupRepository {

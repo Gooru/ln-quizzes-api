@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository;
 
-import com.quizzes.api.common.model.tables.pojos.Group;
+import com.quizzes.api.common.model.jooq.tables.pojos.Group;
 
 import java.util.UUID;
 

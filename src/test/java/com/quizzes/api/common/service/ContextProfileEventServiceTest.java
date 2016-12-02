@@ -1,10 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.ContextProfileEvent;
-import com.quizzes.api.common.model.tables.pojos.GroupProfile;
-import com.quizzes.api.common.model.tables.pojos.Profile;
+import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
