@@ -1,4 +1,4 @@
-package com.quizzes.api.common.binding;
+package com.quizzes.api.common.model.binding;
 
 import org.jooq.Binding;
 import org.jooq.BindingGetResultSetContext;

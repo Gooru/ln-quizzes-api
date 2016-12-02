@@ -11,6 +11,6 @@ public interface CollectionRepository {
 
     Collection findById(UUID id);
 
-    Collection findByExternalIdAndLmsId(String externalId, Lms lmsId);
+    Collection findByExternalId(String externalId);
 
 }

@@ -55,11 +55,12 @@ CREATE TABLE collection
 (
     id                  UUID        PRIMARY KEY,
     external_id         VARCHAR(50) NOT NULL,
+    external_parent_id  VARCHAR(50) NOT NULL,
     lms_id              LMS         NOT NULL DEFAULT 'quizzes',
     is_collection       BOOLEAN     NOT NULL DEFAULT TRUE,
     owner_profile_id    UUID        NOT NULL REFERENCES profile(id),
     collection_data     JSONB,
-    is_lock             BOOLEAN     NOT NULL DEFAULT FALSE,
+    is_locked           BOOLEAN     NOT NULL DEFAULT FALSE,
     is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     updated_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,

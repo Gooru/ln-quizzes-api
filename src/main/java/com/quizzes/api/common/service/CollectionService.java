@@ -39,17 +39,13 @@ public class CollectionService {
     JsonParser jsonParser;
 
     //TODO: Tests
-    public Collection findByExternalIdAndLmsId(String externalId, Lms lms) {
-        return collectionRepository.findByExternalIdAndLmsId(externalId, lms);
+    public Collection findByExternalId(String externalId) {
+        return collectionRepository.findByExternalId(externalId);
     }
 
     //TODO: tests
     public Collection save(Collection collection) {
         return collectionRepository.save(collection);
-    }
-
-    public Collection findOrCreateCollection(CollectionDto id) {
-        return null;
     }
 
     public Collection findById(UUID id) {
