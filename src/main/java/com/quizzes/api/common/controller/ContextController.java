@@ -31,10 +31,12 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -63,13 +65,12 @@ public class ContextController {
         Set<ConstraintViolation<AssignmentDto>> constraintViolations = validator.validate(assignmentDto);
 
         if (!constraintViolations.isEmpty()) {
-            List<String> constraintErrors = new ArrayList<>();
-            for (ConstraintViolation violation : constraintViolations) {
-                constraintErrors.add(String.format("Error in %s: %s", violation.getPropertyPath(), violation.getMessage()));
-            }
-            //TODO: the validations are on hold, we're using mocks in the meantime
-//            result.put("Errors", constraintErrors);
-//            return new ResponseEntity<>(result, HttpStatus.NOT_ACCEPTABLE);
+            List<String> constraintErrors = constraintViolations
+                    .stream().map(violation -> String.format("Error in %s: %s", violation.getPropertyPath(),
+                            violation.getMessage())).collect(Collectors.toList());
+            Map<String, Object> errors = new HashMap<>();
+            errors.put("Errors", constraintErrors);
+            return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
         }
 
         IdResponseDto result = contextService.createContext(assignmentDto, Lms.valueOf(lmsId));
