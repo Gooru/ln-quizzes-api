@@ -10,10 +10,6 @@ public class CreatedContextGetResponseDto extends CommonContextGetResponseDto {
 
     private List<IdResponseDto> assignees;
 
-    @ApiModelProperty(hidden = true)
-    @SerializedName("contextData")
-    private Map<String, Object> contextResponse;
-
     private long modifiedDate;
 
     public void setModifiedDate(long modifiedDate){
@@ -35,11 +31,4 @@ public class CreatedContextGetResponseDto extends CommonContextGetResponseDto {
         this.assignees = assignees;
     }
 
-    public Map<String, Object> getContextResponse() {
-        return contextResponse;
-    }
-
-    public void setContextResponse(Map<String, Object> contextResponse) {
-        this.contextResponse = contextResponse;
-    }
 }

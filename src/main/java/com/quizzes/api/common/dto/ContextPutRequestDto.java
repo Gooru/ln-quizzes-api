@@ -3,13 +3,12 @@ package com.quizzes.api.common.dto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import java.util.List;
-import java.util.Map;
 
 public class ContextPutRequestDto {
 
     private List<ProfileDto> assignees;
 
-    private MetadataDTO contextData;
+    private PutRequestMetadataDTO contextData;
 
     public ContextPutRequestDto() {
     }
@@ -22,26 +21,26 @@ public class ContextPutRequestDto {
         this.assignees = assignees;
     }
 
-    public MetadataDTO getContextData() {
+    public PutRequestMetadataDTO getContextData() {
         return contextData;
     }
 
-    public void setContextData(MetadataDTO contextData) {
+    public void setContextData(PutRequestMetadataDTO contextData) {
         this.contextData = contextData;
     }
 
-    public static class MetadataDTO {
+    public static class PutRequestMetadataDTO {
 
-        public MetadataDTO() {
+        public PutRequestMetadataDTO() {
         }
 
-        private Map<String, Object> metadata;
+        private MetadataDto metadata;
 
-        public Map<String, Object> getMetadata () {
+        public MetadataDto getMetadata() {
             return metadata;
         }
 
-        public void setMetadata(Map<String, Object> metadata) {
+        public void setMetadata(MetadataDto metadata) {
             this.metadata = metadata;
         }
     }
