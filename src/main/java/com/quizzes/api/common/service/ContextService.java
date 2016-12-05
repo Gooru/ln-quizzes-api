@@ -8,7 +8,6 @@ import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.controller.AssignmentDto;
 import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
@@ -78,14 +77,14 @@ public class ContextService {
     /**
      * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same
      * Collection
-     * @param assignmentDto  information about the new {@link Context}
+     * @param contextPostRequestDto  information about the new {@link Context}
      * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
     @Transactional
-    public IdResponseDto createContext(AssignmentDto assignmentDto, Lms lms) {
-        Profile owner = findOrCreateProfile(assignmentDto.getOwner(), lms);
-        Collection collection = collectionService.findByExternalId(assignmentDto.getExternalCollectionId());
+    public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
+        Profile owner = findOrCreateProfile(contextPostRequestDto.getOwner(), lms);
+        Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
         if (collection == null){
             collection = collectionContentService.createCollectionCopy(contextPostRequestDto.getExternalCollectionId(), owner);
         }
@@ -98,9 +97,9 @@ public class ContextService {
         context.setGroupId(group.getId());
         context.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
 
-        Context newContext = contextRepository.save(context);
+        context = contextRepository.save(context);
         IdResponseDto result = new IdResponseDto();
-        result.setId(newContext.getId());
+        result.setId(context.getId());
 
         return result;
     }
