@@ -8,7 +8,7 @@ import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.controller.AssignmentDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
@@ -75,24 +75,24 @@ public class ContextService {
 
     /**
      * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same Collection
-     * @param assignmentDto  information about the new {@link Context}
+     * @param contextPostRequestDto  information about the new {@link Context}
      * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
-    public IdResponseDto createContext(AssignmentDto assignmentDto, Lms lms) {
-        Profile owner = findOrCreateProfile(assignmentDto.getOwner(), lms);
-        Collection collection = collectionService.findByExternalId(assignmentDto.getExternalCollectionId());
+    public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
+        Profile owner = findOrCreateProfile(contextPostRequestDto.getOwner(), lms);
+        Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
         if (collection == null){
-            collection = collectionContentService.createCollectionCopy(assignmentDto.getExternalCollectionId(), owner);
+            collection = collectionContentService.createCollectionCopy(contextPostRequestDto.getExternalCollectionId(), owner);
         }
 
         Group group = groupService.createGroup(owner.getId());
-        assignProfilesToGroup(group.getId(), assignmentDto.getAssignees(), lms);
+        assignProfilesToGroup(group.getId(), contextPostRequestDto.getAssignees(), lms);
 
         Context context = new Context();
         context.setCollectionId(collection.getId());
         context.setGroupId(group.getId());
-        context.setContextData(gson.toJson(assignmentDto.getContextData()));
+        context.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
 
         Context newContext = contextRepository.save(context);
         IdResponseDto result = new IdResponseDto();
@@ -169,7 +169,7 @@ public class ContextService {
 
             response.setCollection(collectionDto);
             response.setId(contextId);
-            response.setContextDataResponse(jsonParser.parseMap(contextOwner.getContextData()));
+            response.setContextData(gson.fromJson(contextOwner.getContextData(), ContextDataDto.class));
 
             IdResponseDto ownerId = new IdResponseDto();
             ownerId.setId(contextOwner.getOwnerProfileId());
@@ -207,7 +207,7 @@ public class ContextService {
                         createdContextGetResponseDto.setId(key);
                         if (!value.isEmpty()) {
                             ContextAssigneeEntity firstEntryValue = value.get(0);
-                            createdContextGetResponseDto.setContextResponse(jsonParser.parseMap(firstEntryValue.getContextData()));
+                            createdContextGetResponseDto.setContextData(gson.fromJson(firstEntryValue.getContextData(), ContextDataDto.class));
                             CollectionDto collectionDto = new CollectionDto(firstEntryValue.getCollectionId().toString());
                             createdContextGetResponseDto.setCollection(collectionDto);
                             List<IdResponseDto> assignees = value.stream().map(profile -> {
@@ -240,7 +240,7 @@ public class ContextService {
                     response.setCollection(collectionDto);
                     response.setId(context.getId());
                     response.setCreatedDate(context.getCreatedAt().getTime());
-                    response.setContextDataResponse(jsonParser.parseMap(context.getContextData()));
+                    response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
 
                     IdResponseDto ownerId = new IdResponseDto();
                     ownerId.setId(context.getOwnerProfileId());

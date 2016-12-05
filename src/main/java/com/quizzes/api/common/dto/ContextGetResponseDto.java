@@ -12,10 +12,6 @@ public class ContextGetResponseDto extends CommonContextGetResponseDto {
 
     private List<IdResponseDto> assignees;
 
-    @ApiModelProperty(hidden = true)
-    @SerializedName("contextData")
-    private Map<String, Object> contextDataResponse;
-
     public ContextGetResponseDto() {
     }
 
@@ -35,11 +31,4 @@ public class ContextGetResponseDto extends CommonContextGetResponseDto {
         this.assignees = assignees;
     }
 
-    public Map<String, Object> getContextDataResponse() {
-        return contextDataResponse;
-    }
-
-    public void setContextDataResponse(Map<String, Object> contextDataResponse) {
-        this.contextDataResponse = contextDataResponse;
-    }
 }
