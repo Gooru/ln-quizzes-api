@@ -151,16 +151,7 @@ public class ContextEventService {
     }
 
     private List<Map<String, Object>> convertContextProfileToMap(List<ContextProfileEvent> events) {
-        return events.stream().map(event -> {
-            Map<String, Object> data = jsonParser.parseMap(event.getEventData());
-            if (data.containsKey("answer") && data.get("answer").toString() != null) {
-                List<Object> answers = jsonParser.parseList(data.get("answer").toString());
-                data.put("answer", answers);
-            } else {
-                data.put("answer", new JSONArray());
-            }
-            return data;
-        }).collect(Collectors.toList());
+        return events.stream().map(event -> jsonParser.parseMap(event.getEventData())).collect(Collectors.toList());
     }
 
 }
