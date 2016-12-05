@@ -1,7 +1,7 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Collection;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.repository.CollectionRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
-import static com.quizzes.api.common.model.tables.Collection.COLLECTION;
+import static com.quizzes.api.common.model.jooq.tables.Collection.COLLECTION;
 
 @Repository
 public class CollectionRepositoryImpl implements CollectionRepository {

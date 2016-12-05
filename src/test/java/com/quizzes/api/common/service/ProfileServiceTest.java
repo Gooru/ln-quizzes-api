@@ -1,8 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Profile;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,8 +68,8 @@ public class ProfileServiceTest {
 
     @Test
     public void save() throws Exception {
-        Profile mockProfile = new Profile(null, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null);
-
+        Profile mockProfile = new Profile(null, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null,
+                null);
         Profile profile = mockProfile;
         UUID id = UUID.randomUUID();
         profile.setId(id);
