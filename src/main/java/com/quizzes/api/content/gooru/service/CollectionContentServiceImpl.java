@@ -12,6 +12,7 @@ import com.quizzes.api.common.service.content.CollectionContentService;
 import com.quizzes.api.content.gooru.dto.AnswerDto;
 import com.quizzes.api.content.gooru.dto.AssessmentDto;
 import com.quizzes.api.content.gooru.dto.QuestionDto;
+import com.quizzes.api.content.gooru.dto.UserDataTokenDto;
 import com.quizzes.api.content.gooru.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.content.gooru.rest.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,8 +65,17 @@ public class CollectionContentServiceImpl implements CollectionContentService {
     @Autowired
     ResourceService resourceService;
 
+    @Autowired
+    Gson gson;
+
     @Override
     public Collection createCollectionCopy(String externalCollectionId, Profile owner) {
+        UserDataTokenDto userDataTokenDto = gson.fromJson(owner.getProfileData(), UserDataTokenDto.class);
+        String userToken = collectionRestClient.generateUserToken(userDataTokenDto);
+        String copiedAssessmentId = collectionRestClient.copyAssessment(externalCollectionId, userToken);
+        //TODO: copiedAssessmentId should be used to get the assessment
+        //TODO: but first getAssessment needs to use the user token
+        //TODO: instead of the anonymous token
         AssessmentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId);
 
         Collection collection = new Collection();

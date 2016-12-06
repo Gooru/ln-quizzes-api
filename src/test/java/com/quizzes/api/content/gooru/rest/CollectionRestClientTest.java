@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.UUID;
 
 import static org.mockito.Matchers.any;
@@ -54,4 +55,19 @@ public class CollectionRestClientTest {
                         eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentDto.class));
     }
 
+    @Test
+    public void copyAssessment() throws Exception {
+        String anonymousToken = UUID.randomUUID().toString();
+        AssessmentDto assessmentDto = new AssessmentDto();
+        assessmentDto.setId(UUID.randomUUID().toString());
+
+        doReturn(new URI(UUID.randomUUID().toString())).when(restTemplate)
+                .postForLocation(any(String.class), any(HttpEntity.class), any(UUID.class));
+
+        collectionRestClient.copyAssessment(assessmentDto.getId(), anonymousToken);
+
+        verify(restTemplate, times(1))
+                .postForLocation(eq(contentApiUrl + "/api/nucleus/v1/copier/assessments/{assessmentId}"),
+                        any(HttpEntity.class), any(UUID.class));
+    }
 }

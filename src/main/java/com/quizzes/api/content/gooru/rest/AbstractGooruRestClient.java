@@ -21,6 +21,7 @@ public abstract class AbstractGooruRestClient {
     private static final String RETURN_URL = "http://www.gooru.org";
     private static final String USER_GRANT_TYPE = "google";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
+    protected static final String API_URL = "/api/nucleus/v1/";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
