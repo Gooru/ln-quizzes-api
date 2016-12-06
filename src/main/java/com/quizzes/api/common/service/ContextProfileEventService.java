@@ -1,6 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.model.entities.ContextEventEntity;
+import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class ContextProfileEventService {
         return contextProfileEventRepository.findByContextProfileIdAndResourceId(contextProfileId, resourceId);
     }
 
-    Map<UUID, List<ContextEventEntity>> findAllStudentEventsByContextId(UUID contextId){
+    Map<UUID, List<AssigneeEventEntity>> findAllStudentEventsByContextId(UUID contextId){
         return contextProfileEventRepository.findAllStudentEventsByContextId(contextId);
     }
 

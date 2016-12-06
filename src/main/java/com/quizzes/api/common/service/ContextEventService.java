@@ -12,7 +12,7 @@ import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import com.quizzes.api.common.exception.InternalServerException;
-import com.quizzes.api.common.model.entities.ContextEventEntity;
+import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
@@ -129,7 +129,7 @@ public class ContextEventService {
 
     public ContextEventsResponseDto getContextEvents(UUID contextId) {
         try {
-            Map<UUID, List<ContextEventEntity>> studentEvents =
+            Map<UUID, List<AssigneeEventEntity>> studentEvents =
                     contextProfileEventService.findAllStudentEventsByContextId(contextId);
             ContextEventsResponseDto response = new ContextEventsResponseDto();
             response.setContextId(contextId);
@@ -140,14 +140,14 @@ public class ContextEventService {
             response.setCollection(collection);
 
             List<ProfileEventResponseDto> profileEvents = studentEvents.entrySet().stream().map(entity -> {
-                List<ContextEventEntity> contextEventEntityList = entity.getValue();
+                List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
                 ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
                 profileEvent.setProfileId(entity.getKey());
                 if (!entity.getValue().isEmpty()) {
                     profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
                 }
 
-                profileEvent.setEvents(contextEventEntityList.stream()
+                profileEvent.setEvents(assigneeEventEntityList.stream()
                         .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
                         .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
                                 PostResponseResourceDto.class)).collect(Collectors.toList()));

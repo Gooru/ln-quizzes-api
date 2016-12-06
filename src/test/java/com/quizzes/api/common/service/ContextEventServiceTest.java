@@ -10,7 +10,7 @@ import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.ContextEventsResponseDto;
-import com.quizzes.api.common.model.entities.ContextEventEntity;
+import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
@@ -79,7 +79,7 @@ public class ContextEventServiceTest {
     Gson gson;
 
     @Mock
-    ContextEventEntity contextEventEntity;
+    AssigneeEventEntity assigneeEventEntity;
 
     @Test
     public void startContextEvent() throws Exception {
@@ -384,17 +384,17 @@ public class ContextEventServiceTest {
     @Test
     public void getContextEvents() throws Exception {
         //Map values for findAllStudentEvents
-        Map<UUID, List<ContextEventEntity>> studentEventsMap = new HashMap<>();
-        List<ContextEventEntity> events = new ArrayList<>();
+        Map<UUID, List<AssigneeEventEntity>> studentEventsMap = new HashMap<>();
+        List<AssigneeEventEntity> events = new ArrayList<>();
 
         //Setting events
         UUID currentResourceId = UUID.randomUUID();
 
         //Setting entity values
-        ContextEventEntity contextEventEntity = Mockito.spy(ContextEventEntity.class);
-        when(contextEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
-        when(contextEventEntity.getEventData()).thenReturn("jsonMock");
-        events.add(contextEventEntity);
+        AssigneeEventEntity assigneeEventEntity = Mockito.spy(AssigneeEventEntity.class);
+        when(assigneeEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
+        when(assigneeEventEntity.getEventData()).thenReturn("jsonMock");
+        events.add(assigneeEventEntity);
 
         //Adding students
         UUID student1 = UUID.randomUUID();
@@ -445,17 +445,17 @@ public class ContextEventServiceTest {
     @Test
     public void getContextEventsWithoutEvents() throws Exception {
         //Map values for findAllStudentEvents
-        Map<UUID, List<ContextEventEntity>> studentEventsMap = new HashMap<>();
-        List<ContextEventEntity> events = new ArrayList<>();
+        Map<UUID, List<AssigneeEventEntity>> studentEventsMap = new HashMap<>();
+        List<AssigneeEventEntity> events = new ArrayList<>();
 
         //Setting events
         UUID currentResourceId = UUID.randomUUID();
 
         //Setting entity values
-        ContextEventEntity contextEventEntity = Mockito.spy(ContextEventEntity.class);
-        when(contextEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
-        when(contextEventEntity.getEventData()).thenReturn(null);
-        events.add(contextEventEntity);
+        AssigneeEventEntity assigneeEventEntity = Mockito.spy(AssigneeEventEntity.class);
+        when(assigneeEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
+        when(assigneeEventEntity.getEventData()).thenReturn(null);
+        events.add(assigneeEventEntity);
 
         //Adding student
         UUID studentId = UUID.randomUUID();

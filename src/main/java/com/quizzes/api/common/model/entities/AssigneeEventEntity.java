@@ -2,7 +2,7 @@ package com.quizzes.api.common.model.entities;
 
 import java.util.UUID;
 
-public interface ContextEventEntity {
+public interface AssigneeEventEntity {
 
     UUID getCurrentResourceId();
 

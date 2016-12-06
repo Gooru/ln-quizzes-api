@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.entities.ContextEventEntity;
+import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.jooq.DSLContext;
@@ -29,13 +29,13 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     }
 
     @Override
-    public Map<UUID, List<ContextEventEntity>> findAllStudentEventsByContextId(UUID contextId) {
+    public Map<UUID, List<AssigneeEventEntity>> findAllStudentEventsByContextId(UUID contextId) {
         return jooq.select(CONTEXT_PROFILE.PROFILE_ID.as("AssigneeProfileId"),
                 CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
                 .from(CONTEXT_PROFILE)
                 .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
-                .fetchGroups(CONTEXT_PROFILE.PROFILE_ID.as("AssigneeProfileId"), ContextEventEntity.class);
+                .fetchGroups(CONTEXT_PROFILE.PROFILE_ID.as("AssigneeProfileId"), AssigneeEventEntity.class);
     }
 
     @Override
