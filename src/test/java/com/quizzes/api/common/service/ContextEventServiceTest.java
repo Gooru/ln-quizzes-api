@@ -383,8 +383,8 @@ public class ContextEventServiceTest {
 
     @Test
     public void getContextEvents() throws Exception {
-        //Map values for findAllStudentEvents
-        Map<UUID, List<AssigneeEventEntity>> studentEventsMap = new HashMap<>();
+        //Map values for findAllContextEvents
+        Map<UUID, List<AssigneeEventEntity>> contextEventsMap = new HashMap<>();
         List<AssigneeEventEntity> events = new ArrayList<>();
 
         //Setting events
@@ -397,11 +397,8 @@ public class ContextEventServiceTest {
         events.add(assigneeEventEntity);
 
         //Adding students
-        UUID student1 = UUID.randomUUID();
-        studentEventsMap.put(student1, events);
-
-        UUID student2 = UUID.randomUUID();
-        studentEventsMap.put(student2, events);
+        UUID assigneeId1 = UUID.randomUUID();
+        contextEventsMap.put(assigneeId1, events);
 
         //Setting context
         Context contextMock = new Context();
@@ -414,38 +411,32 @@ public class ContextEventServiceTest {
         postResponseResourceDto.setScore(0);
         postResponseResourceDto.setReaction(3);
 
-        when(contextProfileEventService.findAllStudentEventsByContextId(contextId)).thenReturn(studentEventsMap);
+        when(contextProfileEventService.findAllByContextId(contextId)).thenReturn(contextEventsMap);
         when(contextService.findById(contextId)).thenReturn(contextMock);
         when(gson.fromJson(any(String.class), any())).thenReturn(postResponseResourceDto);
 
         ContextEventsResponseDto result = contextEventService.getContextEvents(contextId);
 
-        verify(contextProfileEventService, times(1)).findAllStudentEventsByContextId(contextId);
+        verify(contextProfileEventService, times(1)).findAllByContextId(contextId);
         verify(contextService, times(1)).findById(contextId);
-        verify(gson, times(2)).fromJson(any(String.class), any());
+        verify(gson, times(1)).fromJson(any(String.class), any());
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertEquals("Wrong size of events ID", 2,result.getProfileEvents().size());
+        assertEquals("Wrong size of events ID", 1,result.getProfileEvents().size());
 
         ProfileEventResponseDto profileResult1 = result.getProfileEvents().get(0);
-        assertEquals("Wrong event size for student1", 1, profileResult1.getEvents().size());
-        assertEquals("Wrong profile ID for student1", student1, profileResult1.getProfileId());
+        assertEquals("Wrong event size for assigneeId1", 1, profileResult1.getEvents().size());
+        assertEquals("Wrong profile ID for assigneeId1", assigneeId1, profileResult1.getProfileId());
         assertEquals("Wrong current resource", currentResourceId, profileResult1.getCurrentResourceId());
         assertEquals("Wrong score", 3, profileResult1.getEvents().get(0).getReaction());
-
-        ProfileEventResponseDto profileResult2 = result.getProfileEvents().get(1);
-        assertEquals("Wrong event size for student2", 1, profileResult2.getEvents().size());
-        assertEquals("Wrong profile ID for student2", student2, profileResult2.getProfileId());
-        assertEquals("Wrong current resource", currentResourceId, profileResult2.getCurrentResourceId());
-        assertEquals("Wrong score", 0, profileResult2.getEvents().get(0).getScore());
     }
 
     @Test
     public void getContextEventsWithoutEvents() throws Exception {
-        //Map values for findAllStudentEvents
-        Map<UUID, List<AssigneeEventEntity>> studentEventsMap = new HashMap<>();
+        //Map values for findAllContextEvents
+        Map<UUID, List<AssigneeEventEntity>> contextEventsMap = new HashMap<>();
         List<AssigneeEventEntity> events = new ArrayList<>();
 
         //Setting events
@@ -458,8 +449,8 @@ public class ContextEventServiceTest {
         events.add(assigneeEventEntity);
 
         //Adding student
-        UUID studentId = UUID.randomUUID();
-        studentEventsMap.put(studentId, events);
+        UUID assigneeId = UUID.randomUUID();
+        contextEventsMap.put(assigneeId, events);
 
         //Setting context
         Context contextMock = new Context();
@@ -468,12 +459,12 @@ public class ContextEventServiceTest {
         contextMock.setId(contextId);
         contextMock.setCollectionId(collectionId);
 
-        when(contextProfileEventService.findAllStudentEventsByContextId(contextId)).thenReturn(studentEventsMap);
+        when(contextProfileEventService.findAllByContextId(contextId)).thenReturn(contextEventsMap);
         when(contextService.findById(contextId)).thenReturn(contextMock);
 
         ContextEventsResponseDto result = contextEventService.getContextEvents(contextId);
 
-        verify(contextProfileEventService, times(1)).findAllStudentEventsByContextId(contextId);
+        verify(contextProfileEventService, times(1)).findAllByContextId(contextId);
         verify(contextService, times(1)).findById(contextId);
         verify(gson, times(0)).fromJson(any(String.class), any());
 
@@ -484,7 +475,7 @@ public class ContextEventServiceTest {
 
         ProfileEventResponseDto profileResult = result.getProfileEvents().get(0);
         assertEquals("Wrong event size", 0, profileResult.getEvents().size());
-        assertEquals("Wrong profile ID", studentId, profileResult.getProfileId());
+        assertEquals("Wrong profile ID", assigneeId, profileResult.getProfileId());
         assertEquals("Wrong current resource", currentResourceId, profileResult.getCurrentResourceId());
     }
 

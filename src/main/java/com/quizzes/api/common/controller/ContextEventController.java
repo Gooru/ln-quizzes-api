@@ -94,8 +94,8 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) {
-        ContextEventsResponseDto studentEvents = contextEventService.getContextEvents(contextId);
-        return new ResponseEntity<>(studentEvents, HttpStatus.OK);
+        ContextEventsResponseDto contextEvents = contextEventService.getContextEvents(contextId);
+        return new ResponseEntity<>(contextEvents, HttpStatus.OK);
     }
 
 }

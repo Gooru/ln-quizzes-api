@@ -7,7 +7,7 @@ public interface ContextAssigneeEntity extends ContextEntity {
 
     UUID getAssigneeProfileId();
 
-    void setAssigneeProfileId(UUID assigneeId);
+    void setAssigneeProfileId(UUID assigneeProfileId);
 
     Timestamp getModifiedAt();
 

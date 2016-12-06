@@ -129,8 +129,8 @@ public class ContextEventService {
 
     public ContextEventsResponseDto getContextEvents(UUID contextId) {
         try {
-            Map<UUID, List<AssigneeEventEntity>> studentEvents =
-                    contextProfileEventService.findAllStudentEventsByContextId(contextId);
+            Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
+                    contextProfileEventService.findAllByContextId(contextId);
             ContextEventsResponseDto response = new ContextEventsResponseDto();
             response.setContextId(contextId);
 
@@ -139,7 +139,7 @@ public class ContextEventService {
             collection.setId(context.getCollectionId().toString());
             response.setCollection(collection);
 
-            List<ProfileEventResponseDto> profileEvents = studentEvents.entrySet().stream().map(entity -> {
+            List<ProfileEventResponseDto> profileEvents = assigneeEvents.entrySet().stream().map(entity -> {
                 List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
                 ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
                 profileEvent.setProfileId(entity.getKey());

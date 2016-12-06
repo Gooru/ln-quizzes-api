@@ -101,7 +101,7 @@ public class ContextEventControllerTest {
     }
 
     @Test
-    public void getStudentEvents() throws Exception {
+    public void getContextEvents() throws Exception {
         UUID contextId = UUID.randomUUID();
 
         //Setting collectionDto
@@ -138,14 +138,14 @@ public class ContextEventControllerTest {
         profileEvents.add(profileEventResponseDto);
 
         //Creating studentEventDto mock
-        ContextEventsResponseDto studentEvents =  new ContextEventsResponseDto();
-        studentEvents.setContextId(contextId);
-        studentEvents.setCollection(collectionDto);
-        studentEvents.setProfileEvents(profileEvents);
+        ContextEventsResponseDto contextEvents =  new ContextEventsResponseDto();
+        contextEvents.setContextId(contextId);
+        contextEvents.setCollection(collectionDto);
+        contextEvents.setProfileEvents(profileEvents);
 
-        when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(studentEvents);
+        when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(contextEvents);
 
-        ResponseEntity<ContextEventsResponseDto> result = controller.getStudentEvents(contextId, "quizzes", UUID.randomUUID());
+        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes", UUID.randomUUID());
 
         verify(contextEventService, times(1)).getContextEvents(contextId);
 

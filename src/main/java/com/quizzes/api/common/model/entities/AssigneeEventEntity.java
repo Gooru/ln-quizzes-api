@@ -10,7 +10,7 @@ public interface AssigneeEventEntity {
 
     UUID getAssigneeProfileId();
 
-    void setAssigneeProfileId(UUID assigneeId);
+    void setAssigneeProfileId(UUID assigneeProfileId);
 
     String getEventData();
 
