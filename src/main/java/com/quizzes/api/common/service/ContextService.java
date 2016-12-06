@@ -37,6 +37,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ContextService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -81,7 +82,6 @@ public class ContextService {
      * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
-    @Transactional
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
         Profile owner = findOrCreateProfile(contextPostRequestDto.getOwner(), lms);
         Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
