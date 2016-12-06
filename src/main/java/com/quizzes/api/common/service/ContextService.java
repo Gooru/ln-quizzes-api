@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class ContextService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -74,7 +76,8 @@ public class ContextService {
     CollectionContentService collectionContentService;
 
     /**
-     * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same Collection
+     * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same
+     * Collection
      * @param contextPostRequestDto  information about the new {@link Context}
      * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
@@ -94,9 +97,9 @@ public class ContextService {
         context.setGroupId(group.getId());
         context.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
 
-        Context newContext = contextRepository.save(context);
+        context = contextRepository.save(context);
         IdResponseDto result = new IdResponseDto();
-        result.setId(newContext.getId());
+        result.setId(context.getId());
 
         return result;
     }
