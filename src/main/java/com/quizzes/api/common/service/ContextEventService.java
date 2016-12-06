@@ -63,17 +63,14 @@ public class ContextEventService {
     public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
         try {
             Context context = contextService.findById(contextId);
-
             ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
-            //TODO: If context_profile is complete we need to remove all the events
 
+            //If context_profile is complete we need to remove all the events
             if (contextProfile == null) {
-                Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
-                contextProfile = new ContextProfile();
-                contextProfile.setContextId(contextId);
-                contextProfile.setProfileId(profileId);
-                contextProfile.setCurrentResourceId(firstResource.getId());
-                contextProfile = contextProfileService.save(contextProfile);
+                setFirstResourceAsCurrent(new ContextProfile(), contextId, profileId);
+            } else if (contextProfile.getIsComplete()) {
+                contextProfileEventService.deleteByContextProfileId(contextProfile.getId());
+                setFirstResourceAsCurrent(contextProfile, contextId, profileId);
             }
 
             CollectionDto collection = new CollectionDto();
@@ -92,6 +89,20 @@ public class ContextEventService {
             logger.error("We could not start the context " + contextId + " for user " + profileId, e);
             throw new InternalServerException("We could not start the context " + contextId + ".", e);
         }
+    }
+
+    private ContextProfile setFirstResourceAsCurrent(ContextProfile contextProfile, UUID contextId, UUID profileId) {
+        Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
+
+        if (contextProfile == null) {
+            contextProfile = new ContextProfile();
+            contextProfile.setContextId(contextId);
+            contextProfile.setProfileId(profileId);
+        }
+
+        contextProfile.setCurrentResourceId(firstResource.getId());
+        contextProfile.setIsComplete(false);
+        return contextProfileService.save(contextProfile);
     }
 
     public void finishContextEvent(UUID contextId, UUID profileId) {

@@ -67,4 +67,10 @@ public class ContextProfileEventServiceTest {
         verify(contextProfileEventRepository, times(1)).save(any(ContextProfileEvent.class));
     }
 
+    @Test
+    public void deleteByContextProfileId() throws Exception {
+        contextProfileEventService.deleteByContextProfileId(UUID.randomUUID());
+        verify(contextProfileEventRepository, times(1)).deleteByContextProfileId(any(UUID.class));
+    }
+
 }

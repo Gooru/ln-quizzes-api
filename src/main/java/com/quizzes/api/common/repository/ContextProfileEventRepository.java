@@ -12,4 +12,6 @@ public interface ContextProfileEventRepository {
     ContextProfileEvent save(ContextProfileEvent contextProfileEvent);
 
     ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId);
+
+    void deleteByContextProfileId(UUID contextProfileId);
 }

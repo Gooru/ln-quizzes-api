@@ -14,16 +14,20 @@ public class ContextProfileEventService {
     @Autowired
     ContextProfileEventRepository contextProfileEventRepository;
 
-    List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId){
+    List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId) {
         return contextProfileEventRepository.findByContextProfileId(contextProfileId);
     }
 
-    ContextProfileEvent save(ContextProfileEvent contextProfileEvent){
+    ContextProfileEvent save(ContextProfileEvent contextProfileEvent) {
         return contextProfileEventRepository.save(contextProfileEvent);
     }
 
     ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
         return contextProfileEventRepository.findByContextProfileIdAndResourceId(contextProfileId, resourceId);
+    }
+
+    void deleteByContextProfileId(UUID contextProfileId) {
+        contextProfileEventRepository.deleteByContextProfileId(contextProfileId);
     }
 
 }

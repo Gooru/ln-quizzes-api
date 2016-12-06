@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
+import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class ContextProfileEventRepositoryImpl implements ContextProfileEventRepository {
@@ -33,6 +34,13 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
                 .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
                 .and(CONTEXT_PROFILE_EVENT.RESOURCE_ID.eq(resourceId))
                 .fetchOneInto(ContextProfileEvent.class);
+    }
+
+    @Override
+    public void deleteByContextProfileId(UUID contextProfileId) {
+        jooq.deleteFrom(CONTEXT_PROFILE_EVENT)
+                .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
+                .execute();
     }
 
     @Override
