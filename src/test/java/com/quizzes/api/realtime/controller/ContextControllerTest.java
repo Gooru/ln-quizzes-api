@@ -7,14 +7,14 @@ import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.controller.AssignmentDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
+import com.quizzes.api.common.dto.MetadataDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -56,9 +56,9 @@ public class ContextControllerTest {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
+        when(contextService.createContext(any(ContextPostRequestDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
-        AssignmentDto assignment = new AssignmentDto();
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
 
         ProfileDto owner = new ProfileDto();
         owner.setId("1");
@@ -95,9 +95,9 @@ public class ContextControllerTest {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
+        when(contextService.createContext(any(ContextPostRequestDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
-        ResponseEntity<?> result = controller.assignContext(new AssignmentDto(), Lms.its_learning.getLiteral(), UUID.randomUUID());
+        ResponseEntity<?> result = controller.assignContext(new ContextPostRequestDto(), Lms.its_learning.getLiteral(), UUID.randomUUID());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in externalCollectionId"));
@@ -111,9 +111,9 @@ public class ContextControllerTest {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
+        when(contextService.createContext(any(ContextPostRequestDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
-        AssignmentDto assignment = new AssignmentDto();
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
         ProfileDto owner = new ProfileDto();
         owner.setId("1");
         owner.setFirstName("firstName");
@@ -169,9 +169,9 @@ public class ContextControllerTest {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
+        when(contextService.createContext(any(ContextPostRequestDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
-        AssignmentDto assignment = new AssignmentDto();
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
 
         ProfileDto assignee = new ProfileDto();
         assignee.setId("12345");
@@ -229,9 +229,9 @@ public class ContextControllerTest {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
+        when(contextService.createContext(any(ContextPostRequestDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
-        AssignmentDto assignment = new AssignmentDto();
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
 
         ProfileDto assignee = new ProfileDto();
         assignee.setId("12345");
@@ -284,9 +284,9 @@ public class ContextControllerTest {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
-        when(contextService.createContext(any(AssignmentDto.class), any(Lms.class))).thenReturn(idResponseDto);
+        when(contextService.createContext(any(ContextPostRequestDto.class), any(Lms.class))).thenReturn(idResponseDto);
 
-        AssignmentDto assignment = new AssignmentDto();
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
 
         ProfileDto assignee = new ProfileDto();
         assignee.setId("12345");
@@ -330,32 +330,45 @@ public class ContextControllerTest {
     @Test
     public void getContext() throws Exception {
         ContextGetResponseDto response = new ContextGetResponseDto();
-        UUID id = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
-        UUID assigneeId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
 
         List<IdResponseDto> assignees = new ArrayList<>();
 
+        //Setting assignees
+        UUID assigneeId = UUID.randomUUID();
         IdResponseDto assignee = new IdResponseDto();
         assignee.setId(assigneeId);
         assignees.add(assignee);
+        response.setAssignees(assignees);
 
-        Map<String, Object> contextData = new HashMap<>();
-        contextData.put("metadata", new HashMap<>());
-        contextData.put("contextData", new HashMap<>());
+        //Setting contextData
+        ContextDataDto contextDataDto = new ContextDataDto();
+        Map<String, String> contextData = new HashMap<>();
+        contextData.put("class", "234");
+        contextDataDto.setContextMap(contextData);
 
+        MetadataDto metadata = new MetadataDto();
+        metadata.setDescription("First Partial");
+        metadata.setTitle("Math 1st Grade");
+        metadata.setDueDate(234234);
+        metadata.setStartDate(324234);
+        contextDataDto.setMetadata(metadata);
+        response.setContextData(contextDataDto);
+
+        //Setting id and collection
+        UUID id = UUID.randomUUID();
+        response.setId(id);
+
+        //Setting collection
+        UUID collectionId = UUID.randomUUID();
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(String.valueOf(collectionId));
-
-        response.setId(id);
-        response.setContextDataResponse(contextData);
         response.setCollection(collectionDto);
 
+        //Setting owner
         IdResponseDto owner = new IdResponseDto();
+        UUID ownerId = UUID.randomUUID();
         owner.setId(ownerId);
         response.setOwner(owner);
-        response.setAssignees(assignees);
 
         when(contextService.getContext(any(UUID.class))).thenReturn(response);
 
@@ -369,7 +382,8 @@ public class ContextControllerTest {
 
         assertNotNull("Context id is null", resultDto.getId());
         assertEquals("Wrong collection id", collectionId.toString(), resultDto.getCollection().getId());
-        assertEquals("Wrong contextData", contextData, resultDto.getContextDataResponse());
+        assertNotNull("ContextData is null", resultDto.getContextData());
+        assertNotNull("Metadata is null", resultDto.getContextData().getMetadata());
         assertEquals("Wrong owner id", ownerId, resultDto.getOwner().getId());
         assertEquals("Wrong assignees size", 1, resultDto.getAssignees().size());
         assertEquals("Wrong first assignee id", assigneeId, resultDto.getAssignees().get(0).getId());
@@ -410,6 +424,8 @@ public class ContextControllerTest {
         collectionDto.setId(UUID.randomUUID().toString());
         createdContextGetResponseDto.setCollection(collectionDto);
         createdContextGetResponseDto.setId(UUID.randomUUID());
+
+        //Setting assignees
         List<IdResponseDto> assignees = new ArrayList<>();
         IdResponseDto asignee1 = new IdResponseDto();
         asignee1.setId(UUID.randomUUID());
@@ -418,14 +434,20 @@ public class ContextControllerTest {
         asignee2.setId(UUID.randomUUID());
         assignees.add(asignee2);
         createdContextGetResponseDto.setAssignees(assignees);
-        CommonContextGetResponseDto.ContextDataDto contextDataDto = new CommonContextGetResponseDto.ContextDataDto();
+
+        //Setting contextData
+        ContextDataDto contextDataDto = new ContextDataDto();
         Map<String, String> contextMap = new HashMap<>();
         contextMap.put("classId", "9e8f32bd-04fd-42c2-97f9-36addd23d850");
         contextDataDto.setContextMap(contextMap);
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("description", "First Partial");
-        metadata.put("title", "Math 1st Grade");
+
+        MetadataDto metadata = new MetadataDto();
+        metadata.setDescription("First Partial");
+        metadata.setTitle("Math 1st Grade");
+        metadata.setDueDate(234234);
+        metadata.setStartDate(324234);
         contextDataDto.setMetadata(metadata);
+
         createdContextGetResponseDto.setContextData(contextDataDto);
         createdContextGetResponseDtos.add(createdContextGetResponseDto);
 
@@ -450,25 +472,36 @@ public class ContextControllerTest {
         assertEquals("Wrong list size for assignees", 2, profiles.size());
         assertNotNull("Profile1 id is null", profiles.get(0).getId());
 
-        CommonContextGetResponseDto.ContextDataDto contextResult = result.getContextData();
+        ContextDataDto contextResult = result.getContextData();
         assertEquals("Wrong size inside context map", 1, contextResult.getContextMap().size());
-        assertEquals("Wrong size inside metadata", 2, contextResult.getMetadata().size());
-        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().get("title"));
-        assertEquals("Key description with invalid value in metadata", "First Partial", contextResult.getMetadata().get("description"));
+        assertEquals("Key title with invalid value in metadata", "Math 1st Grade", contextResult.getMetadata().getTitle());
+        assertEquals("Key description with invalid value in metadata", "First Partial", contextResult.getMetadata().getDescription());
     }
 
     @Test
     public void getAssignedContexts() throws Exception {
         List<ContextAssignedGetResponseDto> contexts = new ArrayList<>();
         ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
+
+        //Setting collection
         contextAssigned.setId(UUID.randomUUID());
         contextAssigned.setCollection(new CollectionDto(UUID.randomUUID().toString()));
 
-        Map<String, Object> contextDataMap = new HashMap<>();
-        contextDataMap.put("contextMap", new HashMap<>());
-        contextDataMap.put("metaData", new HashMap<>());
-        contextAssigned.setContextDataResponse(contextDataMap);
+        //Setting contextData
+        ContextDataDto contextDataDto = new ContextDataDto();
+        Map<String, String> contextData = new HashMap<>();
+        contextData.put("class", "234");
+        contextDataDto.setContextMap(contextData);
 
+        MetadataDto metadata = new MetadataDto();
+        metadata.setDescription("First Partial");
+        metadata.setTitle("Math 1st Grade");
+        metadata.setDueDate(234234);
+        metadata.setStartDate(324234);
+        contextDataDto.setMetadata(metadata);
+        contextAssigned.setContextData(contextDataDto);
+
+        //Setting owner
         IdResponseDto ownerData = new IdResponseDto();
         ownerData.setId(UUID.randomUUID());
         contextAssigned.setOwner(ownerData);
@@ -494,16 +527,18 @@ public class ContextControllerTest {
         IdResponseDto ownerResult = result.getOwner();
         assertNotNull("Owner id is null", ownerResult);
 
-        Map<String, Object> contextResult = result.getContextDataResponse();
-        assertEquals("Wrong size inside context result", 2, contextResult.size());
-        assertTrue("Missing metaData key in context result", contextResult.containsKey("metaData"));
-        assertTrue("Missing contextMap key in context result", contextResult.containsKey("contextMap"));
+        ContextDataDto contextResult = result.getContextData();
+        assertEquals("Wrong size inside context result", 1, contextResult.getContextMap().size());
+        assertEquals("Wrong due date", 234234,contextResult.getMetadata().getDueDate());
+        assertEquals("Wrong start date", 324234,contextResult.getMetadata().getStartDate());
+        assertEquals("Wrong title", "Math 1st Grade",contextResult.getMetadata().getTitle());
+        assertEquals("Wrong description", "First Partial",contextResult.getMetadata().getDescription());
     }
 
     @Test
     public void updateContext() throws Exception {
-        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(),
-                UUID.randomUUID(), "{\"context\":\"value\"}", null);
+        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                "{\"context\":\"value\"}", false, null, null);
         when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
         ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),

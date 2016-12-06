@@ -2,12 +2,12 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.controller.AssignmentDto;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Context;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -30,7 +30,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,13 +55,13 @@ public class ContextController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@ApiParam(value = "Json body", required = true, name = "Body")
-                                           @RequestBody AssignmentDto assignmentDto,
+                                           @RequestBody ContextPostRequestDto contextPostRequestDto,
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<AssignmentDto>> constraintViolations = validator.validate(assignmentDto);
+        Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations = validator.validate(contextPostRequestDto);
 
         if (!constraintViolations.isEmpty()) {
             List<String> constraintErrors = constraintViolations
@@ -73,7 +72,7 @@ public class ContextController {
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        IdResponseDto result = contextService.createContext(assignmentDto, Lms.valueOf(lmsId));
+        IdResponseDto result = contextService.createContext(contextPostRequestDto, Lms.valueOf(lmsId));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

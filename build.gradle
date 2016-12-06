@@ -66,7 +66,7 @@ jooq {
                     customType {
                         type = "java.lang.String"
                         name = "PostgresJsonbString"
-                        converter = "com.quizzes.api.common.binding.PostgresJsonbStringBinding"
+                        converter = "com.quizzes.api.common.model.binding.PostgresJsonbStringBinding"
                     }
                 }
                 forcedTypes {
@@ -86,14 +86,22 @@ jooq {
                 // ...
             }
             target {
-                packageName = "com.quizzes.api.common.model"
+                packageName = "com.quizzes.api.common.model.jooq"
                 directory = "src/main/java/"
             }
         }
     }
 }
 
+task deleteQuizzesJooqSchemaSource {
+    doLast {
+        delete "src/main/java/com/quizzes/api/common/model/jooq"
+    }
+}
+
+deleteQuizzesJooqSchemaSource.onlyIf { project.hasProperty("generateJooq") }
 generateQuizzesJooqSchemaSource.onlyIf { project.hasProperty("generateJooq") }
+generateQuizzesJooqSchemaSource.dependsOn deleteQuizzesJooqSchemaSource
 
 
 dependencies {

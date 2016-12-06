@@ -3,9 +3,9 @@ package com.quizzes.api.common.service;
 import com.google.common.collect.Lists;
 import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
 import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Collection;
-import com.quizzes.api.common.model.tables.pojos.Resource;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
+import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.CollectionRepository;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
@@ -61,7 +61,7 @@ public class CollectionServiceTest {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
         Collection collection = new Collection(id, "external-id", "external-parent-id", Lms.its_learning,
-                true, profileId, "{}", false, false, null);
+                true, profileId, "{}", false, false, null, null);
 
         doReturn(collection).when(collectionService).findByExternalId("external-id");
 
@@ -86,7 +86,7 @@ public class CollectionServiceTest {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
         Collection collection = new Collection(null, "external-id", "external-parent-id", Lms.its_learning,
-                true, profileId, "{}", false, false, null);
+                true, profileId, "{}", false, false, null, null);
 
         doReturn(collection).when(collectionService).save(collection);
 

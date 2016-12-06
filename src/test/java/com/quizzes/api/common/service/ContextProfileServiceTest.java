@@ -1,6 +1,6 @@
 package com.quizzes.api.common.service;
 
-import com.quizzes.api.common.model.tables.pojos.ContextProfile;
+import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.repository.ContextProfileRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -5,21 +5,22 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.controller.AssignmentDto;
+import com.quizzes.api.common.dto.MetadataDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.entities.ContextAssigneeEntity;
-import com.quizzes.api.common.entities.ContextOwnerEntity;
-import com.quizzes.api.common.model.enums.Lms;
-import com.quizzes.api.common.model.tables.pojos.Collection;
-import com.quizzes.api.common.model.tables.pojos.Context;
-import com.quizzes.api.common.model.tables.pojos.Group;
-import com.quizzes.api.common.model.tables.pojos.GroupProfile;
-import com.quizzes.api.common.model.tables.pojos.Profile;
+import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
+import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
+import com.quizzes.api.common.model.jooq.tables.pojos.Group;
+import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
+import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
 import org.junit.Test;
@@ -32,16 +33,15 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.JsonParser;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Date;
-import java.sql.Timestamp;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
@@ -92,18 +92,18 @@ public class ContextServiceTest {
 
     @Test
     public void createContextFindProfile() throws Exception {
-        AssignmentDto assignmentDto = new AssignmentDto();
-        assignmentDto.setExternalCollectionId(UUID.randomUUID().toString());
+        ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
+        contextPostRequestDto.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDto ownerDTO = new ProfileDto();
         ownerDTO.setId("external-id");
-        assignmentDto.setOwner(ownerDTO);
+        contextPostRequestDto.setOwner(ownerDTO);
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
-        assignmentDto.setContextData(contextDataMock);
+        contextPostRequestDto.setContextData(contextDataMock);
 
         List<ProfileDto> assignees = new ArrayList<>();
         ProfileDto profile1 = new ProfileDto();
@@ -112,7 +112,7 @@ public class ContextServiceTest {
         profile1.setId("2");
         assignees.add(profile1);
         assignees.add(profile2);
-        assignmentDto.setAssignees(assignees);
+        contextPostRequestDto.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
 
@@ -130,13 +130,14 @@ public class ContextServiceTest {
         groupResult.setId(UUID.randomUUID());
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
+        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
+                new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class)))
+                .thenReturn(collectionResult);
 
-        IdResponseDto result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
         verify(collectionService, times(1)).findByExternalId(any(String.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
@@ -154,18 +155,18 @@ public class ContextServiceTest {
     public void createContextWithExistingCollection() throws Exception {
         String externalCollectionId = UUID.randomUUID().toString();
 
-        AssignmentDto assignmentDto = new AssignmentDto();
-        assignmentDto.setExternalCollectionId(externalCollectionId);
+        ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
+        contextPostRequestDto.setExternalCollectionId(externalCollectionId);
 
         ProfileDto ownerDto = new ProfileDto();
         ownerDto.setId("external-id1");
-        assignmentDto.setOwner(ownerDto);
+        contextPostRequestDto.setOwner(ownerDto);
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
-        assignmentDto.setContextData(contextDataMock);
+        contextPostRequestDto.setContextData(contextDataMock);
 
         List<ProfileDto> assignees = new ArrayList<>();
         ProfileDto profile1 = new ProfileDto();
@@ -174,7 +175,7 @@ public class ContextServiceTest {
         profile1.setId("2");
         assignees.add(profile1);
         assignees.add(profile2);
-        assignmentDto.setAssignees(assignees);
+        contextPostRequestDto.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
 
@@ -196,11 +197,11 @@ public class ContextServiceTest {
         profileResponse.setId(profileResponseId);
         when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
 
-        Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
+        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
+                new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        IdResponseDto result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
         verify(collectionService, times(1)).findByExternalId(any(String.class));
         //Creates the new group
@@ -216,24 +217,24 @@ public class ContextServiceTest {
 
     @Test
     public void createContextCreateProfile() throws Exception {
-        AssignmentDto assignmentDto = new AssignmentDto();
-        assignmentDto.setExternalCollectionId(UUID.randomUUID().toString());
+        ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
+        contextPostRequestDto.setExternalCollectionId(UUID.randomUUID().toString());
 
         ProfileDto ownerDTO = new ProfileDto();
         ownerDTO.setId("external-id");
-        assignmentDto.setOwner(ownerDTO);
+        contextPostRequestDto.setOwner(ownerDTO);
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
-        assignmentDto.setContextData(contextDataMock);
+        contextPostRequestDto.setContextData(contextDataMock);
 
         List<ProfileDto> assignees = new ArrayList<>();
         ProfileDto profile1 = new ProfileDto();
         profile1.setId("1");
         assignees.add(profile1);
-        assignmentDto.setAssignees(assignees);
+        contextPostRequestDto.setAssignees(assignees);
 
         Lms lms = Lms.its_learning;
 
@@ -252,11 +253,12 @@ public class ContextServiceTest {
         groupResult.setId(UUID.randomUUID());
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.randomUUID(),
-                collectionResult.getId(), groupResult.getId(), new Gson().toJson(assignmentDto.getContextData()), null);
+        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
+                new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class))).thenReturn(collectionResult);
+        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class)))
+                .thenReturn(collectionResult);
 
         ProfileDto anyProfile = new ProfileDto();
         anyProfile.setId(UUID.randomUUID().toString());
@@ -268,11 +270,11 @@ public class ContextServiceTest {
 
         when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
 
-        String serializedContextData = new Gson().toJson(assignmentDto.getContextData());
+        String serializedContextData = new Gson().toJson(contextPostRequestDto.getContextData());
 
         when(gson.toJson(any(ProfileDto.class))).thenReturn(serializedContextData);
 
-        IdResponseDto result = contextService.createContext(assignmentDto, lms);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
         verify(collectionService, times(1)).findByExternalId(any(String.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
@@ -287,11 +289,16 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void findById(){
+    public void findById() {
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
-        Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
+        Context contextResult = new Context();
+        contextResult.setId(id);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
 
         Context result = contextService.findById(UUID.randomUUID());
@@ -305,14 +312,21 @@ public class ContextServiceTest {
 
     @Test
     public void update() throws Exception {
+        ContextDataDto contextDataDto = new ContextDataDto();
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
-        ContextPutRequestDto.MetadataDTO metadata = new ContextPutRequestDto.MetadataDTO();
+        ContextPutRequestDto.PutRequestMetadataDTO metadata = new ContextPutRequestDto.PutRequestMetadataDTO();
 
-        Map<String, Object> metadataMap = new HashMap<>();
-        metadataMap.put("classId", "classId");
-        metadata.setMetadata(metadataMap);
+        //Setting metadata
+        MetadataDto metadataDto = new MetadataDto();
+        metadataDto.setDescription("First Partial");
+        metadataDto.setTitle("Math 1st Grade");
+        metadataDto.setDueDate(234234);
+        metadataDto.setStartDate(324234);
+
         contextDataMock.setContextData(metadata);
+        contextDataDto.setMetadata(metadataDto);
 
+        //Setting assignees
         List<ProfileDto> assignees = new ArrayList<>();
         ProfileDto profile1 = new ProfileDto();
         profile1.setId(UUID.randomUUID().toString());
@@ -325,7 +339,12 @@ public class ContextServiceTest {
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID groupId = UUID.randomUUID();
-        Context contextResult = new Context(id, collectionId, groupId, "{\"context\":\"value\"}", null);
+        Context contextResult = new Context();
+        contextResult.setId(id);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
 
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
 
@@ -360,7 +379,7 @@ public class ContextServiceTest {
 
         when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
 
-        ContextDataDto contextDataDto = new Gson().fromJson(contextDataMock.getContextData().getMetadata().toString(), ContextDataDto.class);
+//        ContextDataDto contextDataDto = new Gson().fromJson(contextDataMock.getContextData().getMetadata(), ContextDataDto.class);
 
         when(gson.fromJson(any(String.class), any())).thenReturn(contextDataDto);
 
@@ -407,10 +426,20 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getOwnerProfileId()).thenReturn(UUID.randomUUID());
         when(contextOwnerEntity.getContextData()).thenReturn("\"metadata\":{}");
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("key", "value");
-        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
+        //Setting contextData
+        ContextDataDto contextDataDto = new ContextDataDto();
+        Map<String, String> contextData = new HashMap<>();
+        contextData.put("class", "234");
+        contextDataDto.setContextMap(contextData);
 
+        MetadataDto metadata = new MetadataDto();
+        metadata.setDescription("First Partial");
+        metadata.setTitle("Math 1st Grade");
+        metadata.setDueDate(234234);
+        metadata.setStartDate(324234);
+        contextDataDto.setMetadata(metadata);
+
+        when(gson.fromJson(any(String.class), any())).thenReturn(contextDataDto);
         when(contextRepository.findContextOwnerByContextId(any(UUID.class))).thenReturn(contextOwnerEntity);
         when(profileService.findAssignedIdsByContextId(any(UUID.class))).thenReturn(assignees);
 
@@ -422,7 +451,8 @@ public class ContextServiceTest {
         assertNotNull("Result is Null", result);
         assertNotNull("Context id is null", result.getId());
         assertNotNull("Owner id is null", result.getOwner().getId());
-        assertFalse("ContextData is empty", result.getContextDataResponse().isEmpty());
+        assertNotNull("Metadata is null", result.getContextData().getMetadata().getTitle());
+        assertNotNull("ContextMap is null", result.getContextData().getContextMap());
         assertEquals("Size of the list is wrong", 1, result.getAssignees().size());
     }
 
@@ -434,9 +464,20 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getContextData()).thenReturn("context");
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("key", "value");
-        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
+        //Setting contextData
+        ContextDataDto contextDataDto = new ContextDataDto();
+        Map<String, String> contextData = new HashMap<>();
+        contextData.put("class", "234");
+        contextDataDto.setContextMap(contextData);
+
+        MetadataDto metadata = new MetadataDto();
+        metadata.setDescription("First Partial");
+        metadata.setTitle("Math 1st Grade");
+        metadata.setDueDate(234234);
+        metadata.setStartDate(324234);
+        contextDataDto.setMetadata(metadata);
+
+        when(gson.fromJson(any(String.class), any())).thenReturn(contextDataDto);
 
         List<ContextOwnerEntity> list = new ArrayList<>();
         list.add(contextOwnerEntity);
@@ -456,10 +497,13 @@ public class ContextServiceTest {
 
         assertNotNull("Created Date is null", resultEntity.getCreatedDate());
 
-        assertFalse("Context response is empty", resultEntity.getContextDataResponse().isEmpty());
-        assertNotNull("Owner is null", resultEntity.getOwner().getId());
+        MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
+        assertNotNull("Metadata is null", metadataResult);
+        assertEquals("Metadata is null", "Math 1st Grade", metadataResult.getTitle());
+        assertEquals("Metadata is null", "First Partial", metadataResult.getDescription());
 
-        assertNull("Context is not null", resultEntity.getContextData());
+        assertNotNull("Owner is null", resultEntity.getOwner().getId());
+        assertNotNull("Context is null", resultEntity.getContextData());
     }
 
     @Test
