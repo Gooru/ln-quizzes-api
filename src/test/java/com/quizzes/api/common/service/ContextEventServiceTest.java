@@ -241,68 +241,52 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void convertContextProfileToMapWithoutAnswers() throws Exception {
-        Map<String, String> eventData = new HashMap<>();
-        eventData.put("resourceId", UUID.randomUUID().toString());
-        eventData.put("timeSpend", "1478623337");
-        eventData.put("reaction", UUID.randomUUID().toString());
-        eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
-
-        ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                        new Gson().toJson(eventData), null);
-
-        List<ContextProfileEvent> list = new ArrayList<>();
-        list.add(contextProfileEvent);
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("answer", "test");
-        map.put("resourceId", "test");
-        List<Object> listMock = new ArrayList<>();
-        listMock.add("[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
-
-        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
-        when(jsonParser.parseList(any(String.class))).thenReturn(listMock);
-
-        List<Map<String, Object>> contextProfilesMap =
-                WhiteboxImpl.invokeMethod(contextEventService, "convertContextProfileToMap", list);
-
-        Map<String, Object> result = contextProfilesMap.get(0);
-        assertEquals("Wrong number of context profiles", 1, contextProfilesMap.size());
-        assertTrue("Response does not resourceId", result.containsKey("resourceId"));
-        assertTrue("Response does not answer", result.containsKey("answer"));
-        assertEquals("Answer is not an empty array", ArrayList.class, result.get("answer").getClass());
-    }
-
-    @Test
     public void convertContextProfileToMap() throws Exception {
-        Map<String, String> eventData = new HashMap<>();
-        eventData.put("resourceId", UUID.randomUUID().toString());
-        eventData.put("timeSpend", "1478623337");
-        eventData.put("reaction", UUID.randomUUID().toString());
-        eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
+        //Setting ContextProfileEvent list
+        long timeSpent = 123;
+        int reaction = 3;
+        int score = 0;
+        UUID resourceId = UUID.randomUUID();
+        String eventData = "{\n" +
+                "      \"score\": "+ score + ",\n" +
+                "      \"answer\": [\n" +
+                "        {\n" +
+                "          \"value\": \"A\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"reaction\": 3,\n" +
+                "      \"c\": " + timeSpent + ",\n" +
+                "      \"resourceId\": \"" + resourceId + "\"\n" +
+                "    }";
 
         ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                        new Gson().toJson(eventData), null);
+                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), eventData, null);
 
         List<ContextProfileEvent> list = new ArrayList<>();
         list.add(contextProfileEvent);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("test", "test");
-        map.put("resourceId", "test");
+        //Setting return value
+        Map<String, Object> mapResponse = new HashMap<>();
+        mapResponse.put("answer", "[{\"value\":\"A\"]");
+        mapResponse.put("reaction", reaction);
+        mapResponse.put("resourceId", resourceId);
+        mapResponse.put("timeSpent", timeSpent);
+        mapResponse.put("score", score);
 
-        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
+        when(jsonParser.parseMap(any(String.class))).thenReturn(mapResponse);
 
         List<Map<String, Object>> contextProfilesMap =
                 WhiteboxImpl.invokeMethod(contextEventService, "convertContextProfileToMap", list);
 
+        verify(jsonParser, times(1)).parseMap(any(String.class));
+
         Map<String, Object> result = contextProfilesMap.get(0);
         assertEquals("Wrong number of context profiles", 1, contextProfilesMap.size());
-        assertTrue("Response does not contain resourceId", result.containsKey("resourceId"));
-        assertTrue("Response does not contain answer", result.containsKey("answer"));
-        assertEquals("Answer is not an empty array", JSONArray.class, result.get("answer").getClass());
+        assertEquals("Wrong resourceId", resourceId, result.get("resourceId"));
+        assertEquals("Wrong reaction", reaction, result.get("reaction"));
+        assertEquals("Wrong timeSpent", timeSpent, result.get("timeSpent"));
+        assertEquals("Wrong score", score, result.get("score"));
+        assertEquals("Wrong answer", "[{\"value\":\"A\"]", result.get("answer"));
     }
 
     @Test
