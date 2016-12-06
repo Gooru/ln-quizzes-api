@@ -69,10 +69,10 @@ public class ContextProfileEventServiceTest {
     }
 
     @Test
-    public void findAllByContextId() throws Exception {
+    public void findByContextId() throws Exception {
         Map<UUID, List<AssigneeEventEntity>> result = contextProfileEventService
-                .findAllByContextId(UUID.randomUUID());
-        verify(contextProfileEventRepository, times(1)).findAllByContextId(any(UUID.class));
+                .findByContextId(UUID.randomUUID());
+        verify(contextProfileEventRepository, times(1)).findByContextIdGroupByProfileId(any(UUID.class));
     }
 
 }

@@ -28,8 +28,8 @@ public class ContextProfileEventService {
         return contextProfileEventRepository.findByContextProfileIdAndResourceId(contextProfileId, resourceId);
     }
 
-    Map<UUID, List<AssigneeEventEntity>> findAllByContextId(UUID contextId){
-        return contextProfileEventRepository.findAllByContextId(contextId);
+    Map<UUID, List<AssigneeEventEntity>> findByContextId(UUID contextId){
+        return contextProfileEventRepository.findByContextIdGroupByProfileId(contextId);
     }
 
 }

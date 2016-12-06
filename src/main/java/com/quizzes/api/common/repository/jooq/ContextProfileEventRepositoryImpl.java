@@ -29,7 +29,7 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     }
 
     @Override
-    public Map<UUID, List<AssigneeEventEntity>> findAllByContextId(UUID contextId) {
+    public Map<UUID, List<AssigneeEventEntity>> findByContextIdGroupByProfileId(UUID contextId) {
         return jooq.select(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"),
                 CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
                 .from(CONTEXT_PROFILE)

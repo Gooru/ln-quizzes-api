@@ -411,13 +411,13 @@ public class ContextEventServiceTest {
         postResponseResourceDto.setScore(0);
         postResponseResourceDto.setReaction(3);
 
-        when(contextProfileEventService.findAllByContextId(contextId)).thenReturn(contextEventsMap);
+        when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
         when(contextService.findById(contextId)).thenReturn(contextMock);
         when(gson.fromJson(any(String.class), any())).thenReturn(postResponseResourceDto);
 
         ContextEventsResponseDto result = contextEventService.getContextEvents(contextId);
 
-        verify(contextProfileEventService, times(1)).findAllByContextId(contextId);
+        verify(contextProfileEventService, times(1)).findByContextId(contextId);
         verify(contextService, times(1)).findById(contextId);
         verify(gson, times(1)).fromJson(any(String.class), any());
 
@@ -459,12 +459,12 @@ public class ContextEventServiceTest {
         contextMock.setId(contextId);
         contextMock.setCollectionId(collectionId);
 
-        when(contextProfileEventService.findAllByContextId(contextId)).thenReturn(contextEventsMap);
+        when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
         when(contextService.findById(contextId)).thenReturn(contextMock);
 
         ContextEventsResponseDto result = contextEventService.getContextEvents(contextId);
 
-        verify(contextProfileEventService, times(1)).findAllByContextId(contextId);
+        verify(contextProfileEventService, times(1)).findByContextId(contextId);
         verify(contextService, times(1)).findById(contextId);
         verify(gson, times(0)).fromJson(any(String.class), any());
 

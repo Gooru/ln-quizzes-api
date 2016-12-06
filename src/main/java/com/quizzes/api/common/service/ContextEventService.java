@@ -130,7 +130,7 @@ public class ContextEventService {
     public ContextEventsResponseDto getContextEvents(UUID contextId) {
         try {
             Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
-                    contextProfileEventService.findAllByContextId(contextId);
+                    contextProfileEventService.findByContextId(contextId);
             ContextEventsResponseDto response = new ContextEventsResponseDto();
             response.setContextId(contextId);
 
