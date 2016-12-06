@@ -70,11 +70,11 @@ public class ContextEventService {
 
             if (contextProfile == null) {
                 Resource firstResource = getFirstResourceByContextId(contextId);
-                contextProfile = setCurrentResource(new ContextProfile(), contextId, profileId, firstResource);
+                contextProfile = setCurrentResource(new ContextProfile(), contextId, profileId, firstResource.getId());
             } else if (contextProfile.getIsComplete()) {
                 contextProfileEventService.deleteByContextProfileId(contextProfile.getId());
                 Resource firstResource = getFirstResourceByContextId(contextId);
-                contextProfile = setCurrentResource(contextProfile, contextId, profileId, firstResource);
+                contextProfile = setCurrentResource(contextProfile, contextId, profileId, firstResource.getId());
             } else {
                 events = contextProfileEventService.findByContextProfileId(contextProfile.getId());
             }
@@ -100,10 +100,10 @@ public class ContextEventService {
     }
 
     private ContextProfile setCurrentResource(ContextProfile contextProfile, UUID contextId,
-                                              UUID profileId, Resource resource) {
+                                              UUID profileId, UUID resourceId) {
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
-        contextProfile.setCurrentResourceId(resource.getId());
+        contextProfile.setCurrentResourceId(resourceId);
         contextProfile.setIsComplete(false);
 
         return contextProfileService.save(contextProfile);

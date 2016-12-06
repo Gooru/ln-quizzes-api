@@ -13,7 +13,6 @@ import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.utils.JsonUtil;
-import org.jooq.tools.json.JSONArray;
 import org.jooq.tools.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -75,61 +74,61 @@ public class ContextEventServiceTest {
     Gson gson;
 
     @Test
-    public void startContextEvent() throws Exception {
+    public void startContextEventWithEventsAndIsCompleteFalse() throws Exception {
+        //Setting context
         UUID collectionId = UUID.randomUUID();
         UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
+        //Setting resource
         UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
+        //Setting contextProfile
         UUID contextProfileId = UUID.randomUUID();
-        UUID currentResourceId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentResourceId(currentResourceId);
+        contextProfile.setCurrentResourceId(resourceId);
+        contextProfile.setIsComplete(false);
 
-        Map<String, String> eventData = new HashMap<>();
-        eventData.put("id", UUID.randomUUID().toString());
-        eventData.put("timeSpend", "1478623337");
-        eventData.put("reaction", UUID.randomUUID().toString());
-        eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
-
+        //Setting ContextProfileEvent
         ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                        new Gson().toJson(eventData), null);
+                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "someJson", null);
 
         List<ContextProfileEvent> list = new ArrayList<>();
         list.add(contextProfileEvent);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("answer", "test");
-        List<Object> listMock = new ArrayList<>();
-        listMock.add("[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
+        //Setting event return value
+        Map<String, Object> mapResponse = new HashMap<>();
+        mapResponse.put("answer", "[{\"value\":\"A\"]");
+        mapResponse.put("reaction", 2);
+        mapResponse.put("resourceId", resourceId);
+        mapResponse.put("timeSpent", 123);
+        mapResponse.put("score", 0);
 
-        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
-        when(jsonParser.parseList(any(String.class))).thenReturn(listMock);
+        when(jsonParser.parseMap(any(String.class))).thenReturn(mapResponse);
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
         when(resourceService.findFirstBySequenceByContextId(any(UUID.class))).thenReturn(resource);
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
-        StartContextEventResponseDto result = contextEventService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
+        StartContextEventResponseDto result = contextEventService.startContextEvent(contextId, UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(0)).findFirstBySequenceByContextId(any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
         verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
+        verify(contextProfileEventService, times(0)).deleteByContextProfileId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
-        assertNotNull("Id is Null", result.getId());
-        assertNotNull("Resource id is Null", result.getCurrentResourceId());
-        assertNotNull("Collection id is Null", result.getCollection().getId());
+        assertEquals("Wrong context ID", contextId, result.getId());
+        assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
         assertNull("Events doc is not empty", result.getEvents());
         assertEquals("Wrong size", 1, result.getEventsResponse().size());
         assertNotNull("Answer list is Null", result.getEventsResponse().get(0));
@@ -137,22 +136,23 @@ public class ContextEventServiceTest {
 
     @Test
     public void startContextEventWhenContextProfileNull() throws Exception {
+        //Setting context
         UUID collectionId = UUID.randomUUID();
-
         UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
+        //Setting resource
         UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
+        //Setting ContextProfile
         UUID contextProfileId = UUID.randomUUID();
-        UUID currentResourceId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentResourceId(currentResourceId);
+        contextProfile.setCurrentResourceId(resourceId);
         List<ContextProfileEvent> list = new ArrayList<>();
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
@@ -162,82 +162,107 @@ public class ContextEventServiceTest {
 
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
-        StartContextEventResponseDto result = contextEventService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
+        StartContextEventResponseDto result = contextEventService.startContextEvent(contextId, UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(1)).findFirstBySequenceByContextId(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
+        verify(contextProfileEventService, times(0)).findByContextProfileId(any(UUID.class));
+        verify(contextProfileEventService, times(0)).deleteByContextProfileId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
-        assertNotNull("Id is Null", result.getId());
-        assertNotNull("Resource id is Null", result.getCurrentResourceId());
-        assertNotNull("Collection id is Null", result.getCollection().getId());
+        assertEquals("Wrong context ID", contextId, result.getId());
+        assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
         assertNull("Events doc is not null", result.getEvents());
-        assertEquals("Wrong size response events", 0, result.getEventsResponse().size());
-        assertEquals("Answer list wrong size", 0, result.getEventsResponse().size());
+        assertEquals("Event list has wrong size", 0, result.getEventsResponse().size());
     }
 
     @Test
-    public void startContextEventWhenContextProfileNotNull() throws Exception {
+    public void startContextEventWithEventsAndIsCompleteTrue() throws Exception {
+        //Setting context
         UUID collectionId = UUID.randomUUID();
         UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
+        //Setting resource
         UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
+        //Setting ContextProfile
         UUID contextProfileId = UUID.randomUUID();
-        UUID currentResourceId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentResourceId(currentResourceId);
-
-        Map<String, String> eventData = new HashMap<>();
-        eventData.put("id", UUID.randomUUID().toString());
-        eventData.put("timeSpend", "1478623337");
-        eventData.put("reaction", UUID.randomUUID().toString());
-        eventData.put("answer", "[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
+        contextProfile.setCurrentResourceId(resourceId);
+        contextProfile.setIsComplete(true);
 
         ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                        new Gson().toJson(eventData), null);
+                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "someJson", null);
 
         List<ContextProfileEvent> list = new ArrayList<>();
         list.add(contextProfileEvent);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("answer", "test");
-        List<Object> listMock = new ArrayList<>();
-        listMock.add("[{\"value\":\"1\"},{\"value\":\"2,3\"}]");
-
-        when(jsonParser.parseMap(any(String.class))).thenReturn(map);
-        when(jsonParser.parseList(any(String.class))).thenReturn(listMock);
-
         when(contextService.findById(any(UUID.class))).thenReturn(context);
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
-
+        when(resourceService.findFirstBySequenceByContextId(any(UUID.class))).thenReturn(resource);
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
+        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
 
-        StartContextEventResponseDto result = contextEventService.startContextEvent(UUID.randomUUID(), UUID.randomUUID());
+        StartContextEventResponseDto result = contextEventService.startContextEvent(contextId, UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(0)).findFirstBySequenceByContextId(any(UUID.class));
-        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
+        verify(resourceService, times(1)).findFirstBySequenceByContextId(any(UUID.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(contextProfileEventService, times(0)).findByContextProfileId(any(UUID.class));
+        verify(contextProfileEventService, times(1)).deleteByContextProfileId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
-        assertNotNull("Id is Null", result.getId());
-        assertNotNull("Resource id is Null", result.getCurrentResourceId());
-        assertNotNull("Collection id is Null", result.getCollection().getId());
+        assertEquals("Wrong context ID", contextId, result.getId());
+        assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
         assertNull("Events doc is not null", result.getEvents());
-        assertEquals("Wrong size", 1, result.getEventsResponse().size());
-        assertNotNull("Answer list is Null", result.getEventsResponse().get(0));
+        assertEquals("Events list is not empty", 0, result.getEventsResponse().size());
+    }
+
+    @Test
+    public void setCurrentResource() throws Exception {
+        UUID profileId = UUID.randomUUID();
+        UUID contextId = UUID.randomUUID();
+        UUID resourceId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
+
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setIsComplete(false);
+        contextProfile.setContextId(contextId);
+        contextProfile.setCurrentResourceId(resourceId);
+        contextProfile.setProfileId(profileId);
+        contextProfile.setId(id);
+
+        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
+
+        ContextProfile result = WhiteboxImpl.invokeMethod(contextEventService, "setCurrentResource",
+                new ContextProfile(), contextId, profileId, resourceId);
+
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong ID", id, result.getId());
+        assertEquals("Wrong context ID", contextId, result.getContextId());
+        assertEquals("Wrong profile ID", profileId, result.getProfileId());
+        assertEquals("Wrong resource ID", resourceId, result.getCurrentResourceId());
+        assertFalse("ContextProfile is not complete", result.getIsComplete());
+    }
+
+    @Test
+    public void getFirstResourceByContextId() throws Exception {
+        Resource result =
+                WhiteboxImpl.invokeMethod(contextEventService, "getFirstResourceByContextId", UUID.randomUUID());
+        verify(resourceService, times(1)).findFirstBySequenceByContextId(any(UUID.class));
     }
 
     @Test
@@ -248,7 +273,7 @@ public class ContextEventServiceTest {
         int score = 0;
         UUID resourceId = UUID.randomUUID();
         String eventData = "{\n" +
-                "      \"score\": "+ score + ",\n" +
+                "      \"score\": " + score + ",\n" +
                 "      \"answer\": [\n" +
                 "        {\n" +
                 "          \"value\": \"A\"\n" +
