@@ -2,6 +2,8 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
+import com.quizzes.api.common.dto.StudentEventsResponseDto;
+import com.quizzes.api.common.model.entities.StudentEventEntity;
 import com.quizzes.api.common.service.ContextEventService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @CrossOrigin
@@ -73,13 +76,28 @@ public class ContextEventController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> onResourceEvent(@PathVariable UUID resourceId,
-                                         @PathVariable UUID contextId,
-                                         @ApiParam(value = "Json body", required = true, name = "Body")
-                                         @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
-                                         @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                         @RequestHeader(value = "profile-id") UUID profileId) {
+                                                @PathVariable UUID contextId,
+                                                @ApiParam(value = "Json body", required = true, name = "Body")
+                                                @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
+                                                @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                @RequestHeader(value = "profile-id") UUID profileId) {
         contextEventService.onResourceEvent(contextId, resourceId, profileId, onResourceEventPostRequestDto);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "On resource event",
+            notes = "Sends event to indicate current resource position and provides the data generated" +
+                    " in the previous resource (this value could be null in case there is not previous resource)")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = StudentEventsResponseDto.class)})
+    @RequestMapping(path = "/v1/context/{contextId}/events",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<StudentEventsResponseDto> getStudentEvents(
+            @PathVariable UUID contextId,
+            @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) {
+        StudentEventsResponseDto studentEvents = contextEventService.getStudentEvents(contextId);
+        return new ResponseEntity<>(studentEvents, HttpStatus.OK);
     }
 
 }

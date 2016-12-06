@@ -6,7 +6,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
+import com.quizzes.api.common.dto.PostResponseResourceDto;
+import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
+import com.quizzes.api.common.dto.StudentEventsResponseDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.model.entities.StudentEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
@@ -73,6 +78,9 @@ public class ContextEventServiceTest {
 
     @Mock
     Gson gson;
+
+    @Mock
+    StudentEventEntity studentEventEntity;
 
     @Test
     public void startContextEvent() throws Exception {
@@ -372,6 +380,113 @@ public class ContextEventServiceTest {
 
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
+    }
+
+    @Test
+    public void getStudentEvents() throws Exception {
+        //Map values for findAllStudentEvents
+        Map<UUID, List<StudentEventEntity>> studentEventsMap = new HashMap<>();
+        List<StudentEventEntity> events = new ArrayList<>();
+
+        //Setting events
+        UUID currentResourceId = UUID.randomUUID();
+
+        //Setting entity values
+        StudentEventEntity studentEventEntity = Mockito.spy(StudentEventEntity.class);
+        when(studentEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
+        when(studentEventEntity.getEventData()).thenReturn("jsonMock");
+        events.add(studentEventEntity);
+
+        //Adding students
+        UUID student1 = UUID.randomUUID();
+        studentEventsMap.put(student1, events);
+
+        UUID student2 = UUID.randomUUID();
+        studentEventsMap.put(student2, events);
+
+        //Setting context
+        Context contextMock = new Context();
+        UUID contextId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        contextMock.setId(contextId);
+        contextMock.setCollectionId(collectionId);
+
+        PostResponseResourceDto postResponseResourceDto = new PostResponseResourceDto();
+        postResponseResourceDto.setScore(0);
+        postResponseResourceDto.setReaction(3);
+
+        when(contextProfileEventService.findAllStudentEventsByContextId(contextId)).thenReturn(studentEventsMap);
+        when(contextService.findById(contextId)).thenReturn(contextMock);
+        when(gson.fromJson(any(String.class), any())).thenReturn(postResponseResourceDto);
+
+        StudentEventsResponseDto result = contextEventService.getStudentEvents(contextId);
+
+        verify(contextProfileEventService, times(1)).findAllStudentEventsByContextId(contextId);
+        verify(contextService, times(1)).findById(contextId);
+        verify(gson, times(2)).fromJson(any(String.class), any());
+
+        assertNotNull("Result is null", result);
+        assertEquals("Wrong context ID", contextId, result.getContextId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
+        assertEquals("Wrong size of events ID", 2,result.getProfileEvents().size());
+
+        ProfileEventResponseDto profileResult1 = result.getProfileEvents().get(0);
+        assertEquals("Wrong event size for student1", 1, profileResult1.getEvents().size());
+        assertEquals("Wrong profile ID for student1", student1, profileResult1.getProfileId());
+        assertEquals("Wrong current resource", currentResourceId, profileResult1.getCurrentResourceId());
+        assertEquals("Wrong score", 3, profileResult1.getEvents().get(0).getReaction());
+
+        ProfileEventResponseDto profileResult2 = result.getProfileEvents().get(1);
+        assertEquals("Wrong event size for student2", 1, profileResult2.getEvents().size());
+        assertEquals("Wrong profile ID for student2", student2, profileResult2.getProfileId());
+        assertEquals("Wrong current resource", currentResourceId, profileResult2.getCurrentResourceId());
+        assertEquals("Wrong score", 0, profileResult2.getEvents().get(0).getScore());
+    }
+
+    @Test
+    public void getStudentEventsWithoutEvents() throws Exception {
+        //Map values for findAllStudentEvents
+        Map<UUID, List<StudentEventEntity>> studentEventsMap = new HashMap<>();
+        List<StudentEventEntity> events = new ArrayList<>();
+
+        //Setting events
+        UUID currentResourceId = UUID.randomUUID();
+
+        //Setting entity values
+        StudentEventEntity studentEventEntity = Mockito.spy(StudentEventEntity.class);
+        when(studentEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
+        when(studentEventEntity.getEventData()).thenReturn(null);
+        events.add(studentEventEntity);
+
+        //Adding student
+        UUID studentId = UUID.randomUUID();
+        studentEventsMap.put(studentId, events);
+
+        //Setting context
+        Context contextMock = new Context();
+        UUID contextId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        contextMock.setId(contextId);
+        contextMock.setCollectionId(collectionId);
+
+        when(contextProfileEventService.findAllStudentEventsByContextId(contextId)).thenReturn(studentEventsMap);
+        when(contextService.findById(contextId)).thenReturn(contextMock);
+
+        StudentEventsResponseDto result = contextEventService.getStudentEvents(contextId);
+
+        verify(contextProfileEventService, times(1)).findAllStudentEventsByContextId(contextId);
+        verify(contextService, times(1)).findById(contextId);
+        verify(gson, times(0)).fromJson(any(String.class), any());
+
+        assertNotNull("Result is null", result);
+        assertEquals("Wrong context ID", contextId, result.getContextId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
+        assertEquals("Wrong size of events ID", 1, result.getProfileEvents().size());
+
+        ProfileEventResponseDto profileResult = result.getProfileEvents().get(0);
+        assertEquals("Wrong event size", 0, profileResult.getEvents().size());
+        assertEquals("Wrong profile ID", studentId, profileResult.getProfileId());
+        assertEquals("Wrong current resource", currentResourceId, profileResult.getCurrentResourceId());
     }
 
 }

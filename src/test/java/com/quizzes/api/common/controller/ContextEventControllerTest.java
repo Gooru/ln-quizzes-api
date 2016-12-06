@@ -2,9 +2,13 @@ package com.quizzes.api.common.controller;
 
 import com.google.gson.JsonArray;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
+import com.quizzes.api.common.dto.PostResponseResourceDto;
+import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
+import com.quizzes.api.common.dto.StudentEventsResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
+import com.quizzes.api.common.model.jooq.tables.Collection;
 import com.quizzes.api.common.service.ContextEventService;
 import com.quizzes.api.common.service.ContextProfileService;
 import org.junit.Test;
@@ -97,5 +101,74 @@ public class ContextEventControllerTest {
         assertNull("Body is not null", result.getBody());
     }
 
+    @Test
+    public void getStudentEvents() throws Exception {
+        UUID contextId = UUID.randomUUID();
+
+        //Setting collectionDto
+        UUID collectionId = UUID.randomUUID();
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId.toString());
+
+        //Setting Answers
+        AnswerDto answerDto = new AnswerDto();
+        answerDto.setValue("A");
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(answerDto);
+
+        //Setting Events
+        UUID resourceId = UUID.randomUUID();
+        PostResponseResourceDto event = new PostResponseResourceDto();
+        event.setScore(0);
+        event.setReaction(0);
+        event.setResourceId(resourceId);
+        event.setAnswer(answers);
+        event.setTimeSpent(1234);
+        List<PostResponseResourceDto> events = new ArrayList<>();
+        events.add(event);
+
+        //Setting ProfileEvents
+        UUID currentResourceId = UUID.randomUUID();
+        UUID profileId = UUID.randomUUID();
+        ProfileEventResponseDto profileEventResponseDto = new ProfileEventResponseDto();
+        profileEventResponseDto.setCurrentResourceId(currentResourceId);
+        profileEventResponseDto.setProfileId(profileId);
+        profileEventResponseDto.setEvents(events);
+
+        List<ProfileEventResponseDto> profileEvents = new ArrayList<>();
+        profileEvents.add(profileEventResponseDto);
+
+        //Creating studentEventDto mock
+        StudentEventsResponseDto studentEvents =  new StudentEventsResponseDto();
+        studentEvents.setContextId(contextId);
+        studentEvents.setCollection(collectionDto);
+        studentEvents.setProfileEvents(profileEvents);
+
+        when(contextEventService.getStudentEvents(any(UUID.class))).thenReturn(studentEvents);
+
+        ResponseEntity<StudentEventsResponseDto> result = controller.getStudentEvents(contextId, "quizzes", UUID.randomUUID());
+
+        verify(contextEventService, times(1)).getStudentEvents(contextId);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+
+        StudentEventsResponseDto resultBody = result.getBody();
+        assertEquals("Invalid context ID", contextId, resultBody.getContextId());
+        assertEquals("Invalid collection ID", collectionId.toString(), resultBody.getCollection().getId());
+        assertEquals("Wrong size in profile events", 1, resultBody.getProfileEvents().size());
+
+        ProfileEventResponseDto profileEventResult = resultBody.getProfileEvents().get(0);
+        assertEquals("Invalid current resource ID", currentResourceId, profileEventResult.getCurrentResourceId());
+        assertEquals("Invalid profile ID", profileId, profileEventResult.getProfileId());
+        assertEquals("Invalid number of events", 1, profileEventResult.getEvents().size());
+
+        PostResponseResourceDto eventResult = profileEventResult.getEvents().get(0);
+        assertEquals("Score is not 0", 0, eventResult.getScore());
+        assertEquals("Reaction is not 0", 0, eventResult.getReaction());
+        assertEquals("TimeSpent is not 1234", 1234, eventResult.getTimeSpent());
+        assertEquals("Invalid number of answers", 1, eventResult.getAnswer().size());
+        assertEquals("Answer is not A", "A", eventResult.getAnswer().get(0).getValue());
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.model.entities.StudentEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.junit.Test;
@@ -65,6 +66,13 @@ public class ContextProfileEventServiceTest {
     public void save() throws Exception {
         ContextProfileEvent result = contextProfileEventService.save(new ContextProfileEvent());
         verify(contextProfileEventRepository, times(1)).save(any(ContextProfileEvent.class));
+    }
+
+    @Test
+    public void findAllStudentEventsByContextId() throws Exception {
+        Map<UUID, List<StudentEventEntity>> result = contextProfileEventService
+                .findAllStudentEventsByContextId(UUID.randomUUID());
+        verify(contextProfileEventRepository, times(1)).findAllStudentEventsByContextId(any(UUID.class));
     }
 
 }
