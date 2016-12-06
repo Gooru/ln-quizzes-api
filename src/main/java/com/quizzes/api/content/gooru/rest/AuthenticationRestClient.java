@@ -11,17 +11,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-public abstract class AbstractGooruRestClient {
-
+@Component
+public class AuthenticationRestClient {
     private static final String CLIENT_KEY = "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==";
     private static final String CLIENT_ID = "ba956a97-ae15-11e5-a302-f8a963065976";
     private static final String RETURN_URL = "http://www.gooru.org";
     private static final String USER_GRANT_TYPE = "google";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
-    protected static final String API_URL = "/api/nucleus/v1/";
+    private static final String AUTH_API_URL = "/api/nucleus-auth/v1/";
+    private static final String ANONYMOUS_AUTH_API_URL = AUTH_API_URL.concat("token");
+    private static final String USER_AUTH_API_URL = AUTH_API_URL.concat("authorize");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -35,7 +38,7 @@ public abstract class AbstractGooruRestClient {
     private Gson gsonPretty;
 
     public String generateUserToken(UserDataTokenDto user) {
-        String endpointUrl = getContentApiUrl() + "/api/nucleus-auth/v1/authorize";
+        String endpointUrl = getContentApiUrl() + USER_AUTH_API_URL;
 
         UserTokenRequestDto tokenUserRequest = new UserTokenRequestDto();
         tokenUserRequest.setClientKey(CLIENT_KEY);
@@ -69,7 +72,7 @@ public abstract class AbstractGooruRestClient {
     }
 
     public String generateAnonymousToken() {
-        String endpointUrl = getContentApiUrl() + "/api/nucleus-auth/v1/token";
+        String endpointUrl = getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
         TokenRequestDto tokenRequest = new TokenRequestDto();
         tokenRequest.setClientId(CLIENT_ID);
         tokenRequest.setClientKey(CLIENT_KEY);
@@ -102,5 +105,4 @@ public abstract class AbstractGooruRestClient {
     public String getContentApiUrl() {
         return contentApiUrl;
     }
-
 }

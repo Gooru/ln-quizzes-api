@@ -13,6 +13,7 @@ import com.quizzes.api.content.gooru.dto.AssessmentDto;
 import com.quizzes.api.content.gooru.dto.QuestionDto;
 import com.quizzes.api.content.gooru.dto.UserDataTokenDto;
 import com.quizzes.api.content.gooru.enums.GooruQuestionTypeEnum;
+import com.quizzes.api.content.gooru.rest.AuthenticationRestClient;
 import com.quizzes.api.content.gooru.rest.CollectionRestClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,9 @@ public class CollectionContentServiceImplTest {
 
     @Mock
     CollectionRestClient collectionRestClient;
+
+    @Mock
+    AuthenticationRestClient authenticationRestClient;
 
     @Mock
     CollectionService collectionService;
@@ -117,7 +121,7 @@ public class CollectionContentServiceImplTest {
 
         when(gson.fromJson(any(String.class), anyObject())).thenReturn(userDataTokenDto);
 
-        when(collectionRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
+        when(authenticationRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
 
         when(collectionRestClient.copyAssessment(any(String.class), any(String.class))).thenReturn("copied-assessment-id");
 
@@ -142,7 +146,7 @@ public class CollectionContentServiceImplTest {
         Collection copiedCollection = collectionContentService.createCollectionCopy(externalCollectionId, owner);
 
         verify(gson, times(1)).fromJson(any(String.class), anyObject());
-        verify(collectionRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
+        verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
         verify(collectionRestClient, times(1)).copyAssessment(any(String.class), any(String.class));
         verify(collectionRestClient, times(1)).getAssessment(externalCollectionId);
         verify(collectionService, times(1)).save(any(Collection.class));
