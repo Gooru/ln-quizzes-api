@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
-import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
 @Repository
 public class ContextProfileEventRepositoryImpl implements ContextProfileEventRepository {
