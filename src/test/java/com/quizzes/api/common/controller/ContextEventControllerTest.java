@@ -5,10 +5,9 @@ import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
-import com.quizzes.api.common.dto.StudentEventsResponseDto;
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
-import com.quizzes.api.common.model.jooq.tables.Collection;
 import com.quizzes.api.common.service.ContextEventService;
 import com.quizzes.api.common.service.ContextProfileService;
 import org.junit.Test;
@@ -139,21 +138,21 @@ public class ContextEventControllerTest {
         profileEvents.add(profileEventResponseDto);
 
         //Creating studentEventDto mock
-        StudentEventsResponseDto studentEvents =  new StudentEventsResponseDto();
+        ContextEventsResponseDto studentEvents =  new ContextEventsResponseDto();
         studentEvents.setContextId(contextId);
         studentEvents.setCollection(collectionDto);
         studentEvents.setProfileEvents(profileEvents);
 
-        when(contextEventService.getStudentEvents(any(UUID.class))).thenReturn(studentEvents);
+        when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(studentEvents);
 
-        ResponseEntity<StudentEventsResponseDto> result = controller.getStudentEvents(contextId, "quizzes", UUID.randomUUID());
+        ResponseEntity<ContextEventsResponseDto> result = controller.getStudentEvents(contextId, "quizzes", UUID.randomUUID());
 
-        verify(contextEventService, times(1)).getStudentEvents(contextId);
+        verify(contextEventService, times(1)).getContextEvents(contextId);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
 
-        StudentEventsResponseDto resultBody = result.getBody();
+        ContextEventsResponseDto resultBody = result.getBody();
         assertEquals("Invalid context ID", contextId, resultBody.getContextId());
         assertEquals("Invalid collection ID", collectionId.toString(), resultBody.getCollection().getId());
         assertEquals("Wrong size in profile events", 1, resultBody.getProfileEvents().size());

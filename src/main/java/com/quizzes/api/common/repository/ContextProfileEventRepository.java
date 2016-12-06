@@ -1,6 +1,6 @@
 package com.quizzes.api.common.repository;
 
-import com.quizzes.api.common.model.entities.StudentEventEntity;
+import com.quizzes.api.common.model.entities.ContextEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 
 import java.util.List;
@@ -15,5 +15,5 @@ public interface ContextProfileEventRepository {
 
     ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId);
 
-    Map<UUID, List<StudentEventEntity>> findAllStudentEventsByContextId(UUID contextId);
+    Map<UUID, List<ContextEventEntity>> findAllStudentEventsByContextId(UUID contextId);
 }

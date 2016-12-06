@@ -8,11 +8,11 @@ import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
-import com.quizzes.api.common.dto.StudentEventsResponseDto;
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import com.quizzes.api.common.exception.InternalServerException;
-import com.quizzes.api.common.model.entities.StudentEventEntity;
+import com.quizzes.api.common.model.entities.ContextEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
@@ -127,11 +127,11 @@ public class ContextEventService {
         }
     }
 
-    public StudentEventsResponseDto getStudentEvents(UUID contextId) {
+    public ContextEventsResponseDto getContextEvents(UUID contextId) {
         try {
-            Map<UUID, List<StudentEventEntity>> studentEvents =
+            Map<UUID, List<ContextEventEntity>> studentEvents =
                     contextProfileEventService.findAllStudentEventsByContextId(contextId);
-            StudentEventsResponseDto response = new StudentEventsResponseDto();
+            ContextEventsResponseDto response = new ContextEventsResponseDto();
             response.setContextId(contextId);
 
             Context context = contextService.findById(contextId);
@@ -140,14 +140,14 @@ public class ContextEventService {
             response.setCollection(collection);
 
             List<ProfileEventResponseDto> profileEvents = studentEvents.entrySet().stream().map(entity -> {
-                List<StudentEventEntity> studentEventEntityList = entity.getValue();
+                List<ContextEventEntity> contextEventEntityList = entity.getValue();
                 ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
                 profileEvent.setProfileId(entity.getKey());
                 if (!entity.getValue().isEmpty()) {
                     profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
                 }
 
-                profileEvent.setEvents(studentEventEntityList.stream()
+                profileEvent.setEvents(contextEventEntityList.stream()
                         .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
                         .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
                                 PostResponseResourceDto.class)).collect(Collectors.toList()));

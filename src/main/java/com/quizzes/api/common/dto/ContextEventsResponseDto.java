@@ -5,13 +5,13 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 import java.util.List;
 import java.util.UUID;
 
-public class StudentEventsResponseDto {
+public class ContextEventsResponseDto {
 
     private UUID contextId;
     private CollectionDto collection;
     private List<ProfileEventResponseDto> profileEvents;
 
-    public StudentEventsResponseDto() {
+    public ContextEventsResponseDto() {
     }
 
     public UUID getContextId() {

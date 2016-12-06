@@ -1,9 +1,8 @@
 package com.quizzes.api.common.controller;
 
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
-import com.quizzes.api.common.dto.StudentEventsResponseDto;
-import com.quizzes.api.common.model.entities.StudentEventEntity;
 import com.quizzes.api.common.service.ContextEventService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @CrossOrigin
@@ -85,18 +83,18 @@ public class ContextEventController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "On resource event",
-            notes = "Sends event to indicate current resource position and provides the data generated" +
-                    " in the previous resource (this value could be null in case there is not previous resource)")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = StudentEventsResponseDto.class)})
+    @ApiOperation(value = "Get All Student Events by Context ID",
+            notes = "Returns the whole list of student events assigned to for the provided Context ID. The profile-id " +
+                    "passed in the request header corresponds to the context owner Profile ID.")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class)})
     @RequestMapping(path = "/v1/context/{contextId}/events",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<StudentEventsResponseDto> getStudentEvents(
+    public ResponseEntity<ContextEventsResponseDto> getContextEvents(
             @PathVariable UUID contextId,
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) {
-        StudentEventsResponseDto studentEvents = contextEventService.getStudentEvents(contextId);
+        ContextEventsResponseDto studentEvents = contextEventService.getContextEvents(contextId);
         return new ResponseEntity<>(studentEvents, HttpStatus.OK);
     }
 
