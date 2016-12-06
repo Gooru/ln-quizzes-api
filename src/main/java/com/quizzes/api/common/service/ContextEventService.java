@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -65,25 +66,28 @@ public class ContextEventService {
             Context context = contextService.findById(contextId);
             ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
 
-            //If context_profile is complete we need to remove all the events
+            List<ContextProfileEvent> events = new ArrayList<>();
+
             if (contextProfile == null) {
-                setFirstResourceAsCurrent(new ContextProfile(), contextId, profileId);
+                Resource firstResource = getFirstResourceByContextId(contextId);
+                contextProfile = setCurrentResource(new ContextProfile(), contextId, profileId, firstResource);
             } else if (contextProfile.getIsComplete()) {
                 contextProfileEventService.deleteByContextProfileId(contextProfile.getId());
-                setFirstResourceAsCurrent(contextProfile, contextId, profileId);
+                Resource firstResource = getFirstResourceByContextId(contextId);
+                contextProfile = setCurrentResource(contextProfile, contextId, profileId, firstResource);
+            } else {
+                events = contextProfileEventService.findByContextProfileId(contextProfile.getId());
             }
 
             CollectionDto collection = new CollectionDto();
             collection.setId(context.getCollectionId().toString());
-
-            List<ContextProfileEvent> events = contextProfileEventService
-                    .findByContextProfileId(contextProfile.getId());
 
             StartContextEventResponseDto result = new StartContextEventResponseDto();
             result.setId(contextId);
             result.setCurrentResourceId(contextProfile.getCurrentResourceId());
             result.setCollection(collection);
             result.setEventsResponse(convertContextProfileToMap(events));
+
             return result;
         } catch (Exception e) {
             logger.error("We could not start the context " + contextId + " for user " + profileId, e);
@@ -91,17 +95,17 @@ public class ContextEventService {
         }
     }
 
-    private ContextProfile setFirstResourceAsCurrent(ContextProfile contextProfile, UUID contextId, UUID profileId) {
-        Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
+    private Resource getFirstResourceByContextId(UUID contextId) {
+        return resourceService.findFirstBySequenceByContextId(contextId);
+    }
 
-        if (contextProfile == null) {
-            contextProfile = new ContextProfile();
-            contextProfile.setContextId(contextId);
-            contextProfile.setProfileId(profileId);
-        }
-
-        contextProfile.setCurrentResourceId(firstResource.getId());
+    private ContextProfile setCurrentResource(ContextProfile contextProfile, UUID contextId,
+                                              UUID profileId, Resource resource) {
+        contextProfile.setContextId(contextId);
+        contextProfile.setProfileId(profileId);
+        contextProfile.setCurrentResourceId(resource.getId());
         contextProfile.setIsComplete(false);
+
         return contextProfileService.save(contextProfile);
     }
 
