@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class UserDataTokenDto {
 
-    @SerializedName("firstname")
+    @SerializedName(value = "firstname", alternate = "firstName")
     private String firstName;
 
-    @SerializedName("lastname")
+    @SerializedName(value = "lastname", alternate = "lastName")
     private String lastName;
 
-    @SerializedName("identity_id")
+    @SerializedName(value = "identity_id", alternate = "email")
     private String email;
 
     public UserDataTokenDto() {
