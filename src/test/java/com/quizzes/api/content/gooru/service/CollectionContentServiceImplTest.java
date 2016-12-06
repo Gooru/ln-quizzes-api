@@ -1,5 +1,6 @@
 package com.quizzes.api.content.gooru.service;
 
+import com.google.gson.Gson;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
@@ -10,6 +11,7 @@ import com.quizzes.api.common.service.content.CollectionContentService;
 import com.quizzes.api.content.gooru.dto.AnswerDto;
 import com.quizzes.api.content.gooru.dto.AssessmentDto;
 import com.quizzes.api.content.gooru.dto.QuestionDto;
+import com.quizzes.api.content.gooru.dto.UserDataTokenDto;
 import com.quizzes.api.content.gooru.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.content.gooru.rest.CollectionRestClient;
 import org.junit.Test;
@@ -29,13 +31,14 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(CollectionContentService.class)
+@PrepareForTest({CollectionContentService.class, Gson.class})
 public class CollectionContentServiceImplTest {
 
     @InjectMocks
@@ -49,6 +52,9 @@ public class CollectionContentServiceImplTest {
 
     @Mock
     ResourceService resourceService;
+
+    @Mock
+    Gson gson;
 
     @Test
     public void createCollectionCopy() throws Exception {
@@ -104,6 +110,17 @@ public class CollectionContentServiceImplTest {
         questionList.add(questionMultipleChoice);
         questionList.add(questionTrueFalse);
 
+        UserDataTokenDto userDataTokenDto = new UserDataTokenDto();
+        userDataTokenDto.setFirstName("Bryan");
+        userDataTokenDto.setLastName("Oviedo");
+        userDataTokenDto.setEmail("boviedo@gooru.org");
+
+        when(gson.fromJson(any(String.class), anyObject())).thenReturn(userDataTokenDto);
+
+        when(collectionRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
+
+        when(collectionRestClient.copyAssessment(any(String.class), any(String.class))).thenReturn("copied-assessment-id");
+
         AssessmentDto assessmentDto = new AssessmentDto();
         assessmentDto.setId(UUID.randomUUID().toString());
         assessmentDto.setTitle("Assessment Title");
@@ -124,6 +141,9 @@ public class CollectionContentServiceImplTest {
         String externalCollectionId = UUID.randomUUID().toString();
         Collection copiedCollection = collectionContentService.createCollectionCopy(externalCollectionId, owner);
 
+        verify(gson, times(1)).fromJson(any(String.class), anyObject());
+        verify(collectionRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
+        verify(collectionRestClient, times(1)).copyAssessment(any(String.class), any(String.class));
         verify(collectionRestClient, times(1)).getAssessment(externalCollectionId);
         verify(collectionService, times(1)).save(any(Collection.class));
         verify(resourceService, atLeast(1)).save(any(Resource.class));
