@@ -1,11 +1,11 @@
 package com.quizzes.api.common.service;
 
+import com.google.gson.Gson;
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +15,17 @@ import java.util.UUID;
 @Service
 public class ProfileService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     ProfileRepository profileRepository;
 
-    public Profile findById(UUID id) {
-        return null;
+    @Autowired
+    Gson gson;
+
+    public ProfileDto findById(UUID profileId) {
+        Profile profile = profileRepository.findById(profileId);
+        ProfileDto result = gson.fromJson(profile.getProfileData(), ProfileDto.class);
+        result.setId(profileId.toString());
+        return result;
     }
 
     public IdResponseDto findIdByExternalIdAndLmsId(String externalId, Lms lms) {
@@ -54,7 +58,7 @@ public class ProfileService {
      * @param lms                the profile lms
      * @return The Id list of the found profiles
      */
-    public List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms){
+    public List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms) {
         return profileRepository.findExternalProfileIds(externalProfileIds, lms);
     }
 
@@ -65,7 +69,7 @@ public class ProfileService {
      * @param lms                the profile lms
      * @return The Id list of the found profiles
      */
-    public List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms){
+    public List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms) {
         return profileRepository.findProfileIdsByExternalIdAndLms(externalProfileIds, lms);
     }
 
