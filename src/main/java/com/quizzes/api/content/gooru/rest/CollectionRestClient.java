@@ -41,9 +41,8 @@ public class CollectionRestClient {
     @Autowired
     AuthenticationRestClient authenticationRestClient;
 
-    public AssessmentDto getAssessment(String assessmentId) {
+    public AssessmentDto getAssessment(String assessmentId, String token) {
         String endpointUrl = getContentApiUrl() + ASSESSMENTS_PATH + assessmentId;
-        String token = authenticationRestClient.generateAnonymousToken();
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);

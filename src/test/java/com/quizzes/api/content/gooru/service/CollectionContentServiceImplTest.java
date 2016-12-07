@@ -129,7 +129,7 @@ public class CollectionContentServiceImplTest {
         assessmentDto.setId(UUID.randomUUID().toString());
         assessmentDto.setTitle("Assessment Title");
         assessmentDto.setQuestions(questionList);
-        when(collectionRestClient.getAssessment(any(String.class))).thenReturn(assessmentDto);
+        when(collectionRestClient.getAssessment(any(String.class), any(String.class))).thenReturn(assessmentDto);
 
         Collection collection = new Collection();
         collection.setId(UUID.randomUUID());
@@ -148,7 +148,7 @@ public class CollectionContentServiceImplTest {
         verify(gson, times(1)).fromJson(any(String.class), anyObject());
         verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
         verify(collectionRestClient, times(1)).copyAssessment(any(String.class), any(String.class));
-        verify(collectionRestClient, times(1)).getAssessment(externalCollectionId);
+        verify(collectionRestClient, times(1)).getAssessment(any(String.class), any(String.class));
         verify(collectionService, times(1)).save(any(Collection.class));
         verify(resourceService, atLeast(1)).save(any(Resource.class));
 
