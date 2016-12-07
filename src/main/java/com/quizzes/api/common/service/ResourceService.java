@@ -26,7 +26,7 @@ public class ResourceService {
         return resourceRepository.findByCollectionId(collectionId);
     }
 
-    public Resource findFirstBySequenceByContextId(UUID contextId){
-        return resourceRepository.findFirstBySequenceByContextId(contextId);
+    public Resource findFirstByContextIdOrderBySequence(UUID contextId){
+        return resourceRepository.findFirstByContextIdOrderBySequence(contextId);
     }
 }
