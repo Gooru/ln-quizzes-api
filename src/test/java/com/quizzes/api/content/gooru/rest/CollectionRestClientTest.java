@@ -10,12 +10,15 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static org.mockito.Matchers.any;
@@ -25,7 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(CollectionRestClient.class)
+@PrepareForTest({CollectionRestClient.class})
 public class CollectionRestClientTest {
 
     @InjectMocks
@@ -33,6 +36,9 @@ public class CollectionRestClientTest {
 
     @Mock
     RestTemplate restTemplate;
+
+    @Mock
+    AuthenticationRestClient authenticationRestClient;
 
     @Value("${content.api.url}")
     private String contentApiUrl;
@@ -43,7 +49,7 @@ public class CollectionRestClientTest {
         AssessmentDto assessmentDto = new AssessmentDto();
         assessmentDto.setId(UUID.randomUUID().toString());
 
-        doReturn(anonymousToken).when(collectionRestClient).generateAnonymousToken();
+        doReturn(anonymousToken).when(authenticationRestClient).generateAnonymousToken();
 
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentDto.class));

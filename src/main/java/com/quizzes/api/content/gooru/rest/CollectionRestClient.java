@@ -8,6 +8,7 @@ import com.quizzes.api.content.gooru.dto.AssessmentDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,11 +22,15 @@ import java.net.URI;
 import java.util.Arrays;
 
 @Component
-public class CollectionRestClient extends AbstractGooruRestClient {
+public class CollectionRestClient {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final String API_URL = "/api/nucleus/v1/";
     private static final String ASSESSMENTS_PATH = API_URL.concat("assessments/");
     private static final String ASSESSMENTS_COPIER_PATH = API_URL.concat("copier/assessments/{assessmentId}");
+
+    @Value("${content.api.url}")
+    private String contentApiUrl;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -33,9 +38,12 @@ public class CollectionRestClient extends AbstractGooruRestClient {
     @Autowired
     private Gson gsonPretty;
 
+    @Autowired
+    AuthenticationRestClient authenticationRestClient;
+
     public AssessmentDto getAssessment(String assessmentId) {
         String endpointUrl = getContentApiUrl() + ASSESSMENTS_PATH + assessmentId;
-        String token = generateAnonymousToken();
+        String token = authenticationRestClient.generateAnonymousToken();
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
@@ -103,5 +111,9 @@ public class CollectionRestClient extends AbstractGooruRestClient {
         }
 
         return headers;
+    }
+
+    public String getContentApiUrl() {
+        return contentApiUrl;
     }
 }
