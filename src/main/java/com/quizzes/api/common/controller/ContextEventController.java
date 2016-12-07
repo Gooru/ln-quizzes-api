@@ -1,5 +1,6 @@
 package com.quizzes.api.common.controller;
 
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.service.ContextEventService;
@@ -73,13 +74,28 @@ public class ContextEventController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> onResourceEvent(@PathVariable UUID resourceId,
-                                         @PathVariable UUID contextId,
-                                         @ApiParam(value = "Json body", required = true, name = "Body")
-                                         @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
-                                         @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                         @RequestHeader(value = "profile-id") UUID profileId) {
+                                                @PathVariable UUID contextId,
+                                                @ApiParam(value = "Json body", required = true, name = "Body")
+                                                @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
+                                                @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                @RequestHeader(value = "profile-id") UUID profileId) {
         contextEventService.onResourceEvent(contextId, resourceId, profileId, onResourceEventPostRequestDto);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get All Student Events by Context ID",
+            notes = "Returns the whole list of student events assigned to for the provided Context ID. The profile-id " +
+                    "passed in the request header corresponds to the context owner Profile ID.")
+    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class)})
+    @RequestMapping(path = "/v1/context/{contextId}/events",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ContextEventsResponseDto> getContextEvents(
+            @PathVariable UUID contextId,
+            @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) {
+        ContextEventsResponseDto contextEvents = contextEventService.getContextEvents(contextId);
+        return new ResponseEntity<>(contextEvents, HttpStatus.OK);
     }
 
 }

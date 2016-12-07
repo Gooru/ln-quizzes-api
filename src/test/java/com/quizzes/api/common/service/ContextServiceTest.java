@@ -378,9 +378,6 @@ public class ContextServiceTest {
         JsonElement jsonElement = new Gson().toJsonTree(profileDto);
 
         when(gson.toJsonTree(any(ProfileDto.class))).thenReturn(jsonElement);
-
-//        ContextDataDto contextDataDto = new Gson().fromJson(contextDataMock.getContextData().getMetadata(), ContextDataDto.class);
-
         when(gson.fromJson(any(String.class), any())).thenReturn(contextDataDto);
 
         Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
