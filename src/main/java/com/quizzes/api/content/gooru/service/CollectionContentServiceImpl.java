@@ -80,7 +80,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         //TODO: copiedAssessmentId should be used to get the assessment
         //TODO: but first getAssessment needs to use the user token
         //TODO: instead of the anonymous token
-        AssessmentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId);
+        AssessmentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId, userToken);
 
         Collection collection = new Collection();
         // TODO: The logic to obtain the correct external_id and external_parent_id must be implemented
