@@ -38,7 +38,7 @@ public class ProfileController {
     public ResponseEntity<IdResponseDto> getProfileIdByExternalId(
             @ApiParam(value = "Id of the user in the client from where it comes from.", required = true, name = "external-id")
             @PathVariable String externalId,
-            @ApiParam(value = "Client's name on quizzes.", required = true, name = "client-id")
+            @ApiParam(value = "Client's Id on quizzes.", required = true, name = "client-id")
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
         IdResponseDto result = profileService.findIdByExternalIdAndLmsId(externalId, Lms.valueOf(lmsId));
 
