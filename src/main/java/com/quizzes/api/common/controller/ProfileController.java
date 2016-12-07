@@ -54,10 +54,10 @@ public class ProfileController {
     @RequestMapping(path = "/v1/profile/{profileId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProfileDto> getProfileDataById(
+    public ResponseEntity<ProfileDto> getProfileById(
             @PathVariable UUID profileId,
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
-        ProfileDto result = profileService.findProfileDataById(profileId);
+        ProfileDto result = profileService.findById(profileId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

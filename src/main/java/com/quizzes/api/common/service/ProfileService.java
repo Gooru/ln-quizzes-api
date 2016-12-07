@@ -6,8 +6,6 @@ import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,44 +15,19 @@ import java.util.UUID;
 @Service
 public class ProfileService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @Autowired
     ProfileRepository profileRepository;
 
     @Autowired
     Gson gson;
 
-    /**
-     * Find the profile by ID
-     *
-     * @param profileId the profile id
-     * @return The profile found
-     */
-    public Profile findById(UUID profileId) {
-        return profileRepository.findById(profileId);
-    }
-
-    /**
-     * Find the profile data by Id
-     *
-     * @param profileId the profile id
-     * @return The profile data found
-     */
-    public ProfileDto findProfileDataById(UUID profileId) {
+    public ProfileDto findById(UUID profileId) {
         Profile profile = profileRepository.findById(profileId);
         ProfileDto result = gson.fromJson(profile.getProfileData(), ProfileDto.class);
         result.setId(profileId.toString());
         return result;
     }
 
-    /**
-     * Find the profile ID
-     *
-     * @param externalId the user ID in the client
-     * @param lms the client name in quizzes
-     * @return The profile data found
-     */
     public IdResponseDto findIdByExternalIdAndLmsId(String externalId, Lms lms) {
         UUID id = profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
         IdResponseDto result = new IdResponseDto();

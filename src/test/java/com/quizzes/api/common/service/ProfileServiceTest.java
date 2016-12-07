@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ProfileService.class, Gson.class})
+@PrepareForTest(ProfileService.class)
 public class ProfileServiceTest {
 
     @InjectMocks
@@ -40,14 +41,8 @@ public class ProfileServiceTest {
     private ProfileRepository profileRepository;
 
     @Mock
-    Gson gson;
+    Gson gson = new Gson();
 
-    @Test
-    public void findById() throws Exception {
-        UUID id = UUID.randomUUID();
-        Profile result = profileService.findById(id);
-        verify(profileService, times(1)).findById(eq(id));
-    }
 
     @Test
     public void findProfileDataById() throws Exception {
@@ -61,19 +56,12 @@ public class ProfileServiceTest {
                 "\"username\": \"dartavia\"," +
                 "\"email\": \"david@quizzes.com\"}");
 
-        //Setting ProfileDto
-        ProfileDto profileMock = new ProfileDto();
-        profileMock.setEmail("david@quizzes.com");
-        profileMock.setFirstName("David");
-        profileMock.setLastName("Artavia");
-        profileMock.setUsername("dartavia");
 
-        when(profileService.findById(id)).thenReturn(profile);
-        when(gson.fromJson(any(String.class), any())).thenReturn(profileMock);
+        when(profileRepository.findById(id)).thenReturn(profile);
 
-        ProfileDto result = profileService.findProfileDataById(id);
+        ProfileDto result = profileService.findById(id);
 
-        verify(profileService, times(1)).findById(eq(id));
+        verify(profileRepository, times(1)).findById(eq(id));
         assertNotNull("Result is null", result);
         assertEquals("Wrong Id", id.toString(), result.getId());
         assertEquals("Wrong first name", "David", result.getFirstName());
