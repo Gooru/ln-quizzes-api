@@ -23,10 +23,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class AbstractGooruRestClientTest {
+public class AuthenticationRestClientTest {
 
     @InjectMocks
-    private AbstractGooruRestClient abstractGooruRestClient = Mockito.spy(AbstractGooruRestClient.class);
+    private AuthenticationRestClient authenticationRestClient = Mockito.spy(AuthenticationRestClient.class);
 
     @Mock
     RestTemplate restTemplate;
@@ -48,7 +48,7 @@ public class AbstractGooruRestClientTest {
         doReturn(token).when(restTemplate)
                 .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
 
-        String result = abstractGooruRestClient.generateUserToken(user);
+        String result = authenticationRestClient.generateUserToken(user);
         assertNotNull("Result is null", result);
         assertEquals("Wrong token", userToken, result);
     }
@@ -60,7 +60,7 @@ public class AbstractGooruRestClientTest {
         doReturn(null).when(restTemplate)
                 .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
 
-        String result = abstractGooruRestClient.generateUserToken(new UserDataTokenDto());
+        String result = authenticationRestClient.generateUserToken(new UserDataTokenDto());
     }
 
 }
