@@ -1,15 +1,20 @@
 package com.quizzes.api.common.service;
 
+import com.google.gson.Gson;
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
+import com.quizzes.api.common.service.content.CollectionContentService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.UUID;
 
@@ -22,9 +27,10 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
-@RunWith(MockitoJUnitRunner.class)
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ProfileService.class, Gson.class})
 public class ProfileServiceTest {
 
     @InjectMocks
@@ -33,14 +39,46 @@ public class ProfileServiceTest {
     @Mock
     private ProfileRepository profileRepository;
 
+    @Mock
+    Gson gson;
+
     @Test
     public void findById() throws Exception {
         UUID id = UUID.randomUUID();
-        doReturn(null).when(profileService).findById(id);
-
         Profile result = profileService.findById(id);
         verify(profileService, times(1)).findById(eq(id));
-        assertNull("Response is not null", result);
+    }
+
+    @Test
+    public void findProfileDataById() throws Exception {
+        //Setting return values from db
+        UUID id = UUID.randomUUID();
+        Profile profile = new Profile();
+        profile.setId(id);
+        profile.setProfileData(
+                "{\"firstName\": \"David\"," +
+                "\"lastName\": \"Artavia\"," +
+                "\"username\": \"dartavia\"," +
+                "\"email\": \"david@quizzes.com\"}");
+
+        //Setting ProfileDto
+        ProfileDto profileMock = new ProfileDto();
+        profileMock.setEmail("david@quizzes.com");
+        profileMock.setFirstName("David");
+        profileMock.setLastName("Artavia");
+        profileMock.setUsername("dartavia");
+
+        when(profileService.findById(id)).thenReturn(profile);
+        when(gson.fromJson(any(String.class), any())).thenReturn(profileMock);
+
+        ProfileDto result = profileService.findProfileDataById(id);
+
+        verify(profileService, times(1)).findById(eq(id));
+        assertNotNull("Result is null", result);
+        assertEquals("Wrong Id", id.toString(), result.getId());
+        assertEquals("Wrong first name", "David", result.getFirstName());
+        assertEquals("Wrong last name", "Artavia", result.getLastName());
+        assertEquals("Wrong username", "dartavia", result.getUsername());
     }
 
     @Test

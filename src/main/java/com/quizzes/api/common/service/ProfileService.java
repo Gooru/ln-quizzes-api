@@ -1,6 +1,8 @@
 package com.quizzes.api.common.service;
 
+import com.google.gson.Gson;
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
@@ -20,10 +22,39 @@ public class ProfileService {
     @Autowired
     ProfileRepository profileRepository;
 
-    public Profile findById(UUID id) {
-        return null;
+    @Autowired
+    Gson gson;
+
+    /**
+     * Find the profile by ID
+     *
+     * @param profileId the profile id
+     * @return The profile found
+     */
+    public Profile findById(UUID profileId) {
+        return profileRepository.findById(profileId);
     }
 
+    /**
+     * Find the profile data by Id
+     *
+     * @param profileId the profile id
+     * @return The profile data found
+     */
+    public ProfileDto findProfileDataById(UUID profileId) {
+        Profile profile = profileRepository.findById(profileId);
+        ProfileDto result = gson.fromJson(profile.getProfileData(), ProfileDto.class);
+        result.setId(profileId.toString());
+        return result;
+    }
+
+    /**
+     * Find the profile ID
+     *
+     * @param externalId the user ID in the client
+     * @param lms the client name in quizzes
+     * @return The profile data found
+     */
     public IdResponseDto findIdByExternalIdAndLmsId(String externalId, Lms lms) {
         UUID id = profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
         IdResponseDto result = new IdResponseDto();
@@ -54,7 +85,7 @@ public class ProfileService {
      * @param lms                the profile lms
      * @return The Id list of the found profiles
      */
-    public List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms){
+    public List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms) {
         return profileRepository.findExternalProfileIds(externalProfileIds, lms);
     }
 
@@ -65,7 +96,7 @@ public class ProfileService {
      * @param lms                the profile lms
      * @return The Id list of the found profiles
      */
-    public List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms){
+    public List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms) {
         return profileRepository.findProfileIdsByExternalIdAndLms(externalProfileIds, lms);
     }
 

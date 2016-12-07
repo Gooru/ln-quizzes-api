@@ -1,6 +1,7 @@
 package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.ProfileService;
 import io.swagger.annotations.ApiOperation;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @CrossOrigin
 @RestController("ProfileController")
@@ -38,6 +41,23 @@ public class ProfileController {
             @PathVariable String externalId,
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
         IdResponseDto result = profileService.findIdByExternalIdAndLmsId(externalId, Lms.valueOf(lmsId));
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Find Profile by ID",
+            notes = "Retrieves the Profile data for a specified Profile ID.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Returns the profile data", response = ProfileDto.class),
+            @ApiResponse(code = 500, message = "Bad request")})
+    @RequestMapping(path = "/v1/profile/{profileId}",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ProfileDto> getProfileDataById(
+            @PathVariable UUID profileId,
+            @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
+        ProfileDto result = profileService.findProfileDataById(profileId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
