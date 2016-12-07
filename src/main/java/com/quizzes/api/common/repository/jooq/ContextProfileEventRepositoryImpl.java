@@ -49,6 +49,13 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     }
 
     @Override
+    public void deleteByContextProfileId(UUID contextProfileId) {
+        jooq.deleteFrom(CONTEXT_PROFILE_EVENT)
+                .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
+                .execute();
+    }
+
+    @Override
     public ContextProfileEvent save(final ContextProfileEvent contextProfileEvent) {
         if (contextProfileEvent.getId() == null) {
             return insertContextProfileEvent(contextProfileEvent);
