@@ -69,6 +69,7 @@ public class ProfileControllerTest {
     @Test
     public void getProfileById() throws Exception {
         UUID id = UUID.randomUUID();
+        UUID sessionProfileId = UUID.randomUUID();
 
         //Setting ProfileDto
         ProfileDto profileMock = new ProfileDto();
@@ -80,9 +81,9 @@ public class ProfileControllerTest {
 
         when(profileService.findById(id)).thenReturn(profileMock);
 
-        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, "its_learning");
+        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, sessionProfileId, "its_learning");
 
-        verify(profileController, times(1)).getProfileById(id, "its_learning");
+        verify(profileController, times(1)).getProfileById(id, sessionProfileId, "its_learning");
         verify(profileService, times(1)).findById(id);
 
         assertNotNull("Result is null", result);
@@ -99,12 +100,13 @@ public class ProfileControllerTest {
     @Test
     public void getProfileDataByIdShouldReturnNull() throws Exception {
         UUID id = UUID.randomUUID();
+        UUID sessionProfileId = UUID.randomUUID();
 
         when(profileService.findById(id)).thenReturn(null);
 
-        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, "quizzes");
+        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, sessionProfileId, "quizzes");
 
-        verify(profileController, times(1)).getProfileById(id, "quizzes");
+        verify(profileController, times(1)).getProfileById(id, sessionProfileId, "quizzes");
         verify(profileService, times(1)).findById(id);
 
         assertNotNull("Result is null", result);
