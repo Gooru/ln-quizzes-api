@@ -72,10 +72,13 @@ public class ContextEventService {
             List<ContextProfileEvent> events = new ArrayList<>();
 
             if (contextProfile == null) {
-                contextProfile = restartContextProfile(new ContextProfile(), contextId, profileId);
+                contextProfile = new ContextProfile();
+                contextProfile.setContextId(contextId);
+                contextProfile.setProfileId(profileId);
+                contextProfile = restartContextProfile(contextProfile);
             } else if (contextProfile.getIsComplete()) {
                 contextProfileEventService.deleteByContextProfileId(contextProfile.getId());
-                contextProfile = restartContextProfile(contextProfile, contextId, profileId);
+                contextProfile = restartContextProfile(contextProfile);
             } else {
                 events = contextProfileEventService.findByContextProfileId(contextProfile.getId());
             }
@@ -96,23 +99,15 @@ public class ContextEventService {
         }
     }
 
-    private ContextProfile restartContextProfile(ContextProfile contextProfile, UUID contextId, UUID profileId) {
-        Resource firstResource = findFirstResourceByContextId(contextId);
-        contextProfile = setCurrentResource(contextProfile, contextId, profileId, firstResource.getId());
+    private ContextProfile restartContextProfile(ContextProfile contextProfile) {
+        Resource firstResource = findFirstResourceByContextId(contextProfile.getContextId());
+        contextProfile.setCurrentResourceId(firstResource.getId());
+        contextProfile.setIsComplete(false);
         return contextProfileService.save(contextProfile);
     }
 
     private Resource findFirstResourceByContextId(UUID contextId) {
         return resourceService.findFirstByContextIdOrderBySequence(contextId);
-    }
-
-    private ContextProfile setCurrentResource(ContextProfile contextProfile, UUID contextId,
-                                              UUID profileId, UUID resourceId) {
-        contextProfile.setContextId(contextId);
-        contextProfile.setProfileId(profileId);
-        contextProfile.setCurrentResourceId(resourceId);
-        contextProfile.setIsComplete(false);
-        return contextProfile;
     }
 
     public void finishContextEvent(UUID contextId, UUID profileId) {

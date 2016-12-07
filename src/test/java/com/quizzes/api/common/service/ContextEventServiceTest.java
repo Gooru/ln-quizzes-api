@@ -237,30 +237,6 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void setCurrentResource() throws Exception {
-        UUID profileId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
-        UUID resourceId = UUID.randomUUID();
-        UUID id = UUID.randomUUID();
-
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setIsComplete(false);
-        contextProfile.setContextId(contextId);
-        contextProfile.setCurrentResourceId(resourceId);
-        contextProfile.setProfileId(profileId);
-        contextProfile.setId(id);
-
-        ContextProfile result = WhiteboxImpl.invokeMethod(contextEventService, "setCurrentResource",
-                new ContextProfile(), contextId, profileId, resourceId);
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong context ID", contextId, result.getContextId());
-        assertEquals("Wrong profile ID", profileId, result.getProfileId());
-        assertEquals("Wrong resource ID", resourceId, result.getCurrentResourceId());
-        assertFalse("ContextProfile is not complete", result.getIsComplete());
-    }
-
-    @Test
     public void restartContextProfile() throws Exception {
         //Setting Resource
         UUID resourceId = UUID.randomUUID();
@@ -283,7 +259,7 @@ public class ContextEventServiceTest {
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
 
         ContextProfile result = WhiteboxImpl.invokeMethod(contextEventService, "restartContextProfile",
-                new ContextProfile(), contextId, profileId);
+                contextProfile);
 
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
         verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
