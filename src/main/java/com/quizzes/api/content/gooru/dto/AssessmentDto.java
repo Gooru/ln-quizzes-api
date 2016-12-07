@@ -9,6 +9,8 @@ public class AssessmentDto extends CollectionDto {
     @SerializedName("question")
     private List<QuestionDto> questions;
 
+    @SerializedName("owner-id")
+    private String ownerId;
 
     public AssessmentDto() {
     }
@@ -21,4 +23,11 @@ public class AssessmentDto extends CollectionDto {
         this.questions = questions;
     }
 
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
 }

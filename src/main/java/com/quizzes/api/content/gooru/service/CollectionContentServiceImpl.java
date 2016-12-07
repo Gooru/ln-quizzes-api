@@ -1,6 +1,7 @@
 package com.quizzes.api.content.gooru.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
@@ -73,21 +74,40 @@ public class CollectionContentServiceImpl implements CollectionContentService {
     Gson gson;
 
     @Override
-    public Collection createCollectionCopy(String externalCollectionId, Profile owner) {
+    public Collection createCollection(String externalCollectionId, Profile owner) {
         UserDataTokenDto userDataTokenDto = gson.fromJson(owner.getProfileData(), UserDataTokenDto.class);
         String userToken = authenticationRestClient.generateUserToken(userDataTokenDto);
-        String copiedAssessmentId = collectionRestClient.copyAssessment(externalCollectionId, userToken);
-        //TODO: copiedAssessmentId should be used to get the assessment
-        //TODO: but first getAssessment needs to use the user token
-        //TODO: instead of the anonymous token
         AssessmentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId, userToken);
 
+        Collection result = null;
+        if (assessmentDto.getOwnerId() != null){
+            if (assessmentDto.getOwnerId().equals(owner.getExternalId())){
+                result = createCollectionFromAssessment(assessmentDto, externalCollectionId, owner.getId());
+            }
+            else {
+                result =  createCollectionCopy(externalCollectionId, owner.getId(), userToken);
+            }
+        }
+
+        return result;
+    }
+
+    private Collection createCollectionCopy(String externalCollectionId, UUID ownerId, String userToken) {
+
+        String copiedAssessmentId = collectionRestClient.copyAssessment(externalCollectionId, userToken);
+
+        AssessmentDto assessmentDto = collectionRestClient.getAssessment(copiedAssessmentId, userToken);
+
+        return createCollectionFromAssessment(assessmentDto, externalCollectionId, ownerId);
+    }
+
+    private Collection createCollectionFromAssessment(AssessmentDto assessmentDto, String parentCollectionId, UUID ownerId){
         Collection collection = new Collection();
         // TODO: The logic to obtain the correct external_id and external_parent_id must be implemented
         collection.setExternalId(assessmentDto.getId());
-        collection.setExternalParentId(externalCollectionId);
+        collection.setExternalParentId(parentCollectionId);
         collection.setLmsId(Lms.gooru);
-        collection.setOwnerProfileId(owner.getId());
+        collection.setOwnerProfileId(ownerId);
         collection.setIsCollection(false);
         collection.setIsLocked(false);
         Map<String, Object> collectionDataMap = new HashMap<>();
@@ -96,19 +116,19 @@ public class CollectionContentServiceImpl implements CollectionContentService {
 
         collection = collectionService.save(collection);
 
-        copyQuestions(collection, owner, assessmentDto.getQuestions());
+        copyQuestions(collection, ownerId, assessmentDto.getQuestions());
 
         return collection;
     }
 
-    private void copyQuestions(Collection collection, Profile owner, List<QuestionDto> questions) {
+    private void copyQuestions(Collection collection, UUID ownerId, List<QuestionDto> questions) {
         if (questions != null) {
             for (QuestionDto questionDto : questions) {
                 Resource resource = new Resource();
                 resource.setExternalId(questionDto.getId());
                 resource.setLmsId(Lms.gooru);
                 resource.setCollectionId(collection.getId());
-                resource.setOwnerProfileId(owner.getId());
+                resource.setOwnerProfileId(ownerId);
                 resource.setIsResource(false);
                 resource.setSequence((short) questionDto.getSequence());
                 Map<String, Object> resourceDataMap = new HashMap<>();
