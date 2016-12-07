@@ -43,7 +43,7 @@ public class ResourceRepositoryImpl implements ResourceRepository {
     }
 
     @Override
-    public Resource findFirstBySequenceByContextId(UUID contextId) {
+    public Resource findFirstByContextIdOrderBySequence(UUID contextId) {
         return jooq.select(RESOURCE.ID, RESOURCE.SEQUENCE, RESOURCE.IS_RESOURCE, RESOURCE.RESOURCE_DATA)
                 .from(RESOURCE)
                 .join(CONTEXT).on(CONTEXT.COLLECTION_ID.eq(RESOURCE.COLLECTION_ID))

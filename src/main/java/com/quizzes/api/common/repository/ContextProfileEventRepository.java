@@ -16,4 +16,6 @@ public interface ContextProfileEventRepository {
     ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId);
 
     Map<UUID, List<AssigneeEventEntity>> findByContextIdGroupByProfileId(UUID contextId);
+
+    void deleteByContextProfileId(UUID contextProfileId);
 }
