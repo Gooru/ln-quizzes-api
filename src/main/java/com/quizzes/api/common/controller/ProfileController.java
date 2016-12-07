@@ -4,6 +4,7 @@ import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.ProfileService;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,9 @@ public class ProfileController {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<IdResponseDto> getProfileIdByExternalId(
+            @ApiParam(value = "Id of the user in the client from where it comes from.", required = true, name = "external-id")
             @PathVariable String externalId,
+            @ApiParam(value = "Client's name on quizzes.", required = true, name = "client-id")
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
         IdResponseDto result = profileService.findIdByExternalIdAndLmsId(externalId, Lms.valueOf(lmsId));
 
