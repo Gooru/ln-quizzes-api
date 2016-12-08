@@ -1,8 +1,8 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.dto;
 
 import java.util.List;
 
-public class QuestionDataDto {
+public class ResourceDataDto {
 
     private String title;
     private String type;
@@ -10,7 +10,7 @@ public class QuestionDataDto {
     private String body;
     private InteractionDto interaction;
 
-    public QuestionDataDto(String title, String type, List<AnswerDto> correctAnswer,
+    public ResourceDataDto(String title, String type, List<AnswerDto> correctAnswer,
                            String body, InteractionDto interaction) {
         this.title = title;
         this.type = type;

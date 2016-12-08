@@ -1,23 +1,19 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.quizzes.api.common.dto.AnswerDto;
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
-import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
-import com.quizzes.api.common.utils.JsonUtil;
-import org.jooq.tools.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -29,6 +25,7 @@ import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +41,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ContextEventService.class, Gson.class})
+@PrepareForTest(ContextEventService.class)
 public class ContextEventServiceTest {
 
     @InjectMocks
@@ -72,10 +69,7 @@ public class ContextEventServiceTest {
     ResourceService resourceService;
 
     @Mock
-    JsonUtil jsonUtil;
-
-    @Mock
-    Gson gson;
+    Gson gson = new Gson();
 
     @Mock
     AssigneeEventEntity assigneeEventEntity;
@@ -280,95 +274,166 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void convertContextProfileToMap() throws Exception {
-        //Setting ContextProfileEvent list
-        long timeSpent = 123;
-        int reaction = 3;
-        int score = 0;
+    public void onResourceEvent() throws Exception {
+        //Params
+        UUID contextId = UUID.randomUUID();
+        UUID profileId = UUID.randomUUID();
+
+        //Creating contextProfile
+        UUID contextProfileId = UUID.randomUUID();
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setId(contextProfileId);
+
+        //Creating resource
         UUID resourceId = UUID.randomUUID();
-        String eventData = "{\n" +
-                "      \"score\": " + score + ",\n" +
-                "      \"answer\": [\n" +
-                "        {\n" +
-                "          \"value\": \"A\"\n" +
-                "        }\n" +
-                "      ],\n" +
-                "      \"reaction\": 3,\n" +
-                "      \"c\": " + timeSpent + ",\n" +
-                "      \"resourceId\": \"" + resourceId + "\"\n" +
-                "    }";
+        Resource resource = new Resource();
+        resource.setId(resourceId);
 
-        ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), eventData, null);
+        //Body values
+        UUID bodyResourceId = UUID.randomUUID(); //Last resource id
+        long timeSpent = 1000;
+        int reaction = 3;
+        String answerValue = "D";
 
-        List<ContextProfileEvent> list = new ArrayList<>();
-        list.add(contextProfileEvent);
+        //Setting user answer
+        List<AnswerDto> answers = new ArrayList<>();
+        AnswerDto answer = new AnswerDto();
+        answer.setValue(answerValue);
+        answers.add(answer);
 
-        //Setting return value
-        Map<String, Object> mapResponse = new HashMap<>();
-        mapResponse.put("answer", "[{\"value\":\"A\"]");
-        mapResponse.put("reaction", reaction);
-        mapResponse.put("resourceId", resourceId);
-        mapResponse.put("timeSpent", timeSpent);
-        mapResponse.put("score", score);
+        //Setting resource
+        PostRequestResourceDto resourceDto = new PostRequestResourceDto();
+        resourceDto.setTimeSpent(timeSpent);
+        resourceDto.setReaction(reaction);
+        resourceDto.setResourceId(bodyResourceId);
+        resourceDto.setAnswer(answers);
 
-        when(jsonParser.parseMap(any(String.class))).thenReturn(mapResponse);
+        //Previous resource pojo
+        Resource previousResource = new Resource();
+        previousResource.setId(bodyResourceId);
+        previousResource.setResourceData("{\n" +
+                "\t\"body\":\"Body\",\n" +
+                "\t\"type\":\"single_choice\",\n" +
+                "\t\"correctAnswer\":[{\"value\":\"D\"}],\n" +
+                "\t\"title\":\"Body\",\n" +
+                "\t\"interaction\": {\n" +
+                "\t\t\"maxChoices\":0,\n" +
+                "\t\t\"choices\":[\n" +
+                "\t\t\t{\"value\":\"A\",\"sequence\":1,\"text\":\"A\",\"isFixed\":true},\n" +
+                "\t\t\t{\"value\":\"D\",\"sequence\":2,\"text\":\"D\",\"isFixed\":true}\n" +
+                "\t\t],\n" +
+                "\t\t\"prompt\":\"\",\"shuffle\":false\n" +
+                "\t}\n" +
+                "}");
 
-        List<Map<String, Object>> contextProfilesMap =
-                WhiteboxImpl.invokeMethod(contextEventService, "convertContextProfileToMap", list);
+        //Setting body
+        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
+        body.setPreviousResource(resourceDto);
 
-        verify(jsonParser, times(1)).parseMap(any(String.class));
+        when(contextProfileService.findByContextIdAndProfileId(contextId, profileId)).thenReturn(contextProfile);
+        when(resourceService.findById(bodyResourceId)).thenReturn(previousResource);
+        when(resourceService.findById(resourceId)).thenReturn(resource);
+        when(contextProfileEventService
+                .findByContextProfileIdAndResourceId(contextProfileId, bodyResourceId)).thenReturn(null);
 
-        Map<String, Object> result = contextProfilesMap.get(0);
-        assertEquals("Wrong number of context profiles", 1, contextProfilesMap.size());
-        assertEquals("Wrong resourceId", resourceId, result.get("resourceId"));
-        assertEquals("Wrong reaction", reaction, result.get("reaction"));
-        assertEquals("Wrong timeSpent", timeSpent, result.get("timeSpent"));
-        assertEquals("Wrong score", score, result.get("score"));
-        assertEquals("Wrong answer", "[{\"value\":\"A\"]", result.get("answer"));
+        contextEventService.onResourceEvent(contextId, resourceId, profileId, body);
+
+        verify(contextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(resourceService, times(2)).findById(any(UUID.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(contextProfileEventService, times(1))
+                .findByContextProfileIdAndResourceId(contextProfileId, bodyResourceId);
+        verify(contextProfileEventService, times(1)).save(any(ContextProfileEvent.class));
     }
 
     @Test
-    public void onResourceEvent() throws Exception {
-        Resource resource = new Resource();
-        ContextProfile contextProfile = new ContextProfile();
-        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
-        UUID resourceId = UUID.randomUUID();
-        ;
-        PostRequestResourceDto resourceDto = new PostRequestResourceDto();
-        resourceDto.setResourceId(resourceId);
-        body.setPreviousResource(resourceDto);
+    public void calculateScoreByQuestionTypeTrueFalseRightAnswer() throws Exception {
+        String questionType = "true_false";
 
-        ContextProfileEvent event = new ContextProfileEvent();
+        //Same answer for both
+        AnswerDto answer = new AnswerDto();
+        answer.setValue("A");
 
-        when(jsonUtil.removePropertyFromObject(any(Object.class), any(String.class))).thenReturn(new JsonObject());
+        List<AnswerDto> userAnswers = Arrays.asList(answer);
+        List<AnswerDto> correctAnswers = Arrays.asList(answer);
 
-        Map<String, Object> mapAnswers = new HashMap<>();
-        mapAnswers.put("correctAnswer", "[{\"value\":\"test\"}]");
+        int result =
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                        questionType, userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
 
-        JSONObject object = new JSONObject();
-        object.put("correctAnswer", "[{\"value\":\"test\"}]");
+    @Test
+    public void calculateScoreByQuestionTypeTrueFalseWrongAnswer() throws Exception {
+        String questionType = "true_false";
 
-        JsonElement jsonAnswers = new Gson().toJsonTree(mapAnswers.get("correctAnswer"));
-        JsonArray correctAnswers = new JsonArray();
-        correctAnswers.add(jsonAnswers);
+        AnswerDto userAnswer = new AnswerDto();
+        userAnswer.setValue("A");
+        List<AnswerDto> userAnswers = Arrays.asList(userAnswer);
 
-        when(gson.toJsonTree(any(Map.class))).thenReturn(correctAnswers);
+        AnswerDto correctAnswer = new AnswerDto();
+        correctAnswer.setValue("B");
+        List<AnswerDto> correctAnswers = Arrays.asList(correctAnswer);
 
-        when(contextProfileService.
-                findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
-        when(resourceService.findById(any(UUID.class))).thenReturn(resource);
-        when(contextProfileEventService.
-                findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class))).thenReturn(event);
+        int result =
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                        questionType, userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
 
-        contextEventService.onResourceEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), body);
+    @Test
+    public void calculateScoreByQuestionTypeSingleChoiceRightAnswer() throws Exception {
+        String questionType = "single_choice";
 
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(2)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(jsonParser, times(1)).parseMap(any(String.class));
-        verify(contextProfileEventService, times(1)).findByContextProfileIdAndResourceId(any(UUID.class), any(UUID.class));
-        verify(contextProfileEventService, times(1)).save(any(ContextProfileEvent.class));
+        //Same answer for both
+        AnswerDto answer = new AnswerDto();
+        answer.setValue("A");
+
+        List<AnswerDto> userAnswers = Arrays.asList(answer);
+        List<AnswerDto> correctAnswers = Arrays.asList(answer);
+
+        int result =
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                        questionType, userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateScoreByQuestionTypeSingleChoiceWrongAnswer() throws Exception {
+        String questionType = "single_choice";
+
+        AnswerDto userAnswer = new AnswerDto();
+        userAnswer.setValue("A");
+        List<AnswerDto> userAnswers = Arrays.asList(userAnswer);
+
+        AnswerDto correctAnswer = new AnswerDto();
+        correctAnswer.setValue("B");
+        List<AnswerDto> correctAnswers = Arrays.asList(correctAnswer);
+
+        int result =
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                        questionType, userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateSimpleOptionRightAnswer() throws Exception {
+        String userAnswer = "A";
+        String correctAnswer = "A";
+
+        int result =
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateSimpleOption", userAnswer, correctAnswer);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateSimpleOptionWrongAnswer() throws Exception {
+        String userAnswer = "A";
+        String correctAnswer = "B";
+
+        int result =
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateSimpleOption", userAnswer, correctAnswer);
+        assertEquals("Score should be 0", 0, result);
     }
 
     @Test
@@ -406,10 +471,27 @@ public class ContextEventServiceTest {
         //Setting events
         UUID currentResourceId = UUID.randomUUID();
 
+        //Body values
+        UUID bodyResourceId = UUID.randomUUID(); //Last resource id
+        long timeSpent = 1000;
+        int reaction = 3;
+        int score = 100;
+        String answerValue = "D";
+
+        String eventData = "{\n" +
+                "\t\t\"resourceId\": \"" + bodyResourceId + "\",\n" +
+                "\t\t\"timeSpent\": " + timeSpent + ",\n" +
+                "\t\t\"reaction\": " + reaction + ",\n" +
+                "\t\t\"score\": " + score + ",\n" +
+                "\t\t\"answer\": [\n" +
+                "\t\t\t{\"value\":\"" + answerValue + "\"}\n" +
+                "\t\t]\n" +
+                "\t}";
+
         //Setting entity values
         AssigneeEventEntity assigneeEventEntity = Mockito.spy(AssigneeEventEntity.class);
         when(assigneeEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
-        when(assigneeEventEntity.getEventData()).thenReturn("jsonMock");
+        when(assigneeEventEntity.getEventData()).thenReturn(eventData);
         events.add(assigneeEventEntity);
 
         //Adding students
@@ -423,30 +505,30 @@ public class ContextEventServiceTest {
         contextMock.setId(contextId);
         contextMock.setCollectionId(collectionId);
 
-        PostResponseResourceDto postResponseResourceDto = new PostResponseResourceDto();
-        postResponseResourceDto.setScore(0);
-        postResponseResourceDto.setReaction(3);
-
         when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
         when(contextService.findById(contextId)).thenReturn(contextMock);
-        when(gson.fromJson(any(String.class), any())).thenReturn(postResponseResourceDto);
 
         ContextEventsResponseDto result = contextEventService.getContextEvents(contextId);
 
         verify(contextProfileEventService, times(1)).findByContextId(contextId);
         verify(contextService, times(1)).findById(contextId);
-        verify(gson, times(1)).fromJson(any(String.class), any());
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertEquals("Wrong size of events ID", 1,result.getProfileEvents().size());
+        assertEquals("Wrong size of events ID", 1, result.getProfileEvents().size());
 
         ProfileEventResponseDto profileResult1 = result.getProfileEvents().get(0);
         assertEquals("Wrong event size for assigneeId1", 1, profileResult1.getEvents().size());
         assertEquals("Wrong profile ID for assigneeId1", assigneeId1, profileResult1.getProfileId());
         assertEquals("Wrong current resource", currentResourceId, profileResult1.getCurrentResourceId());
-        assertEquals("Wrong score", 3, profileResult1.getEvents().get(0).getReaction());
+
+        PostResponseResourceDto eventResult = profileResult1.getEvents().get(0);
+        assertEquals("Wrong reaction", 3, eventResult.getReaction());
+        assertEquals("Wrong timeSpent", 1000, eventResult.getTimeSpent());
+        assertEquals("Wrong resource Id", bodyResourceId, eventResult.getResourceId());
+        assertEquals("Wrong score", 100, eventResult.getScore());
+        assertEquals("Wrong answer value", answerValue, eventResult.getAnswer().get(0).getValue());
     }
 
     @Test
@@ -482,7 +564,6 @@ public class ContextEventServiceTest {
 
         verify(contextProfileEventService, times(1)).findByContextId(contextId);
         verify(contextService, times(1)).findById(contextId);
-        verify(gson, times(0)).fromJson(any(String.class), any());
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong context ID", contextId, result.getContextId());

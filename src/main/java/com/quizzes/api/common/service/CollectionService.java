@@ -1,10 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
-import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
-import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.dto.CollectionGetResponseDto;
+import com.quizzes.api.common.dto.ResourceDto;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.CollectionRepository;
@@ -52,17 +50,17 @@ public class CollectionService {
         return collectionRepository.findById(id);
     }
 
-    public CollectionDataDto getCollection(UUID collectionId) {
-        CollectionDataDto result = null;
+    public CollectionGetResponseDto getCollection(UUID collectionId) {
+        CollectionGetResponseDto result = null;
         Collection collection = collectionRepository.findById(collectionId);
         if (collection != null) {
-            result = new CollectionDataDto();
+            result = new CollectionGetResponseDto();
             result.setId(collectionId);
             result.setIsCollection(collection.getIsCollection());
             List<Resource> resources = resourceService.findByCollectionId(collectionId);
-            List<CollectionDataResourceDto> resourceList =
+            List<ResourceDto> resourceList =
                     resources.stream().map(resource -> {
-                        CollectionDataResourceDto dataResourceDto = new CollectionDataResourceDto();
+                        ResourceDto dataResourceDto = new ResourceDto();
                         dataResourceDto.setId(resource.getId());
                         dataResourceDto.setIsResource(resource.getIsResource());
                         dataResourceDto.setSequence(resource.getSequence());

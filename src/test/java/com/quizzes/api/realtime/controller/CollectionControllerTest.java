@@ -1,8 +1,8 @@
 package com.quizzes.api.realtime.controller;
 
 import com.google.common.collect.Lists;
-import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
-import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
+import com.quizzes.api.common.dto.CollectionGetResponseDto;
+import com.quizzes.api.common.dto.ResourceDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.common.service.ResourceService;
@@ -53,25 +53,25 @@ public class CollectionControllerTest {
         Map<String, Object> map = new HashMap<>();
         map.put("key", "value");
 
-        CollectionDataResourceDto resource1 = new CollectionDataResourceDto();
+        ResourceDto resource1 = new ResourceDto();
         UUID resourceId1 = UUID.randomUUID();
         resource1.setId(resourceId1);
         resource1.setSequence(1);
         resource1.setIsResource(false);
         resource1.setQuestions(map);
 
-        CollectionDataResourceDto resource2 = new CollectionDataResourceDto();
+        ResourceDto resource2 = new ResourceDto();
         UUID resourceId2 = UUID.randomUUID();
         resource2.setId(resourceId2);
         resource2.setIsResource(false);
         resource2.setSequence(2);
         resource2.setQuestions(map);
 
-        List<CollectionDataResourceDto> resources = new ArrayList<>();
+        List<ResourceDto> resources = new ArrayList<>();
         resources.add(resource1);
         resources.add(resource2);
 
-        CollectionDataDto collectionDto = new CollectionDataDto();
+        CollectionGetResponseDto collectionDto = new CollectionGetResponseDto();
         UUID collectionId = UUID.randomUUID();
         collectionDto.setId(collectionId);
         collectionDto.setIsCollection(false);
@@ -79,7 +79,7 @@ public class CollectionControllerTest {
 
         when(collectionService.getCollection(any(UUID.class))).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDataDto> result =
+        ResponseEntity<CollectionGetResponseDto> result =
                 collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
 
         verify(collectionService, times(1)).getCollection(any(UUID.class));
@@ -87,23 +87,23 @@ public class CollectionControllerTest {
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
 
-        CollectionDataDto response = result.getBody();
+        CollectionGetResponseDto response = result.getBody();
         assertNotNull("Response Body is Null", response);
         assertFalse("IsCollection is true", response.getIsCollection());
         assertEquals("Wrong size in resources", 2, response.getResources().size());
 
-        CollectionDataResourceDto responseResoource = response.getResources().get(1);
+        ResourceDto responseResoource = response.getResources().get(1);
         assertEquals("Wrong size in resources", 2, responseResoource.getSequence());
         assertEquals("Wrong id for resource 2", resourceId2, responseResoource.getId());
         assertFalse("Wrong id for resource 2", responseResoource.getIsResource());
-        assertSame(result.getBody().getClass(), CollectionDataDto.class);
+        assertSame(result.getBody().getClass(), CollectionGetResponseDto.class);
     }
 
     @Test
     public void getCollectionNull() throws Exception {
         when(collectionService.getCollection(any(UUID.class))).thenReturn(null);
 
-        ResponseEntity<CollectionDataDto> result =
+        ResponseEntity<CollectionGetResponseDto> result =
                 collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
 
         verify(collectionService, times(1)).getCollection(any(UUID.class));

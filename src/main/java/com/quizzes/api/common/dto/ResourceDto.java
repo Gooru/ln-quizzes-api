@@ -1,4 +1,4 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.dto;
 
 import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModelProperty;
@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.util.Map;
 import java.util.UUID;
 
-public class CollectionDataResourceDto {
+public class ResourceDto {
 
     private UUID id;
 
@@ -18,9 +18,9 @@ public class CollectionDataResourceDto {
     @SerializedName("questionData")
     private Map<String, Object> questions;
 
-    private transient QuestionDataDto questionData;
+    private transient ResourceDataDto questionData;
 
-    public CollectionDataResourceDto() {
+    public ResourceDto() {
     }
 
     public UUID getId() {
@@ -55,11 +55,11 @@ public class CollectionDataResourceDto {
         this.questions = questions;
     }
 
-    public QuestionDataDto getQuestionData() {
+    public ResourceDataDto getQuestionData() {
         return questionData;
     }
 
-    public void setQuestionData(QuestionDataDto questionData) {
+    public void setQuestionData(ResourceDataDto questionData) {
         this.questionData = questionData;
     }
 }

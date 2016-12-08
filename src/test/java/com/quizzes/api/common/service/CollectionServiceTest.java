@@ -1,8 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
-import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
-import com.quizzes.api.common.dto.controller.response.CollectionDataResourceDto;
+import com.quizzes.api.common.dto.CollectionGetResponseDto;
+import com.quizzes.api.common.dto.ResourceDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
@@ -125,7 +125,7 @@ public class CollectionServiceTest {
     public void getCollectionNull() throws Exception {
         when(collectionRepository.findById(any(UUID.class))).thenReturn(null);
 
-        CollectionDataDto result = collectionService.getCollection(UUID.randomUUID());
+        CollectionGetResponseDto result = collectionService.getCollection(UUID.randomUUID());
 
         verify(collectionRepository, times(1)).findById(any(UUID.class));
         verify(resourceService, times(0)).findByCollectionId(any(UUID.class));
@@ -165,7 +165,7 @@ public class CollectionServiceTest {
         resources.add(resource2);
         when(resourceService.findByCollectionId(collection.getId())).thenReturn(resources);
 
-        CollectionDataDto result = collectionService.getCollection(collectionId);
+        CollectionGetResponseDto result = collectionService.getCollection(collectionId);
 
         verify(collectionRepository, times(1)).findById(any(UUID.class));
         verify(resourceService, times(1)).findByCollectionId(collectionId);
@@ -175,11 +175,11 @@ public class CollectionServiceTest {
         assertFalse("isCollection field is true", result.getIsCollection());
         assertEquals("Resource list size is wrong", 2, result.getResources().size());
 
-        CollectionDataResourceDto resultResource = result.getResources().get(0);
+        ResourceDto resultResource = result.getResources().get(0);
         assertFalse("IsResource field is true", resultResource.getIsResource());
         assertEquals("Wrong resource id", resourceId, resultResource.getId());
         assertEquals("Wrong sequence", 1, resultResource.getSequence());
-        assertSame(result.getClass(), CollectionDataDto.class);
+        assertSame(result.getClass(), CollectionGetResponseDto.class);
     }
 
     @Test

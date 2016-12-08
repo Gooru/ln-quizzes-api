@@ -22,7 +22,6 @@ public enum QuestionTypeEnum {
     @SerializedName("none")
     None ("none");
 
-
     private final String literal;
 
     private QuestionTypeEnum(String literal) {
@@ -31,6 +30,17 @@ public enum QuestionTypeEnum {
 
     public String getLiteral() {
         return literal;
+    }
+
+    public static QuestionTypeEnum fromString(String text) {
+        if (text != null) {
+            for (QuestionTypeEnum b : QuestionTypeEnum.values()) {
+                if (text.equalsIgnoreCase(b.getLiteral())) {
+                    return b;
+                }
+            }
+        }
+        return null;
     }
 
 }
