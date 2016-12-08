@@ -3,25 +3,29 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
+import com.quizzes.api.common.dto.PostResponseResourceDto;
+import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.response.AnswerDto;
 import com.quizzes.api.common.exception.InternalServerException;
+import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.utils.JsonUtil;
-import org.jooq.tools.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -63,35 +67,47 @@ public class ContextEventService {
     public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
         try {
             Context context = contextService.findById(contextId);
-
             ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
-            //TODO: If context_profile is complete we need to remove all the events
+
+            List<ContextProfileEvent> events = new ArrayList<>();
 
             if (contextProfile == null) {
-                Resource firstResource = resourceService.findFirstBySequenceByContextId(contextId);
                 contextProfile = new ContextProfile();
                 contextProfile.setContextId(contextId);
                 contextProfile.setProfileId(profileId);
-                contextProfile.setCurrentResourceId(firstResource.getId());
-                contextProfile = contextProfileService.save(contextProfile);
+                contextProfile = restartContextProfile(contextProfile);
+            } else if (contextProfile.getIsComplete()) {
+                contextProfileEventService.deleteByContextProfileId(contextProfile.getId());
+                contextProfile = restartContextProfile(contextProfile);
+            } else {
+                events = contextProfileEventService.findByContextProfileId(contextProfile.getId());
             }
 
             CollectionDto collection = new CollectionDto();
             collection.setId(context.getCollectionId().toString());
-
-            List<ContextProfileEvent> events = contextProfileEventService
-                    .findByContextProfileId(contextProfile.getId());
 
             StartContextEventResponseDto result = new StartContextEventResponseDto();
             result.setId(contextId);
             result.setCurrentResourceId(contextProfile.getCurrentResourceId());
             result.setCollection(collection);
             result.setEventsResponse(convertContextProfileToMap(events));
+
             return result;
         } catch (Exception e) {
             logger.error("We could not start the context " + contextId + " for user " + profileId, e);
             throw new InternalServerException("We could not start the context " + contextId + ".", e);
         }
+    }
+
+    private ContextProfile restartContextProfile(ContextProfile contextProfile) {
+        Resource firstResource = findFirstResourceByContextId(contextProfile.getContextId());
+        contextProfile.setCurrentResourceId(firstResource.getId());
+        contextProfile.setIsComplete(false);
+        return contextProfileService.save(contextProfile);
+    }
+
+    private Resource findFirstResourceByContextId(UUID contextId) {
+        return resourceService.findFirstByContextIdOrderBySequence(contextId);
     }
 
     public void finishContextEvent(UUID contextId, UUID profileId) {
@@ -120,6 +136,41 @@ public class ContextEventService {
         } catch (Exception e) {
             logger.error("We could not register the event for the resource " + resourceId, e);
             throw new InternalServerException("We could not register the event for the resource " + resourceId + ".", e);
+        }
+    }
+
+    public ContextEventsResponseDto getContextEvents(UUID contextId) {
+        try {
+            Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
+                    contextProfileEventService.findByContextId(contextId);
+            ContextEventsResponseDto response = new ContextEventsResponseDto();
+            response.setContextId(contextId);
+
+            Context context = contextService.findById(contextId);
+            CollectionDto collection = new CollectionDto();
+            collection.setId(context.getCollectionId().toString());
+            response.setCollection(collection);
+
+            List<ProfileEventResponseDto> profileEvents = assigneeEvents.entrySet().stream().map(entity -> {
+                List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
+                ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
+                profileEvent.setProfileId(entity.getKey());
+                if (!entity.getValue().isEmpty()) {
+                    profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
+                }
+
+                profileEvent.setEvents(assigneeEventEntityList.stream()
+                        .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
+                        .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
+                                PostResponseResourceDto.class)).collect(Collectors.toList()));
+                return profileEvent;
+
+            }).collect(Collectors.toList());
+            response.setProfileEvents(profileEvents);
+            return response;
+        } catch (Exception e) {
+            logger.error("We could not get the events for context " + contextId + ".", e);
+            throw new InternalServerException("We could not get the events for context " + contextId + ".", e);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
+import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.repository.ContextProfileEventRepository;
 import org.jooq.DSLContext;
@@ -7,8 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
 import static com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
 
 @Repository
@@ -26,6 +29,16 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     }
 
     @Override
+    public Map<UUID, List<AssigneeEventEntity>> findByContextIdGroupByProfileId(UUID contextId) {
+        return jooq.select(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"),
+                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
+                .from(CONTEXT_PROFILE)
+                .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
+                .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
+                .fetchGroups(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"), AssigneeEventEntity.class);
+    }
+
+    @Override
     public ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
         return jooq.select(CONTEXT_PROFILE_EVENT.ID, CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID,
                 CONTEXT_PROFILE_EVENT.RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
@@ -33,6 +46,13 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
                 .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
                 .and(CONTEXT_PROFILE_EVENT.RESOURCE_ID.eq(resourceId))
                 .fetchOneInto(ContextProfileEvent.class);
+    }
+
+    @Override
+    public void deleteByContextProfileId(UUID contextProfileId) {
+        jooq.deleteFrom(CONTEXT_PROFILE_EVENT)
+                .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
+                .execute();
     }
 
     @Override

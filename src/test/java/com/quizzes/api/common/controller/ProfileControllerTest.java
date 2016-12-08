@@ -1,6 +1,7 @@
 package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.ProfileService;
 import com.quizzes.api.common.service.content.CollectionContentService;
@@ -59,6 +60,54 @@ public class ProfileControllerTest {
 
         verify(profileController, times(1)).getProfileIdByExternalId(any(String.class), any(String.class));
         verify(profileService, times(1)).findIdByExternalIdAndLmsId(any(String.class), any(Lms.class));
+
+        assertNotNull("Result is null", result);
+        assertEquals("Http status is not 200", HttpStatus.OK, result.getStatusCode());
+        assertNull("Id is not null", result.getBody());
+    }
+
+    @Test
+    public void getProfileById() throws Exception {
+        UUID id = UUID.randomUUID();
+        UUID sessionProfileId = UUID.randomUUID();
+
+        //Setting ProfileDto
+        ProfileDto profileMock = new ProfileDto();
+        profileMock.setId(id.toString());
+        profileMock.setEmail("david@quizzes.com");
+        profileMock.setFirstName("David");
+        profileMock.setLastName("Artavia");
+        profileMock.setUsername("dartavia");
+
+        when(profileService.findById(id)).thenReturn(profileMock);
+
+        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, sessionProfileId, "its_learning");
+
+        verify(profileController, times(1)).getProfileById(id, sessionProfileId, "its_learning");
+        verify(profileService, times(1)).findById(id);
+
+        assertNotNull("Result is null", result);
+        assertEquals("Http status is not 200", HttpStatus.OK, result.getStatusCode());
+
+        ProfileDto resultBody = result.getBody();
+        assertEquals("Wrong id", id.toString(), resultBody.getId());
+        assertEquals("Wrong first name", "David", resultBody.getFirstName());
+        assertEquals("Wrong last name", "Artavia", resultBody.getLastName());
+        assertEquals("Wrong email", "david@quizzes.com", resultBody.getEmail());
+        assertEquals("Wrong username", "dartavia", resultBody.getUsername());
+    }
+
+    @Test
+    public void getProfileDataByIdShouldReturnNull() throws Exception {
+        UUID id = UUID.randomUUID();
+        UUID sessionProfileId = UUID.randomUUID();
+
+        when(profileService.findById(id)).thenReturn(null);
+
+        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, sessionProfileId, "quizzes");
+
+        verify(profileController, times(1)).getProfileById(id, sessionProfileId, "quizzes");
+        verify(profileService, times(1)).findById(id);
 
         assertNotNull("Result is null", result);
         assertEquals("Http status is not 200", HttpStatus.OK, result.getStatusCode());
