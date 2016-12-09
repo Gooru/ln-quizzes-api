@@ -114,6 +114,39 @@ public class ContextController {
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
+    @ApiOperation(
+            value = "Get Assigned Context by ID",
+            notes = "Gets a Context by the Context ID from the set of assigned contexts.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Body", response = CreatedContextGetResponseDto.class)
+    })
+    @RequestMapping(path = "/v1/context/created/{contextId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CreatedContextGetResponseDto> findCreatedContextByContextId(
+            @PathVariable UUID contextId,
+            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+
+        CreatedContextGetResponseDto result = contextService.findCreatedContextByContextId(contextId);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get Assigned Context by ID",
+            notes = "Gets a Context by the Context ID from the set of assigned contexts.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Body", response = ContextAssignedGetResponseDto.class)
+    })
+    @RequestMapping(path = "/v1/context/assigned/{contextId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ContextAssignedGetResponseDto> getAssignedContextByContextId(
+            @PathVariable UUID contextId,
+            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+        ContextAssignedGetResponseDto result = contextService.getAssignedContextByContextId(contextId);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
     @ApiOperation(value = "Get assigned contexts",
             notes = "Get all the ‘active’ contexts assigned to the assignee profile.")
     @ApiResponses({
