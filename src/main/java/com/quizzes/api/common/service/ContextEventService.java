@@ -9,7 +9,7 @@ import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.AnswerDto;
-import com.quizzes.api.common.dto.ResourceDataDto;
+import com.quizzes.api.common.dto.QuestionDataDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
@@ -174,7 +174,7 @@ public class ContextEventService {
         PostRequestResourceDto resourceData = body.getPreviousResource();
 
         Resource previousResource = resourceService.findById(resourceData.getResourceId());
-        ResourceDataDto previousResourceData = gson.fromJson(previousResource.getResourceData(), ResourceDataDto.class);
+        QuestionDataDto previousResourceData = gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
 
         ContextProfileEvent event = contextProfileEventService.
                 findByContextProfileIdAndResourceId(contextProfileId, previousResource.getId());

@@ -14,11 +14,7 @@ public class ResourceDto {
 
     private int sequence;
 
-    @ApiModelProperty(hidden = true)
-    @SerializedName("questionData")
-    private Map<String, Object> questions;
-
-    private transient ResourceDataDto questionData;
+    private QuestionDataDto questionData;
 
     public ResourceDto() {
     }
@@ -47,19 +43,11 @@ public class ResourceDto {
         this.sequence = sequence;
     }
 
-    public Map<String, Object> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(Map<String, Object> questions) {
-        this.questions = questions;
-    }
-
-    public ResourceDataDto getQuestionData() {
+    public QuestionDataDto getQuestionData() {
         return questionData;
     }
 
-    public void setQuestionData(ResourceDataDto questionData) {
+    public void setQuestionData(QuestionDataDto questionData) {
         this.questionData = questionData;
     }
 }

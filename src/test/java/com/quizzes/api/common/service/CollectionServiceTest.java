@@ -1,6 +1,7 @@
 package com.quizzes.api.common.service;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import com.quizzes.api.common.dto.CollectionGetResponseDto;
 import com.quizzes.api.common.dto.ResourceDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -15,7 +16,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
@@ -35,7 +37,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(CollectionService.class)
 public class CollectionServiceTest {
 
     @InjectMocks
@@ -55,6 +58,9 @@ public class CollectionServiceTest {
 
     @Mock
     private JsonParser jsonParser;
+
+    @Mock
+    Gson gson = new Gson();
 
     @Test
     public void findByExternalId() throws Exception {
@@ -147,7 +153,7 @@ public class CollectionServiceTest {
         resource1.setId(resourceId);
         resource1.setIsResource(false);
         resource1.setSequence((short) 1);
-        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"SingleChoice\"," +
+        resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"single_choice\"," +
                 "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
                 " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
                 " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\",\"isFixed\":" +
@@ -158,7 +164,7 @@ public class CollectionServiceTest {
         resource2.setId(UUID.randomUUID());
         resource2.setIsResource(false);
         resource2.setSequence((short) 1);
-        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"True/False\",\"correctAnswer\":" +
+        resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"true_false\",\"correctAnswer\":" +
                 " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
                 " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
                 "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");

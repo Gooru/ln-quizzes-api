@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.CollectionGetResponseDto;
+import com.quizzes.api.common.dto.QuestionDataDto;
 import com.quizzes.api.common.dto.ResourceDto;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
@@ -64,7 +65,8 @@ public class CollectionService {
                         dataResourceDto.setId(resource.getId());
                         dataResourceDto.setIsResource(resource.getIsResource());
                         dataResourceDto.setSequence(resource.getSequence());
-                        dataResourceDto.setQuestions(jsonParser.parseMap(resource.getResourceData()));
+                        dataResourceDto.setQuestionData(
+                                gson.fromJson(resource.getResourceData(), QuestionDataDto.class));
                         return dataResourceDto;
                     }).collect(Collectors.toList());
             result.setResources(resourceList);

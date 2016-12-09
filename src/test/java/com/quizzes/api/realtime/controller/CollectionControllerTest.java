@@ -1,7 +1,10 @@
 package com.quizzes.api.realtime.controller;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.quizzes.api.common.dto.AnswerDto;
 import com.quizzes.api.common.dto.CollectionGetResponseDto;
+import com.quizzes.api.common.dto.QuestionDataDto;
 import com.quizzes.api.common.dto.ResourceDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.CollectionService;
@@ -12,15 +15,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -35,10 +37,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(CollectionController.class)
 public class CollectionControllerTest {
     @InjectMocks
-    private CollectionController collectionController = new CollectionController();
+    private CollectionController collectionController = Mockito.spy(CollectionController.class);
 
     @Mock
     private CollectionService collectionService;
@@ -46,26 +49,37 @@ public class CollectionControllerTest {
     @Mock
     private ResourceService resourceService;
 
+    @Mock
+    Gson gson = new Gson();
+
     HttpServletResponse response = mock(HttpServletResponse.class);
 
     @Test
     public void getCollection() throws Exception {
-        Map<String, Object> map = new HashMap<>();
-        map.put("key", "value");
+        AnswerDto answer = new AnswerDto();
+        answer.setValue("A");
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(answer);
+
+        QuestionDataDto questionDataDto = new QuestionDataDto();
+        questionDataDto.setTitle("question 1");
+        questionDataDto.setType("true_false");
+        questionDataDto.setBody("question 1");
+        questionDataDto.setCorrectAnswer(answers);
 
         ResourceDto resource1 = new ResourceDto();
         UUID resourceId1 = UUID.randomUUID();
         resource1.setId(resourceId1);
         resource1.setSequence(1);
         resource1.setIsResource(false);
-        resource1.setQuestions(map);
+        resource1.setQuestionData(questionDataDto);
 
         ResourceDto resource2 = new ResourceDto();
         UUID resourceId2 = UUID.randomUUID();
         resource2.setId(resourceId2);
         resource2.setIsResource(false);
         resource2.setSequence(2);
-        resource2.setQuestions(map);
+        resource1.setQuestionData(questionDataDto);
 
         List<ResourceDto> resources = new ArrayList<>();
         resources.add(resource1);
@@ -91,11 +105,15 @@ public class CollectionControllerTest {
         assertNotNull("Response Body is Null", response);
         assertFalse("IsCollection is true", response.getIsCollection());
         assertEquals("Wrong size in resources", 2, response.getResources().size());
+        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getQuestionData().getType());
+        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getQuestionData().getTitle());
 
-        ResourceDto responseResoource = response.getResources().get(1);
-        assertEquals("Wrong size in resources", 2, responseResoource.getSequence());
-        assertEquals("Wrong id for resource 2", resourceId2, responseResoource.getId());
-        assertFalse("Wrong id for resource 2", responseResoource.getIsResource());
+        ResourceDto responseResource = response.getResources().get(1);
+        assertEquals("Wrong size in resources", 2, responseResource.getSequence());
+        assertEquals("Wrong id for resource 2", resourceId2, responseResource.getId());
+        assertFalse("Wrong id for resource 2", responseResource.getIsResource());
+        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getQuestionData().getType());
+        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getQuestionData().getTitle());
         assertSame(result.getBody().getClass(), CollectionGetResponseDto.class);
     }
 
