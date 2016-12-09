@@ -417,22 +417,22 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void calculateSimpleOptionRightAnswer() throws Exception {
+    public void calculateScoreForSimpleOptionRightAnswer() throws Exception {
         String userAnswer = "A";
         String correctAnswer = "A";
 
         int result =
-                WhiteboxImpl.invokeMethod(contextEventService, "calculateSimpleOption", userAnswer, correctAnswer);
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForSimpleOption", userAnswer, correctAnswer);
         assertEquals("Score should be 100", 100, result);
     }
 
     @Test
-    public void calculateSimpleOptionWrongAnswer() throws Exception {
+    public void calculateScoreForSimpleOptionWrongAnswer() throws Exception {
         String userAnswer = "A";
         String correctAnswer = "B";
 
         int result =
-                WhiteboxImpl.invokeMethod(contextEventService, "calculateSimpleOption", userAnswer, correctAnswer);
+                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForSimpleOption", userAnswer, correctAnswer);
         assertEquals("Score should be 0", 0, result);
     }
 

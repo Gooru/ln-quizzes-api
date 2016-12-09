@@ -200,7 +200,7 @@ public class ContextEventService {
         switch (enumType) {
             case TrueFalse:
             case SingleChoice:
-                return calculateSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
+                return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
             default:
                 return 0;
             //TODO: Implement the logic for the other question types
@@ -214,7 +214,7 @@ public class ContextEventService {
      * @param correctAnswer Correct answer for the question
      * @return the score
      */
-    private int calculateSimpleOption(String userAnswer, String correctAnswer) {
+    private int calculateScoreForSimpleOption(String userAnswer, String correctAnswer) {
         return userAnswer.equals(correctAnswer) ? 100 : 0;
     }
 
