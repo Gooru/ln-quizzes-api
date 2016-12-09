@@ -1,7 +1,6 @@
 package com.quizzes.api.content.gooru.service;
 
 import com.google.gson.Gson;
-import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
@@ -73,6 +72,9 @@ public class CollectionContentServiceImpl implements CollectionContentService {
     @Autowired
     Gson gson;
 
+    /**
+     * @see CollectionContentService#createCollection(String, Profile)
+     */
     @Override
     public Collection createCollection(String externalCollectionId, Profile owner) {
         UserDataTokenDto userDataTokenDto = gson.fromJson(owner.getProfileData(), UserDataTokenDto.class);
@@ -92,20 +94,39 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         return result;
     }
 
-    private Collection createCollectionCopy(String externalCollectionId, UUID ownerId, String userToken) {
+    /**
+     * Copies an Assessment in the content provider and creates a new {@link Collection} in Quizzes
+     * based on that copied Assessment
+     * @param assessmentId ID of the Assessment in the content provider
+     * @param ownerId ID of the owner of the {@link Collection} in Quizzes
+     * @param userToken the content provider's authorization token
+     * @return the new {@link Collection} in Quizzes
+     */
+    private Collection createCollectionCopy(String assessmentId, UUID ownerId, String userToken) {
 
-        String copiedAssessmentId = collectionRestClient.copyAssessment(externalCollectionId, userToken);
+        String copiedAssessmentId = collectionRestClient.copyAssessment(assessmentId, userToken);
 
         AssessmentDto assessmentDto = collectionRestClient.getAssessment(copiedAssessmentId, userToken);
 
-        return createCollectionFromAssessment(assessmentDto, externalCollectionId, ownerId);
+        return createCollectionFromAssessment(assessmentDto, assessmentId, ownerId);
     }
 
-    private Collection createCollectionFromAssessment(AssessmentDto assessmentDto, String parentCollectionId, UUID ownerId){
+    /**
+     * Creates a new {@link Collection} in Quizzes based on the content's provider {@link AssessmentDto}
+     * In the content provider the Assessments can be a copy of another user's Assessment
+     * or an original Assessment created by it's owner.
+     * If the parent assessment ID is the same as the assessment ID then this is an original assessment,
+     * but if the IDs are different then this is a copy of an existing assessment in the content provider
+     * @param assessmentDto content's provider Assessment information
+     * @param parentAssessmentId ID of the parent Assessment in the content provider
+     * @param ownerId ID of the Quizzes owner
+     * @return The Quizzes {@link Collection}
+     */
+    private Collection createCollectionFromAssessment(AssessmentDto assessmentDto, String parentAssessmentId, UUID ownerId){
         Collection collection = new Collection();
         // TODO: The logic to obtain the correct external_id and external_parent_id must be implemented
         collection.setExternalId(assessmentDto.getId());
-        collection.setExternalParentId(parentCollectionId);
+        collection.setExternalParentId(parentAssessmentId);
         collection.setLmsId(Lms.gooru);
         collection.setOwnerProfileId(ownerId);
         collection.setIsCollection(false);

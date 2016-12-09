@@ -134,7 +134,7 @@ public class ContextServiceTest {
                 new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class)))
+        when(collectionContentService.createCollection(any(String.class), any(Profile.class)))
                 .thenReturn(collectionResult);
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
@@ -145,7 +145,7 @@ public class ContextServiceTest {
         verify(profileService, times(0)).save(any(Profile.class));
         verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(collectionContentService, times(1)).createCollectionCopy(any(String.class), any(Profile.class));
+        verify(collectionContentService, times(1)).createCollection(any(String.class), any(Profile.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
@@ -257,7 +257,7 @@ public class ContextServiceTest {
                 new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        when(collectionContentService.createCollectionCopy(any(String.class), any(Profile.class)))
+        when(collectionContentService.createCollection(any(String.class), any(Profile.class)))
                 .thenReturn(collectionResult);
 
         ProfileDto anyProfile = new ProfileDto();
@@ -282,7 +282,7 @@ public class ContextServiceTest {
         verify(profileService, times(2)).save(any(Profile.class));
         verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(collectionContentService, times(1)).createCollectionCopy(any(String.class), any(Profile.class));
+        verify(collectionContentService, times(1)).createCollection(any(String.class), any(Profile.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
