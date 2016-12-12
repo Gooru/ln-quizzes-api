@@ -96,8 +96,8 @@ public class ContextController {
     }
 
     @ApiOperation(
-            value = "Get Assigned Context by ID",
-            notes = "Gets a Context by the Context ID from the set of assigned contexts.")
+            value = "Get created context by ID",
+            notes = "Gets a Context by the Context ID from the set of created contexts.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = CreatedContextGetResponseDto.class)
     })
@@ -113,7 +113,7 @@ public class ContextController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get Assigned Context by ID",
+    @ApiOperation(value = "Get assigned aontext by ID",
             notes = "Gets a Context by the Context ID from the set of assigned contexts.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = ContextAssignedGetResponseDto.class)
