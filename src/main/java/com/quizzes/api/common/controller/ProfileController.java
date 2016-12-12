@@ -1,6 +1,7 @@
 package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.ProfileGetResponseDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.ProfileService;
@@ -52,19 +53,19 @@ public class ProfileController {
             value = "Find Profile by ID",
             notes = "Retrieves the Profile data for a specified Profile ID.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns the profile data", response = ProfileDto.class),
+            @ApiResponse(code = 200, message = "Returns the profile data", response = ProfileGetResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/profile/{profileId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ProfileDto> getProfileById(
+    public ResponseEntity<ProfileGetResponseDto> getProfileById(
             @ApiParam(value = "Profile to be found", required = true, name = "profileId")
             @PathVariable UUID profileId,
             @ApiParam(value = "Profile Id in session", required = true, name = "profile-id")
             @RequestHeader(value = "profile-id") UUID sessionProfileId,
             @ApiParam(value = "Client's Id on quizzes.", required = true, name = "client-id")
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
-        ProfileDto result = profileService.findById(profileId);
+        ProfileGetResponseDto result = profileService.findById(profileId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }

@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.ProfileGetResponseDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
@@ -21,10 +22,14 @@ public class ProfileService {
     @Autowired
     Gson gson;
 
-    public ProfileDto findById(UUID profileId) {
+    public ProfileGetResponseDto findById(UUID profileId) {
         Profile profile = profileRepository.findById(profileId);
-        ProfileDto result = gson.fromJson(profile.getProfileData(), ProfileDto.class);
-        result.setId(profileId.toString());
+        ProfileGetResponseDto result = null;
+        if(profile != null) {
+            result = gson.fromJson(profile.getProfileData(), ProfileGetResponseDto.class);
+            result.setId(profileId);
+            result.setExternalId(profile.getExternalId());
+        }
         return result;
     }
 
