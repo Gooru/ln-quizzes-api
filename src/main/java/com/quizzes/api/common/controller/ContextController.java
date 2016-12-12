@@ -77,25 +77,6 @@ public class ContextController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get context", notes = "Gets the context information.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns the Context Information", response = ContextGetResponseDto.class),
-            @ApiResponse(code = 400, message = "Invalid UUID"),
-            @ApiResponse(code = 404, message = "Context id not found")
-    })
-    @RequestMapping(path = "/v1/context/{contextId}",
-            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ContextGetResponseDto> getContext(
-            @PathVariable UUID contextId,
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-
-        ContextGetResponseDto contextGetResponseDto = contextService.getContext(contextId);
-
-        return new ResponseEntity<>(contextGetResponseDto,
-                contextGetResponseDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
-    }
-
     @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", responseContainer = "List",
