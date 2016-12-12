@@ -407,7 +407,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(userAnswer);
 
         AnswerDto correctAnswer = new AnswerDto();
-        correctAnswer.setValue("B");
+        correctAnswer.setValue("b");
         List<AnswerDto> correctAnswers = Arrays.asList(correctAnswer);
 
         int result =
@@ -419,7 +419,7 @@ public class ContextEventServiceTest {
     @Test
     public void calculateScoreForSimpleOptionRightAnswer() throws Exception {
         String userAnswer = "A";
-        String correctAnswer = "A";
+        String correctAnswer = "a";
 
         int result =
                 WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForSimpleOption", userAnswer, correctAnswer);

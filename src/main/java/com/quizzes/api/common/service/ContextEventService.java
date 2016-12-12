@@ -215,7 +215,7 @@ public class ContextEventService {
      * @return the score
      */
     private int calculateScoreForSimpleOption(String userAnswer, String correctAnswer) {
-        return userAnswer.equals(correctAnswer) ? 100 : 0;
+        return userAnswer.equalsIgnoreCase(correctAnswer) ? 100 : 0;
     }
 
 }
