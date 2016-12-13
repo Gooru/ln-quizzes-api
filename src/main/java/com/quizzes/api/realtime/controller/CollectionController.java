@@ -1,6 +1,6 @@
 package com.quizzes.api.realtime.controller;
 
-import com.quizzes.api.common.dto.controller.response.CollectionDataDto;
+import com.quizzes.api.common.dto.CollectionGetResponseDto;
 import com.quizzes.api.common.service.CollectionService;
 import com.quizzes.api.realtime.model.CollectionOnAir;
 import io.swagger.annotations.ApiOperation;
@@ -47,17 +47,17 @@ public class CollectionController extends AbstractRealTimeController {
     @ApiOperation(value ="Get a collection by its collection ID",
                     notes = "Gets Collection data, including Resources and Answers (in case of Question).")
     @ApiResponses({
-        @ApiResponse(code = 200, message = "Returns the collection information", response = CollectionDataDto.class),
+        @ApiResponse(code = 200, message = "Returns the collection information", response = CollectionGetResponseDto.class),
         @ApiResponse(code = 404, message = "Not found")
     })
     @RequestMapping(path = "/v1/collection/{collectionId}",
                     method = RequestMethod.GET,
                     produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionDataDto> getCollection(@PathVariable UUID collectionId,
-                                                           @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                                           @RequestHeader(value = "profile-id") UUID profileId) {
+    public ResponseEntity<CollectionGetResponseDto> getCollection(@PathVariable UUID collectionId,
+                                                                  @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                                                  @RequestHeader(value = "profile-id") UUID profileId) {
 
-        CollectionDataDto result = collectionService.getCollection(collectionId);
+        CollectionGetResponseDto result = collectionService.getCollection(collectionId);
 
         return new ResponseEntity<>(result, result != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }

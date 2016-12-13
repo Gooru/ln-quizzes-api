@@ -1,16 +1,16 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.dto;
 
 import java.util.List;
 import java.util.UUID;
 
-public class CollectionDataDto {
+public class CollectionGetResponseDto {
     private UUID id;
 
     private boolean isCollection;
 
-    private List<CollectionDataResourceDto> resources;
+    private List<ResourceDto> resources;
 
-    public CollectionDataDto() {
+    public CollectionGetResponseDto() {
     }
 
     public UUID getId() {
@@ -29,11 +29,11 @@ public class CollectionDataDto {
         this.isCollection = isCollection;
     }
 
-    public List<CollectionDataResourceDto> getResources() {
+    public List<ResourceDto> getResources() {
         return resources;
     }
 
-    public void setResources(List<CollectionDataResourceDto> resources) {
+    public void setResources(List<ResourceDto> resources) {
         this.resources = resources;
     }
 }

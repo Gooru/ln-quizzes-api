@@ -1,4 +1,4 @@
-package com.quizzes.api.common.dto.controller;
+package com.quizzes.api.common.dto;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -26,14 +26,6 @@ public class ProfileDto {
     private String email;
 
     public ProfileDto() {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getFirstName() {
@@ -66,5 +58,13 @@ public class ProfileDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -1,4 +1,4 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.dto;
 
 import java.util.List;
 
@@ -10,33 +10,46 @@ public class QuestionDataDto {
     private String body;
     private InteractionDto interaction;
 
-    public QuestionDataDto(String title, String type, List<AnswerDto> correctAnswer,
-                           String body, InteractionDto interaction) {
-        this.title = title;
-        this.type = type;
-        this.correctAnswer = correctAnswer;
-        this.body = body;
-        this.interaction = interaction;
+    public QuestionDataDto() {
     }
 
     public String getTitle() {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public List<AnswerDto> getCorrectAnswer() {
         return correctAnswer;
     }
 
+    public void setCorrectAnswer(List<AnswerDto> correctAnswer) {
+        this.correctAnswer = correctAnswer;
+    }
+
     public String getBody() {
         return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
     }
 
     public InteractionDto getInteraction() {
         return interaction;
     }
 
+    public void setInteraction(InteractionDto interaction) {
+        this.interaction = interaction;
+    }
 }

@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context implements java.io.Serializable {
 
-	private static final long serialVersionUID = -103238090;
+	private static final long serialVersionUID = 1421382508;
 
 	private java.util.UUID     id;
 	private java.util.UUID     groupId;
@@ -18,6 +18,7 @@ public class Context implements java.io.Serializable {
 	private java.lang.Boolean  isDeleted;
 	private java.sql.Timestamp createdAt;
 	private java.sql.Timestamp updatedAt;
+	private java.lang.Boolean  isActive;
 
 	public Context() {}
 
@@ -28,7 +29,8 @@ public class Context implements java.io.Serializable {
 		java.lang.String   contextData,
 		java.lang.Boolean  isDeleted,
 		java.sql.Timestamp createdAt,
-		java.sql.Timestamp updatedAt
+		java.sql.Timestamp updatedAt,
+		java.lang.Boolean  isActive
 	) {
 		this.id = id;
 		this.groupId = groupId;
@@ -37,6 +39,7 @@ public class Context implements java.io.Serializable {
 		this.isDeleted = isDeleted;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.isActive = isActive;
 	}
 
 	public java.util.UUID getId() {
@@ -93,5 +96,13 @@ public class Context implements java.io.Serializable {
 
 	public void setUpdatedAt(java.sql.Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public java.lang.Boolean getIsActive() {
+		return this.isActive;
+	}
+
+	public void setIsActive(java.lang.Boolean isActive) {
+		this.isActive = isActive;
 	}
 }

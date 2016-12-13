@@ -77,25 +77,6 @@ public class ContextController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get context", notes = "Gets the context information.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Returns the Context Information", response = ContextGetResponseDto.class),
-            @ApiResponse(code = 400, message = "Invalid UUID"),
-            @ApiResponse(code = 404, message = "Context id not found")
-    })
-    @RequestMapping(path = "/v1/context/{contextId}",
-            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ContextGetResponseDto> getContext(
-            @PathVariable UUID contextId,
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-
-        ContextGetResponseDto contextGetResponseDto = contextService.getContext(contextId);
-
-        return new ResponseEntity<>(contextGetResponseDto,
-                contextGetResponseDto != null ? HttpStatus.OK : HttpStatus.NOT_FOUND);
-    }
-
     @ApiOperation(value = "Get contexts created", notes = "Get all the contexts created by the Owner Profile.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", responseContainer = "List",
@@ -112,6 +93,39 @@ public class ContextController {
         List<CreatedContextGetResponseDto> list = contextService.findCreatedContexts(profileId);
 
         return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @ApiOperation(
+            value = "Get created context by ID",
+            notes = "Gets a Context by the Context ID from the set of created contexts.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Body", response = CreatedContextGetResponseDto.class)
+    })
+    @RequestMapping(path = "/v1/context/created/{contextId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CreatedContextGetResponseDto> findCreatedContextByContextId(
+            @PathVariable UUID contextId,
+            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+
+        CreatedContextGetResponseDto result = contextService.findCreatedContextByContextId(contextId);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get assigned context by ID",
+            notes = "Gets a Context by the Context ID from the set of assigned contexts.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Body", response = ContextAssignedGetResponseDto.class)
+    })
+    @RequestMapping(path = "/v1/context/assigned/{contextId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ContextAssignedGetResponseDto> getAssignedContextByContextId(
+            @PathVariable UUID contextId,
+            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+        ContextAssignedGetResponseDto result = contextService.getAssignedContextByContextId(contextId);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get assigned contexts",

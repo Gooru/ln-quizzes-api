@@ -4,14 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.ContextPostRequestDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
@@ -78,15 +77,20 @@ public class ContextService {
     /**
      * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same
      * Collection
-     * @param contextPostRequestDto  information about the new {@link Context}
-     * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
+     *
+     * @param contextPostRequestDto information about the new {@link Context}
+     * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
-        Profile owner = findOrCreateProfile(contextPostRequestDto.getOwner(), lms);
+        Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
+        if (owner == null) {
+            owner = createProfile(contextPostRequestDto.getOwner(), lms);
+        }
+
         Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
-        if (collection == null){
-            collection = collectionContentService.createCollectionCopy(contextPostRequestDto.getExternalCollectionId(), owner);
+        if (collection == null) {
+            collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
         }
 
         Group group = groupService.createGroup(owner.getId());
@@ -109,10 +113,9 @@ public class ContextService {
     }
 
     /**
-     *
-     * @param contextId the id of the context to update
+     * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
-     * @param lms the LMS id
+     * @param lms                  the LMS id
      * @return the updated Context
      */
     public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
@@ -127,19 +130,20 @@ public class ContextService {
         groupProfileService.delete(context.getGroupId());
 
         //checks if the assignees exists, if not, creates the assignee profile
-        if (profiles != null && !profiles.isEmpty()){
+        if (profiles != null && !profiles.isEmpty()) {
             List<String> requestExternalProfileIds = profiles.stream().map(profile -> profile.getId()).collect(Collectors.toList());
             List<String> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
             //we are creating new profiles
             //we are not updating existing info of existing profiles
             List<Profile> notFoundProfiles = profiles.stream()
                     .filter(profile -> !foundExternalProfileIds.contains(profile.getId()))
-                    .map(profile -> {Profile newProfile = new Profile();
-                                    newProfile.setExternalId(profile.getId());
-                                    newProfile.setLmsId(lms);
-                                    newProfile.setProfileData(profileDtoToJsonObject(profile).toString());
-                                    return newProfile;
-                                    }).collect(Collectors.toList());
+                    .map(profile -> {
+                        Profile newProfile = new Profile();
+                        newProfile.setExternalId(profile.getId());
+                        newProfile.setLmsId(lms);
+                        newProfile.setProfileData(removeIdFromProfileDto(profile).toString());
+                        return newProfile;
+                    }).collect(Collectors.toList());
             profileService.save(notFoundProfiles);
             //At this point all the assignees in the context to update exists
             //now we need to get the profileIds of that assignees to add them to the group
@@ -159,38 +163,6 @@ public class ContextService {
         contextDataDto.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         context.setContextData(gson.toJson(contextDataDto));
         return contextRepository.save(context);
-    }
-
-    public ContextGetResponseDto getContext(UUID contextId) {
-        ContextOwnerEntity contextOwner = contextRepository.findContextOwnerByContextId(contextId);
-        if (contextOwner != null) {
-            ContextGetResponseDto response = new ContextGetResponseDto();
-            List<UUID> assignees = profileService.findAssignedIdsByContextId(contextId);
-
-            CollectionDto collectionDto = new CollectionDto();
-            collectionDto.setId(contextOwner.getCollectionId().toString());
-
-            response.setCollection(collectionDto);
-            response.setId(contextId);
-            response.setContextData(gson.fromJson(contextOwner.getContextData(), ContextDataDto.class));
-
-            IdResponseDto ownerId = new IdResponseDto();
-            ownerId.setId(contextOwner.getOwnerProfileId());
-            response.setOwner(ownerId);
-
-            response.setAssignees(assignees.stream()
-                    .map(assigneeId -> {
-                        IdResponseDto id = new IdResponseDto();
-                        id.setId(assigneeId);
-                        return id;
-                    })
-                    .collect(Collectors.toList()));
-
-            return response;
-        }
-
-        logger.info("Getting context: " + contextId + " was not found");
-        return null;
     }
 
     public List<Context> findContextByOwnerId(UUID profileId) {
@@ -231,54 +203,92 @@ public class ContextService {
         return result;
     }
 
+    public CreatedContextGetResponseDto findCreatedContextByContextId(UUID contextId) {
+        Map<UUID, List<ContextAssigneeEntity>> result =
+                contextRepository.findContextAssigneeByContextId(contextId);
+
+        CreatedContextGetResponseDto response = null;
+
+        if (!result.isEmpty() && result.containsKey(contextId)) {
+            response = new CreatedContextGetResponseDto();
+
+            List<ContextAssigneeEntity> assigneeEntities = result.get(contextId);
+            response.setId(contextId);
+
+            ContextAssigneeEntity firstEntity = assigneeEntities.get(0);
+            response.setContextData(gson.fromJson(firstEntity.getContextData(), ContextDataDto.class));
+
+            CollectionDto collection = new CollectionDto();
+            collection.setId(firstEntity.getCollectionId().toString());
+            response.setCollection(collection);
+
+            List<IdResponseDto> assignees = assigneeEntities.stream().map(profile -> {
+                IdResponseDto assignee = new IdResponseDto();
+                assignee.setId(profile.getAssigneeProfileId());
+                return assignee;
+            }).collect(Collectors.toList());
+
+            response.setAssignees(assignees);
+            response.setCreatedDate(firstEntity.getCreatedAt().getTime());
+            response.setModifiedDate(firstEntity.getUpdatedAt().getTime());
+        }
+        return response;
+    }
+
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId) {
         List<ContextOwnerEntity> contexts = contextRepository.findContextOwnerByAssigneeId(assigneeId);
         return contexts.stream()
-                .map(context -> {
-                    ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
-
-                    CollectionDto collectionDto = new CollectionDto();
-                    collectionDto.setId(context.getCollectionId().toString());
-
-                    response.setCollection(collectionDto);
-                    response.setId(context.getId());
-                    response.setCreatedDate(context.getCreatedAt().getTime());
-                    response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
-
-                    IdResponseDto ownerId = new IdResponseDto();
-                    ownerId.setId(context.getOwnerProfileId());
-                    response.setOwner(ownerId);
-
-                    return response;
-                })
+                .map(this::mapContextOwnerEntityToContextAssignedDto)
                 .collect(Collectors.toList());
     }
 
+    public ContextAssignedGetResponseDto getAssignedContextByContextId(UUID contextId) {
+        ContextOwnerEntity context = contextRepository.findContextOwnerByContextId(contextId);
+        return mapContextOwnerEntityToContextAssignedDto(context);
+    }
+
+    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context) {
+        ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
+
+        CollectionDto collection = new CollectionDto();
+        collection.setId(context.getCollectionId().toString());
+
+        response.setCollection(collection);
+        response.setId(context.getId());
+        response.setCreatedDate(context.getCreatedAt().getTime());
+        response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
+
+        IdResponseDto ownerId = new IdResponseDto();
+        ownerId.setId(context.getOwnerProfileId());
+        response.setOwner(ownerId);
+
+        return response;
+    }
+
     /**
-     * Looks for a {@link Profile} by External ID and {@link Lms}
-     * if the profile doesn't exists the {@link Profile} is created
+     * Creates a new {@link Profile}
+     *
      * @param profileDto Profile data
-     * @param lmsId Lms
-     * @return the found or created Profile
+     * @param lmsId      Lms
+     * @return the created Profile
      */
-    private Profile findOrCreateProfile(ProfileDto profileDto, Lms lmsId) {
-        Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lmsId);
-        if (profile == null) {
-            profile = new Profile();
-            profile.setExternalId(profileDto.getId());
-            profile.setLmsId(lmsId);
+    private Profile createProfile(ProfileDto profileDto, Lms lmsId) {
+        Profile profile = new Profile();
+        profile.setExternalId(profileDto.getId());
+        profile.setLmsId(lmsId);
 
-            JsonObject jsonObject = profileDtoToJsonObject(profileDto);
+        JsonObject jsonObject = removeIdFromProfileDto(profileDto);
 
-            profile.setProfileData(jsonObject.toString());
-            profile = profileService.save(profile);
-        }
-        return profile;
+        profile.setProfileData(jsonObject.toString());
+        return profileService.save(profile);
     }
 
     private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lmsId) {
         for (ProfileDto profileDto : profiles) {
-            Profile profile = findOrCreateProfile(profileDto, lmsId);
+            Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lmsId);
+            if (profile == null) {
+                profile = createProfile(profileDto, lmsId);
+            }
             GroupProfile groupProfile = new GroupProfile();
             groupProfile.setGroupId(groupId);
             groupProfile.setProfileId(profile.getId());
@@ -286,7 +296,7 @@ public class ContextService {
         }
     }
 
-    private JsonObject profileDtoToJsonObject(ProfileDto profileDto){
+    private JsonObject removeIdFromProfileDto(ProfileDto profileDto) {
         JsonElement jsonElement = gson.toJsonTree(profileDto);
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         jsonObject.remove("id");
