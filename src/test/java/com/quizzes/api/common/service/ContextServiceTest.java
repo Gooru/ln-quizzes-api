@@ -129,8 +129,14 @@ public class ContextServiceTest {
         groupResult.setId(UUID.randomUUID());
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
-                gson.toJson(contextPostRequestDto.getContextData()), false, null, null);
+        Context contextResult = new Context();
+        contextResult.setId(UUID.randomUUID());
+        contextResult.setCollectionId(collectionResult.getId());
+        contextResult.setGroupId(groupResult.getId());
+        contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
+        contextResult.setIsDeleted(false);
+        contextResult.setIsActive(true);
+
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         when(collectionContentService.createCollection(any(String.class), any(Profile.class)))
@@ -196,8 +202,14 @@ public class ContextServiceTest {
         profileResponse.setId(profileResponseId);
         when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
 
-        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
-                gson.toJson(contextPostRequestDto.getContextData()), false, null, null);
+        Context contextResult = new Context();
+        contextResult.setId(UUID.randomUUID());
+        contextResult.setCollectionId(collectionResult.getId());
+        contextResult.setGroupId(groupResult.getId());
+        contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
+        contextResult.setIsDeleted(false);
+        contextResult.setIsActive(true);
+
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
@@ -252,8 +264,14 @@ public class ContextServiceTest {
         groupResult.setId(UUID.randomUUID());
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
-        Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
-                gson.toJson(contextPostRequestDto.getContextData()), false, null, null);
+        Context contextResult = new Context();
+        contextResult.setId(UUID.randomUUID());
+        contextResult.setCollectionId(collectionResult.getId());
+        contextResult.setGroupId(groupResult.getId());
+        contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
+        contextResult.setIsDeleted(false);
+        contextResult.setIsActive(true);
+
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         when(collectionContentService.createCollection(any(String.class), any(Profile.class)))
