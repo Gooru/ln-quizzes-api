@@ -10,7 +10,7 @@ import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.MetadataDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
@@ -130,7 +130,7 @@ public class ContextServiceTest {
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
-                new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
+                gson.toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         when(collectionContentService.createCollection(any(String.class), any(Profile.class)))
@@ -197,7 +197,7 @@ public class ContextServiceTest {
         when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
 
         Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
-                new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
+                gson.toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
@@ -253,7 +253,7 @@ public class ContextServiceTest {
         when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
 
         Context contextResult = new Context(UUID.randomUUID(), collectionResult.getId(), groupResult.getId(),
-                new Gson().toJson(contextPostRequestDto.getContextData()), false, null, null);
+                gson.toJson(contextPostRequestDto.getContextData()), false, null, null);
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
         when(collectionContentService.createCollection(any(String.class), any(Profile.class)))
@@ -515,19 +515,19 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void profileDtoToJsonObject() throws Exception {
+    public void removeIdFromProfileDto() throws Exception {
         ProfileDto profileDto = new ProfileDto();
         profileDto.setId(UUID.randomUUID().toString());
         profileDto.setFirstName("Keylor");
         profileDto.setLastName("Navas");
         profileDto.setUsername("knavas");
 
-        JsonObject jsonObject = WhiteboxImpl.invokeMethod(contextService, "profileDtoToJsonObject", profileDto);
+        JsonObject jsonObject = WhiteboxImpl.invokeMethod(contextService, "removeIdFromProfileDto", profileDto);
 
         assertEquals(jsonObject.size(), 3);
-        assertEquals(jsonObject.get("firstName").getAsString(), "Keylor");
-        assertEquals(jsonObject.get("lastName").getAsString(), "Navas");
-        assertEquals(jsonObject.get("username").getAsString(), "knavas");
+        assertEquals("Wrong first name", "Keylor", jsonObject.get("firstName").getAsString());
+        assertEquals("wrong last name", "Navas", jsonObject.get("lastName").getAsString());
+        assertEquals("Wrong username", "knavas", jsonObject.get("username").getAsString());
         assertNull(jsonObject.get("id"));
 
     }
