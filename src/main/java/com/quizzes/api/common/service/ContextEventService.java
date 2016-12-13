@@ -1,8 +1,6 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
@@ -10,7 +8,9 @@ import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.controller.response.AnswerDto;
+import com.quizzes.api.common.dto.AnswerDto;
+import com.quizzes.api.common.dto.QuestionDataDto;
+import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
@@ -18,7 +18,6 @@ import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
-import com.quizzes.api.common.utils.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +57,7 @@ public class ContextEventService {
     ProfileService profileService;
 
     @Autowired
-    JsonUtil jsonUtil;
-
-    @Autowired
     Gson gson;
-
 
     public StartContextEventResponseDto startContextEvent(UUID contextId, UUID profileId) {
         try {
@@ -90,7 +85,8 @@ public class ContextEventService {
             result.setId(contextId);
             result.setCurrentResourceId(contextProfile.getCurrentResourceId());
             result.setCollection(collection);
-            result.setEventsResponse(convertContextProfileToMap(events));
+            result.setEventsResponse(events.stream().map(event ->
+                    jsonParser.parseMap(event.getEventData())).collect(Collectors.toList()));
 
             return result;
         } catch (Exception e) {
@@ -178,7 +174,7 @@ public class ContextEventService {
         PostRequestResourceDto resourceData = body.getPreviousResource();
 
         Resource previousResource = resourceService.findById(resourceData.getResourceId());
-        Map<String, Object> previousResourceData = jsonParser.parseMap(previousResource.getResourceData());
+        QuestionDataDto previousResourceData = gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
 
         ContextProfileEvent event = contextProfileEventService.
                 findByContextProfileIdAndResourceId(contextProfileId, previousResource.getId());
@@ -189,20 +185,37 @@ public class ContextEventService {
             event.setResourceId(previousResource.getId());
         }
 
-        JsonElement jsonAnswers = gson.toJsonTree(previousResourceData.get("correctAnswer"));
-        JsonArray correctAnswers = jsonAnswers.getAsJsonArray();
-        List<AnswerDto> answers = resourceData.getAnswer();
-
-        //TODO: Add logic to calculate the score
-        //resourceData.setScore();
+        //Calculate score
+        String questionType = previousResourceData.getType();
+        List<AnswerDto> correctAnswers = previousResourceData.getCorrectAnswer();
+        List<AnswerDto> userAnswers = resourceData.getAnswer();
+        resourceData.setScore(calculateScoreByQuestionType(questionType, userAnswers, correctAnswers));
 
         event.setEventData(gson.toJson(resourceData));
-
         contextProfileEventService.save(event);
     }
 
-    private List<Map<String, Object>> convertContextProfileToMap(List<ContextProfileEvent> events) {
-        return events.stream().map(event -> jsonParser.parseMap(event.getEventData())).collect(Collectors.toList());
+    private int calculateScoreByQuestionType(String questionType, List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+        QuestionTypeEnum enumType = QuestionTypeEnum.fromString(questionType);
+        switch (enumType) {
+            case TrueFalse:
+            case SingleChoice:
+                return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
+            default:
+                return 0;
+            //TODO: Implement the logic for the other question types
+        }
+    }
+
+    /**
+     * Simple option method works for true_false and single_option question types
+     *
+     * @param userAnswer    Answer provided by the user
+     * @param correctAnswer Correct answer for the question
+     * @return the score
+     */
+    private int calculateScoreForSimpleOption(String userAnswer, String correctAnswer) {
+        return userAnswer.equalsIgnoreCase(correctAnswer) ? 100 : 0;
     }
 
 }
