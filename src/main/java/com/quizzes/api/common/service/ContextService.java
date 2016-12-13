@@ -238,16 +238,16 @@ public class ContextService {
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId) {
         List<ContextOwnerEntity> contexts = contextRepository.findContextOwnerByAssigneeId(assigneeId);
         return contexts.stream()
-                .map(this::getContextAssignedDtoFromContextOwnerEntity)
+                .map(this::mapContextOwnerEntityToContextAssignedDto)
                 .collect(Collectors.toList());
     }
 
     public ContextAssignedGetResponseDto getAssignedContextByContextId(UUID contextId) {
         ContextOwnerEntity context = contextRepository.findContextOwnerByContextId(contextId);
-        return getContextAssignedDtoFromContextOwnerEntity(context);
+        return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
-    private ContextAssignedGetResponseDto getContextAssignedDtoFromContextOwnerEntity(ContextOwnerEntity context) {
+    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context) {
         ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
 
         CollectionDto collection = new CollectionDto();

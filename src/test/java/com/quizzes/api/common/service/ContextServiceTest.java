@@ -533,7 +533,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void getContextAssignedDtoFromContextOwnerEntity() throws Exception {
+    public void mapContextOwnerEntityToContextAssignedDto() throws Exception {
         UUID id = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID ownerProfileId = UUID.randomUUID();
@@ -555,7 +555,7 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
 
         ContextAssignedGetResponseDto result =
-                WhiteboxImpl.invokeMethod(contextService, "getContextAssignedDtoFromContextOwnerEntity",
+                WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
                         contextOwnerEntity);
 
         assertEquals("Wrong id", id, result.getId());

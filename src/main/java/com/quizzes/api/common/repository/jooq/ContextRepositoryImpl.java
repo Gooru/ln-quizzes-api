@@ -64,7 +64,6 @@ public class ContextRepositoryImpl implements ContextRepository {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA,
                 CONTEXT.CREATED_AT, CONTEXT.UPDATED_AT, GROUP_PROFILE.PROFILE_ID.as("AssigneeProfileId"))
                 .from(CONTEXT)
-                .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
                 .where(CONTEXT.ID.eq(contextId))
                 .fetchGroups(CONTEXT.ID, ContextAssigneeEntity.class);
