@@ -1,7 +1,5 @@
 package com.quizzes.api.common.dto;
 
-import com.quizzes.api.common.dto.controller.ProfileDto;
-
 import java.util.List;
 
 public class ContextPutRequestDto {

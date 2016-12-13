@@ -3,7 +3,7 @@ package com.quizzes.api.common.validator;
 import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

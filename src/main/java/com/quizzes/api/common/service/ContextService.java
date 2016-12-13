@@ -5,13 +5,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.ContextPostRequestDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
@@ -78,14 +78,19 @@ public class ContextService {
     /**
      * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same
      * Collection
-     * @param contextPostRequestDto  information about the new {@link Context}
-     * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
+     *
+     * @param contextPostRequestDto information about the new {@link Context}
+     * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
-        Profile owner = findOrCreateProfile(contextPostRequestDto.getOwner(), lms);
+        Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
+        if (owner == null) {
+            owner = createProfile(contextPostRequestDto.getOwner(), lms);
+        }
+
         Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
-        if (collection == null){
+        if (collection == null) {
             collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
         }
 
@@ -109,10 +114,9 @@ public class ContextService {
     }
 
     /**
-     *
-     * @param contextId the id of the context to update
+     * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
-     * @param lms the LMS id
+     * @param lms                  the LMS id
      * @return the updated Context
      */
     public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
@@ -127,19 +131,20 @@ public class ContextService {
         groupProfileService.delete(context.getGroupId());
 
         //checks if the assignees exists, if not, creates the assignee profile
-        if (profiles != null && !profiles.isEmpty()){
+        if (profiles != null && !profiles.isEmpty()) {
             List<String> requestExternalProfileIds = profiles.stream().map(profile -> profile.getId()).collect(Collectors.toList());
             List<String> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
             //we are creating new profiles
             //we are not updating existing info of existing profiles
             List<Profile> notFoundProfiles = profiles.stream()
                     .filter(profile -> !foundExternalProfileIds.contains(profile.getId()))
-                    .map(profile -> {Profile newProfile = new Profile();
-                                    newProfile.setExternalId(profile.getId());
-                                    newProfile.setLmsId(lms);
-                                    newProfile.setProfileData(profileDtoToJsonObject(profile).toString());
-                                    return newProfile;
-                                    }).collect(Collectors.toList());
+                    .map(profile -> {
+                        Profile newProfile = new Profile();
+                        newProfile.setExternalId(profile.getId());
+                        newProfile.setLmsId(lms);
+                        newProfile.setProfileData(removeIdFromProfileDto(profile).toString());
+                        return newProfile;
+                    }).collect(Collectors.toList());
             profileService.save(notFoundProfiles);
             //At this point all the assignees in the context to update exists
             //now we need to get the profileIds of that assignees to add them to the group
@@ -255,30 +260,29 @@ public class ContextService {
     }
 
     /**
-     * Looks for a {@link Profile} by External ID and {@link Lms}
-     * if the profile doesn't exists the {@link Profile} is created
+     * Creates a new {@link Profile}
+     *
      * @param profileDto Profile data
-     * @param lmsId Lms
-     * @return the found or created Profile
+     * @param lmsId      Lms
+     * @return the created Profile
      */
-    private Profile findOrCreateProfile(ProfileDto profileDto, Lms lmsId) {
-        Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lmsId);
-        if (profile == null) {
-            profile = new Profile();
-            profile.setExternalId(profileDto.getId());
-            profile.setLmsId(lmsId);
+    private Profile createProfile(ProfileDto profileDto, Lms lmsId) {
+        Profile profile = new Profile();
+        profile.setExternalId(profileDto.getId());
+        profile.setLmsId(lmsId);
 
-            JsonObject jsonObject = profileDtoToJsonObject(profileDto);
+        JsonObject jsonObject = removeIdFromProfileDto(profileDto);
 
-            profile.setProfileData(jsonObject.toString());
-            profile = profileService.save(profile);
-        }
-        return profile;
+        profile.setProfileData(jsonObject.toString());
+        return profileService.save(profile);
     }
 
     private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lmsId) {
         for (ProfileDto profileDto : profiles) {
-            Profile profile = findOrCreateProfile(profileDto, lmsId);
+            Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lmsId);
+            if (profile == null) {
+                profile = createProfile(profileDto, lmsId);
+            }
             GroupProfile groupProfile = new GroupProfile();
             groupProfile.setGroupId(groupId);
             groupProfile.setProfileId(profile.getId());
@@ -286,7 +290,7 @@ public class ContextService {
         }
     }
 
-    private JsonObject profileDtoToJsonObject(ProfileDto profileDto){
+    private JsonObject removeIdFromProfileDto(ProfileDto profileDto) {
         JsonElement jsonElement = gson.toJsonTree(profileDto);
         JsonObject jsonObject = jsonElement.getAsJsonObject();
         jsonObject.remove("id");
