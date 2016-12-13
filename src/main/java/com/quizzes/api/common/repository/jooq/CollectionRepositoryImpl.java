@@ -17,12 +17,25 @@ public class CollectionRepositoryImpl implements CollectionRepository {
     @Autowired
     private DSLContext jooq;
 
+    /**
+     * @see CollectionRepository#findByExternalIdorExternalParentIdandOwner(String, UUID)
+     */
     @Override
     public Collection findByExternalId(String externalId) {
         return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
                 COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
+                .where(COLLECTION.EXTERNAL_ID.decode()DECODE(MD5(external_id), 'HEX') = DECODE(MD5('given-external-id'), 'HEX'))
                 .where(COLLECTION.EXTERNAL_ID.eq(externalId))
+                .fetchOneInto(Collection.class);
+    }
+
+    @Override
+    public Collection findByExternalParentId(String externalParentId) {
+        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
+                COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
+                .from(COLLECTION)
+                .where(COLLECTION.EXTERNAL_PARENT_ID.eq(externalParentId))
                 .fetchOneInto(Collection.class);
     }
 

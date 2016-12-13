@@ -67,6 +67,7 @@ CREATE TABLE collection
     CONSTRAINT collection_external_id_lms_id_uc UNIQUE (external_id, lms_id)
 );
 CREATE INDEX collection_external_id_md5_idx ON collection (DECODE(MD5(external_id), 'HEX'));
+CREATE INDEX collection_external_parent_id_md5_idx ON collection (DECODE(MD5(external_parent_id), 'HEX'));
 CREATE INDEX collection_owner_profile_id_idx ON collection (owner_profile_id);
 CREATE TRIGGER collection_updated_at_trigger
     BEFORE UPDATE
