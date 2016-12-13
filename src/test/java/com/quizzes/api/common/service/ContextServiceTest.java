@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
@@ -388,81 +387,27 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void getContextNotFound() throws Exception {
-        when(contextRepository.findContextOwnerByContextId(any(UUID.class))).thenReturn(null);
-        ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
-
-        assertNull("Result is not null", result);
-        verify(contextRepository, times(1)).findContextOwnerByContextId(any(UUID.class));
-        verify(profileService, times(0)).findAssignedIdsByContextId(any(UUID.class));
-    }
-
-    @Test
-    public void getContext() throws Exception {
-        UUID assignee = UUID.randomUUID();
-
-        List<UUID> assignees = new ArrayList<>();
-        assignees.add(assignee);
-
-        //Setting contextData
-        ContextDataDto contextDataDto = new ContextDataDto();
-        Map<String, String> contextData = new HashMap<>();
-        contextData.put("class", "234");
-        contextDataDto.setContextMap(contextData);
-
-        MetadataDto metadata = new MetadataDto();
-        metadata.setDescription("First Partial");
-        metadata.setTitle("Math 1st Grade");
-        metadata.setDueDate(324234);
-        metadata.setStartDate(324234);
-        contextDataDto.setMetadata(metadata);
-
-        when(contextOwnerEntity.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(UUID.randomUUID());
-        when(contextOwnerEntity.getContextData()).thenReturn(gson.toJson(contextDataDto));
-
-        when(contextRepository.findContextOwnerByContextId(any(UUID.class))).thenReturn(contextOwnerEntity);
-        when(profileService.findAssignedIdsByContextId(any(UUID.class))).thenReturn(assignees);
-
-        ContextGetResponseDto result = contextService.getContext(UUID.randomUUID());
-
-        verify(contextRepository, times(1)).findContextOwnerByContextId(any(UUID.class));
-        verify(profileService, times(1)).findAssignedIdsByContextId(any(UUID.class));
-
-        assertNotNull("Result is Null", result);
-        assertNotNull("Context id is null", result.getId());
-        assertNotNull("Owner id is null", result.getOwner().getId());
-        assertNotNull("Metadata is null", result.getContextData().getMetadata().getTitle());
-        assertEquals("Size of the list is wrong", 1, result.getAssignees().size());
-
-        ContextDataDto contextResult = result.getContextData();
-        assertEquals("Wrong class", "234", contextResult.getContextMap().get("class"));
-        assertEquals("Wrong class", 324234, contextResult.getMetadata().getStartDate());
-        assertEquals("Wrong class", "First Partial", contextResult.getMetadata().getDescription());
-        assertEquals("Wrong class", "Math 1st Grade", contextResult.getMetadata().getTitle());
-        assertEquals("Wrong class", 324234, contextResult.getMetadata().getDueDate());
-
-    }
-
-    @Test
     public void getAssignedContexts() {
-        //Setting contextData
-        ContextDataDto contextDataDto = new ContextDataDto();
-        Map<String, String> contextData = new HashMap<>();
-        contextData.put("class", "234");
-        contextDataDto.setContextMap(contextData);
+        UUID id = UUID.randomUUID();
+        UUID classId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        long startDate = 324234;
+        String contextData = "{\n" +
+                "\t\t\"metadata\": {\n" +
+                "\t\t  \"description\": \"First Partial\",\n" +
+                "\t\t  \"startDate\": \"" + startDate + "\",\n" +
+                "\t\t  \"title\": \"Math 1st Grade\"\n" +
+                "\t\t},\n" +
+                "\t\t\"contextMap\": {\n" +
+                "\t\t  \"classId\": \"" + classId + "\"\n" +
+                "\t\t}\n" +
+                "\t}";
 
-        MetadataDto metadata = new MetadataDto();
-        metadata.setDescription("First Partial");
-        metadata.setTitle("Math 1st Grade");
-        metadata.setDueDate(324234);
-        metadata.setStartDate(324234);
-        contextDataDto.setMetadata(metadata);
-
-        when(contextOwnerEntity.getId()).thenReturn(UUID.randomUUID());
-        when(contextOwnerEntity.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(UUID.randomUUID());
-        when(contextOwnerEntity.getContextData()).thenReturn(gson.toJson(contextDataDto));
+        when(contextOwnerEntity.getId()).thenReturn(id);
+        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
+        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
+        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
 
         List<ContextOwnerEntity> list = new ArrayList<>();
@@ -478,20 +423,19 @@ public class ContextServiceTest {
         assertEquals("Wrong size", 1, result.size());
 
         assertNotNull("First object is null", resultEntity);
-        assertNotNull("Id is null", resultEntity.getId());
-        assertNotNull("Id is null", resultEntity.getCollection().getId());
+        assertEquals("Wrong id", id, resultEntity.getId());
+        assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
 
         assertNotNull("Created Date is null", resultEntity.getCreatedDate());
 
-        ContextDataDto contextResult = resultEntity.getContextData();
-        assertEquals("Wrong class", "234", contextResult.getContextMap().get("class"));
-        assertEquals("Wrong class", 324234, contextResult.getMetadata().getStartDate());
-        assertEquals("Wrong class", "First Partial", contextResult.getMetadata().getDescription());
-        assertEquals("Wrong class", "Math 1st Grade", contextResult.getMetadata().getTitle());
-        assertEquals("Wrong class", 324234, contextResult.getMetadata().getDueDate());
+        MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
+        assertNotNull("Metadata is null", metadataResult);
+        assertEquals("Wrong title", "Math 1st Grade", metadataResult.getTitle());
+        assertEquals("Wrong description", "First Partial", metadataResult.getDescription());
+        assertEquals("Wrong start date", startDate, metadataResult.getStartDate());
 
-        assertNotNull("Owner is null", resultEntity.getOwner().getId());
-        assertNotNull("Context is null", resultEntity.getContextData());
+        assertEquals("Wrong owner id", ownerId, resultEntity.getOwner().getId());
+        assertEquals("Wrong class id", classId.toString(), resultEntity.getContextData().getContextMap().get("classId"));
     }
 
     @Test
@@ -586,5 +530,37 @@ public class ContextServiceTest {
         assertEquals("Wrong username", "knavas", jsonObject.get("username").getAsString());
         assertNull(jsonObject.get("id"));
 
+    }
+
+    @Test
+    public void mapContextOwnerEntityToContextAssignedDto() throws Exception {
+        UUID id = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID ownerProfileId = UUID.randomUUID();
+        String contextData = "{\n" +
+                "    \"contextMap\": {\n" +
+                "        \"classId\": \"1\"\n" +
+                "    },\n" +
+                "    \"metadata\": {\n" +
+                "    \t\"startDate\": 1\n" +
+                "    }\n" +
+                "  }";
+
+        ContextOwnerEntity contextOwnerEntity = Mockito.spy(ContextOwnerEntity.class);
+
+        when(contextOwnerEntity.getId()).thenReturn(id);
+        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
+        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerProfileId);
+        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
+        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+
+        ContextAssignedGetResponseDto result =
+                WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
+                        contextOwnerEntity);
+
+        assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong collection id", collectionId.toString(), result.getCollection().getId());
+        assertEquals("Wrong owner id", ownerProfileId, result.getOwner().getId());
+        assertEquals("Wrong id", 1, result.getContextData().getMetadata().getStartDate());
     }
 }

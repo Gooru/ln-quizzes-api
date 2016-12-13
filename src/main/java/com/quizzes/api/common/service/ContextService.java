@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
@@ -166,38 +165,6 @@ public class ContextService {
         return contextRepository.save(context);
     }
 
-    public ContextGetResponseDto getContext(UUID contextId) {
-        ContextOwnerEntity contextOwner = contextRepository.findContextOwnerByContextId(contextId);
-        if (contextOwner != null) {
-            ContextGetResponseDto response = new ContextGetResponseDto();
-            List<UUID> assignees = profileService.findAssignedIdsByContextId(contextId);
-
-            CollectionDto collectionDto = new CollectionDto();
-            collectionDto.setId(contextOwner.getCollectionId().toString());
-
-            response.setCollection(collectionDto);
-            response.setId(contextId);
-            response.setContextData(gson.fromJson(contextOwner.getContextData(), ContextDataDto.class));
-
-            IdResponseDto ownerId = new IdResponseDto();
-            ownerId.setId(contextOwner.getOwnerProfileId());
-            response.setOwner(ownerId);
-
-            response.setAssignees(assignees.stream()
-                    .map(assigneeId -> {
-                        IdResponseDto id = new IdResponseDto();
-                        id.setId(assigneeId);
-                        return id;
-                    })
-                    .collect(Collectors.toList()));
-
-            return response;
-        }
-
-        logger.info("Getting context: " + contextId + " was not found");
-        return null;
-    }
-
     public List<Context> findContextByOwnerId(UUID profileId) {
         return contextRepository.findByOwnerId(profileId);
     }
@@ -236,27 +203,66 @@ public class ContextService {
         return result;
     }
 
+    public CreatedContextGetResponseDto findCreatedContextByContextId(UUID contextId) {
+        Map<UUID, List<ContextAssigneeEntity>> result =
+                contextRepository.findContextAssigneeByContextId(contextId);
+
+        CreatedContextGetResponseDto response = null;
+
+        if (!result.isEmpty() && result.containsKey(contextId)) {
+            response = new CreatedContextGetResponseDto();
+
+            List<ContextAssigneeEntity> assigneeEntities = result.get(contextId);
+            response.setId(contextId);
+
+            ContextAssigneeEntity firstEntity = assigneeEntities.get(0);
+            response.setContextData(gson.fromJson(firstEntity.getContextData(), ContextDataDto.class));
+
+            CollectionDto collection = new CollectionDto();
+            collection.setId(firstEntity.getCollectionId().toString());
+            response.setCollection(collection);
+
+            List<IdResponseDto> assignees = assigneeEntities.stream().map(profile -> {
+                IdResponseDto assignee = new IdResponseDto();
+                assignee.setId(profile.getAssigneeProfileId());
+                return assignee;
+            }).collect(Collectors.toList());
+
+            response.setAssignees(assignees);
+            response.setCreatedDate(firstEntity.getCreatedAt().getTime());
+            response.setModifiedDate(firstEntity.getUpdatedAt().getTime());
+        }
+        return response;
+    }
+
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId) {
         List<ContextOwnerEntity> contexts = contextRepository.findContextOwnerByAssigneeId(assigneeId);
         return contexts.stream()
-                .map(context -> {
-                    ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
-
-                    CollectionDto collectionDto = new CollectionDto();
-                    collectionDto.setId(context.getCollectionId().toString());
-
-                    response.setCollection(collectionDto);
-                    response.setId(context.getId());
-                    response.setCreatedDate(context.getCreatedAt().getTime());
-                    response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
-
-                    IdResponseDto ownerId = new IdResponseDto();
-                    ownerId.setId(context.getOwnerProfileId());
-                    response.setOwner(ownerId);
-
-                    return response;
-                })
+                .map(this::mapContextOwnerEntityToContextAssignedDto)
                 .collect(Collectors.toList());
+    }
+
+    public ContextAssignedGetResponseDto getAssignedContextByContextId(UUID contextId) {
+        ContextOwnerEntity context = contextRepository.findContextOwnerByContextId(contextId);
+        return mapContextOwnerEntityToContextAssignedDto(context);
+    }
+
+    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context) {
+        ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
+
+        CollectionDto collection = new CollectionDto();
+        collection.setId(context.getCollectionId().toString());
+
+        response.setCollection(collection);
+        response.setId(context.getId());
+        response.setCreatedDate(context.getCreatedAt().getTime());
+        response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
+
+        IdResponseDto ownerId = new IdResponseDto();
+        ownerId.setId(context.getOwnerProfileId());
+        response.setOwner(ownerId);
+
+        return response;
     }
 
     /**
