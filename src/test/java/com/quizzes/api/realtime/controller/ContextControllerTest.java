@@ -1,7 +1,6 @@
 package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.controller.ContextController;
-import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -11,7 +10,7 @@ import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.MetadataDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;

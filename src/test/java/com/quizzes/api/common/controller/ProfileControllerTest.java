@@ -2,7 +2,7 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.ProfileGetResponseDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.ProfileService;
 import com.quizzes.api.common.service.content.CollectionContentService;

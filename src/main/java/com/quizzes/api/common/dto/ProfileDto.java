@@ -1,4 +1,4 @@
-package com.quizzes.api.common.dto.controller;
+package com.quizzes.api.common.dto;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
