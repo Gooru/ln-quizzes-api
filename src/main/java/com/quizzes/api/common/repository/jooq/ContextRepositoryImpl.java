@@ -44,7 +44,9 @@ public class ContextRepositoryImpl implements ContextRepository {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .where(GROUP.OWNER_PROFILE_ID.eq(ownerId))
+                .where(GROUP.OWNER_PROFILE_ID.eq(ownerId).and(
+                        CONTEXT.IS_ACTIVE.eq(Boolean.TRUE.toString())
+                ))
                 .fetchInto(Context.class);
     }
 
