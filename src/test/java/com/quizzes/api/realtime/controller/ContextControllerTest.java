@@ -462,8 +462,14 @@ public class ContextControllerTest {
 
     @Test
     public void updateContext() throws Exception {
-        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                "{\"context\":\"value\"}", false, null, null);
+        Context contextResult = new Context();
+        contextResult.setId(UUID.randomUUID());
+        contextResult.setCollectionId(UUID.randomUUID());
+        contextResult.setGroupId(UUID.randomUUID());
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
+        contextResult.setIsActive(true);
+
         when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
         ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),

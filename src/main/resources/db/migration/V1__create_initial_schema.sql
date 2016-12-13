@@ -84,6 +84,7 @@ CREATE TABLE resource
     resource_data       JSONB,
     sequence            SMALLINT    NOT NULL DEFAULT 0,
     is_deleted          BOOLEAN     NOT NULL DEFAULT FALSE,
+    is_active           BOOLEAN     NOT NULL DEFAULT TRUE,
     created_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     updated_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     CONSTRAINT resource_external_id_lms_id_uc UNIQUE (external_id, lms_id)
