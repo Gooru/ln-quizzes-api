@@ -1,4 +1,4 @@
-package com.quizzes.api.common.dto.controller.response;
+package com.quizzes.api.common.dto;
 
 public class AnswerDto {
     private String value;

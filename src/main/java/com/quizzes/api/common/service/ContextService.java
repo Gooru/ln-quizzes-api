@@ -85,8 +85,8 @@ public class ContextService {
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
         Profile owner = findOrCreateProfile(contextPostRequestDto.getOwner(), lms);
         Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
-        if (collection == null) {
-            collection = collectionContentService.createCollectionCopy(contextPostRequestDto.getExternalCollectionId(), owner);
+        if (collection == null){
+            collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
         }
 
         Group group = groupService.createGroup(owner.getId());
