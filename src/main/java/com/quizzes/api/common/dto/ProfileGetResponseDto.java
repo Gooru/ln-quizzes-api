@@ -1,20 +1,11 @@
 package com.quizzes.api.common.dto;
 
-import java.util.UUID;
+import com.quizzes.api.common.dto.controller.ProfileDto;
 
-public class ProfileGetResponseDto extends CommonProfileDto {
-    private UUID id;
+public class ProfileGetResponseDto extends ProfileDto {
     private String externalId;
 
     public ProfileGetResponseDto() {
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
     }
 
     public String getExternalId() {

@@ -1,6 +1,7 @@
 package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.dto.ProfileGetResponseDto;
 import com.quizzes.api.common.dto.controller.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.service.ProfileService;
@@ -72,7 +73,7 @@ public class ProfileControllerTest {
         UUID sessionProfileId = UUID.randomUUID();
 
         //Setting ProfileDto
-        ProfileDto profileMock = new ProfileDto();
+        ProfileGetResponseDto profileMock = new ProfileGetResponseDto();
         profileMock.setId(id.toString());
         profileMock.setEmail("david@quizzes.com");
         profileMock.setFirstName("David");
@@ -81,7 +82,7 @@ public class ProfileControllerTest {
 
         when(profileService.findById(id)).thenReturn(profileMock);
 
-        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, sessionProfileId, "its_learning");
+        ResponseEntity<ProfileGetResponseDto> result = profileController.getProfileById(id, sessionProfileId, "its_learning");
 
         verify(profileController, times(1)).getProfileById(id, sessionProfileId, "its_learning");
         verify(profileService, times(1)).findById(id);
@@ -104,7 +105,7 @@ public class ProfileControllerTest {
 
         when(profileService.findById(id)).thenReturn(null);
 
-        ResponseEntity<ProfileDto> result = profileController.getProfileById(id, sessionProfileId, "quizzes");
+        ResponseEntity<ProfileGetResponseDto> result = profileController.getProfileById(id, sessionProfileId, "quizzes");
 
         verify(profileController, times(1)).getProfileById(id, sessionProfileId, "quizzes");
         verify(profileService, times(1)).findById(id);
