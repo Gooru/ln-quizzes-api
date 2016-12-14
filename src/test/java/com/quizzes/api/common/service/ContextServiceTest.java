@@ -1,7 +1,6 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextPostRequestDto;
@@ -457,7 +456,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void getAssignedContextByContextIdAndProfileId() {
+    public void getAssignedContextByContextIdAndAssigneeId() {
         UUID id = UUID.randomUUID();
         UUID classId = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
@@ -481,13 +480,13 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getContextData()).thenReturn(contextData);
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
 
-        when(contextRepository .findContextOwnerByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+        when(contextRepository .findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextOwnerEntity);
 
         ContextAssignedGetResponseDto resultEntity =
-                contextService.getAssignedContextByContextIdAndProfileId(UUID.randomUUID(), UUID.randomUUID());
+                contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
 
-        verify(contextRepository, times(1)).findContextOwnerByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextRepository, times(1)).findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class));
 
         assertNotNull("First object is null", resultEntity);
         assertEquals("Wrong id", id, resultEntity.getId());
