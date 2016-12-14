@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Profile extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.jooq.tables.records.ProfileRecord> {
 
-	private static final long serialVersionUID = 704548214;
+	private static final long serialVersionUID = -209712782;
 
 	/**
 	 * The singleton instance of <code>public.profile</code>
@@ -53,6 +53,11 @@ public class Profile extends org.jooq.impl.TableImpl<com.quizzes.api.common.mode
 	 * The column <code>public.profile.updated_at</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ProfileRecord, java.sql.Timestamp> UPDATED_AT = createField("updated_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>public.profile.client_id</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ProfileRecord, java.util.UUID> CLIENT_ID = createField("client_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
 
 	/**
 	 * Create a <code>public.profile</code> table reference
