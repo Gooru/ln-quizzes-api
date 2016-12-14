@@ -51,8 +51,6 @@ public class CollectionRestClient {
         try {
             HttpHeaders headers = getHttpHeaders(token);
             HttpEntity entity = new HttpEntity(headers);
-
-
             ResponseEntity<AssessmentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AssessmentDto.class);
             AssessmentDto assessment = responseEntity.getBody();

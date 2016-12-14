@@ -41,3 +41,6 @@ INSERT INTO client (id, name, description, api_key, api_secret)
 ALTER TABLE profile ADD COLUMN client_id UUID REFERENCES client (id);
 UPDATE profile SET client_id = 'c4b2b608-059e-432a-b358-a0dd0c48a80d';
 ALTER TABLE profile ALTER COLUMN client_id SET NOT NULL;
+
+-- Adding required index for group_profile entity
+CREATE INDEX group_profile_profile_id_idx ON group_profile (profile_id);
