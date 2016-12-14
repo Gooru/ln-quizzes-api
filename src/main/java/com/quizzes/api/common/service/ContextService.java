@@ -78,13 +78,74 @@ public class ContextService {
     /**
      * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same
      * Collection
+     */
+    /**
+     * A {@link Collection} is the Quizzes representation of an Assessment in a Content Provider
+     * and in the Content Provider are original Assessments (an Assessment that it's create from scratch)
+     * and copied Assessments (copied from another Assessment)
+     * In an Original Assessment the Assessment ID is the same as the field Assessment parent ID, this means that
+     * the Assessment has no parent or is not copied from other Assessment.
+     * A copied Assessment has it's own unique ID and in the field parent ID has the ID of the Assessment it is being copied from
+     * In Quizzes each {@link Collection} has it's owner, and that owner matches or represents a Content Provider owner.
+     * A Quizzes owner can use a Assessment he owns in the Content Provider or a "Public" Assessment from a different owner
+     * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.
+     * Some Examples are:
+     * ++Collection ID = c1 with external ID (Assessment ID) = a1 external parent ID (parent Assessment ID) = a1 and owner ID = o1
+     *   this is an original Assessment, not copied
+     *
+     *   en gooru tengo a2 parent a1 o2
+     *   lo publico
+     *
+     *
+     *   PROBLEMA, soy o2
+     *   en gooru tengo a1 es de o1
+     *   lo veo en el search
+     *   siendo o2 selecciono a1 en itslearning
+     *   creo 1 collection, se copia a1 en a2 de o2
+     *   publico a2
+     *   busco y selecciono a2
+     *   busca en gooru y se trae a2 que es de o2
+     *   crea un collection con a2 de o2
+     *
+     *
+     *
+     *
+     *
+     *
+     * ++Collection ID = c2 with external ID (Assessment ID) = a2 external parent ID (parent Assessment ID) = a2 and owner ID = o2
+     *   since the owner is different but the parent id is the same then a copy of the Assessment is required
+     * ++Collection ID = c3 with external ID (Assessment ID) = a3 external parent ID (parent Assessment ID) = a1 and owner ID = o2
+     *   this is an owner's o2 second copy of Assessment ID = a1
+     * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o2
+     *   this is an owner's o2 copy of Assessment ID = a2
+     *
+     * One input parameter is the external ID (Assessment ID) on the Content Provider
+     * so in Quizzes we should use that ID as both external ID and also external parent ID
+     * because a o2 user might create a {@link Collection} using a1 as external ID
+     * by any of external ID o external parent ID and also by the Quizzes owner {@link com.quizzes.api.common.model.jooq.tables.pojos.Profile}
      * @param contextPostRequestDto  information about the new {@link Context}
      * @param lms {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
         Profile owner = findOrCreateProfile(contextPostRequestDto.getOwner(), lms);
-        Collection collection = collectionService.findByExternalIdorExternalParentIdandOwner(contextPostRequestDto.getExternalCollectionId(), owner.getId());
+        Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
+        if (collection != null){
+            if (!collection.getOwnerProfileId().equals(owner.getId())){
+                // This means there is a Collection created but has a different owner
+                // then this is not the correct collection
+                collection = null;
+            }
+        }
+        if (collection == null){
+            collection = collectionService.findByExternalParentId(contextPostRequestDto.getExternalCollectionId());
+            if (!collection.getOwnerProfileId().equals(owner.getId())){
+                // Again this means there is a Collection created but has a different owner
+                // then this is not the correct collection
+                collection = null;
+            }
+        }
+
         if (collection == null){
             collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
         }
