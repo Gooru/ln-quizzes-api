@@ -22,6 +22,6 @@ public interface ContextRepository {
 
     List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId);
 
-    ContextOwnerEntity findContextOwnerByContextId(UUID contextId);
+    ContextOwnerEntity findContextOwnerByContextIdAndProfileId(UUID contextId, UUID profileId);
 
 }

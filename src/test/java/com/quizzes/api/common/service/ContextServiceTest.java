@@ -457,6 +457,55 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void getAssignedContextByContextIdAndProfileId() {
+        UUID id = UUID.randomUUID();
+        UUID classId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        long startDate = 324234;
+        String contextData = "{\n" +
+                "\t\t\"metadata\": {\n" +
+                "\t\t  \"description\": \"First Partial\",\n" +
+                "\t\t  \"startDate\": \"" + startDate + "\",\n" +
+                "\t\t  \"title\": \"Math 1st Grade\"\n" +
+                "\t\t},\n" +
+                "\t\t\"contextMap\": {\n" +
+                "\t\t  \"classId\": \"" + classId + "\"\n" +
+                "\t\t}\n" +
+                "\t}";
+
+        ContextOwnerEntity contextOwnerEntity = Mockito.spy(ContextOwnerEntity.class);
+        when(contextOwnerEntity.getId()).thenReturn(id);
+        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
+        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
+        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
+        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+
+        when(contextRepository .findContextOwnerByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(contextOwnerEntity);
+
+        ContextAssignedGetResponseDto resultEntity =
+                contextService.getAssignedContextByContextIdAndProfileId(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findContextOwnerByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+
+        assertNotNull("First object is null", resultEntity);
+        assertEquals("Wrong id", id, resultEntity.getId());
+        assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
+
+        assertNotNull("Created Date is null", resultEntity.getCreatedDate());
+
+        MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
+        assertNotNull("Metadata is null", metadataResult);
+        assertEquals("Wrong title", "Math 1st Grade", metadataResult.getTitle());
+        assertEquals("Wrong description", "First Partial", metadataResult.getDescription());
+        assertEquals("Wrong start date", startDate, metadataResult.getStartDate());
+
+        assertEquals("Wrong owner id", ownerId, resultEntity.getOwner().getId());
+        assertEquals("Wrong class id", classId.toString(), resultEntity.getContextData().getContextMap().get("classId"));
+    }
+
+    @Test
     public void findContextByOwnerId() {
         List<Context> contextsByOwner = new ArrayList<>();
 

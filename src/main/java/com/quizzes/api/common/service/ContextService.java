@@ -242,8 +242,8 @@ public class ContextService {
                 .collect(Collectors.toList());
     }
 
-    public ContextAssignedGetResponseDto getAssignedContextByContextId(UUID contextId) {
-        ContextOwnerEntity context = contextRepository.findContextOwnerByContextId(contextId);
+    public ContextAssignedGetResponseDto getAssignedContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        ContextOwnerEntity context = contextRepository.findContextOwnerByContextIdAndProfileId(contextId, profileId);
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
