@@ -18,6 +18,8 @@ public interface ContextRepository {
 
     Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId);
 
+    Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByContextId(UUID contextId);
+
     List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId);
 
     ContextOwnerEntity findContextOwnerByContextId(UUID contextId);

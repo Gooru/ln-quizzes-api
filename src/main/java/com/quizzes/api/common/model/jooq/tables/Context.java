@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.jooq.tables.records.ContextRecord> {
 
-	private static final long serialVersionUID = -1762085828;
+	private static final long serialVersionUID = 1623739315;
 
 	/**
 	 * The singleton instance of <code>public.context</code>
@@ -58,6 +58,11 @@ public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.common.mode
 	 * The column <code>public.context.updated_at</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ContextRecord, java.sql.Timestamp> UPDATED_AT = createField("updated_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>public.context.is_active</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ContextRecord, java.lang.Boolean> IS_ACTIVE = createField("is_active", org.jooq.impl.SQLDataType.BOOLEAN.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>public.context</code> table reference

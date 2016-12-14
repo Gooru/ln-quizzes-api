@@ -1,7 +1,6 @@
 package com.quizzes.api.common.dto;
 
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;

@@ -1,7 +1,6 @@
 package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.controller.ContextController;
-import com.quizzes.api.common.dto.CommonContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
@@ -11,7 +10,7 @@ import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.MetadataDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.controller.ProfileDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -328,80 +327,6 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void getContext() throws Exception {
-        ContextGetResponseDto response = new ContextGetResponseDto();
-
-        List<IdResponseDto> assignees = new ArrayList<>();
-
-        //Setting assignees
-        UUID assigneeId = UUID.randomUUID();
-        IdResponseDto assignee = new IdResponseDto();
-        assignee.setId(assigneeId);
-        assignees.add(assignee);
-        response.setAssignees(assignees);
-
-        //Setting contextData
-        ContextDataDto contextDataDto = new ContextDataDto();
-        Map<String, String> contextData = new HashMap<>();
-        contextData.put("class", "234");
-        contextDataDto.setContextMap(contextData);
-
-        MetadataDto metadata = new MetadataDto();
-        metadata.setDescription("First Partial");
-        metadata.setTitle("Math 1st Grade");
-        metadata.setDueDate(234234);
-        metadata.setStartDate(324234);
-        contextDataDto.setMetadata(metadata);
-        response.setContextData(contextDataDto);
-
-        //Setting id and collection
-        UUID id = UUID.randomUUID();
-        response.setId(id);
-
-        //Setting collection
-        UUID collectionId = UUID.randomUUID();
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(String.valueOf(collectionId));
-        response.setCollection(collectionDto);
-
-        //Setting owner
-        IdResponseDto owner = new IdResponseDto();
-        UUID ownerId = UUID.randomUUID();
-        owner.setId(ownerId);
-        response.setOwner(owner);
-
-        when(contextService.getContext(any(UUID.class))).thenReturn(response);
-
-        ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
-
-        verify(contextService, times(1)).getContext(any(UUID.class));
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
-
-        ContextGetResponseDto resultDto = result.getBody();
-
-        assertNotNull("Context id is null", resultDto.getId());
-        assertEquals("Wrong collection id", collectionId.toString(), resultDto.getCollection().getId());
-        assertNotNull("ContextData is null", resultDto.getContextData());
-        assertNotNull("Metadata is null", resultDto.getContextData().getMetadata());
-        assertEquals("Wrong owner id", ownerId, resultDto.getOwner().getId());
-        assertEquals("Wrong assignees size", 1, resultDto.getAssignees().size());
-        assertEquals("Wrong first assignee id", assigneeId, resultDto.getAssignees().get(0).getId());
-    }
-
-    @Test
-    public void getContextNotFound() throws Exception {
-        when(contextService.getContext(any(UUID.class))).thenReturn(null);
-
-        ResponseEntity<ContextGetResponseDto> result = controller.getContext(UUID.randomUUID(), "its_learning", UUID.randomUUID());
-
-        verify(contextService, times(1)).getContext(any(UUID.class));
-        assertNotNull("Response Entity is null", result);
-        assertNull("Response body is not null", result.getBody());
-        assertEquals("Invalid status code", HttpStatus.NOT_FOUND, result.getStatusCode());
-    }
-
-    @Test
     public void findCreatedContexts() throws Exception {
 
         List<Context> contextsCreatedByOwner = new ArrayList<>();
@@ -537,8 +462,14 @@ public class ContextControllerTest {
 
     @Test
     public void updateContext() throws Exception {
-        Context contextResult = new Context(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                "{\"context\":\"value\"}", false, null, null);
+        Context contextResult = new Context();
+        contextResult.setId(UUID.randomUUID());
+        contextResult.setCollectionId(UUID.randomUUID());
+        contextResult.setGroupId(UUID.randomUUID());
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
+        contextResult.setIsActive(true);
+
         when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
         ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
