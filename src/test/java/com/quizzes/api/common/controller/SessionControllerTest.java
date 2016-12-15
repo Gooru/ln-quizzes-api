@@ -22,8 +22,8 @@ public class SessionControllerTest {
     private SessionController sessionController = Mockito.spy(SessionController.class);
 
     @Test
-    public void getAuthorization() throws Exception {
-        ResponseEntity<SessionTokenDto> result = sessionController.getAuthorization(new SessionPostRequestDto());
+    public void authorize() throws Exception {
+        ResponseEntity<SessionTokenDto> result = sessionController.authorize(new SessionPostRequestDto());
 
         assertNotNull("Result is null", result);
         assertEquals("Http status is not 200", HttpStatus.OK, result.getStatusCode());
