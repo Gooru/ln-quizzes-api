@@ -83,32 +83,16 @@ public class ContextService {
      * A copied Assessment has it's own unique ID and in the field parent ID has the ID of the Assessment it is being copied from
      * In Quizzes each {@link Collection} has it's owner, and that owner matches or represents a Content Provider owner.
      * A Quizzes owner can use an Assessment he owns in the Content Provider or a "Public" Assessment from a different owner
-     * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.*
+     * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.
      * Some Examples are:
      * ++Collection ID = c1 with external ID (Assessment ID) = a1 external parent ID (parent Assessment ID) = a1 and owner ID = o1
      *   this is a Collection from an original Assessment, not copied
      * ++Collection ID = c2 with external ID (Assessment ID) = a2 external parent ID (parent Assessment ID) = a1 and owner ID = o2
      *   this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
-     * ++Collection ID = c3 with external ID (Assessment ID) = a3 external parent ID (parent Assessment ID) = a1 and owner ID = o2
-     *   this is an owner's o2 second copy of Assessment ID = a1
-     * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o2
-     *   this is an owner's o2 copy of Assessment ID = a2
-     *
-     *
-     *  gooru
-     *  o2 -> a2 hijo de a1
-     *  o2 -> a3 hijo de a1
-     *  o2 -> a4 hijo de a1
-     *  o2 -> a5 hijo de a5
-     *  no existe o3 -> a6 hijo de a5
-     *
-     *  quizzes
-     *  p2 -> c2 viene de gooru de a2 {collectionid = 2, externalid = a2, parentExternalId = a2} si no es una copia en gooru el external parent id es el mismo
-     *  p2 -> c3 viene de gooru de a3 {collectionid = 3, externalid = a3, parentExternalId = a3} si no es una copia en gooru el external parent id es el mismo
-     *  p3 -> c4 viene de gooru de a5 {collectionid = 4, externalid = a6, parentExternalId = a5} si es una copia
-     *  p4 -> c5 viene de gooru de a5 {collectionid = 5, externalid = a7, parentExternalId = a5} si es una copia
-     *  p4 -> c6 viene de gooru de a7 {collectionid = 6, externalid = a7, parentExternalId = a7} si no es una copia +++este collection nunca se crea, se usa
-     *  p4 -> c7 viene de gooru de a7 {collectionid = 7, externalid = a8, parentExternalId = a7} si no es una copia
+     * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o3
+     *   this is an owner's o3 copy of Assessment ID = a2
+     * ++Collection ID = c5 with external ID (Assessment ID) = a5 external parent ID (parent Assessment ID) = a5 and owner ID = o4
+     *   this is an owner's o4 own Assessment ID = a5
      *
      * @param contextPostRequestDto information to create the new {@link Context}
      * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
