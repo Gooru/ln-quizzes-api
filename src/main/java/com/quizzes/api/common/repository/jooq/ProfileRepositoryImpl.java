@@ -109,6 +109,7 @@ public class ProfileRepositoryImpl implements ProfileRepository {
         return jooq.insertInto(PROFILE)
                 .set(PROFILE.ID, UUID.randomUUID())
                 .set(PROFILE.EXTERNAL_ID, profile.getExternalId())
+                .set(PROFILE.CLIENT_ID, profile.getClientId())
                 .set(PROFILE.LMS_ID, profile.getLmsId())
                 .set(PROFILE.PROFILE_DATA, profile.getProfileData())
                 .returning()

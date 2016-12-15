@@ -9,7 +9,7 @@ public class AssessmentDto extends CollectionDto {
     @SerializedName("question")
     private List<QuestionDto> questions;
 
-    @SerializedName(value = "owner_id")
+    @SerializedName("owner_id")
     private String ownerId;
 
     public AssessmentDto() {
