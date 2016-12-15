@@ -32,7 +32,7 @@ public class SessionController {
     @RequestMapping(path = "/v1/session/authorization",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<SessionTokenDto> getAuthorization(
+    public ResponseEntity<SessionTokenDto> authorize(
             @ApiParam(value = "Json body", required = true, name = "Body")
             @RequestBody SessionPostRequestDto sessionPostRequestDto) {
         SessionTokenDto session = new SessionTokenDto();
