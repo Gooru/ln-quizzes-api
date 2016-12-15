@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Profile implements java.io.Serializable {
 
-	private static final long serialVersionUID = 361879136;
+	private static final long serialVersionUID = 306853956;
 
 	private java.util.UUID                              id;
 	private java.lang.String                            externalId;
@@ -17,6 +17,7 @@ public class Profile implements java.io.Serializable {
 	private java.lang.String                            profileData;
 	private java.sql.Timestamp                          createdAt;
 	private java.sql.Timestamp                          updatedAt;
+	private java.util.UUID                              clientId;
 
 	public Profile() {}
 
@@ -26,7 +27,8 @@ public class Profile implements java.io.Serializable {
 		com.quizzes.api.common.model.jooq.enums.Lms lmsId,
 		java.lang.String                            profileData,
 		java.sql.Timestamp                          createdAt,
-		java.sql.Timestamp                          updatedAt
+		java.sql.Timestamp                          updatedAt,
+		java.util.UUID                              clientId
 	) {
 		this.id = id;
 		this.externalId = externalId;
@@ -34,6 +36,7 @@ public class Profile implements java.io.Serializable {
 		this.profileData = profileData;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.clientId = clientId;
 	}
 
 	public java.util.UUID getId() {
@@ -82,5 +85,13 @@ public class Profile implements java.io.Serializable {
 
 	public void setUpdatedAt(java.sql.Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public java.util.UUID getClientId() {
+		return this.clientId;
+	}
+
+	public void setClientId(java.util.UUID clientId) {
+		this.clientId = clientId;
 	}
 }
