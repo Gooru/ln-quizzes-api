@@ -355,7 +355,7 @@ public class ContextServiceTest {
         contextResult.setContextData("{\"context\":\"value\"}");
         contextResult.setIsDeleted(false);
 
-        when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(contextResult);
 
         List<String> externalProfileIdsToFind = new ArrayList<>();
         //we are looking for this 2 profiles in the DB
@@ -384,10 +384,10 @@ public class ContextServiceTest {
         profileDto.setLastName("Navas");
         profileDto.setUsername("knavas");
 
-        Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
+        Context result = contextService.update(UUID.randomUUID(), UUID.randomUUID(), contextDataMock, Lms.its_learning);
         contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
-        verify(contextRepository, times(1)).findById(any(UUID.class));
+        verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
         verify(profileService, times(1)).save(any(List.class));
 
@@ -400,8 +400,8 @@ public class ContextServiceTest {
 
     @Test(expected = ContentNotFoundException.class)
     public void updateException() throws Exception {
-        when(contextRepository.findById(any(UUID.class))).thenReturn(null);
-        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        Context result = contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
     @Test

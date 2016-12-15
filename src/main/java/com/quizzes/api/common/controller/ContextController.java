@@ -156,7 +156,7 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        Context context = contextService.update(contextId, contextPutRequestDto, Lms.valueOf(lmsId));
+        Context context = contextService.update(contextId, profileId, contextPutRequestDto, Lms.valueOf(lmsId));
 
         if (context == null || context.getId() == null) {
             throw new IllegalArgumentException("Error trying to get the updated context");
