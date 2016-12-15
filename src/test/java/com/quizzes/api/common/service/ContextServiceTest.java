@@ -320,6 +320,28 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void findByIdAndOwnerId() {
+        UUID id = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID groupId = UUID.randomUUID();
+        Context contextResult = new Context();
+        contextResult.setId(id);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(contextResult);
+
+        Context result = contextService.findByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", id, result.getId());
+        assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
+        assertEquals("Wrong id for group", groupId, result.getGroupId());
+    }
+
+    @Test
     public void update() throws Exception {
         ContextDataDto contextDataDto = new ContextDataDto();
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
