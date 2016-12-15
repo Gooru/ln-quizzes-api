@@ -76,7 +76,9 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
-                .where(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
+                .where(GROUP_PROFILE.PROFILE_ID.eq(assigneeId)
+                        .and(CONTEXT.IS_ACTIVE.eq(true))
+                )
                 .fetchInto(ContextOwnerEntity.class);
     }
 

@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Public extends org.jooq.impl.SchemaImpl {
 
-	private static final long serialVersionUID = 1951197687;
+	private static final long serialVersionUID = -1093832689;
 
 	/**
 	 * The singleton instance of <code>public</code>
@@ -32,6 +32,7 @@ public class Public extends org.jooq.impl.SchemaImpl {
 
 	private final java.util.List<org.jooq.Table<?>> getTables0() {
 		return java.util.Arrays.<org.jooq.Table<?>>asList(
+			com.quizzes.api.common.model.jooq.tables.Client.CLIENT,
 			com.quizzes.api.common.model.jooq.tables.Collection.COLLECTION,
 			com.quizzes.api.common.model.jooq.tables.CollectionOnAir.COLLECTION_ON_AIR,
 			com.quizzes.api.common.model.jooq.tables.Context.CONTEXT,
@@ -42,6 +43,7 @@ public class Public extends org.jooq.impl.SchemaImpl {
 			com.quizzes.api.common.model.jooq.tables.Group.GROUP,
 			com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE,
 			com.quizzes.api.common.model.jooq.tables.Profile.PROFILE,
-			com.quizzes.api.common.model.jooq.tables.Resource.RESOURCE);
+			com.quizzes.api.common.model.jooq.tables.Resource.RESOURCE,
+			com.quizzes.api.common.model.jooq.tables.Session.SESSION);
 	}
 }
