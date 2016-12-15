@@ -45,6 +45,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -144,6 +145,7 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
+        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
         verify(collectionService, times(1)).findByExternalId(any(String.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
@@ -214,6 +216,7 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
+        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
         verify(collectionService, times(1)).findByExternalId(any(String.class));
         //Creates the new group
         verify(groupService, times(1)).createGroup(any(UUID.class));
@@ -227,7 +230,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void createContextWithExistingCollectionByExternalParentID() throws Exception {
+    public void createContextWithExistingCollectionByOwnerAndExternalParentID() throws Exception {
         String externalCollectionId = UUID.randomUUID().toString();
 
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
@@ -254,12 +257,6 @@ public class ContextServiceTest {
 
         Lms lms = Lms.its_learning;
 
-        //This collection has a random owner to force check by external parent ID
-        Collection collectionResult = new Collection();
-        collectionResult.setId(UUID.randomUUID());
-        collectionResult.setOwnerProfileId(UUID.randomUUID());
-        when(collectionService.findByExternalId(any(String.class))).thenReturn(collectionResult);
-
         //This means that the collection exists
         Collection parentCollectionResult = new Collection();
         parentCollectionResult.setId(UUID.randomUUID());
@@ -280,7 +277,7 @@ public class ContextServiceTest {
 
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
-        contextResult.setCollectionId(collectionResult.getId());
+        contextResult.setCollectionId(parentCollectionResult.getId());
         contextResult.setGroupId(groupResult.getId());
         contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
         contextResult.setIsDeleted(false);
@@ -290,14 +287,14 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
-        verify(collectionService, times(1)).findByExternalId(any(String.class));
+        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
+        verify(collectionService, never()).findByExternalId(any(String.class));
         //Creates the new group
         verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(profileService, times(3)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
         //Adds the 2 Assignees to the new roup
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
 
         assertNotNull("Response is Null", result);
         assertNotNull("Context ID is Null", result.getId());
