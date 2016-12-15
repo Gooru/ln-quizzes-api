@@ -1,4 +1,3 @@
--- the constraint adding below implicitly creates an index with owner_profile_id, so we drop this one
 DROP INDEX IF EXISTS collection_owner_profile_id_idx;
 
 -- this index means that only one "owner - external parent" combination is possible
