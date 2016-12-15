@@ -42,8 +42,8 @@ public class CollectionService {
         return collectionRepository.findByExternalId(externalId);
     }
 
-    public Collection findByExternalParentId(String externalParentId) {
-        return collectionRepository.findByExternalParentId(externalParentId);
+    public Collection findByOwnerProfileIdAndExternalParentId(UUID ownerProfileId, String externalParentId) {
+        return collectionRepository.findByOwnerProfileIdAndExternalParentId(ownerProfileId, externalParentId);
     }
 
     //TODO: tests

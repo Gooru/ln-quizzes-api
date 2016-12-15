@@ -265,7 +265,7 @@ public class ContextServiceTest {
         parentCollectionResult.setId(UUID.randomUUID());
         UUID ownerProfileID = UUID.randomUUID();
         parentCollectionResult.setOwnerProfileId(ownerProfileID);
-        when(collectionService.findByExternalParentId(any(String.class))).thenReturn(parentCollectionResult);
+        when(collectionService.findByOwnerProfileIdAndExternalParentId(any(UUID.class), any(String.class))).thenReturn(parentCollectionResult);
 
         //We create a new group for this new context
         Group groupResult = new Group();
@@ -297,7 +297,7 @@ public class ContextServiceTest {
         //Adds the 2 Assignees to the new roup
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(collectionService, times(1)).findByExternalParentId(any(String.class));
+        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
 
         assertNotNull("Response is Null", result);
         assertNotNull("Context ID is Null", result.getId());

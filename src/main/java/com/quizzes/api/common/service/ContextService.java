@@ -94,6 +94,22 @@ public class ContextService {
      * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o2
      *   this is an owner's o2 copy of Assessment ID = a2
      *
+     *
+     *  gooru
+     *  o2 -> a2 hijo de a1
+     *  o2 -> a3 hijo de a1
+     *  o2 -> a4 hijo de a1
+     *  o2 -> a5 hijo de a5
+     *  no existe o3 -> a6 hijo de a5
+     *
+     *  quizzes
+     *  p2 -> c2 viene de gooru de a2 {collectionid = 2, externalid = a2, parentExternalId = a2} si no es una copia en gooru el external parent id es el mismo
+     *  p2 -> c3 viene de gooru de a3 {collectionid = 3, externalid = a3, parentExternalId = a3} si no es una copia en gooru el external parent id es el mismo
+     *  p3 -> c4 viene de gooru de a5 {collectionid = 4, externalid = a6, parentExternalId = a5} si es una copia
+     *  p4 -> c5 viene de gooru de a5 {collectionid = 5, externalid = a7, parentExternalId = a5} si es una copia
+     *  p4 -> c6 viene de gooru de a7 {collectionid = 6, externalid = a7, parentExternalId = a7} si no es una copia +++este collection nunca se crea, se usa
+     *  p4 -> c7 viene de gooru de a7 {collectionid = 7, externalid = a8, parentExternalId = a7} si no es una copia
+     *
      * @param contextPostRequestDto information to create the new {@link Context}
      * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
@@ -104,18 +120,12 @@ public class ContextService {
             owner = createProfile(contextPostRequestDto.getOwner(), lms);
         }
 
-        Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
-        if (collection != null){
-            if (!collection.getOwnerProfileId().equals(owner.getId())){
+        Collection collection = collectionService.findByOwnerProfileIdAndExternalParentId(owner.getId(), contextPostRequestDto.getExternalCollectionId());
+
+        if (collection == null) {
+            collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
+            if (collection != null && !collection.getOwnerProfileId().equals(owner.getId())) {
                 // This means there is a Collection created but has a different owner
-                // then this is not the correct collection
-                collection = null;
-            }
-        }
-        if (collection == null){
-            collection = collectionService.findByExternalParentId(contextPostRequestDto.getExternalCollectionId());
-            if (collection != null && !collection.getOwnerProfileId().equals(owner.getId())){
-                // Again this means there is a Collection created but has a different owner
                 // then this is not the correct collection
                 collection = null;
             }

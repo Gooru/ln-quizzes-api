@@ -10,13 +10,7 @@ public interface CollectionRepository {
 
     Collection findById(UUID id);
 
-    /**
-     * Since an Assessment can be a copy of another Assessment or an original Assessment we should be able to find a collection
-     * by any of external ID o external parent ID and also by the Quizzes owner {@link com.quizzes.api.common.model.jooq.tables.pojos.Profile}
-     * @param externalId Content Provider ID of the Assessment or the parent Assessment
-     * @return the {@link Collection} object
-     */
     Collection findByExternalId(String externalId);
 
-    Collection findByExternalParentId(String externalParentId);
+    Collection findByOwnerProfileIdAndExternalParentId(UUID ownerProfileId,  String externalParentId);
 }

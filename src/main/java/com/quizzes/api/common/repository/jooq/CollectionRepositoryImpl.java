@@ -18,9 +18,6 @@ public class CollectionRepositoryImpl implements CollectionRepository {
     @Autowired
     private DSLContext jooq;
 
-    /**
-     * @see CollectionRepository#findByExternalId(String externalId)
-     */
     @Override
     public Collection findByExternalId(String externalId) {
         return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
@@ -32,11 +29,11 @@ public class CollectionRepositoryImpl implements CollectionRepository {
     }
 
     @Override
-    public Collection findByExternalParentId(String externalParentId) {
+    public Collection findByOwnerProfileIdAndExternalParentId(UUID ownerProfileId, String externalParentId) {
         return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
                 COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
-                .where(DSL.condition("DECODE(MD5(EXTERNAL_PARENT_ID), 'HEX') = DECODE(MD5(?), 'HEX')", externalParentId))
+                .where(COLLECTION.OWNER_PROFILE_ID.eq(ownerProfileId))
                 .and(COLLECTION.EXTERNAL_PARENT_ID.eq(externalParentId))
                 .fetchOneInto(Collection.class);
     }
