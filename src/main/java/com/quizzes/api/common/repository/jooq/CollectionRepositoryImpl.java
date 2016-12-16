@@ -34,6 +34,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
                 COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
                 .where(COLLECTION.OWNER_PROFILE_ID.eq(ownerProfileId))
+                .and(DSL.condition("DECODE(MD5(EXTERNAL_PARENT_ID), 'HEX') = DECODE(MD5(?), 'HEX')", externalParentId))
                 .and(COLLECTION.EXTERNAL_PARENT_ID.eq(externalParentId))
                 .fetchOneInto(Collection.class);
     }

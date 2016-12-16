@@ -108,15 +108,11 @@ public class ContextService {
 
         if (collection == null) {
             collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
-            if (collection != null && !collection.getOwnerProfileId().equals(owner.getId())) {
-                // This means there is a Collection created but has a different owner
-                // then this is not the correct collection
-                collection = null;
+            if (collection == null
+                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))){
+                // the collection is noll OR the collection has a different owner
+                collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
             }
-        }
-
-        if (collection == null){
-            collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
         }
 
         Group group = groupService.createGroup(owner.getId());
