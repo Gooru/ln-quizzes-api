@@ -89,20 +89,24 @@ public class ProfileServiceTest {
 
     @Test
     public void save() throws Exception {
-        Profile mockProfile = new Profile(null, "external-id", Lms.its_learning, "{\"firstName\":\"name\"}", null,
-                null);
-        Profile profile = mockProfile;
-        UUID id = UUID.randomUUID();
-        profile.setId(id);
-        when(profileRepository.save(mockProfile)).thenReturn(profile);
+        Profile profile = new Profile();
+        profile.setId(UUID.randomUUID());
+        profile.setExternalId("external-id");
+        profile.setClientId(UUID.randomUUID());
+        profile.setLmsId(Lms.quizzes);
+        profile.setProfileData("{\"firstName\":\"name\"}");
 
-        Profile result = profileService.save(profile);
+        when(profileRepository.save(any(Profile.class))).thenReturn(profile);
 
-        verify(profileRepository, times(1)).save(eq(mockProfile));
-        assertNotNull("Response is null", result);
-        assertEquals("Wrong id", id, result.getId());
-        assertEquals("Wrong profile data", profile.getProfileData(), result.getProfileData());
-        assertEquals("Wrong lms id", profile.getLmsId(), result.getLmsId());
-        assertEquals("Wrong external id", profile.getExternalId(), result.getExternalId());
+        Profile savedProfile = profileService.save(profile);
+
+        verify(profileRepository, times(1)).save(eq(profile));
+
+        assertNotNull("Saved profiles is null", savedProfile);
+        assertEquals("Wrong profile id", profile.getId(), savedProfile.getId());
+        assertEquals("Wrong profile external id", profile.getExternalId(), savedProfile.getExternalId());
+        assertEquals("Wrong profile client id", profile.getClientId(), savedProfile.getClientId());
+        assertEquals("Wrong profile data", profile.getProfileData(), savedProfile.getProfileData());
+        assertEquals("Wrong profile lms id", profile.getLmsId(), savedProfile.getLmsId());
     }
 }

@@ -82,12 +82,11 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         AssessmentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId, userToken);
 
         Collection result = null;
-        if (assessmentDto.getOwnerId() != null){
-            if (assessmentDto.getOwnerId().equals(owner.getExternalId())){
+        if (assessmentDto.getOwnerId() != null) {
+            if (assessmentDto.getOwnerId().equals(owner.getExternalId())) {
                 result = createCollectionFromAssessment(assessmentDto, externalCollectionId, owner.getId());
-            }
-            else {
-                result =  createCollectionCopy(externalCollectionId, owner.getId(), userToken);
+            } else {
+                result = createCollectionCopy(externalCollectionId, owner.getId(), userToken);
             }
         }
 

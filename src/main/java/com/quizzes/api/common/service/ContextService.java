@@ -112,14 +112,18 @@ public class ContextService {
         return contextRepository.findById(contextId);
     }
 
+    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
+        return contextRepository.findByIdAndOwnerId(contextId, ownerId);
+    }
+
     /**
      * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
      * @param lms                  the LMS id
      * @return the updated Context
      */
-    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
-        Context context = findById(contextId);
+    public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
+        Context context = findByIdAndOwnerId(contextId, profileId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
@@ -141,6 +145,11 @@ public class ContextService {
                         Profile newProfile = new Profile();
                         newProfile.setExternalId(profile.getId());
                         newProfile.setLmsId(lms);
+
+                        // TODO We need to remove the hardcoded client ID and get it from the owner Profile
+                        // This Client ID belongs to Gooru client
+                        newProfile.setClientId(UUID.fromString("8d8068c6-71e3-46f1-a169-2fceb3ed674b"));
+
                         newProfile.setProfileData(removeIdFromProfileDto(profile).toString());
                         return newProfile;
                     }).collect(Collectors.toList());
@@ -242,8 +251,8 @@ public class ContextService {
                 .collect(Collectors.toList());
     }
 
-    public ContextAssignedGetResponseDto getAssignedContextByContextId(UUID contextId) {
-        ContextOwnerEntity context = contextRepository.findContextOwnerByContextId(contextId);
+    public ContextAssignedGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId) {
+        ContextOwnerEntity context = contextRepository.findContextOwnerByContextIdAndAssigneeId(contextId, assigneeId);
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
@@ -276,6 +285,10 @@ public class ContextService {
         Profile profile = new Profile();
         profile.setExternalId(profileDto.getId());
         profile.setLmsId(lmsId);
+
+        // TODO We need to remove the hardcoded client ID and get it from the owner Profile
+        // This Client ID belongs to Gooru client
+        profile.setClientId(UUID.fromString("8d8068c6-71e3-46f1-a169-2fceb3ed674b"));
 
         JsonObject jsonObject = removeIdFromProfileDto(profileDto);
 

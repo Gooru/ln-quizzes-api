@@ -319,6 +319,28 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void findByIdAndOwnerId() {
+        UUID id = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID groupId = UUID.randomUUID();
+        Context contextResult = new Context();
+        contextResult.setId(id);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(contextResult);
+
+        Context result = contextService.findByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", id, result.getId());
+        assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
+        assertEquals("Wrong id for group", groupId, result.getGroupId());
+    }
+
+    @Test
     public void update() throws Exception {
         ContextDataDto contextDataDto = new ContextDataDto();
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
@@ -354,7 +376,7 @@ public class ContextServiceTest {
         contextResult.setContextData("{\"context\":\"value\"}");
         contextResult.setIsDeleted(false);
 
-        when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(contextResult);
 
         List<String> externalProfileIdsToFind = new ArrayList<>();
         //we are looking for this 2 profiles in the DB
@@ -383,10 +405,10 @@ public class ContextServiceTest {
         profileDto.setLastName("Navas");
         profileDto.setUsername("knavas");
 
-        Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
+        Context result = contextService.update(UUID.randomUUID(), UUID.randomUUID(), contextDataMock, Lms.its_learning);
         contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
-        verify(contextRepository, times(1)).findById(any(UUID.class));
+        verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
         verify(profileService, times(1)).save(any(List.class));
 
@@ -399,8 +421,8 @@ public class ContextServiceTest {
 
     @Test(expected = ContentNotFoundException.class)
     public void updateException() throws Exception {
-        when(contextRepository.findById(any(UUID.class))).thenReturn(null);
-        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        Context result = contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
     @Test
@@ -438,6 +460,55 @@ public class ContextServiceTest {
 
         ContextAssignedGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());
+
+        assertNotNull("First object is null", resultEntity);
+        assertEquals("Wrong id", id, resultEntity.getId());
+        assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
+
+        assertNotNull("Created Date is null", resultEntity.getCreatedDate());
+
+        MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
+        assertNotNull("Metadata is null", metadataResult);
+        assertEquals("Wrong title", "Math 1st Grade", metadataResult.getTitle());
+        assertEquals("Wrong description", "First Partial", metadataResult.getDescription());
+        assertEquals("Wrong start date", startDate, metadataResult.getStartDate());
+
+        assertEquals("Wrong owner id", ownerId, resultEntity.getOwner().getId());
+        assertEquals("Wrong class id", classId.toString(), resultEntity.getContextData().getContextMap().get("classId"));
+    }
+
+    @Test
+    public void getAssignedContextByContextIdAndAssigneeId() {
+        UUID id = UUID.randomUUID();
+        UUID classId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        long startDate = 324234;
+        String contextData = "{\n" +
+                "\t\t\"metadata\": {\n" +
+                "\t\t  \"description\": \"First Partial\",\n" +
+                "\t\t  \"startDate\": \"" + startDate + "\",\n" +
+                "\t\t  \"title\": \"Math 1st Grade\"\n" +
+                "\t\t},\n" +
+                "\t\t\"contextMap\": {\n" +
+                "\t\t  \"classId\": \"" + classId + "\"\n" +
+                "\t\t}\n" +
+                "\t}";
+
+        ContextOwnerEntity contextOwnerEntity = Mockito.spy(ContextOwnerEntity.class);
+        when(contextOwnerEntity.getId()).thenReturn(id);
+        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
+        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
+        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
+        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+
+        when(contextRepository .findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
+                .thenReturn(contextOwnerEntity);
+
+        ContextAssignedGetResponseDto resultEntity =
+                contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class));
 
         assertNotNull("First object is null", resultEntity);
         assertEquals("Wrong id", id, resultEntity.getId());

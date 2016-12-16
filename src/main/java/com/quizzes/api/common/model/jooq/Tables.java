@@ -12,6 +12,11 @@ package com.quizzes.api.common.model.jooq;
 public class Tables {
 
 	/**
+	 * The table public.client
+	 */
+	public static final com.quizzes.api.common.model.jooq.tables.Client CLIENT = com.quizzes.api.common.model.jooq.tables.Client.CLIENT;
+
+	/**
 	 * The table public.collection
 	 */
 	public static final com.quizzes.api.common.model.jooq.tables.Collection COLLECTION = com.quizzes.api.common.model.jooq.tables.Collection.COLLECTION;
@@ -65,4 +70,9 @@ public class Tables {
 	 * The table public.resource
 	 */
 	public static final com.quizzes.api.common.model.jooq.tables.Resource RESOURCE = com.quizzes.api.common.model.jooq.tables.Resource.RESOURCE;
+
+	/**
+	 * The table public.session
+	 */
+	public static final com.quizzes.api.common.model.jooq.tables.Session SESSION = com.quizzes.api.common.model.jooq.tables.Session.SESSION;
 }
