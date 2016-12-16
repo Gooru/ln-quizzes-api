@@ -50,6 +50,7 @@ frisby.create('Test Context creation for one assignee and owner')
           .get(QuizzesApiUrl + '/v1/profile/' + json.id)
           .addHeader('profile-id', json.id)
           .addHeader('client-id', 'quizzes')
+          .inspectRequest()
 
           .expectStatus(200)
           .inspectJSON()
