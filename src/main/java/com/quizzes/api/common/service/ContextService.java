@@ -212,9 +212,9 @@ public class ContextService {
         return result;
     }
 
-    public CreatedContextGetResponseDto findCreatedContextByContextId(UUID contextId) {
+    public CreatedContextGetResponseDto findCreatedContextByContextIdAndOwnerId(UUID contextId, UUID ownerId) {
         Map<UUID, List<ContextAssigneeEntity>> result =
-                contextRepository.findContextAssigneeByContextId(contextId);
+                contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId);
 
         CreatedContextGetResponseDto response = null;
 

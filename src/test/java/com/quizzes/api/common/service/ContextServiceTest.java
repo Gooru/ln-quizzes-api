@@ -8,8 +8,8 @@ import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.MetadataDto;
-import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.dto.ProfileDto;
+import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
@@ -600,6 +600,48 @@ public class ContextServiceTest {
         assertEquals("Created contexts doesn't match", 2, result.size());
         assertNotNull("Context has no Collection", result.get(0).getCollection());
         assertNotNull("Context has no assignees", result.get(0).getAssignees());
+    }
+
+    @Test
+    public void findCreatedContextByContextIdAndOwnerId() {
+        Map<UUID, List<ContextAssigneeEntity>> contextsMap = new HashMap<>();
+        UUID contextId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        UUID classId = UUID.randomUUID();
+
+        ContextAssigneeEntity contextAssigneeEntity = mock(ContextAssigneeEntity.class);
+        when(contextAssigneeEntity.getId()).thenReturn(contextId);
+        when(contextAssigneeEntity.getCollectionId()).thenReturn(UUID.randomUUID());
+        when(contextAssigneeEntity.getGroupId()).thenReturn(UUID.randomUUID());
+        when(contextAssigneeEntity.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
+        when(contextAssigneeEntity.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
+                "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
+                "\"classId\": \"" + classId + "\"}}");
+        when(contextAssigneeEntity.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
+        when(contextAssigneeEntity.getUpdatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
+
+        List<ContextAssigneeEntity> contextAssigneeEntityList = new ArrayList<>();
+        contextAssigneeEntityList.add(contextAssigneeEntity);
+        contextsMap.put(contextId, contextAssigneeEntityList);
+
+        when(contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId))
+                .thenReturn(contextsMap);
+
+        CreatedContextGetResponseDto result =
+                contextService.findCreatedContextByContextIdAndOwnerId(contextId, ownerId);
+        verify(contextRepository, times(1)).findContextAssigneeByContextIdAndOwnerId(contextId, ownerId);
+
+        assertNotNull("Context is null", result);
+        assertNotNull("Wrong collection Id", result.getCollection().getId());
+        assertNotNull("Is is null", result.getId());
+        assertEquals("Context has no assignees", 1, result.getAssignees().size());
+
+        Map<String, String> contextDataResult = result.getContextData().getContextMap();
+        assertEquals("Wrong context data value", classId.toString(), contextDataResult.get("classId"));
+
+        MetadataDto metadataResult = result.getContextData().getMetadata();
+        assertEquals("Context has no assignees", "First Partial", metadataResult.getDescription());
+        assertEquals("Context has no assignees", "Math 1st Grade", metadataResult.getTitle());
     }
 
     @Test

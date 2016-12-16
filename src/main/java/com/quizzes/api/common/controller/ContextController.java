@@ -107,7 +107,7 @@ public class ContextController {
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        CreatedContextGetResponseDto result = contextService.findCreatedContextByContextId(contextId);
+        CreatedContextGetResponseDto result = contextService.findCreatedContextByContextIdAndOwnerId(contextId, profileId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
