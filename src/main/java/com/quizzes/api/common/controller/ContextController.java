@@ -1,7 +1,6 @@
 package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetResponseDto;
 import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
@@ -124,7 +123,8 @@ public class ContextController {
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-        ContextAssignedGetResponseDto result = contextService.getAssignedContextByContextId(contextId);
+        ContextAssignedGetResponseDto result =
+                contextService.getAssignedContextByContextIdAndAssigneeId(contextId, profileId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
