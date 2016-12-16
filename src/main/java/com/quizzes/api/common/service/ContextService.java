@@ -141,6 +141,11 @@ public class ContextService {
                         Profile newProfile = new Profile();
                         newProfile.setExternalId(profile.getId());
                         newProfile.setLmsId(lms);
+
+                        // TODO We need to remove the hardcoded client ID and get it from the owner Profile
+                        // This Client ID belongs to Gooru client
+                        newProfile.setClientId(UUID.fromString("8d8068c6-71e3-46f1-a169-2fceb3ed674b"));
+
                         newProfile.setProfileData(removeIdFromProfileDto(profile).toString());
                         return newProfile;
                     }).collect(Collectors.toList());
@@ -276,6 +281,10 @@ public class ContextService {
         Profile profile = new Profile();
         profile.setExternalId(profileDto.getId());
         profile.setLmsId(lmsId);
+
+        // TODO We need to remove the hardcoded client ID and get it from the owner Profile
+        // This Client ID belongs to Gooru client
+        profile.setClientId(UUID.fromString("8d8068c6-71e3-46f1-a169-2fceb3ed674b"));
 
         JsonObject jsonObject = removeIdFromProfileDto(profileDto);
 
