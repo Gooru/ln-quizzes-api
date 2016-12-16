@@ -1,4 +1,4 @@
-var QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
+const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
 
