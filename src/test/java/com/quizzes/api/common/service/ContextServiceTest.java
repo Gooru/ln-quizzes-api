@@ -319,6 +319,28 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void findByIdAndOwnerId() {
+        UUID id = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID groupId = UUID.randomUUID();
+        Context contextResult = new Context();
+        contextResult.setId(id);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(contextResult);
+
+        Context result = contextService.findByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", id, result.getId());
+        assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
+        assertEquals("Wrong id for group", groupId, result.getGroupId());
+    }
+
+    @Test
     public void update() throws Exception {
         ContextDataDto contextDataDto = new ContextDataDto();
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
@@ -354,7 +376,7 @@ public class ContextServiceTest {
         contextResult.setContextData("{\"context\":\"value\"}");
         contextResult.setIsDeleted(false);
 
-        when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(contextResult);
 
         List<String> externalProfileIdsToFind = new ArrayList<>();
         //we are looking for this 2 profiles in the DB
@@ -383,10 +405,10 @@ public class ContextServiceTest {
         profileDto.setLastName("Navas");
         profileDto.setUsername("knavas");
 
-        Context result = contextService.update(UUID.randomUUID(), contextDataMock, Lms.its_learning);
+        Context result = contextService.update(UUID.randomUUID(), UUID.randomUUID(), contextDataMock, Lms.its_learning);
         contextResult.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
-        verify(contextRepository, times(1)).findById(any(UUID.class));
+        verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
         verify(profileService, times(1)).save(any(List.class));
 
@@ -399,8 +421,8 @@ public class ContextServiceTest {
 
     @Test(expected = ContentNotFoundException.class)
     public void updateException() throws Exception {
-        when(contextRepository.findById(any(UUID.class))).thenReturn(null);
-        Context result = contextService.update(UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        Context result = contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
     @Test

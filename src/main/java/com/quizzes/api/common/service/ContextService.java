@@ -112,14 +112,18 @@ public class ContextService {
         return contextRepository.findById(contextId);
     }
 
+    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
+        return contextRepository.findByIdAndOwnerId(contextId, ownerId);
+    }
+
     /**
      * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
      * @param lms                  the LMS id
      * @return the updated Context
      */
-    public Context update(UUID contextId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
-        Context context = findById(contextId);
+    public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
+        Context context = findByIdAndOwnerId(contextId, profileId);
         if (context == null) {
             logger.error("Error updating context: " + contextId + " was not found");
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
