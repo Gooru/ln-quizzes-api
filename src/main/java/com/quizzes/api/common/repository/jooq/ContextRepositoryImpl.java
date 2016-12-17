@@ -41,6 +41,16 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
+    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
+                .from(CONTEXT)
+                .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
+                .where(CONTEXT.ID.eq(contextId))
+                .and(GROUP.OWNER_PROFILE_ID.eq(ownerId))
+                .fetchOneInto(Context.class);
+    }
+
+    @Override
     public List<Context> findByOwnerId(UUID ownerId) {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
@@ -61,12 +71,14 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByContextId(UUID contextId){
+    public Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByContextIdAndOwnerId(UUID contextId, UUID ownerId){
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA,
                 CONTEXT.CREATED_AT, CONTEXT.UPDATED_AT, GROUP_PROFILE.PROFILE_ID.as("AssigneeProfileId"))
                 .from(CONTEXT)
+                .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
                 .where(CONTEXT.ID.eq(contextId))
+                .and(GROUP.OWNER_PROFILE_ID.eq(ownerId))
                 .fetchGroups(CONTEXT.ID, ContextAssigneeEntity.class);
     }
 
@@ -85,12 +97,14 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public ContextOwnerEntity findContextOwnerByContextId(UUID contextId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, GROUP.OWNER_PROFILE_ID, CONTEXT.CREATED_AT, CONTEXT_PROFILE.ID.as("context_profile_id"))
+    public ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId) {
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, GROUP.OWNER_PROFILE_ID, CONTEXT.CREATED_AT)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
+                .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
                 .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
                 .where(CONTEXT.ID.eq(contextId))
+                .and(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
                 .fetchOneInto(ContextOwnerEntity.class);
     }
 

@@ -2,15 +2,14 @@ package com.quizzes.api.realtime.controller;
 
 import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
-import com.quizzes.api.common.dto.ContextGetResponseDto;
+import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.MetadataDto;
+import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
-import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -32,10 +31,8 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -454,10 +451,10 @@ public class ContextControllerTest {
 
         ContextDataDto contextResult = result.getContextData();
         assertEquals("Wrong size inside context result", 1, contextResult.getContextMap().size());
-        assertEquals("Wrong due date", 234234,contextResult.getMetadata().getDueDate());
-        assertEquals("Wrong start date", 324234,contextResult.getMetadata().getStartDate());
-        assertEquals("Wrong title", "Math 1st Grade",contextResult.getMetadata().getTitle());
-        assertEquals("Wrong description", "First Partial",contextResult.getMetadata().getDescription());
+        assertEquals("Wrong due date", 234234, contextResult.getMetadata().getDueDate());
+        assertEquals("Wrong start date", 324234, contextResult.getMetadata().getStartDate());
+        assertEquals("Wrong title", "Math 1st Grade", contextResult.getMetadata().getTitle());
+        assertEquals("Wrong description", "First Partial", contextResult.getMetadata().getDescription());
     }
 
     @Test
@@ -470,12 +467,12 @@ public class ContextControllerTest {
         contextResult.setIsDeleted(false);
         contextResult.setIsActive(true);
 
-        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
+        when(contextService.update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(contextResult);
 
         ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
                 new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
 
-        verify(contextService, times(1)).update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class));
+        verify(contextService, times(1)).update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
@@ -484,7 +481,7 @@ public class ContextControllerTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void updateContextException() throws Exception {
-        when(contextService.update(any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(null);
+        when(contextService.update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class), any(Lms.class))).thenReturn(null);
         ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
                 new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
     }

@@ -14,14 +14,16 @@ public interface ContextRepository {
 
     Context findById(UUID id);
 
+    Context findByIdAndOwnerId(UUID contextId, UUID ownerId);
+
     List<Context> findByOwnerId(UUID ownerId);
 
     Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId);
 
-    Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByContextId(UUID contextId);
+    Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByContextIdAndOwnerId(UUID contextId, UUID ownerId);
 
     List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId);
 
-    ContextOwnerEntity findContextOwnerByContextId(UUID contextId);
+    ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 
 }
