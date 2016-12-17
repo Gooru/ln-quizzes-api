@@ -410,6 +410,7 @@ public class ContextServiceTest {
         UUID classId = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
         UUID ownerId = UUID.randomUUID();
+        UUID contextProfileId = UUID.randomUUID();
         long startDate = 324234;
         String contextData = "{\n" +
                 "\t\t\"metadata\": {\n" +
@@ -426,6 +427,7 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
         when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
         when(contextOwnerEntity.getContextData()).thenReturn(contextData);
+        when(contextOwnerEntity.getContextProfileId()).thenReturn(contextProfileId);
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
 
         List<ContextOwnerEntity> list = new ArrayList<>();
@@ -443,7 +445,7 @@ public class ContextServiceTest {
         assertNotNull("First object is null", resultEntity);
         assertEquals("Wrong id", id, resultEntity.getId());
         assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
-
+        assertEquals("Wrong context profile id", Boolean.TRUE, resultEntity.getHasStarted());
         assertNotNull("Created Date is null", resultEntity.getCreatedDate());
 
         MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
@@ -474,6 +476,9 @@ public class ContextServiceTest {
 
         verify(contextRepository, times(1)).findByOwnerId(any(UUID.class));
         assertNotNull("Context by owner is null", result);
+
+
+
 
     }
 
