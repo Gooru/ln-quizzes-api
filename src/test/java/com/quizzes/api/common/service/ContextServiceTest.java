@@ -44,6 +44,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -143,6 +144,7 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
+        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
         verify(collectionService, times(1)).findByExternalId(any(String.class));
         verify(profileService, times(1)).findByExternalIdAndLmsId(Mockito.eq(ownerDTO.getId()), Mockito.eq(lms));
         verify(groupProfileService, times(2)).save(any(GroupProfile.class));
@@ -186,7 +188,8 @@ public class ContextServiceTest {
         //This means that the collection exists
         Collection collectionResult = new Collection();
         collectionResult.setId(UUID.randomUUID());
-        collectionResult.setOwnerProfileId(UUID.randomUUID());
+        UUID ownerProfileID = UUID.randomUUID();
+        collectionResult.setOwnerProfileId(ownerProfileID);
         when(collectionService.findByExternalId(any(String.class))).thenReturn(collectionResult);
 
         //We create a new group for this new context
@@ -197,8 +200,7 @@ public class ContextServiceTest {
         //We assume all the profiles exists
         //it doesn't matter if the profiles exists in this test or should be created
         Profile profileResponse = new Profile();
-        UUID profileResponseId = UUID.randomUUID();
-        profileResponse.setId(profileResponseId);
+        profileResponse.setId(ownerProfileID);
         when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
 
         Context contextResult = new Context();
@@ -213,7 +215,79 @@ public class ContextServiceTest {
 
         IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
 
+        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
         verify(collectionService, times(1)).findByExternalId(any(String.class));
+        //Creates the new group
+        verify(groupService, times(1)).createGroup(any(UUID.class));
+        verify(profileService, times(3)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        //Adds the 2 Assignees to the new roup
+        verify(groupProfileService, times(2)).save(any(GroupProfile.class));
+        verify(contextRepository, times(1)).save(any(Context.class));
+
+        assertNotNull("Response is Null", result);
+        assertNotNull("Context ID is Null", result.getId());
+    }
+
+    @Test
+    public void createContextWithExistingCollectionByOwnerAndExternalParentID() throws Exception {
+        String externalCollectionId = UUID.randomUUID().toString();
+
+        ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
+        contextPostRequestDto.setExternalCollectionId(externalCollectionId);
+
+        ProfileDto ownerDto = new ProfileDto();
+        ownerDto.setId("external-id1");
+        contextPostRequestDto.setOwner(ownerDto);
+
+        ContextDataDto contextDataMock = new ContextDataDto();
+        Map<String, String> contextMapMock = new HashMap<>();
+        contextMapMock.put("classId", "classId");
+        contextDataMock.setContextMap(contextMapMock);
+        contextPostRequestDto.setContextData(contextDataMock);
+
+        List<ProfileDto> assignees = new ArrayList<>();
+        ProfileDto profile1 = new ProfileDto();
+        profile1.setId("1");
+        ProfileDto profile2 = new ProfileDto();
+        profile1.setId("2");
+        assignees.add(profile1);
+        assignees.add(profile2);
+        contextPostRequestDto.setAssignees(assignees);
+
+        Lms lms = Lms.its_learning;
+
+        //This means that the collection exists
+        Collection parentCollectionResult = new Collection();
+        parentCollectionResult.setId(UUID.randomUUID());
+        UUID ownerProfileID = UUID.randomUUID();
+        parentCollectionResult.setOwnerProfileId(ownerProfileID);
+        when(collectionService.findByOwnerProfileIdAndExternalParentId(any(UUID.class), any(String.class))).thenReturn(parentCollectionResult);
+
+        //We create a new group for this new context
+        Group groupResult = new Group();
+        groupResult.setId(UUID.randomUUID());
+        when(groupService.createGroup(any(UUID.class))).thenReturn(groupResult);
+
+        //We assume all the profiles exists
+        //it doesn't matter if the profiles exists in this test or should be created
+        Profile profileResponse = new Profile();
+        profileResponse.setId(ownerProfileID);
+        when(profileService.findByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(profileResponse);
+
+        Context contextResult = new Context();
+        contextResult.setId(UUID.randomUUID());
+        contextResult.setCollectionId(parentCollectionResult.getId());
+        contextResult.setGroupId(groupResult.getId());
+        contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
+        contextResult.setIsDeleted(false);
+        contextResult.setIsActive(true);
+
+        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
+
+        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
+
+        verify(collectionService, times(1)).findByOwnerProfileIdAndExternalParentId(any(UUID.class), (any(String.class)));
+        verify(collectionService, never()).findByExternalId(any(String.class));
         //Creates the new group
         verify(groupService, times(1)).createGroup(any(UUID.class));
         verify(profileService, times(3)).findByExternalIdAndLmsId(any(String.class), any(Lms.class));

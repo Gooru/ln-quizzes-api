@@ -4,6 +4,7 @@ import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.repository.CollectionRepository;
 import org.jooq.DSLContext;
+import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +23,19 @@ public class CollectionRepositoryImpl implements CollectionRepository {
         return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
                 COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
-                .where(COLLECTION.EXTERNAL_ID.eq(externalId))
+                .where(DSL.condition("DECODE(MD5(EXTERNAL_ID), 'HEX') = DECODE(MD5(?), 'HEX')", externalId))
+                .and(COLLECTION.EXTERNAL_ID.eq(externalId))
+                .fetchOneInto(Collection.class);
+    }
+
+    @Override
+    public Collection findByOwnerProfileIdAndExternalParentId(UUID ownerProfileId, String externalParentId) {
+        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
+                COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
+                .from(COLLECTION)
+                .where(COLLECTION.OWNER_PROFILE_ID.eq(ownerProfileId))
+                .and(DSL.condition("DECODE(MD5(EXTERNAL_PARENT_ID), 'HEX') = DECODE(MD5(?), 'HEX')", externalParentId))
+                .and(COLLECTION.EXTERNAL_PARENT_ID.eq(externalParentId))
                 .fetchOneInto(Collection.class);
     }
 

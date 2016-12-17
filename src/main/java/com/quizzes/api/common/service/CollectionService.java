@@ -42,6 +42,10 @@ public class CollectionService {
         return collectionRepository.findByExternalId(externalId);
     }
 
+    public Collection findByOwnerProfileIdAndExternalParentId(UUID ownerProfileId, String externalParentId) {
+        return collectionRepository.findByOwnerProfileIdAndExternalParentId(ownerProfileId, externalParentId);
+    }
+
     //TODO: tests
     public Collection save(Collection collection) {
         return collectionRepository.save(collection);

@@ -75,10 +75,26 @@ public class ContextService {
     CollectionContentService collectionContentService;
 
     /**
-     * Creates a new context, if the {@link Collection} exists then creates a new {@link Context} using the same
-     * Collection
+     * A {@link Collection} is the Quizzes representation of an Assessment in a Content Provider
+     * and in the Content Provider there are original Assessments (an Assessment that it's create from scratch)
+     * and copied Assessments (copied from another Assessment)
+     * In an Original Assessment the Assessment ID is the same as the field Assessment parent ID, this means that
+     * the Assessment has no parent or is not copied from other Assessment.
+     * A copied Assessment has it's own unique ID and in the field parent ID has the ID of the Assessment it is being copied from
+     * In Quizzes each {@link Collection} has it's owner, and that owner matches or represents a Content Provider owner.
+     * A Quizzes owner can use an Assessment he owns in the Content Provider or a "Public" Assessment from a different owner
+     * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.
+     * Some Examples are:
+     * ++Collection ID = c1 with external ID (Assessment ID) = a1 external parent ID (parent Assessment ID) = a1 and owner ID = o1
+     *   this is a Collection from an original Assessment, not copied
+     * ++Collection ID = c2 with external ID (Assessment ID) = a2 external parent ID (parent Assessment ID) = a1 and owner ID = o2
+     *   this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
+     * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o3
+     *   this is an owner's o3 copy of Assessment ID = a2
+     * ++Collection ID = c5 with external ID (Assessment ID) = a5 external parent ID (parent Assessment ID) = a5 and owner ID = o4
+     *   this is an owner's o4 own Assessment ID = a5
      *
-     * @param contextPostRequestDto information about the new {@link Context}
+     * @param contextPostRequestDto information to create the new {@link Context}
      * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
@@ -88,9 +104,15 @@ public class ContextService {
             owner = createProfile(contextPostRequestDto.getOwner(), lms);
         }
 
-        Collection collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
+        Collection collection = collectionService.findByOwnerProfileIdAndExternalParentId(owner.getId(), contextPostRequestDto.getExternalCollectionId());
+
         if (collection == null) {
-            collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
+            collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
+            if (collection == null
+                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))){
+                // the collection is noll OR the collection has a different owner
+                collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
+            }
         }
 
         Group group = groupService.createGroup(owner.getId());
