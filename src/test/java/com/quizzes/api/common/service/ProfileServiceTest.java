@@ -1,6 +1,8 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.internal.WhiteboxImpl;
 
 import java.util.UUID;
 
@@ -65,17 +68,23 @@ public class ProfileServiceTest {
     }
 
     @Test
-    public void findIdByExternalIdAndLmsId() throws Exception {
+    public void findIdResponseDtoByExternalIdAndLmsId() throws Exception {
         UUID id = UUID.randomUUID();
         Lms lms = Lms.its_learning;
         when(profileRepository
                 .findIdByExternalIdAndLmsId("external-id", Lms.its_learning))
                 .thenReturn(id);
 
-        IdResponseDto result = profileService.findIdByExternalIdAndLmsId("external-id", lms);
+        IdResponseDto result = profileService.findIdResponseDtoByExternalIdAndLmsId("external-id", lms);
         verify(profileRepository, times(1)).findIdByExternalIdAndLmsId(eq("external-id"), eq(lms));
         assertNotNull("Response is null", result);
         assertEquals("Wrong id", id, result.getId());
+    }
+
+    @Test
+    public void findIdByExternalIdAndLmsId() throws Exception {
+        UUID result = profileService.findIdByExternalIdAndLmsId("external-id", Lms.its_learning);
+        verify(profileRepository, times(1)).findIdByExternalIdAndLmsId(eq("external-id"), eq(Lms.its_learning));
     }
 
     @Test
@@ -108,5 +117,61 @@ public class ProfileServiceTest {
         assertEquals("Wrong profile client id", profile.getClientId(), savedProfile.getClientId());
         assertEquals("Wrong profile data", profile.getProfileData(), savedProfile.getProfileData());
         assertEquals("Wrong profile lms id", profile.getLmsId(), savedProfile.getLmsId());
+    }
+
+    @Test
+    public void createProfileBasedOnExternalUser() throws Exception {
+        UUID clientId = UUID.randomUUID();
+        Lms lms = Lms.gooru;
+
+        //Setting ExternalUserDto
+        UUID externalId = UUID.randomUUID();
+        ExternalUserDto userDto = new ExternalUserDto();
+        userDto.setExternalId(externalId.toString());
+        userDto.setEmail("david@quizzes.com");
+        userDto.setFirstName("David");
+        userDto.setLastName("Artavia");
+        userDto.setUsername("dartavia");
+
+        Profile profile = new Profile();
+        UUID id = UUID.randomUUID();
+        profile.setId(id);
+        profile.setExternalId(externalId.toString());
+        profile.setProfileData(
+                "{\"firstName\": \"David\"," +
+                "\"lastName\": \"Artavia\"," +
+                "\"username\": \"dartavia\"," +
+                "\"email\": \"david@quizzes.com\"}");
+        profile.setLmsId(lms);
+
+        when(profileRepository.save(any(Profile.class))).thenReturn(profile);
+
+        Profile result = profileService.createProfileBasedOnExternalUser(userDto, lms, clientId);
+
+        verify(profileRepository, times(1)).save(any(Profile.class));
+
+        assertNotNull("Saved profiles is null", result);
+        assertEquals("Wrong profile id", profile.getId(), result.getId());
+        assertEquals("Wrong profile external id", profile.getExternalId(), result.getExternalId());
+        assertEquals("Wrong profile client id", profile.getClientId(), result.getClientId());
+        assertEquals("Wrong profile data", profile.getProfileData(), result.getProfileData());
+        assertEquals("Wrong profile lms id", profile.getLmsId(), result.getLmsId());
+    }
+
+    @Test
+    public void removeExternalIdFromExternalUserDto() throws Exception {
+        ExternalUserDto userDto = new ExternalUserDto();
+        userDto.setExternalId(UUID.randomUUID().toString());
+        userDto.setFirstName("Keylor");
+        userDto.setLastName("Navas");
+        userDto.setUsername("knavas");
+
+        JsonObject jsonObject = WhiteboxImpl.invokeMethod(profileService, "removeExternalIdFromExternalUserDto", userDto);
+
+        assertEquals(jsonObject.size(), 3);
+        assertEquals("Wrong first name", "Keylor", jsonObject.get("firstName").getAsString());
+        assertEquals("wrong last name", "Navas", jsonObject.get("lastName").getAsString());
+        assertEquals("Wrong username", "knavas", jsonObject.get("username").getAsString());
+        assertNull(jsonObject.get("externalId"));
     }
 }

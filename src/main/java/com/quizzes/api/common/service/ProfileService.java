@@ -1,6 +1,9 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.ProfileGetResponseDto;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -32,8 +35,12 @@ public class ProfileService {
         return result;
     }
 
-    public IdResponseDto findIdByExternalIdAndLmsId(String externalId, Lms lms) {
-        UUID id = profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
+    public UUID findIdByExternalIdAndLmsId(String externalId, Lms lms) {
+        return profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
+    }
+
+    public IdResponseDto findIdResponseDtoByExternalIdAndLmsId(String externalId, Lms lms) {
+        UUID id = findIdByExternalIdAndLmsId(externalId, lms);
         IdResponseDto result = new IdResponseDto();
         result.setId(id);
         return result;
@@ -86,6 +93,26 @@ public class ProfileService {
      */
     public Profile findAssigneeInContext(UUID contextId, UUID profileId) {
         return profileRepository.findAssigneeInContext(contextId, profileId);
+    }
+
+    public Profile createProfileBasedOnExternalUser(ExternalUserDto externalUser, Lms lms, UUID clientId) {
+        Profile profile = new Profile();
+
+        profile.setExternalId(externalUser.getExternalId());
+        profile.setClientId(clientId);
+        profile.setLmsId(lms);
+
+        JsonObject jsonObject = removeExternalIdFromExternalUserDto(externalUser);
+        profile.setProfileData(jsonObject.toString());
+
+        return save(profile);
+    }
+
+    private JsonObject removeExternalIdFromExternalUserDto(ExternalUserDto externalUser) {
+        JsonElement jsonElement = gson.toJsonTree(externalUser);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
+        jsonObject.remove("externalId");
+        return jsonObject;
     }
 
 }
