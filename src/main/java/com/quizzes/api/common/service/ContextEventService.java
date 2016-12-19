@@ -1,15 +1,15 @@
 package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
+import com.quizzes.api.common.dto.AnswerDto;
 import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
+import com.quizzes.api.common.dto.QuestionDataDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.AnswerDto;
-import com.quizzes.api.common.dto.QuestionDataDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
@@ -174,6 +174,7 @@ public class ContextEventService {
         PostRequestResourceDto resourceData = body.getPreviousResource();
 
         Resource previousResource = resourceService.findById(resourceData.getResourceId());
+
         QuestionDataDto previousResourceData = gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
 
         ContextProfileEvent event = contextProfileEventService.
@@ -189,7 +190,9 @@ public class ContextEventService {
         String questionType = previousResourceData.getType();
         List<AnswerDto> correctAnswers = previousResourceData.getCorrectAnswer();
         List<AnswerDto> userAnswers = resourceData.getAnswer();
-        resourceData.setScore(calculateScoreByQuestionType(questionType, userAnswers, correctAnswers));
+
+        int score = userAnswers.isEmpty() ? 0 : calculateScoreByQuestionType(questionType, userAnswers, correctAnswers);
+        resourceData.setScore(score);
 
         event.setEventData(gson.toJson(resourceData));
         contextProfileEventService.save(event);
