@@ -2,6 +2,7 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
+import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,18 @@ public class HandlerExceptionController {
     public ExceptionMessage handleContentNotFoundException(ContentNotFoundException e) {
         return new ExceptionMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(),
                 ContentNotFoundException.class.getSimpleName());
+    }
+
+    /**
+     * Handles exceptions when client credentials are wrong
+     *
+     * @return Content Not Found and status 400
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = InvalidCredentialsException.class)
+    public ExceptionMessage handleInvalidCredentialsException(InvalidCredentialsException e) {
+        return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(),
+                InvalidCredentialsException.class.getSimpleName());
     }
 
     /**

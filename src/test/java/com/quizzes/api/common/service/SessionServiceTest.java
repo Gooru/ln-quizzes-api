@@ -4,6 +4,7 @@ import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
 import com.quizzes.api.common.exception.InternalServerException;
+import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Client;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
@@ -212,7 +213,7 @@ public class SessionServiceTest {
         assertEquals("Wrong session Id", sessionId, result.getSessionToken());
     }
 
-    @Test(expected = InternalServerException.class)
+    @Test(expected = InvalidCredentialsException.class)
     public void generateTokenShouldThrowExceptionWhenClientIsNull() throws Exception {
         //Setting sessionDto
         UUID apiKey = UUID.randomUUID();

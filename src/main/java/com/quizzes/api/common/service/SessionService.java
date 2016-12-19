@@ -4,6 +4,7 @@ import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
 import com.quizzes.api.common.exception.InternalServerException;
+import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Client;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.util.UUID;
 
 @Service
@@ -36,7 +36,7 @@ public class SessionService {
             Client client = clientService.findByApiKeyAndApiSecret(sessionData.getClientApiKey(), sessionData.getClientApiSecret());
             if (client == null) {
                 logger.error("Invalid credentials for " + sessionData.getClientApiKey());
-                throw new AccessDeniedException("Invalid credentials.");
+                throw new InvalidCredentialsException("Invalid client credentials.");
             }
 
             Session session = new Session();
@@ -51,8 +51,8 @@ public class SessionService {
                         .createProfileBasedOnExternalUser(externalUser, Lms.gooru, client.getId());
                 profileId = profile.getId();
             } else {
-                Session lastSession =  sessionRepository.findLastSessionByProfileId(profileId);
-                if(lastSession != null){
+                Session lastSession = sessionRepository.findLastSessionByProfileId(profileId);
+                if (lastSession != null) {
                     session = sessionRepository.updateLastAccess(lastSession);
                     return getSessionToken(session);
                 }
@@ -60,13 +60,16 @@ public class SessionService {
 
             session.setProfileId(profileId);
             return getSessionToken(save(session));
-        } catch (Exception e) {
+        } catch (InternalServerException e) {
             logger.error("We could not generate a token.", e);
             throw new InternalServerException("We could not generate a token.", e);
+        } catch (InvalidCredentialsException e) {
+            logger.error("Invalid client credentials.", e);
+            throw new InvalidCredentialsException("Invalid client credentials.", e);
         }
     }
 
-    private SessionTokenDto getSessionToken(Session session){
+    private SessionTokenDto getSessionToken(Session session) {
         SessionTokenDto token = new SessionTokenDto();
         token.setSessionToken(session.getId());
         return token;
