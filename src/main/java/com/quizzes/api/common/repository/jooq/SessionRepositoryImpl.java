@@ -9,14 +9,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static com.quizzes.api.common.model.jooq.tables.Session.SESSION;
 
 @Repository
 public class SessionRepositoryImpl implements SessionRepository {
 
-    @Value("${session.time}")
-    private Double sessionTime;
+    private final static double MINUTES_IN_HOUR = 60.0;
+    private final static double HOURS_IN_DAY = 24;
+
+    @Value("${session.time.minutes}")
+    private Double sessionMinutes;
 
     @Autowired
     private DSLContext jooq;
@@ -33,10 +37,11 @@ public class SessionRepositoryImpl implements SessionRepository {
 
     @Override
     public Session findLastSessionByProfileId(UUID profileId) {
+        double sessionInDays = sessionMinutes / MINUTES_IN_HOUR / HOURS_IN_DAY ;
         return jooq.select()
                 .from(SESSION)
                 .where(SESSION.PROFILE_ID.eq(profileId))
-                .and(SESSION.LAST_ACCESS_AT.greaterOrEqual(DSL.currentTimestamp().sub(sessionTime)))
+                .and(SESSION.LAST_ACCESS_AT.greaterOrEqual(DSL.currentTimestamp().sub(sessionInDays)))
                 .orderBy(SESSION.LAST_ACCESS_AT.desc())
                 .limit(1)
                 .fetchOneInto(Session.class);
@@ -46,7 +51,7 @@ public class SessionRepositoryImpl implements SessionRepository {
     public Session updateLastAccess(Session session) {
         return jooq.update(SESSION)
                 .set(SESSION.LAST_ACCESS_AT, DSL.currentTimestamp())
-                .where(SESSION.PROFILE_ID.eq(session.getProfileId()))
+                .where(SESSION.ID.eq(session.getId()))
                 .returning()
                 .fetchOne()
                 .into(Session.class);
