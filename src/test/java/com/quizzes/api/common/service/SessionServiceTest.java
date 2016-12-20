@@ -3,7 +3,6 @@ package com.quizzes.api.common.service;
 import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
-import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Client;
@@ -88,7 +87,7 @@ public class SessionServiceTest {
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey.toString()), eq(apiSecret.toString()));
         verify(profileService, times(1)).findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms));
-        verify(profileService, times(0)).createProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
+        verify(profileService, times(0)).saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
 
         verify(sessionRepository, times(1)).findLastSessionByProfileId(eq(profileId));
         verify(sessionRepository, times(1)).updateLastAccess(any(Session.class));
@@ -143,7 +142,7 @@ public class SessionServiceTest {
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey.toString()), eq(apiSecret.toString()));
         verify(profileService, times(1)).findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms));
-        verify(profileService, times(0)).createProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
+        verify(profileService, times(0)).saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
 
         verify(sessionRepository, times(1)).findLastSessionByProfileId(eq(profileId));
         verify(sessionRepository, times(0)).updateLastAccess(any());
@@ -188,7 +187,7 @@ public class SessionServiceTest {
         profile.setId(profileId);
 
         when(profileService
-                .createProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()))).thenReturn(profile);
+                .saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()))).thenReturn(profile);
 
         //Setting session
         UUID sessionId = UUID.randomUUID();
@@ -202,7 +201,7 @@ public class SessionServiceTest {
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey.toString()), eq(apiSecret.toString()));
         verify(profileService, times(1)).findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms));
-        verify(profileService, times(1)).createProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
+        verify(profileService, times(1)).saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
 
         verify(sessionRepository, times(0)).findLastSessionByProfileId(any());
         verify(sessionRepository, times(0)).updateLastAccess(any());

@@ -120,7 +120,7 @@ public class ProfileServiceTest {
     }
 
     @Test
-    public void createProfileBasedOnExternalUser() throws Exception {
+    public void saveProfileBasedOnExternalUser() throws Exception {
         UUID clientId = UUID.randomUUID();
         Lms lms = Lms.gooru;
 
@@ -146,7 +146,7 @@ public class ProfileServiceTest {
 
         when(profileRepository.save(any(Profile.class))).thenReturn(profile);
 
-        Profile result = profileService.createProfileBasedOnExternalUser(userDto, lms, clientId);
+        Profile result = profileService.saveProfileBasedOnExternalUser(userDto, lms, clientId);
 
         verify(profileRepository, times(1)).save(any(Profile.class));
 

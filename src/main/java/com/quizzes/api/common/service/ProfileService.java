@@ -95,7 +95,7 @@ public class ProfileService {
         return profileRepository.findAssigneeInContext(contextId, profileId);
     }
 
-    public Profile createProfileBasedOnExternalUser(ExternalUserDto externalUser, Lms lms, UUID clientId) {
+    public Profile saveProfileBasedOnExternalUser(ExternalUserDto externalUser, Lms lms, UUID clientId) {
         Profile profile = new Profile();
 
         profile.setExternalId(externalUser.getExternalId());

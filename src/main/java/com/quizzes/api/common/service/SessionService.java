@@ -47,7 +47,7 @@ public class SessionService {
 
             if (profileId == null) {
                 Profile profile = profileService
-                        .createProfileBasedOnExternalUser(externalUser, Lms.gooru, client.getId());
+                        .saveProfileBasedOnExternalUser(externalUser, Lms.gooru, client.getId());
                 profileId = profile.getId();
             } else {
                 Session lastSession = sessionRepository.findLastSessionByProfileId(profileId);
