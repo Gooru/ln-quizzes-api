@@ -224,7 +224,6 @@ public class ContextEventService {
         EventSummaryDataDto result = new EventSummaryDataDto();
         List<PostRequestResourceDto> eventDataList = contextProfileEvents.stream().map(event ->
             gson.fromJson(event.getEventData(), PostRequestResourceDto.class)).filter(eventData -> (calculateSkipped || !eventData.getAnswer().isEmpty())).collect(Collectors.toList());
-        logger.info("converted list", eventDataList.toString());
         long totalTimeSpent = eventDataList.parallelStream().mapToLong(event -> event.getTimeSpent()).sum();
         double averageReaction = eventDataList.parallelStream().mapToInt(event -> event.getReaction()).average().getAsDouble();
         double averageScore = eventDataList.parallelStream().mapToInt(event -> event.getScore()).average().getAsDouble();

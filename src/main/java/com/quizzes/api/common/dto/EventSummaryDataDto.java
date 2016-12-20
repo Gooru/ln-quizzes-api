@@ -11,7 +11,7 @@ package com.quizzes.api.common.dto;
 public class EventSummaryDataDto {
 
     private long    totalTimeSpent = 0;
-    private short   averageReaction = -1;
+    private short   averageReaction = 0;
     private short   averageScore = 0;
     private short   totalCorrect = 0;
     private short   totalAnswered = 0;
