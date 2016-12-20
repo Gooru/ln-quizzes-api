@@ -32,13 +32,12 @@ public class SessionService {
     ClientService clientService;
 
     public SessionTokenDto generateToken(SessionPostRequestDto sessionData) {
+        Client client = clientService.findByApiKeyAndApiSecret(sessionData.getClientApiKey(), sessionData.getClientApiSecret());
+        if (client == null) {
+            logger.error("Invalid credentials for " + sessionData.getClientApiKey());
+            throw new InvalidCredentialsException("Invalid client credentials.");
+        }
         try {
-            Client client = clientService.findByApiKeyAndApiSecret(sessionData.getClientApiKey(), sessionData.getClientApiSecret());
-            if (client == null) {
-                logger.error("Invalid credentials for " + sessionData.getClientApiKey());
-                throw new InvalidCredentialsException("Invalid client credentials.");
-            }
-
             Session session = new Session();
             ExternalUserDto externalUser = sessionData.getUser();
 
@@ -63,9 +62,6 @@ public class SessionService {
         } catch (InternalServerException e) {
             logger.error("We could not generate a token.", e);
             throw new InternalServerException("We could not generate a token.", e);
-        } catch (InvalidCredentialsException e) {
-            logger.error("Invalid client credentials.", e);
-            throw new InvalidCredentialsException("Invalid client credentials.", e);
         }
     }
 
