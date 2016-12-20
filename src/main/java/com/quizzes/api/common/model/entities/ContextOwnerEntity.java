@@ -8,4 +8,8 @@ public interface ContextOwnerEntity extends ContextEntity {
 
     void setOwnerProfileId(UUID ownerProfileId);
 
+    UUID getContextProfileId();
+
+    void setContextProfileId(UUID contextProfileId);
+
 }

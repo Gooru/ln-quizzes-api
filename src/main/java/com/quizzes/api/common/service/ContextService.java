@@ -288,6 +288,7 @@ public class ContextService {
         response.setId(context.getId());
         response.setCreatedDate(context.getCreatedAt().getTime());
         response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
+        response.setHasStarted((context.getContextProfileId()!=null));
 
         IdResponseDto ownerId = new IdResponseDto();
         ownerId.setId(context.getOwnerProfileId());

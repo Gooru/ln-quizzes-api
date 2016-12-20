@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
+import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
 import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
 import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
@@ -84,10 +85,11 @@ public class ContextRepositoryImpl implements ContextRepository {
     @Override
     public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId) {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
-                GROUP.OWNER_PROFILE_ID)
+                GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
                 .where(GROUP_PROFILE.PROFILE_ID.eq(assigneeId)
                         .and(CONTEXT.IS_ACTIVE.eq(true))
                 )
@@ -96,10 +98,11 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, GROUP.OWNER_PROFILE_ID, CONTEXT.CREATED_AT)
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, GROUP.OWNER_PROFILE_ID, CONTEXT.CREATED_AT, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
                 .where(CONTEXT.ID.eq(contextId))
                 .and(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
                 .fetchOneInto(ContextOwnerEntity.class);
