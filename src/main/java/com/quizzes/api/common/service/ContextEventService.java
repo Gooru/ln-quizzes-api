@@ -2,6 +2,7 @@ package com.quizzes.api.common.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.ContextEventsResponseDto;
+import com.quizzes.api.common.dto.EventSummaryDataDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -218,4 +220,22 @@ public class ContextEventService {
         return userAnswer.equalsIgnoreCase(correctAnswer) ? 100 : 0;
     }
 
+    private EventSummaryDataDto calculateEventSummaryData(List<ContextProfileEvent> contextProfileEvents, boolean calculateSkipped) {
+        EventSummaryDataDto result = new EventSummaryDataDto();
+        List<PostRequestResourceDto> eventDataList = contextProfileEvents.stream().map(event ->
+            gson.fromJson(event.getEventData(), PostRequestResourceDto.class)).filter(eventData -> (calculateSkipped || !eventData.getAnswer().isEmpty())).collect(Collectors.toList());
+        logger.info("converted list", eventDataList.toString());
+        long totalTimeSpent = eventDataList.parallelStream().mapToLong(event -> event.getTimeSpent()).sum();
+        double averageReaction = eventDataList.parallelStream().mapToInt(event -> event.getReaction()).average().getAsDouble();
+        double averageScore = eventDataList.stream().mapToInt(event -> event.getScore()).average().getAsDouble();
+        long totalCorrect = eventDataList.stream().filter(event -> event.getScore() == 100).count();
+        long totalAnswered = eventDataList.stream().filter(event -> !event.getAnswer().isEmpty()).count();
+
+        result.setTotalTimeSpent(totalTimeSpent);
+        result.setAverageReaction((short)Math.round(averageReaction));
+        result.setAverageScore((short)Math.round(averageScore));
+        result.setTotalCorrect((short)totalCorrect);
+        result.setTotalAnswered((short)totalAnswered);
+        return result;
+    }
 }
