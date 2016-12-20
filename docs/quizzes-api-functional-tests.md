@@ -19,7 +19,9 @@ For a more detailed documentation please refer to the Frisby web page http://fri
 ## Test against local environment
 To run the tests locally you should:
 * Go to the integration folder: `cd <quizzes-project-folder>/integration`
-* Then just use the command `jasmine-node spec/quizzes-api`
+* Run a single test `jasmine-node spec/quizzes-api/<test-name.js>`
+* Run all tests in parallel `jasmine-node spec/quizzes-api`
+* Run all tests sequentially `./run-test.sh`
 
 This command will run the tests against http://localhost:8080
 
