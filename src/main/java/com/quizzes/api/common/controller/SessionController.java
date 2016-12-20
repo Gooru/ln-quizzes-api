@@ -2,10 +2,12 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
+import com.quizzes.api.common.service.SessionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/quizzes/api")
 public class SessionController {
+
+    @Autowired
+    SessionService sessionService;
 
     @ApiOperation(
             value = "Get Authorization",
@@ -45,8 +50,8 @@ public class SessionController {
     public ResponseEntity<SessionTokenDto> authorize(
             @ApiParam(value = "Json body", required = true, name = "Body")
             @RequestBody SessionPostRequestDto sessionPostRequestDto) {
-        SessionTokenDto session = new SessionTokenDto();
-        session.setSessionToken(UUID.randomUUID());
+
+        SessionTokenDto session = sessionService.generateToken(sessionPostRequestDto);
         return new ResponseEntity<>(session, HttpStatus.OK);
     }
 

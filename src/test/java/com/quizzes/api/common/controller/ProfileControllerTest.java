@@ -37,16 +37,16 @@ public class ProfileControllerTest {
     ProfileService profileService;
 
     @Test
-    public void getProfileIdByExternalId() throws Exception {
+    public void findIdResponseDtoByExternalIdAndLmsId() throws Exception {
         UUID uuid = UUID.randomUUID();
         IdResponseDto id = new IdResponseDto();
         id.setId(uuid);
-        when(profileService.findIdByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(id);
+        when(profileService.findIdResponseDtoByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(id);
 
         ResponseEntity<IdResponseDto> result = profileController.getProfileIdByExternalId("externalId", "its_learning");
 
         verify(profileController, times(1)).getProfileIdByExternalId(any(String.class), any(String.class));
-        verify(profileService, times(1)).findIdByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        verify(profileService, times(1)).findIdResponseDtoByExternalIdAndLmsId(any(String.class), any(Lms.class));
 
         assertNotNull("Result is null", result);
         assertEquals("Http status is not 200", HttpStatus.OK, result.getStatusCode());
@@ -55,12 +55,12 @@ public class ProfileControllerTest {
 
     @Test
     public void getProfileIdByExternalIdNull() throws Exception {
-        when(profileService.findIdByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(null);
+        when(profileService.findIdResponseDtoByExternalIdAndLmsId(any(String.class), any(Lms.class))).thenReturn(null);
 
         ResponseEntity<IdResponseDto> result = profileController.getProfileIdByExternalId("externalId", "its_learning");
 
         verify(profileController, times(1)).getProfileIdByExternalId(any(String.class), any(String.class));
-        verify(profileService, times(1)).findIdByExternalIdAndLmsId(any(String.class), any(Lms.class));
+        verify(profileService, times(1)).findIdResponseDtoByExternalIdAndLmsId(any(String.class), any(Lms.class));
 
         assertNotNull("Result is null", result);
         assertEquals("Http status is not 200", HttpStatus.OK, result.getStatusCode());

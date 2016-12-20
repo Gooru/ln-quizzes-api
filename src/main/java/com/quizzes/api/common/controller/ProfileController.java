@@ -43,7 +43,7 @@ public class ProfileController {
             @PathVariable String profileExternalId,
             @ApiParam(value = "Client's Id on quizzes.", required = true, name = "client-id")
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
-        IdResponseDto result = profileService.findIdByExternalIdAndLmsId(profileExternalId, Lms.valueOf(lmsId));
+        IdResponseDto result = profileService.findIdResponseDtoByExternalIdAndLmsId(profileExternalId, Lms.valueOf(lmsId));
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
