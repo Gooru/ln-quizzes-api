@@ -191,8 +191,10 @@ public class ContextEventService {
         List<AnswerDto> correctAnswers = previousResourceData.getCorrectAnswer();
         List<AnswerDto> userAnswers = resourceData.getAnswer();
 
-        int score = userAnswers.isEmpty() ? 0 : calculateScoreByQuestionType(questionType, userAnswers, correctAnswers);
-        resourceData.setScore(score);
+        if (!userAnswers.isEmpty()) {
+            resourceData.setIsSkipped(false);
+            resourceData.setScore(calculateScoreByQuestionType(questionType, userAnswers, correctAnswers));
+        }
 
         event.setEventData(gson.toJson(resourceData));
         contextProfileEventService.save(event);
