@@ -227,9 +227,9 @@ public class ContextEventService {
         logger.info("converted list", eventDataList.toString());
         long totalTimeSpent = eventDataList.parallelStream().mapToLong(event -> event.getTimeSpent()).sum();
         double averageReaction = eventDataList.parallelStream().mapToInt(event -> event.getReaction()).average().getAsDouble();
-        double averageScore = eventDataList.stream().mapToInt(event -> event.getScore()).average().getAsDouble();
-        long totalCorrect = eventDataList.stream().filter(event -> event.getScore() == 100).count();
-        long totalAnswered = eventDataList.stream().filter(event -> !event.getAnswer().isEmpty()).count();
+        double averageScore = eventDataList.parallelStream().mapToInt(event -> event.getScore()).average().getAsDouble();
+        long totalCorrect = eventDataList.parallelStream().filter(event -> event.getScore() == 100).count();
+        long totalAnswered = eventDataList.parallelStream().filter(event -> !event.getAnswer().isEmpty()).count();
 
         result.setTotalTimeSpent(totalTimeSpent);
         result.setAverageReaction((short)Math.round(averageReaction));
