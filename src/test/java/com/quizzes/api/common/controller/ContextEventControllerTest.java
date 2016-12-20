@@ -101,7 +101,7 @@ public class ContextEventControllerTest {
     }
 
     @Test
-    public void getContextEvents() throws Exception {
+    public void getContextEventsIsSkippedFalse() throws Exception {
         UUID contextId = UUID.randomUUID();
 
         //Setting collectionDto
@@ -123,6 +123,7 @@ public class ContextEventControllerTest {
         event.setResourceId(resourceId);
         event.setAnswer(answers);
         event.setTimeSpent(1234);
+        event.setIsSkipped(false);
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event);
 
@@ -168,6 +169,76 @@ public class ContextEventControllerTest {
         assertEquals("TimeSpent is not 1234", 1234, eventResult.getTimeSpent());
         assertEquals("Invalid number of answers", 1, eventResult.getAnswer().size());
         assertEquals("Answer is not A", "A", eventResult.getAnswer().get(0).getValue());
+        assertEquals("It's not skipped", false, eventResult.getIsSkipped());
+    }
+
+    @Test
+    public void getContextEventsIsSkippedTrue() throws Exception {
+        UUID contextId = UUID.randomUUID();
+
+        //Setting collectionDto
+        UUID collectionId = UUID.randomUUID();
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId.toString());
+
+        //Setting Answers
+        AnswerDto answerDto = new AnswerDto();
+        List<AnswerDto> answers = new ArrayList<>();
+
+        //Setting Events
+        UUID resourceId = UUID.randomUUID();
+        PostResponseResourceDto event = new PostResponseResourceDto();
+        event.setScore(0);
+        event.setReaction(0);
+        event.setResourceId(resourceId);
+        event.setAnswer(answers);
+        event.setTimeSpent(1234);
+        event.setIsSkipped(true);
+        List<PostResponseResourceDto> events = new ArrayList<>();
+        events.add(event);
+
+        //Setting ProfileEvents
+        UUID currentResourceId = UUID.randomUUID();
+        UUID profileId = UUID.randomUUID();
+        ProfileEventResponseDto profileEventResponseDto = new ProfileEventResponseDto();
+        profileEventResponseDto.setCurrentResourceId(currentResourceId);
+        profileEventResponseDto.setProfileId(profileId);
+        profileEventResponseDto.setEvents(events);
+
+        List<ProfileEventResponseDto> profileEvents = new ArrayList<>();
+        profileEvents.add(profileEventResponseDto);
+
+        //Creating studentEventDto mock
+        ContextEventsResponseDto contextEvents =  new ContextEventsResponseDto();
+        contextEvents.setContextId(contextId);
+        contextEvents.setCollection(collectionDto);
+        contextEvents.setProfileEvents(profileEvents);
+
+        when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(contextEvents);
+
+        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes", UUID.randomUUID());
+
+        verify(contextEventService, times(1)).getContextEvents(contextId);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+
+        ContextEventsResponseDto resultBody = result.getBody();
+        assertEquals("Invalid context ID", contextId, resultBody.getContextId());
+        assertEquals("Invalid collection ID", collectionId.toString(), resultBody.getCollection().getId());
+        assertEquals("Wrong size in profile events", 1, resultBody.getProfileEvents().size());
+
+        ProfileEventResponseDto profileEventResult = resultBody.getProfileEvents().get(0);
+        assertEquals("Invalid current resource ID", currentResourceId, profileEventResult.getCurrentResourceId());
+        assertEquals("Invalid profile ID", profileId, profileEventResult.getProfileId());
+        assertEquals("Invalid number of events", 1, profileEventResult.getEvents().size());
+
+        PostResponseResourceDto eventResult = profileEventResult.getEvents().get(0);
+        assertEquals("Score is not 0", 0, eventResult.getScore());
+        assertEquals("Reaction is not 0", 0, eventResult.getReaction());
+        assertEquals("TimeSpent is not 1234", 1234, eventResult.getTimeSpent());
+        assertTrue("Answer is not empty", eventResult.getAnswer().isEmpty());
+        assertEquals("It's not skipped", true, eventResult.getIsSkipped());
     }
 
 }
