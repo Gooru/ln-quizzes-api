@@ -426,6 +426,46 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void getAssignedContextsNotStarted() {
+        UUID id = UUID.randomUUID();
+        UUID classId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+        long startDate = 32424;
+        String contextData = "{\n" +
+                "\t\t\"metadata\": {\n" +
+                "\t\t  \"description\": \"First Partial\",\n" +
+                "\t\t  \"startDate\": \"" + startDate + "\",\n" +
+                "\t\t  \"title\": \"Math 1st Grade\"\n" +
+                "\t\t},\n" +
+                "\t\t\"contextMap\": {\n" +
+                "\t\t  \"classId\": \"" + classId + "\"\n" +
+                "\t\t}\n" +
+                "\t}";
+
+        when(contextOwnerEntity.getId()).thenReturn(id);
+        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
+        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
+        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
+        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+
+        List<ContextOwnerEntity> list = new ArrayList<>();
+        list.add(contextOwnerEntity);
+
+        when(contextRepository.findContextOwnerByAssigneeId(any(UUID.class))).thenReturn(list);
+
+        List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findContextOwnerByAssigneeId(any(UUID.class));
+
+        ContextAssignedGetResponseDto resultEntity = result.get(0);
+
+        assertEquals("Wrong context profile id", Boolean.FALSE, resultEntity.getHasStarted());
+    }
+
+
+
+    @Test
     public void getAssignedContexts() {
         UUID id = UUID.randomUUID();
         UUID classId = UUID.randomUUID();
