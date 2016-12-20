@@ -59,7 +59,7 @@ public class SessionService {
 
             session.setProfileId(profileId);
             return getSessionToken(save(session));
-        } catch (InternalServerException e) {
+        } catch (Exception e) {
             logger.error("We could not generate a token.", e);
             throw new InternalServerException("We could not generate a token.", e);
         }
