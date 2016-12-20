@@ -17,10 +17,10 @@ import static com.quizzes.api.common.model.jooq.tables.Session.SESSION;
 public class SessionRepositoryImpl implements SessionRepository {
 
     private final static double MINUTES_IN_HOUR = 60.0;
-    private final static double HOURS_IN_DAY = 24;
+    private final static double HOURS_IN_DAY = 24.0;
 
     @Value("${session.time.minutes}")
-    private Double sessionMinutes;
+    private double sessionMinutes;
 
     @Autowired
     private DSLContext jooq;
@@ -37,7 +37,7 @@ public class SessionRepositoryImpl implements SessionRepository {
 
     @Override
     public Session findLastSessionByProfileId(UUID profileId) {
-        double sessionInDays = sessionMinutes / MINUTES_IN_HOUR / HOURS_IN_DAY ;
+        double sessionInDays = sessionMinutes / MINUTES_IN_HOUR / HOURS_IN_DAY;
         return jooq.select()
                 .from(SESSION)
                 .where(SESSION.PROFILE_ID.eq(profileId))

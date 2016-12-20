@@ -45,7 +45,7 @@ public class HandlerExceptionController {
     /**
      * Handles exceptions when client credentials are wrong
      *
-     * @return Content Not Found and status 400
+     * @return Invalid Credentials and status 400
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = InvalidCredentialsException.class)
