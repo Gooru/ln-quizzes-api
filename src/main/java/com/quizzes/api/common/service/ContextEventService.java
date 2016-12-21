@@ -85,8 +85,8 @@ public class ContextEventService {
             result.setId(contextId);
             result.setCurrentResourceId(contextProfile.getCurrentResourceId());
             result.setCollection(collection);
-            result.setEventsResponse(events.stream().map(event ->
-                    jsonParser.parseMap(event.getEventData())).collect(Collectors.toList()));
+            result.setEvents(events.stream().map(event ->
+                    gson.fromJson(event.getEventData(), PostResponseResourceDto.class)).collect(Collectors.toList()));
 
             return result;
         } catch (Exception e) {
