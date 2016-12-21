@@ -155,7 +155,8 @@ public class ContextService {
 
         //checks if the assignees exists, if not, creates the assignee profile
         if (profiles != null && !profiles.isEmpty()) {
-            List<String> requestExternalProfileIds = profiles.stream().map(profile -> profile.getId()).collect(Collectors.toList());
+            List<String> requestExternalProfileIds =
+                    profiles.stream().map(profile -> profile.getId()).collect(Collectors.toList());
             List<String> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
             //we are creating new profiles
             //we are not updating existing info of existing profiles
@@ -183,12 +184,17 @@ public class ContextService {
             //but we need to make sure none of the new assignees exist
 
             //we get all the assignees on that group before the update
-            List<GroupProfile> assignedGroupProfiles = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
+            List<GroupProfile> assignedGroupProfiles =
+                    groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
             //we get the List of the currently assigned profileIds
             //we need this for the next step, getting the not assigned profile ids
-            List<UUID> assignedProfileIds = assignedGroupProfiles.stream().map(assignedGroupProfile -> assignedGroupProfile.getProfileId()).collect(Collectors.toList());
+            List<UUID> assignedProfileIds =
+                    assignedGroupProfiles.stream().map(assignedGroupProfile ->
+                            assignedGroupProfile.getProfileId()).collect(Collectors.toList());
 
-            List<UUID> notAssignedProfileIds = profileIds.stream().filter(profileIdToCheck -> !assignedProfileIds.contains(profileIdToCheck)).collect(Collectors.toList());
+            List<UUID> notAssignedProfileIds =
+                    profileIds.stream().filter(profileIdToCheck ->
+                            !assignedProfileIds.contains(profileIdToCheck)).collect(Collectors.toList());
             //Again, IN THEORY notAssignedProfileIds SHOULD be the same as profileIds
             notAssignedProfileIds.forEach(id -> {
                 GroupProfile newGroupProfile = new GroupProfile();
@@ -222,7 +228,8 @@ public class ContextService {
                         createdContextGetResponseDto.setId(key);
                         if (!value.isEmpty()) {
                             ContextAssigneeEntity firstEntryValue = value.get(0);
-                            createdContextGetResponseDto.setContextData(gson.fromJson(firstEntryValue.getContextData(), ContextDataDto.class));
+                            createdContextGetResponseDto.setContextData(gson.fromJson(firstEntryValue.getContextData(),
+                                    ContextDataDto.class));
                             CollectionDto collectionDto = new CollectionDto(firstEntryValue.getCollectionId().toString());
                             createdContextGetResponseDto.setCollection(collectionDto);
                             List<IdResponseDto> assignees = value.stream().map(profile -> {
