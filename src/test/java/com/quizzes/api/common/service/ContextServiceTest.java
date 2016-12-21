@@ -473,6 +473,19 @@ public class ContextServiceTest {
 
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
+        List<GroupProfile> assignedGroupProfiles = new ArrayList<>();
+        GroupProfile groupProfile1 = new GroupProfile();
+        groupProfile1.setGroupId(groupId);
+        groupProfile1.setId(UUID.randomUUID());
+        groupProfile1.setProfileId(UUID.randomUUID());
+        GroupProfile groupProfile2 = new GroupProfile();
+        groupProfile2.setGroupId(groupId);
+        groupProfile2.setId(UUID.randomUUID());
+        groupProfile2.setProfileId(UUID.randomUUID());
+        assignedGroupProfiles.add(groupProfile1);
+        assignedGroupProfiles.add(groupProfile2);
+        when(groupProfileService.findGroupProfilesByGroupId(any(UUID.class))).thenReturn(assignedGroupProfiles);
+
         ProfileDto profileDto = new ProfileDto();
         profileDto.setId(UUID.randomUUID().toString());
         profileDto.setFirstName("Keylor");
@@ -485,6 +498,7 @@ public class ContextServiceTest {
         verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
         verify(profileService, times(1)).save(any(List.class));
+        verify(groupProfileService, times(1)).findGroupProfilesByGroupId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
