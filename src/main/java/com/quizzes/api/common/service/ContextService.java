@@ -152,8 +152,6 @@ public class ContextService {
         }
 
         List<ProfileDto> profiles = contextPutRequestDto.getAssignees();
-        //deletes all the groupProfiles for the group in 1 operation
-        groupProfileService.delete(context.getGroupId());
 
         //checks if the assignees exists, if not, creates the assignee profile
         if (profiles != null && !profiles.isEmpty()) {
@@ -178,10 +176,21 @@ public class ContextService {
             profileService.save(notFoundProfiles);
             //At this point all the assignees in the context to update exists
             //now we need to get the profileIds of that assignees to add them to the group
+            //in the case they are not assigned yet
             List<UUID> profileIds = profileService.findProfileIdsByExternalIdAndLms(requestExternalProfileIds, lms);
 
-            //adds all the assignees to the group
-            profileIds.forEach(id -> {
+            //IN THEORY the update adds NEW assignees to the context's group
+            //but we need to make sure none of the new assignees exist
+
+            //we get all the assignees on that group before the update
+            List<GroupProfile> assignedGroupProfiles = groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
+            //we get the List of the currently assigned profileIds
+            //we need this for the next step, getting the not assigned profile ids
+            List<UUID> assignedProfileIds = assignedGroupProfiles.stream().map(assignedGroupProfile -> assignedGroupProfile.getProfileId()).collect(Collectors.toList());
+
+            List<UUID> notAssignedProfileIds = profileIds.stream().filter(profileIdToCheck -> !assignedProfileIds.contains(profileIdToCheck)).collect(Collectors.toList());
+            //Again, IN THEORY notAssignedProfileIds SHOULD be the same as profileIds
+            notAssignedProfileIds.forEach(id -> {
                 GroupProfile newGroupProfile = new GroupProfile();
                 newGroupProfile.setGroupId(context.getGroupId());
                 newGroupProfile.setProfileId(id);
