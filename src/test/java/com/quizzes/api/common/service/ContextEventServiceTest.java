@@ -3,6 +3,7 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.AnswerDto;
 import com.quizzes.api.common.dto.ContextEventsResponseDto;
+import com.quizzes.api.common.dto.EventSummaryDataDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
@@ -579,4 +580,92 @@ public class ContextEventServiceTest {
         assertEquals("Wrong current resource", currentResourceId, profileResult.getCurrentResourceId());
     }
 
+    @Test
+    public void calculateEventSummaryDataSkipTrue() throws Exception {
+        List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
+
+        EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
+                "calculateEventSummaryData",
+                contextProfileEvents, true);
+
+        assertNotNull("ContextProfile EventSummaryData is null", eventSummaryDataDto);
+        assertEquals(eventSummaryDataDto.getAverageScore(), 60);
+        assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 50);
+        assertEquals(eventSummaryDataDto.getAverageReaction(), 2);
+        assertEquals(eventSummaryDataDto.getTotalCorrect(), 3);
+        assertEquals(eventSummaryDataDto.getTotalAnswered(), 4);
+    }
+
+    @Test
+    public void calculateEventSummaryDataSkipFalse() throws Exception {
+        List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
+
+        EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
+                "calculateEventSummaryData",
+                contextProfileEvents, false);
+
+        assertNotNull("ContextProfile EventSummaryData is null", eventSummaryDataDto);
+        assertEquals(eventSummaryDataDto.getAverageScore(), 75);
+        assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 49);
+        assertEquals(eventSummaryDataDto.getAverageReaction(), 2);
+        assertEquals(eventSummaryDataDto.getTotalCorrect(), 3);
+        assertEquals(eventSummaryDataDto.getTotalAnswered(), 4);
+    }
+
+    private List<ContextProfileEvent> createContextProfileEvents(){
+        UUID contextProfileId = UUID.randomUUID();
+        ContextProfileEvent event1 = new ContextProfileEvent();
+        event1.setId(UUID.randomUUID());
+        event1.setContextProfileId(contextProfileId);
+        event1.setResourceId(UUID.randomUUID());
+        event1.setEventData("{\"timeSpent\":\"10\"," +
+                " \"reaction\":\"2\"," +
+                " \"answer\":[{\"value\":\"A\"}]," +
+                " \"score\":\"100\"," +
+                " \"isSkipped\":\"false\"}");
+        ContextProfileEvent event2 = new ContextProfileEvent();
+        event2.setId(UUID.randomUUID());
+        event2.setContextProfileId(contextProfileId);
+        event2.setResourceId(UUID.randomUUID());
+        event2.setEventData("{\"timeSpent\":\"16\"," +
+                " \"reaction\":\"1\"," +
+                " \"answer\":[{\"value\":\"B\"}]," +
+                " \"score\":\"100\"," +
+                " \"isSkipped\":\"false\"}");
+        ContextProfileEvent event3 = new ContextProfileEvent();
+        event3.setId(UUID.randomUUID());
+        event3.setContextProfileId(contextProfileId);
+        event3.setResourceId(UUID.randomUUID());
+        event3.setEventData("{\"timeSpent\":\"15\"," +
+                " \"reaction\":\"5\"," +
+                " \"answer\":[{\"value\":\"C\"}]," +
+                " \"score\":\"0\"," +
+                " \"isSkipped\":\"false\"}");
+        ContextProfileEvent event4 = new ContextProfileEvent();
+        event4.setId(UUID.randomUUID());
+        event4.setContextProfileId(contextProfileId);
+        event4.setResourceId(UUID.randomUUID());
+        event4.setEventData("{\"timeSpent\":\"1\"," +
+                " \"reaction\":\"0\"," +
+                " \"answer\":[]," +
+                " \"score\":\"0\"," +
+                " \"isSkipped\":\"true\"}");
+        ContextProfileEvent event5 = new ContextProfileEvent();
+        event5.setId(UUID.randomUUID());
+        event5.setContextProfileId(contextProfileId);
+        event5.setResourceId(UUID.randomUUID());
+        event5.setEventData("{\"timeSpent\":\"8\"," +
+                " \"reaction\":\"3\"," +
+                " \"answer\":[{\"value\":\"A\"}]," +
+                " \"score\":\"100\"," +
+                " \"isSkipped\":\"false\"}");
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        contextProfileEvents.add(event1);
+        contextProfileEvents.add(event2);
+        contextProfileEvents.add(event3);
+        contextProfileEvents.add(event4);
+        contextProfileEvents.add(event5);
+
+        return contextProfileEvents;
+    }
 }
