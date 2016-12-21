@@ -4,7 +4,7 @@ public class SessionPostRequestDto {
 
     private String clientApiKey;
     private String clientApiSecret;
-    private ProfileDto profile;
+    private ExternalUserDto user;
 
     public SessionPostRequestDto() {
     }
@@ -25,11 +25,11 @@ public class SessionPostRequestDto {
         this.clientApiSecret = clientApiSecret;
     }
 
-    public ProfileDto getProfile() {
-        return profile;
+    public ExternalUserDto getUser() {
+        return user;
     }
 
-    public void setProfile(ProfileDto profile) {
-        this.profile = profile;
+    public void setUser(ExternalUserDto user) {
+        this.user = user;
     }
 }
