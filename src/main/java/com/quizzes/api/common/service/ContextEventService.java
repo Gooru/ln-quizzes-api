@@ -226,20 +226,34 @@ public class ContextEventService {
     }
 
     private EventSummaryDataDto calculateEventSummaryData(List<ContextProfileEvent> contextProfileEvents, boolean calculateSkipped) {
-        EventSummaryDataDto result = new EventSummaryDataDto();
-        List<PostRequestResourceDto> eventDataList = contextProfileEvents.stream().map(event ->
-            gson.fromJson(event.getEventData(), PostRequestResourceDto.class)).filter(eventData -> (calculateSkipped || !eventData.getAnswer().isEmpty())).collect(Collectors.toList());
-        long totalTimeSpent = eventDataList.parallelStream().mapToLong(event -> event.getTimeSpent()).sum();
-        double averageReaction = eventDataList.parallelStream().mapToInt(event -> event.getReaction()).average().getAsDouble();
-        double averageScore = eventDataList.parallelStream().mapToInt(event -> event.getScore()).average().getAsDouble();
-        long totalCorrect = eventDataList.parallelStream().filter(event -> event.getScore() == 100).count();
-        long totalAnswered = eventDataList.parallelStream().filter(event -> !event.getAnswer().isEmpty()).count();
+        long totalTimeSpent = 0;
+        short totalReaction = 0;
+        short totalScore = 0;
+        short totalCorrect = 0;
+        short totalAnswered = 0;
+        short totalAnswers = 0;
 
+        for (ContextProfileEvent contextProfileEvent : contextProfileEvents){
+            PostRequestResourceDto eventDataDto = gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
+            boolean isSkipped = eventDataDto.getAnswer().isEmpty();
+            if (calculateSkipped || !isSkipped) {
+                totalTimeSpent += eventDataDto.getTimeSpent();
+                totalReaction += eventDataDto.getReaction();
+                totalScore += eventDataDto.getScore();
+                totalAnswered += isSkipped ? 0: 1;
+                totalCorrect += eventDataDto.getScore() == 100? 1: 0;
+                totalAnswers++;
+            }
+        }
+        EventSummaryDataDto result = new EventSummaryDataDto();
+
+        double averageReaction = (totalReaction / totalAnswers);
+        double averageScore = (totalScore / totalAnswers);
         result.setTotalTimeSpent(totalTimeSpent);
         result.setAverageReaction((short)Math.round(averageReaction));
         result.setAverageScore((short)Math.round(averageScore));
-        result.setTotalCorrect((short)totalCorrect);
-        result.setTotalAnswered((short)totalAnswered);
+        result.setTotalCorrect(totalCorrect);
+        result.setTotalAnswered(totalAnswered);
         return result;
     }
 }

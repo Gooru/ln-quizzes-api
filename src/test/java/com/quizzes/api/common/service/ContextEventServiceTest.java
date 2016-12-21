@@ -604,7 +604,7 @@ public class ContextEventServiceTest {
         assertNotNull("ContextProfile EventSummaryData is null", eventSummaryDataDto);
         assertEquals(eventSummaryDataDto.getAverageScore(), 75);
         assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 49);
-        assertEquals(eventSummaryDataDto.getAverageReaction(), 3);
+        assertEquals(eventSummaryDataDto.getAverageReaction(), 2);
         assertEquals(eventSummaryDataDto.getTotalCorrect(), 3);
         assertEquals(eventSummaryDataDto.getTotalAnswered(), 4);
     }
