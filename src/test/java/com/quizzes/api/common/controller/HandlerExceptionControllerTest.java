@@ -2,6 +2,7 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
+import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +56,17 @@ public class HandlerExceptionControllerTest {
         assertEquals("Wrong exception", "ContentNotFoundException", result.getException());
         assertEquals("Wrong status code", HttpStatus.NOT_FOUND.value(), result.getStatus());
         assertEquals("Wrong message exception", "We couldn't find the param", result.getMessage());
+    }
+
+    @Test
+    public void handleInvalidCredentialsException() throws Exception {
+        InvalidCredentialsException exceptionMock = new InvalidCredentialsException("Invalid client credentials.");
+        ExceptionMessage result = controller.handleInvalidCredentialsException(exceptionMock);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", "InvalidCredentialsException", result.getException());
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong message exception", "Invalid client credentials.", result.getMessage());
     }
 
 }
