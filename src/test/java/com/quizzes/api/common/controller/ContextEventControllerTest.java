@@ -1,13 +1,12 @@
 package com.quizzes.api.common.controller;
 
-import com.google.gson.JsonArray;
+import com.quizzes.api.common.dto.AnswerDto;
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
-import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.AnswerDto;
 import com.quizzes.api.common.service.ContextEventService;
 import com.quizzes.api.common.service.ContextProfileService;
 import org.junit.Test;
@@ -17,12 +16,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.testng.AssertJUnit;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -106,18 +102,18 @@ public class ContextEventControllerTest {
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
 
         PostResponseResourceDto result1 = resultBody.getEvents().get(0);
-        AssertJUnit.assertEquals("Wrong result1 resource1 ID", resource1, result1.getResourceId());
-        AssertJUnit.assertEquals("Wrong score for result1", 0, result1.getScore());
-        AssertJUnit.assertEquals("Wrong reaction for result1", 0, result1.getReaction());
-        AssertJUnit.assertEquals("Wrong timeSpent for result1", 1234, result1.getTimeSpent());
-        AssertJUnit.assertEquals("Wrong timeSpent for result1", "A", result1.getAnswer().get(0).getValue());
+        assertEquals("Wrong result1 resource1 ID", resource1, result1.getResourceId());
+        assertEquals("Wrong score for result1", 0, result1.getScore());
+        assertEquals("Wrong reaction for result1", 0, result1.getReaction());
+        assertEquals("Wrong timeSpent for result1", 1234, result1.getTimeSpent());
+        assertEquals("Wrong timeSpent for result1", "A", result1.getAnswer().get(0).getValue());
         assertFalse("IsSkipped is true in result1", result1.getIsSkipped());
 
         PostResponseResourceDto result2 = resultBody.getEvents().get(1);
-        AssertJUnit.assertEquals("Wrong result1 resource2 ID", resource2, result2.getResourceId());
-        AssertJUnit.assertEquals("Wrong score for result2", 0, result2.getScore());
-        AssertJUnit.assertEquals("Wrong reaction for result2", 0, result2.getReaction());
-        AssertJUnit.assertEquals("Wrong timeSpent for result2", 1234, result2.getTimeSpent());
+        assertEquals("Wrong result1 resource2 ID", resource2, result2.getResourceId());
+        assertEquals("Wrong score for result2", 0, result2.getScore());
+        assertEquals("Wrong reaction for result2", 0, result2.getReaction());
+        assertEquals("Wrong timeSpent for result2", 1234, result2.getTimeSpent());
         assertTrue("Answer list is not empty for result2", result2.getAnswer().isEmpty());
         assertTrue("IsSkipped is true in result2", result2.getIsSkipped());
     }
@@ -179,7 +175,7 @@ public class ContextEventControllerTest {
         profileEvents.add(profileEventResponseDto);
 
         //Creating studentEventDto mock
-        ContextEventsResponseDto contextEvents =  new ContextEventsResponseDto();
+        ContextEventsResponseDto contextEvents = new ContextEventsResponseDto();
         contextEvents.setContextId(contextId);
         contextEvents.setCollection(collectionDto);
         contextEvents.setProfileEvents(profileEvents);
@@ -249,7 +245,7 @@ public class ContextEventControllerTest {
         profileEvents.add(profileEventResponseDto);
 
         //Creating studentEventDto mock
-        ContextEventsResponseDto contextEvents =  new ContextEventsResponseDto();
+        ContextEventsResponseDto contextEvents = new ContextEventsResponseDto();
         contextEvents.setContextId(contextId);
         contextEvents.setCollection(collectionDto);
         contextEvents.setProfileEvents(profileEvents);
