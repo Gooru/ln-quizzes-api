@@ -512,6 +512,7 @@ public class ContextEventServiceTest {
         long timeSpent = 1000;
         int reaction = 3;
         int score = 100;
+        boolean isSkipped = false;
         String answerValue = "D";
 
         String eventData = "{\n" +
@@ -519,6 +520,7 @@ public class ContextEventServiceTest {
                 "\t\t\"timeSpent\": " + timeSpent + ",\n" +
                 "\t\t\"reaction\": " + reaction + ",\n" +
                 "\t\t\"score\": " + score + ",\n" +
+                "\t\t\"isSkipped\": " + isSkipped + ",\n" +
                 "\t\t\"answer\": [\n" +
                 "\t\t\t{\"value\":\"" + answerValue + "\"}\n" +
                 "\t\t]\n" +
@@ -564,6 +566,7 @@ public class ContextEventServiceTest {
         assertEquals("Wrong timeSpent", 1000, eventResult.getTimeSpent());
         assertEquals("Wrong resource Id", bodyResourceId, eventResult.getResourceId());
         assertEquals("Wrong score", 100, eventResult.getScore());
+        assertFalse("Wrong isSkipped value", eventResult.getIsSkipped());
         assertEquals("Wrong answer value", answerValue, eventResult.getAnswer().get(0).getValue());
     }
 
