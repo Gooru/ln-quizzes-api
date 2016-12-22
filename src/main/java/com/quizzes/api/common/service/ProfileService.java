@@ -12,8 +12,12 @@ import com.quizzes.api.common.repository.ProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Service
 public class ProfileService {
@@ -24,15 +28,52 @@ public class ProfileService {
     @Autowired
     Gson gson;
 
-    public ProfileGetResponseDto findById(UUID profileId) {
-        Profile profile = profileRepository.findById(profileId);
+    public Profile findById(UUID profileId) throws ClassNotFoundException {
+        return profileRepository.findById(profileId);
+    }
+
+    public ProfileGetResponseDto findProfileResponseDtoById(UUID profileId) throws ClassNotFoundException {
+        Profile profile = findById(profileId);
+        ArrayList<String> list = new ArrayList<>();
+        list.add("externalId");
+        list.add("lastName");
+
         ProfileGetResponseDto result = null;
         if(profile != null) {
             result = gson.fromJson(profile.getProfileData(), ProfileGetResponseDto.class);
             result.setId(profileId.toString());
             result.setExternalId(profile.getExternalId());
         }
-        return result;
+        ProfileGetResponseDto x = findByIdFields(result, list);
+        return x;
+    }
+
+    public ProfileGetResponseDto findByIdFields(ProfileGetResponseDto profile, ArrayList<String> filter) throws ClassNotFoundException {
+        ArrayList<Field> fields = new ArrayList();
+        fields.addAll(Arrays.asList(profile.getClass().getSuperclass().getDeclaredFields()));
+        fields.addAll(Arrays.asList(profile.getClass().getDeclaredFields()));
+
+        ProfileGetResponseDto response = new ProfileGetResponseDto();
+
+        filter.forEach(item -> {
+            try {
+                Field field = response.getClass().getDeclaredField(item);
+                field.set(response, );
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+        });
+
+//        fields.stream().filter(property -> !filter.contains(property.getName())).forEach(property->{
+//            property.setAccessible(true);
+//            try {
+//                property.set(profile, null);
+//            } catch (IllegalAccessException e) {
+//                e.printStackTrace();
+//            }
+//        });
+
+        return profile;
     }
 
     public UUID findIdByExternalIdAndLmsId(String externalId, Lms lms) {

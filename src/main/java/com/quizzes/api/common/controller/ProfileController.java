@@ -63,7 +63,7 @@ public class ProfileController {
             @ApiParam(value = "Profile Id in session", required = true, name = "profile-id")
             @RequestHeader(value = "profile-id") UUID sessionProfileId,
             @ApiParam(value = "Client's Id on quizzes.", required = true, name = "client-id")
-            @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) {
+            @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) throws ClassNotFoundException {
         ProfileGetResponseDto result = profileService.findById(profileId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
