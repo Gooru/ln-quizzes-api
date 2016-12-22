@@ -34,7 +34,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -96,22 +96,45 @@ public class ContextEventServiceTest {
         contextProfile.setCurrentResourceId(resourceId);
         contextProfile.setIsComplete(false);
 
-        //Setting ContextProfileEvent
-        ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "someJson", null);
+        //Setting Answers
+        AnswerDto answerDto = new AnswerDto();
+        answerDto.setValue("A");
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(answerDto);
+
+        //Setting Events
+        UUID resource1 = UUID.randomUUID();
+        PostResponseResourceDto event1 = new PostResponseResourceDto();
+        event1.setScore(0);
+        event1.setReaction(0);
+        event1.setResourceId(resource1);
+        event1.setAnswer(answers);
+        event1.setTimeSpent(1234);
+        event1.setIsSkipped(false);
+
+        //Setting ContextProfileEvent1
+        ContextProfileEvent contextProfileEvent1 =
+                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                        gson.toJson(event1), null);
+
+        //event2
+        UUID resource2 = UUID.randomUUID();
+        PostResponseResourceDto event2 = new PostResponseResourceDto();
+        event2.setScore(0);
+        event2.setReaction(0);
+        event2.setResourceId(resource2);
+        event2.setAnswer(new ArrayList<>());
+        event2.setTimeSpent(1234);
+        event2.setIsSkipped(true);
+
+        //Setting ContextProfileEvent2
+        ContextProfileEvent contextProfileEvent2 =
+                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
+                        gson.toJson(event2), null);
 
         List<ContextProfileEvent> list = new ArrayList<>();
-        list.add(contextProfileEvent);
-
-        //Setting event return value
-        Map<String, Object> mapResponse = new HashMap<>();
-        mapResponse.put("answer", "[{\"value\":\"A\"]");
-        mapResponse.put("reaction", 2);
-        mapResponse.put("resourceId", resourceId);
-        mapResponse.put("timeSpent", 123);
-        mapResponse.put("score", 0);
-
-        when(jsonParser.parseMap(any(String.class))).thenReturn(mapResponse);
+        list.add(contextProfileEvent1);
+        list.add(contextProfileEvent2);
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
@@ -131,9 +154,23 @@ public class ContextEventServiceTest {
         assertEquals("Wrong context ID", contextId, result.getId());
         assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertNull("Events doc is not empty", result.getEvents());
-        assertEquals("Wrong size", 1, result.getEventsResponse().size());
-        assertNotNull("Answer list is Null", result.getEventsResponse().get(0));
+        assertEquals("Wrong size", 2, result.getEvents().size());
+
+        PostResponseResourceDto result1 = result.getEvents().get(0);
+        assertEquals("Wrong result1 resource1 ID", resource1, result1.getResourceId());
+        assertEquals("Wrong score for result1", 0, result1.getScore());
+        assertEquals("Wrong reaction for result1", 0, result1.getReaction());
+        assertEquals("Wrong timeSpent for result1", 1234, result1.getTimeSpent());
+        assertEquals("Wrong timeSpent for result1", "A", result1.getAnswer().get(0).getValue());
+        assertFalse("IsSkipped is true in result1", result1.getIsSkipped());
+
+        PostResponseResourceDto result2 = result.getEvents().get(1);
+        assertEquals("Wrong result1 resource2 ID", resource2, result2.getResourceId());
+        assertEquals("Wrong score for result2", 0, result2.getScore());
+        assertEquals("Wrong reaction for result2", 0, result2.getReaction());
+        assertEquals("Wrong timeSpent for result2", 1234, result2.getTimeSpent());
+        assertTrue("Answer list is not empty for result2", result2.getAnswer().isEmpty());
+        assertTrue("IsSkipped is true in result2", result2.getIsSkipped());
     }
 
     @Test
@@ -177,8 +214,7 @@ public class ContextEventServiceTest {
         assertEquals("Wrong context ID", contextId, result.getId());
         assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertNull("Events doc is not null", result.getEvents());
-        assertEquals("Event list has wrong size", 0, result.getEventsResponse().size());
+        assertEquals("Event list has wrong size", 0, result.getEvents().size());
     }
 
     @Test
@@ -227,8 +263,7 @@ public class ContextEventServiceTest {
         assertEquals("Wrong context ID", contextId, result.getId());
         assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertNull("Events doc is not null", result.getEvents());
-        assertEquals("Events list is not empty", 0, result.getEventsResponse().size());
+        assertEquals("Events list is not empty", 0, result.getEvents().size());
     }
 
     @Test
