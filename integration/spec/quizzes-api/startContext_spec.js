@@ -34,8 +34,6 @@ frisby.create('Test context creation for one assignee and owner for start contex
             'email': 'teacherstart1@quizzes.com'
         }
     }, {json: true})
-    // This profile-id header for this specific endpoint is fake, it is useless but it is required by the endpoint
-    // Both headers will be replaced by the session-token header once we finish with the Session implementation
     .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
     .addHeader('client-id', 'quizzes')
     .inspectRequest()
