@@ -37,6 +37,7 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(value = ContentNotFoundException.class)
     public ExceptionMessage handleContentNotFoundException(ContentNotFoundException e) {
+        logger.error("Content not found", e);
         return new ExceptionMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(),
                 ContentNotFoundException.class.getSimpleName());
     }
