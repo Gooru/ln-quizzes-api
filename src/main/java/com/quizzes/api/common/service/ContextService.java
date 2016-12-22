@@ -12,6 +12,7 @@ import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -237,33 +238,42 @@ public class ContextService {
     public CreatedContextGetResponseDto findCreatedContextByContextIdAndOwnerId(UUID contextId, UUID ownerId) {
         Map<UUID, List<ContextAssigneeEntity>> result =
                 contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId);
-
-        CreatedContextGetResponseDto response = null;
-
-        if (!result.isEmpty() && result.containsKey(contextId)) {
-            response = new CreatedContextGetResponseDto();
-
-            List<ContextAssigneeEntity> assigneeEntities = result.get(contextId);
-            response.setId(contextId);
-
-            ContextAssigneeEntity firstEntity = assigneeEntities.get(0);
-            response.setContextData(gson.fromJson(firstEntity.getContextData(), ContextDataDto.class));
-
-            CollectionDto collection = new CollectionDto();
-            collection.setId(firstEntity.getCollectionId().toString());
-            response.setCollection(collection);
-
-            List<IdResponseDto> assignees = assigneeEntities.stream().map(profile -> {
-                IdResponseDto assignee = new IdResponseDto();
-                assignee.setId(profile.getAssigneeProfileId());
-                return assignee;
-            }).collect(Collectors.toList());
-
-            response.setAssignees(assignees);
-            response.setCreatedDate(firstEntity.getCreatedAt().getTime());
-            response.setModifiedDate(firstEntity.getUpdatedAt().getTime());
+        if (result.isEmpty()) {
+            logger.error("We could not find the context: " + contextId);
+            throw new ContentNotFoundException("We could not find the context: " + contextId + ".");
         }
-        return response;
+
+        try{
+            CreatedContextGetResponseDto response = null;
+
+            if (!result.isEmpty() && result.containsKey(contextId)) {
+                response = new CreatedContextGetResponseDto();
+
+                List<ContextAssigneeEntity> assigneeEntities = result.get(contextId);
+                response.setId(contextId);
+
+                ContextAssigneeEntity firstEntity = assigneeEntities.get(0);
+                response.setContextData(gson.fromJson(firstEntity.getContextData(), ContextDataDto.class));
+
+                CollectionDto collection = new CollectionDto();
+                collection.setId(firstEntity.getCollectionId().toString());
+                response.setCollection(collection);
+
+                List<IdResponseDto> assignees = assigneeEntities.stream().map(profile -> {
+                    IdResponseDto assignee = new IdResponseDto();
+                    assignee.setId(profile.getAssigneeProfileId());
+                    return assignee;
+                }).collect(Collectors.toList());
+
+                response.setAssignees(assignees);
+                response.setCreatedDate(firstEntity.getCreatedAt().getTime());
+                response.setModifiedDate(firstEntity.getUpdatedAt().getTime());
+            }
+            return response;
+        } catch (Exception e) {
+            logger.error("There was an error finding the context: " + contextId, e);
+            throw new InternalServerException("There was an error finding the context: " + contextId + ".", e);
+        }
     }
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId) {

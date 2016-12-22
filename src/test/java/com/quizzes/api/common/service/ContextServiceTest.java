@@ -718,6 +718,19 @@ public class ContextServiceTest {
         assertEquals("Context has no assignees", "Math 1st Grade", metadataResult.getTitle());
     }
 
+    @Test(expected = ContentNotFoundException.class)
+    public void findCreatedContextByContextIdAndOwnerIdNoContentFoundResponse() {
+        UUID contextId = UUID.randomUUID();
+        UUID ownerId = UUID.randomUUID();
+
+        when(contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId))
+                .thenReturn(new HashMap());
+
+        contextService.findCreatedContextByContextIdAndOwnerId(contextId, ownerId);
+
+
+    }
+
     @Test
     public void removeIdFromProfileDto() throws Exception {
         ProfileDto profileDto = new ProfileDto();
