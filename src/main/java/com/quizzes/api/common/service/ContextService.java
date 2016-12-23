@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -151,55 +152,46 @@ public class ContextService {
             throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
         }
 
-        List<ProfileDto> profiles = contextPutRequestDto.getAssignees();
+        List<ProfileDto> profileDtos = contextPutRequestDto.getAssignees();
 
         //checks if the assignees exists, if not, creates the assignee profile
-        if (profiles != null && !profiles.isEmpty()) {
+        if (profileDtos != null && !profileDtos.isEmpty()) {
             List<String> requestExternalProfileIds =
-                    profiles.stream().map(profile -> profile.getId()).collect(Collectors.toList());
-            List<String> foundExternalProfileIds = profileService.findExternalProfileIds(requestExternalProfileIds, lms);
-            //we are creating new profiles
-            //we are not updating existing info of existing profiles
-            List<Profile> notFoundProfiles = profiles.stream()
-                    .filter(profile -> !foundExternalProfileIds.contains(profile.getId()))
-                    .map(profile -> {
-                        Profile newProfile = new Profile();
-                        newProfile.setExternalId(profile.getId());
-                        newProfile.setLmsId(lms);
+                    profileDtos.stream().map(profile -> profile.getId()).collect(Collectors.toList());
 
-                        // TODO We need to remove the hardcoded client ID and get it from the owner Profile
-                        // This Client ID belongs to Gooru client
-                        newProfile.setClientId(UUID.fromString("8d8068c6-71e3-46f1-a169-2fceb3ed674b"));
-
-                        newProfile.setProfileData(removeIdFromProfileDto(profile).toString());
-                        return newProfile;
-                    }).collect(Collectors.toList());
-            profileService.save(notFoundProfiles);
-            //At this point all the assignees in the context to update exists
-            //now we need to get the profileIds of that assignees to add them to the group
-            //in the case they are not assigned yet
-            List<UUID> profileIds = profileService.findProfileIdsByExternalIdAndLms(requestExternalProfileIds, lms);
-
-            //IN THEORY the update adds NEW assignees to the context's group
-            //but we need to make sure none of the new assignees exist
-
-            //we get all the assignees on that group before the update
+            //we get all the assignees on that group
             List<GroupProfile> assignedGroupProfiles =
                     groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
-            //we get the List of the currently assigned profileIds
-            //we need this for the next step, getting the not assigned profile ids
-            List<UUID> assignedProfileIds =
-                    assignedGroupProfiles.stream().map(assignedGroupProfile ->
-                            assignedGroupProfile.getProfileId()).collect(Collectors.toList());
+            List<UUID> assignedProfilesIds = assignedGroupProfiles.stream().map(groupProfile ->
+                    groupProfile.getId()).collect(Collectors.toList());
 
-            List<UUID> notAssignedProfileIds =
-                    profileIds.stream().filter(profileIdToCheck ->
-                            !assignedProfileIds.contains(profileIdToCheck)).collect(Collectors.toList());
-            //Again, IN THEORY notAssignedProfileIds SHOULD be the same as profileIds
-            notAssignedProfileIds.forEach(id -> {
+            List<Profile> foundProfiles = profileService.findProfilesByExternalIdAndLms(requestExternalProfileIds, lms);
+            Map<String, Profile> foundProfilesMap = foundProfiles.stream().collect(
+                    Collectors.toMap(Profile::getExternalId, Function.identity()));
+            List<String> foundProfilesAssigned = foundProfiles.stream().filter(profile ->
+                    assignedProfilesIds.contains(profile.getId())).map(profile ->
+                    profile.getExternalId()).collect(Collectors.toList());
+
+            List<ProfileDto> notAssignedProfileDtos = profileDtos.stream().filter(profileDto ->
+                    foundProfilesAssigned.contains(profileDto.getId())).collect(Collectors.toList());
+
+            notAssignedProfileDtos.stream().forEach(profileDto -> {
+
+                if (!foundProfilesMap.containsKey(profileDto.getId())){
+                    Profile newProfile = new Profile();
+                    newProfile.setExternalId(profileDto.getId());
+                    newProfile.setLmsId(lms);
+                    // TODO We need to remove the hardcoded client ID and get it from the owner Profile
+                    // This Client ID belongs to Gooru client
+                    newProfile.setClientId(UUID.fromString("8d8068c6-71e3-46f1-a169-2fceb3ed674b"));
+                    newProfile.setProfileData(removeIdFromProfileDto(profileDto).toString());
+                    Profile createdProfile = profileService.save(newProfile);
+                    foundProfilesMap.put(newProfile.getExternalId(), createdProfile);
+                }
+                Profile profileToAssign = foundProfilesMap.get(profileDto.getId());
                 GroupProfile newGroupProfile = new GroupProfile();
+                newGroupProfile.setProfileId(profileToAssign.getId());
                 newGroupProfile.setGroupId(context.getGroupId());
-                newGroupProfile.setProfileId(id);
                 groupProfileService.save(newGroupProfile);
             });
         }

@@ -497,7 +497,6 @@ public class ContextServiceTest {
 
         verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(profileService, times(1)).save(any(List.class));
         verify(groupProfileService, times(1)).findGroupProfilesByGroupId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
