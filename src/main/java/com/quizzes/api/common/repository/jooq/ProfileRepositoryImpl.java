@@ -57,6 +57,15 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
+    public UUID findIdByExternalIdAndClientId(String externalId, UUID clientId) {
+        return jooq.select(PROFILE.ID)
+                .from(PROFILE)
+                .where(PROFILE.EXTERNAL_ID.eq(externalId))
+                .and(PROFILE.CLIENT_ID.eq(clientId))
+                .fetchOneInto(UUID.class);
+    }
+
+    @Override
     public Profile findAssigneeInContext(UUID contextId, UUID profileId) {
         return jooq.select(PROFILE.ID, PROFILE.PROFILE_DATA)
                 .from(PROFILE)
