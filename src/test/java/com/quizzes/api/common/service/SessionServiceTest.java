@@ -3,6 +3,7 @@ package com.quizzes.api.common.service;
 import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Client;
@@ -17,6 +18,7 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
+import org.springframework.boot.autoconfigure.web.ResourceProperties;
 
 import java.util.UUID;
 
@@ -250,6 +252,40 @@ public class SessionServiceTest {
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong session token", id, result.getSessionToken());
+    }
+
+    @Test
+    public void findProfileBySessionId() throws Exception {
+        UUID sessionId = UUID.randomUUID();
+
+        //Setting return values from db
+        UUID id = UUID.randomUUID();
+        UUID externalId = UUID.randomUUID();
+        String data = "{\"firstName\": \"David\"," +
+                "\"lastName\": \"Artavia\"," +
+                "\"username\": \"dartavia\"," +
+                "\"email\": \"david@quizzes.com\"}";
+        Profile profile = new Profile();
+        profile.setId(id);
+        profile.setExternalId(externalId.toString());
+        profile.setProfileData(data);
+
+        when(sessionRepository.findProfileBySessionId(sessionId)).thenReturn(profile);
+
+        Profile result = WhiteboxImpl.invokeMethod(sessionService, "findProfileBySessionId", sessionId);
+
+        assertNotNull("Result is null", result);
+        assertEquals("Wrong profile id", profile.getId(), result.getId());
+        assertEquals("Wrong profile external id", externalId.toString(), result.getExternalId());
+        assertEquals("Wrong profile data", data, result.getProfileData());
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findProfileBySessionIdThrowException() throws Exception {
+        UUID sessionId = UUID.randomUUID();
+        when(sessionRepository.findProfileBySessionId(sessionId)).thenReturn(null);
+
+        Profile result = WhiteboxImpl.invokeMethod(sessionService, "findProfileBySessionId", sessionId);
     }
 
 }

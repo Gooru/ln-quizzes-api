@@ -3,6 +3,7 @@ package com.quizzes.api.common.service;
 import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -69,6 +70,15 @@ public class SessionService {
         SessionTokenDto token = new SessionTokenDto();
         token.setSessionToken(session.getId());
         return token;
+    }
+
+    private Profile findProfileBySessionId(UUID sessionId) {
+        Profile profile = sessionRepository.findProfileBySessionId(sessionId);
+        if (profile == null) {
+            logger.error("We could not find a profile with ID: " + sessionId);
+            throw new ContentNotFoundException("We could not find a profile with ID: " + sessionId);
+        }
+        return profile;
     }
 
     public Session save(Session session) {
