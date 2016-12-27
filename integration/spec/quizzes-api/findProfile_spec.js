@@ -71,6 +71,7 @@ frisby.create('Test Context creation to test assignee data')
 
                             .expectStatus(200)
                             .inspectJSON()
+                            .expectJSONLength(2)
                             .expectJSON({
                                 'email': 'student1@quizzes.com',
                                 'externalId': 'student-id-1'
