@@ -18,7 +18,6 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
 
 import java.util.UUID;
 
