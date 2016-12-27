@@ -88,6 +88,13 @@ public class ProfileServiceTest {
     }
 
     @Test
+    public void findIdByExternalIdAndClientId() throws Exception {
+        UUID clientId = UUID.randomUUID();
+        UUID result = profileService.findIdByExternalIdAndClientId("external-id", clientId);
+        verify(profileRepository, times(1)).findIdByExternalIdAndClientId(eq("external-id"), eq(clientId));
+    }
+
+    @Test
     public void findAssigneeInContext() throws Exception {
         when(profileRepository.findAssigneeInContext(any(UUID.class), any(UUID.class))).thenReturn(new Profile());
         Profile result = profileService.findAssigneeInContext(any(UUID.class), any(UUID.class));
