@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 @CrossOrigin
@@ -60,12 +63,17 @@ public class ProfileController {
     public ResponseEntity<ProfileGetResponseDto> getProfileById(
             @ApiParam(value = "Profile to be found", required = true, name = "profileId")
             @PathVariable UUID profileId,
+            @ApiParam(value = "Profile fields", required = false, name = "fields")
+            @RequestParam(value = "fields", required = false) String fields,
             @ApiParam(value = "Profile Id in session", required = true, name = "profile-id")
             @RequestHeader(value = "profile-id") UUID sessionProfileId,
             @ApiParam(value = "Client's Id on quizzes.", required = true, name = "client-id")
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId) throws ClassNotFoundException {
-        ProfileGetResponseDto result = profileService.findById(profileId);
-
+        ArrayList<String> fieldList = null;
+        if (fields != null) {
+            fieldList = new ArrayList<String>(Arrays.asList(fields.split(",")));
+        }
+        ProfileGetResponseDto result = profileService.findProfileResponseDtoById(profileId, fieldList);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 

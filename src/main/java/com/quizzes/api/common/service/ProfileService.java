@@ -6,9 +6,13 @@ import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.ProfileGetResponseDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +21,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Service
 public class ProfileService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ProfileRepository profileRepository;
@@ -28,52 +33,48 @@ public class ProfileService {
     @Autowired
     Gson gson;
 
-    public Profile findById(UUID profileId) throws ClassNotFoundException {
-        return profileRepository.findById(profileId);
+    public Profile findById(UUID profileId) {
+        Profile profile = profileRepository.findById(profileId);
+        if (profile == null) {
+            logger.error("We could not find the profile with ID: " + profileId);
+            throw new ContentNotFoundException("We could not find the profile with ID: " + profileId + ".");
+        }
+        return profile;
     }
 
-    public ProfileGetResponseDto findProfileResponseDtoById(UUID profileId) throws ClassNotFoundException {
+    public ProfileGetResponseDto findProfileResponseDtoById(UUID profileId, ArrayList<String> fieldsToReturn) throws ClassNotFoundException {
         Profile profile = findById(profileId);
-        ArrayList<String> list = new ArrayList<>();
-        list.add("externalId");
-        list.add("lastName");
-
-        ProfileGetResponseDto result = null;
-        if(profile != null) {
-            result = gson.fromJson(profile.getProfileData(), ProfileGetResponseDto.class);
+        try {
+            ProfileGetResponseDto result = gson.fromJson(profile.getProfileData(), ProfileGetResponseDto.class);
             result.setId(profileId.toString());
             result.setExternalId(profile.getExternalId());
+
+            if (fieldsToReturn != null) {
+                ArrayList<Field> profileFields = new ArrayList();
+                profileFields.addAll(Arrays.asList(result.getClass().getSuperclass().getDeclaredFields()));
+                profileFields.addAll(Arrays.asList(result.getClass().getDeclaredFields()));
+                result = (ProfileGetResponseDto) returnObjectWithFieldsInList(profileFields, fieldsToReturn, result);
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("There was an error finding the profile ID: " + profileId, e);
+            throw new InternalServerException("There was an error finding the profile ID: " + profileId + ".", e);
         }
-        ProfileGetResponseDto x = findByIdFields(result, list);
-        return x;
     }
 
-    public ProfileGetResponseDto findByIdFields(ProfileGetResponseDto profile, ArrayList<String> filter) throws ClassNotFoundException {
-        ArrayList<Field> fields = new ArrayList();
-        fields.addAll(Arrays.asList(profile.getClass().getSuperclass().getDeclaredFields()));
-        fields.addAll(Arrays.asList(profile.getClass().getDeclaredFields()));
-
-        ProfileGetResponseDto response = new ProfileGetResponseDto();
-
-        filter.forEach(item -> {
+    private Object returnObjectWithFieldsInList(ArrayList<Field> objectFields,
+                                               ArrayList<String> fieldsToReturn,
+                                               Object object) {
+        objectFields.stream().filter(property -> !fieldsToReturn.contains(property.getName())).forEach(property -> {
+            property.setAccessible(true);
             try {
-                Field field = response.getClass().getDeclaredField(item);
-                field.set(response, );
-            } catch (NoSuchFieldException e) {
+                property.set(object, null);
+            } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
         });
-
-//        fields.stream().filter(property -> !filter.contains(property.getName())).forEach(property->{
-//            property.setAccessible(true);
-//            try {
-//                property.set(profile, null);
-//            } catch (IllegalAccessException e) {
-//                e.printStackTrace();
-//            }
-//        });
-
-        return profile;
+        return object;
     }
 
     public UUID findIdByExternalIdAndLmsId(String externalId, Lms lms) {
