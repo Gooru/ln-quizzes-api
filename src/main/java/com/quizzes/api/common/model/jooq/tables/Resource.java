@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord> {
 
-	private static final long serialVersionUID = 1656039795;
+	private static final long serialVersionUID = -815348576;
 
 	/**
 	 * The singleton instance of <code>public.resource</code>
@@ -33,11 +33,6 @@ public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.mod
 	 * The column <code>public.resource.external_id</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord, java.lang.String> EXTERNAL_ID = createField("external_id", org.jooq.impl.SQLDataType.VARCHAR.length(50).nullable(false), this, "");
-
-	/**
-	 * The column <code>public.resource.lms_id</code>.
-	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord, com.quizzes.api.common.model.jooq.enums.Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.jooq.enums.Lms.class), this, "");
 
 	/**
 	 * The column <code>public.resource.collection_id</code>.
@@ -78,6 +73,11 @@ public class Resource extends org.jooq.impl.TableImpl<com.quizzes.api.common.mod
 	 * The column <code>public.resource.updated_at</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord, java.sql.Timestamp> UPDATED_AT = createField("updated_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>public.resource.content_provider</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ResourceRecord, com.quizzes.api.common.model.jooq.enums.ContentProvider> CONTENT_PROVIDER = createField("content_provider", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.jooq.enums.ContentProvider.class), this, "");
 
 	/**
 	 * Create a <code>public.resource</code> table reference
