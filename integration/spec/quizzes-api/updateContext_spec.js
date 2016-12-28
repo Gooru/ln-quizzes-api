@@ -59,7 +59,7 @@ frisby.create('Gets the owner profileId')
                     .expectStatus(200)
                     .inspectJSON()
                     .expectJSON({
-                        "assignees": function(val) {expect(val.length).toBe(2); var assignees1 = val;},
+                        "assignees": function(val) {expect(val.length).toBe(2)},
                         'contextData': {
                             'contextMap': {
                                 'classId': 'class-id-1'
@@ -67,6 +67,49 @@ frisby.create('Gets the owner profileId')
                             'metadata': {}
                         },
                         "id": contextJson.id
+                    })
+                    .afterJSON(function (contextDetailsJson) {
+                        frisby.create('Updating the context')
+                            .put(QuizzesApiUrl + '/v1/context/' + contextDetailsJson.id, {
+                                'assignees': [
+                                    {
+                                        'id': 'student-id-1',
+                                        'firstName': 'StudentFirstName1',
+                                        'lastName': 'StudentLastName1',
+                                        'username': 'student1',
+                                        'email': 'student1@quizzes.com'
+                                    },
+                                    {
+                                        'id': 'student-id-3',
+                                        'firstName': 'StudentFirstName3',
+                                        'lastName': 'StudentLastName3',
+                                        'username': 'student3',
+                                        'email': 'student3@quizzes.com'
+                                    },
+                                    {
+                                        'id': 'student-id-4',
+                                        'firstName': 'StudentFirstName4',
+                                        'lastName': 'StudentLastName4',
+                                        'username': 'student4',
+                                        'email': 'student4@quizzes.com'
+                                    }
+
+                                ],
+                                'contextData': {
+                                    'contextMap': {
+                                        'classId': 'class-id-2'
+                                    },
+                                    'metadata': {
+                                        'title': 'Updated title'
+                                    }
+                                }
+                            }, {json: true})
+                            .addHeader('lms-id', 'quizzes')
+                            .addHeader('profile-id', profileJson.id)
+                            .inspectRequest()
+
+                            .expectStatus(200)
+                            .toss();
                     })
                     .toss();
             })
