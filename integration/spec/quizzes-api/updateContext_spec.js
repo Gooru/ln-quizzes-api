@@ -59,14 +59,19 @@ frisby.create('Gets the owner profileId')
                     .expectStatus(200)
                     .inspectJSON()
                     .expectJSON({
-                        "assignees": function(val) {expect(val.length).toBe(2)},
+                        'assignees': function(val) {expect(val.length).toBe(2)},
                         'contextData': {
                             'contextMap': {
                                 'classId': 'class-id-1'
                             },
-                            'metadata': {}
+                            'metadata': {
+                                'startDate': 0,
+                                'dueDate': 0
+                            }
                         },
-                        "id": contextJson.id
+                        'id': contextJson.id,
+                        'modifiedDate': function(val) {expect(val).toBeType(Number)},
+                        'createdDate': function(val) {expect(val).toBeType(Number)}
                     })
                     .afterJSON(function (contextDetailsJson) {
                         frisby.create('Updating the context')
@@ -109,6 +114,31 @@ frisby.create('Gets the owner profileId')
                             .inspectRequest()
 
                             .expectStatus(200)
+                            .afterJSON(function(updatedContextJson) {
+                                frisby.create('Verify that the context exists as expected')
+                                    .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
+                                    .addHeader('lms-id', 'quizzes')
+                                    .addHeader('profile-id', profileJson.id)
+                                    .inspectRequest()
+
+                                    .expectStatus(200)
+                                    .inspectJSON()
+                                    .expectJSON({
+                                        "assignees": function(val) {expect(val.length).toBe(4)},
+                                        'contextData': {
+                                            'contextMap': {
+                                                'classId': 'class-id-1'
+                                            },
+                                            'metadata': {
+                                                'title': 'Updated title',
+                                                'startDate': 0,
+                                                'dueDate': 0
+                                            }
+                                        },
+                                        "id": updatedContextJson.id
+                                    })
+                                    .toss();
+                            })
                             .toss();
                     })
                     .toss();

@@ -163,7 +163,7 @@ public class ContextService {
             List<GroupProfile> assignedGroupProfiles =
                     groupProfileService.findGroupProfilesByGroupId(context.getGroupId());
             List<UUID> assignedProfilesIds = assignedGroupProfiles.stream().map(groupProfile ->
-                    groupProfile.getId()).collect(Collectors.toList());
+                    groupProfile.getProfileId()).collect(Collectors.toList());
 
             List<Profile> foundProfiles = profileService.findProfilesByExternalIdAndLms(requestExternalProfileIds, lms);
             Map<String, Profile> foundProfilesMap = foundProfiles.stream().collect(
@@ -173,7 +173,7 @@ public class ContextService {
                     profile.getExternalId()).collect(Collectors.toList());
 
             List<ProfileDto> notAssignedProfileDtos = profileDtos.stream().filter(profileDto ->
-                    foundProfilesAssigned.contains(profileDto.getId())).collect(Collectors.toList());
+                    !foundProfilesAssigned.contains(profileDto.getId())).collect(Collectors.toList());
 
             notAssignedProfileDtos.stream().forEach(profileDto -> {
 
