@@ -279,12 +279,4 @@ public class SessionServiceTest {
         assertEquals("Wrong profile data", data, result.getProfileData());
     }
 
-    @Test(expected = ContentNotFoundException.class)
-    public void findProfileBySessionIdThrowException() throws Exception {
-        UUID sessionId = UUID.randomUUID();
-        when(sessionRepository.findProfileBySessionId(sessionId)).thenReturn(null);
-
-        Profile result = WhiteboxImpl.invokeMethod(sessionService, "findProfileBySessionId", sessionId);
-    }
-
 }

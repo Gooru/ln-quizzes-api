@@ -73,12 +73,7 @@ public class SessionService {
     }
 
     private Profile findProfileBySessionId(UUID sessionId) {
-        Profile profile = sessionRepository.findProfileBySessionId(sessionId);
-        if (profile == null) {
-            logger.error("We could not find a profile with the session: " + sessionId);
-            throw new ContentNotFoundException("We could not find a profile for this session");
-        }
-        return profile;
+        return sessionRepository.findProfileBySessionId(sessionId);
     }
 
     public Session save(Session session) {

@@ -60,7 +60,7 @@ public class SessionRepositoryImpl implements SessionRepository {
 
     @Override
     public Profile findProfileBySessionId(UUID sessionId) {
-        return jooq.select()
+        return jooq.select(PROFILE.ID, PROFILE.CLIENT_ID)
                 .from(SESSION)
                 .join(PROFILE).on(PROFILE.ID.eq(SESSION.PROFILE_ID))
                 .where(SESSION.ID.eq(sessionId))
