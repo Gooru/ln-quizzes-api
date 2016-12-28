@@ -262,6 +262,8 @@ public class ContextService {
             response.setAssignees(assignees);
             response.setCreatedDate(firstEntity.getCreatedAt().getTime());
             response.setModifiedDate(firstEntity.getUpdatedAt().getTime());
+        } else {
+            throw new ContentNotFoundException("We could not find the context: " + contextId + ".");
         }
         return response;
     }

@@ -1,5 +1,6 @@
 package com.quizzes.api.common.repository.jooq;
 
+import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Session;
 import com.quizzes.api.common.repository.SessionRepository;
 import org.jooq.DSLContext;
@@ -9,8 +10,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
+import static com.quizzes.api.common.model.jooq.tables.Profile.PROFILE;
 import static com.quizzes.api.common.model.jooq.tables.Session.SESSION;
 
 @Repository
@@ -55,6 +56,15 @@ public class SessionRepositoryImpl implements SessionRepository {
                 .returning()
                 .fetchOne()
                 .into(Session.class);
+    }
+
+    @Override
+    public Profile findProfileBySessionId(UUID sessionId) {
+        return jooq.select(PROFILE.ID, PROFILE.CLIENT_ID)
+                .from(SESSION)
+                .join(PROFILE).on(PROFILE.ID.eq(SESSION.PROFILE_ID))
+                .where(SESSION.ID.eq(sessionId))
+                .fetchOneInto(Profile.class);
     }
 
 }
