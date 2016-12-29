@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.CollectionGetResponseDto;
 import com.quizzes.api.common.dto.ResourceDto;
-import com.quizzes.api.common.model.jooq.enums.Lms;
+import com.quizzes.api.common.model.jooq.enums.ContentProvider;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.CollectionRepository;
@@ -66,8 +66,8 @@ public class CollectionServiceTest {
     public void findByExternalId() throws Exception {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
-        Collection collection = new Collection(id, "external-id", "external-parent-id", Lms.its_learning,
-                true, profileId, "{}", false, false, null, null);
+        Collection collection = new Collection(id, "external-id", "external-parent-id",
+                true, profileId, "{}", false, false, null, null, ContentProvider.gooru);
 
         doReturn(collection).when(collectionService).findByExternalId("external-id");
 
@@ -78,7 +78,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong id", id, result.getId());
         assertEquals("Wrong external id", "external-id", result.getExternalId());
         assertEquals("Wrong external parent id", "external-parent-id", result.getExternalParentId());
-        assertEquals("Wrong lms id", Lms.its_learning, result.getLmsId());
+        assertEquals("Wrong content provider", ContentProvider.gooru, result.getContentProvider());
         assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
         assertEquals("Wrong collection data", "{}", result.getCollectionData());
         assertTrue("isCollection is not true", result.getIsCollection());
@@ -91,8 +91,8 @@ public class CollectionServiceTest {
     public void save() throws Exception {
         UUID id = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
-        Collection collection = new Collection(null, "external-id", "external-parent-id", Lms.its_learning,
-                true, profileId, "{}", false, false, null, null);
+        Collection collection = new Collection(null, "external-id", "external-parent-id",
+                true, profileId, "{}", false, false, null, null, ContentProvider.gooru);
 
         doReturn(collection).when(collectionService).save(collection);
 
@@ -103,7 +103,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong id", id, result.getId());
         assertEquals("Wrong external id", "external-id", result.getExternalId());
         assertEquals("Wrong external parent id", "external-parent-id", result.getExternalParentId());
-        assertEquals("Wrong lms id", Lms.its_learning, result.getLmsId());
+        assertEquals("Wrong content provider", ContentProvider.gooru, result.getContentProvider());
         assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
         assertEquals("Wrong collection data", "{}", result.getCollectionData());
         assertTrue("isCollection is not true", result.getIsCollection());

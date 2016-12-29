@@ -9,38 +9,37 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Resource implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1864041099;
+	private static final long serialVersionUID = -1755179365;
 
-	private java.util.UUID                              id;
-	private java.lang.String                            externalId;
-	private com.quizzes.api.common.model.jooq.enums.Lms lmsId;
-	private java.util.UUID                              collectionId;
-	private java.lang.Boolean                           isResource;
-	private java.util.UUID                              ownerProfileId;
-	private java.lang.String                            resourceData;
-	private java.lang.Short                             sequence;
-	private java.lang.Boolean                           isDeleted;
-	private java.sql.Timestamp                          createdAt;
-	private java.sql.Timestamp                          updatedAt;
+	private java.util.UUID                                          id;
+	private java.lang.String                                        externalId;
+	private java.util.UUID                                          collectionId;
+	private java.lang.Boolean                                       isResource;
+	private java.util.UUID                                          ownerProfileId;
+	private java.lang.String                                        resourceData;
+	private java.lang.Short                                         sequence;
+	private java.lang.Boolean                                       isDeleted;
+	private java.sql.Timestamp                                      createdAt;
+	private java.sql.Timestamp                                      updatedAt;
+	private com.quizzes.api.common.model.jooq.enums.ContentProvider contentProvider;
 
 	public Resource() {}
 
 	public Resource(
-		java.util.UUID                              id,
-		java.lang.String                            externalId,
-		com.quizzes.api.common.model.jooq.enums.Lms lmsId,
-		java.util.UUID                              collectionId,
-		java.lang.Boolean                           isResource,
-		java.util.UUID                              ownerProfileId,
-		java.lang.String                            resourceData,
-		java.lang.Short                             sequence,
-		java.lang.Boolean                           isDeleted,
-		java.sql.Timestamp                          createdAt,
-		java.sql.Timestamp                          updatedAt
+		java.util.UUID                                          id,
+		java.lang.String                                        externalId,
+		java.util.UUID                                          collectionId,
+		java.lang.Boolean                                       isResource,
+		java.util.UUID                                          ownerProfileId,
+		java.lang.String                                        resourceData,
+		java.lang.Short                                         sequence,
+		java.lang.Boolean                                       isDeleted,
+		java.sql.Timestamp                                      createdAt,
+		java.sql.Timestamp                                      updatedAt,
+		com.quizzes.api.common.model.jooq.enums.ContentProvider contentProvider
 	) {
 		this.id = id;
 		this.externalId = externalId;
-		this.lmsId = lmsId;
 		this.collectionId = collectionId;
 		this.isResource = isResource;
 		this.ownerProfileId = ownerProfileId;
@@ -49,6 +48,7 @@ public class Resource implements java.io.Serializable {
 		this.isDeleted = isDeleted;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.contentProvider = contentProvider;
 	}
 
 	public java.util.UUID getId() {
@@ -65,14 +65,6 @@ public class Resource implements java.io.Serializable {
 
 	public void setExternalId(java.lang.String externalId) {
 		this.externalId = externalId;
-	}
-
-	public com.quizzes.api.common.model.jooq.enums.Lms getLmsId() {
-		return this.lmsId;
-	}
-
-	public void setLmsId(com.quizzes.api.common.model.jooq.enums.Lms lmsId) {
-		this.lmsId = lmsId;
 	}
 
 	public java.util.UUID getCollectionId() {
@@ -137,5 +129,13 @@ public class Resource implements java.io.Serializable {
 
 	public void setUpdatedAt(java.sql.Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public com.quizzes.api.common.model.jooq.enums.ContentProvider getContentProvider() {
+		return this.contentProvider;
+	}
+
+	public void setContentProvider(com.quizzes.api.common.model.jooq.enums.ContentProvider contentProvider) {
+		this.contentProvider = contentProvider;
 	}
 }
