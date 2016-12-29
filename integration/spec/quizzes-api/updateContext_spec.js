@@ -50,95 +50,69 @@ frisby.create('Test Context create with two assignees')
             .addHeader('lms-id', 'quizzes')
             .inspectJSON()
             .afterJSON(function(ownerProfileJson) {
-                frisby.create('Verify that the context exists as expected')
-                    .get(QuizzesApiUrl + '/v1/context/created/' + contextJson.id)
+                frisby.create('Updating the context to add 3 more assignees but 1 is already assigned')
+                    .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+                        'assignees': [
+                            {
+                                'id': 'student-id-1',
+                                'firstName': 'StudentFirstName1',
+                                'lastName': 'StudentLastName1',
+                                'username': 'student1',
+                                'email': 'student1@quizzes.com'
+                            },
+                            {
+                                'id': 'student-id-3',
+                                'firstName': 'StudentFirstName3',
+                                'lastName': 'StudentLastName3',
+                                'username': 'student3',
+                                'email': 'student3@quizzes.com'
+                            },
+                            {
+                                'id': 'student-id-4',
+                                'firstName': 'StudentFirstName4',
+                                'lastName': 'StudentLastName4',
+                                'username': 'student4',
+                                'email': 'student4@quizzes.com'
+                            }
+
+                        ],
+                        'contextData': {
+                            'contextMap': {
+                                'classId': 'class-id-2'
+                            },
+                            'metadata': {
+                                'title': 'Updated title'
+                            }
+                        }
+                    }, {json: true})
                     .addHeader('lms-id', 'quizzes')
                     .addHeader('profile-id', ownerProfileJson.id)
                     .inspectRequest()
 
                     .expectStatus(200)
-                    .inspectJSON()
-                    .expectJSON({
-                        'assignees': function(val) {expect(val.length).toBe(2)},
-                        'contextData': {
-                            'contextMap': {
-                                'classId': 'class-id-1'
-                            },
-                            'metadata': {
-                                'startDate': 0,
-                                'dueDate': 0
-                            }
-                        },
-                        'id': contextJson.id,
-                        'modifiedDate': function(val) {expect(val).toBeType(Number)},
-                        'createdDate': function(val) {expect(val).toBeType(Number)}
-                    })
-                    .afterJSON(function (contextDetailsJson) {
-                        frisby.create('Updating the context to add 3 more assignees but 1 is already assigned')
-                            .put(QuizzesApiUrl + '/v1/context/' + contextDetailsJson.id, {
-                                'assignees': [
-                                    {
-                                        'id': 'student-id-1',
-                                        'firstName': 'StudentFirstName1',
-                                        'lastName': 'StudentLastName1',
-                                        'username': 'student1',
-                                        'email': 'student1@quizzes.com'
-                                    },
-                                    {
-                                        'id': 'student-id-3',
-                                        'firstName': 'StudentFirstName3',
-                                        'lastName': 'StudentLastName3',
-                                        'username': 'student3',
-                                        'email': 'student3@quizzes.com'
-                                    },
-                                    {
-                                        'id': 'student-id-4',
-                                        'firstName': 'StudentFirstName4',
-                                        'lastName': 'StudentLastName4',
-                                        'username': 'student4',
-                                        'email': 'student4@quizzes.com'
-                                    }
-
-                                ],
-                                'contextData': {
-                                    'contextMap': {
-                                        'classId': 'class-id-2'
-                                    },
-                                    'metadata': {
-                                        'title': 'Updated title'
-                                    }
-                                }
-                            }, {json: true})
+                    .afterJSON(function(updatedContextJson) {
+                        frisby.create('Verify that the context was updated ' +
+                            'with 2 more assignees and data updated')
+                            .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', ownerProfileJson.id)
                             .inspectRequest()
 
                             .expectStatus(200)
-                            .afterJSON(function(updatedContextJson) {
-                                frisby.create('Verify that the context was updated ' +
-                                    'with 2 more assignees and data updated')
-                                    .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
-                                    .addHeader('lms-id', 'quizzes')
-                                    .addHeader('profile-id', ownerProfileJson.id)
-                                    .inspectRequest()
-
-                                    .expectStatus(200)
-                                    .inspectJSON()
-                                    .expectJSON({
-                                        "assignees": function(val) {expect(val.length).toBe(4)},
-                                        'contextData': {
-                                            'contextMap': {
-                                                'classId': 'class-id-1'
-                                            },
-                                            'metadata': {
-                                                'title': 'Updated title',
-                                                'startDate': 0,
-                                                'dueDate': 0
-                                            }
-                                        },
-                                        "id": updatedContextJson.id
-                                    })
-                                    .toss();
+                            .inspectJSON()
+                            .expectJSON({
+                                "assignees": function(val) {expect(val.length).toBe(4)},
+                                'contextData': {
+                                    'contextMap': {
+                                        'classId': 'class-id-1'
+                                    },
+                                    'metadata': {
+                                        'title': 'Updated title',
+                                        'startDate': 0,
+                                        'dueDate': 0
+                                    }
+                                },
+                                "id": updatedContextJson.id
                             })
                             .toss();
                     })
@@ -200,79 +174,47 @@ frisby.create('Test Context create with two assignees')
             .addHeader('lms-id', 'quizzes')
             .inspectJSON()
             .afterJSON(function (ownerProfileJson) {
-                frisby.create('Verify that the context exists as expected')
-                    .get(QuizzesApiUrl + '/v1/context/created/' + contextJson.id)
+                frisby.create('Updating the context with NO assignees')
+                    .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+                        'assignees': [],
+                        'contextData': {
+                            'contextMap': {
+                                'classId': 'class-id-2'
+                            },
+                            'metadata': {
+                                'title': 'Updated title'
+                            }
+                        }
+                    }, {json: true})
                     .addHeader('lms-id', 'quizzes')
                     .addHeader('profile-id', ownerProfileJson.id)
                     .inspectRequest()
 
                     .expectStatus(200)
-                    .inspectJSON()
-                    .expectJSON({
-                        'assignees': function (val) {
-                            expect(val.length).toBe(2)
-                        },
-                        'contextData': {
-                            'contextMap': {
-                                'classId': 'class-id-1'
-                            },
-                            'metadata': {
-                                'startDate': 0,
-                                'dueDate': 0
-                            }
-                        },
-                        'id': contextJson.id,
-                        'modifiedDate': function (val) {
-                            expect(val).toBeType(Number)
-                        },
-                        'createdDate': function (val) {
-                            expect(val).toBeType(Number)
-                        }
-                    })
-                    .afterJSON(function (contextDetailsJson) {
-                        frisby.create('Updating the context with NO assignees')
-                            .put(QuizzesApiUrl + '/v1/context/' + contextDetailsJson.id, {
-                                'assignees': [],
-                                'contextData': {
-                                    'contextMap': {
-                                        'classId': 'class-id-2'
-                                    },
-                                    'metadata': {
-                                        'title': 'Updated title'
-                                    }
-                                }
-                            }, {json: true})
+                    .afterJSON(function (updatedContextJson) {
+                        frisby.create('Verify that the context data was updated')
+                            .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', ownerProfileJson.id)
                             .inspectRequest()
 
                             .expectStatus(200)
-                            .afterJSON(function (updatedContextJson) {
-                                frisby.create('Verify that the context data was updated')
-                                    .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
-                                    .addHeader('lms-id', 'quizzes')
-                                    .addHeader('profile-id', ownerProfileJson.id)
-                                    .inspectRequest()
-
-                                    .expectStatus(200)
-                                    .inspectJSON()
-                                    .expectJSON({
-                                        "assignees": function (val) {
-                                            expect(val.length).toBe(2)
-                                        },
-                                        'contextData': {
-                                            'contextMap': {
-                                                'classId': 'class-id-1'
-                                            },
-                                            'metadata': {
-                                                'title': 'Updated title',
-                                                'startDate': 0,
-                                                'dueDate': 0
-                                            }
-                                        },
-                                        "id": updatedContextJson.id
-                                    })
-                                    .toss();
+                            .inspectJSON()
+                            .expectJSON({
+                                "assignees": function (val) {
+                                    expect(val.length).toBe(2)
+                                },
+                                'contextData': {
+                                    'contextMap': {
+                                        'classId': 'class-id-1'
+                                    },
+                                    'metadata': {
+                                        'title': 'Updated title',
+                                        'startDate': 0,
+                                        'dueDate': 0
+                                    }
+                                },
+                                "id": updatedContextJson.id
                             })
                             .toss();
                     })
@@ -327,62 +269,23 @@ frisby.create('Test Context create with two assignees')
     .expectHeaderContains('content-type', 'application/json')
     .inspectJSON()
     .afterJSON(function (contextJson) {
-        frisby.create('Gets the owner profileId of the created context')
-            .get(QuizzesApiUrl + '/v1/profile-by-external-id/teacher-id-1')
+        frisby.create('Updating the context with NO assignees and RANDOM OWNER')
+            .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+                'assignees': [],
+                'contextData': {
+                    'contextMap': {
+                        'classId': 'class-id-2'
+                    },
+                    'metadata': {
+                        'title': 'Updated title'
+                    }
+                }
+            }, {json: true})
             .addHeader('lms-id', 'quizzes')
-            .inspectJSON()
-            .afterJSON(function (ownerProfileJson) {
-                frisby.create('Verify that the context exists as expected')
-                    .get(QuizzesApiUrl + '/v1/context/created/' + contextJson.id)
-                    .addHeader('lms-id', 'quizzes')
-                    .addHeader('profile-id', ownerProfileJson.id)
-                    .inspectRequest()
+            .addHeader('profile-id', '60958549-b0f5-4a3e-a348-521ed7cd45a5')
+            .inspectRequest()
 
-                    .expectStatus(200)
-                    .inspectJSON()
-                    .expectJSON({
-                        'assignees': function (val) {
-                            expect(val.length).toBe(2)
-                        },
-                        'contextData': {
-                            'contextMap': {
-                                'classId': 'class-id-1'
-                            },
-                            'metadata': {
-                                'startDate': 0,
-                                'dueDate': 0
-                            }
-                        },
-                        'id': contextJson.id,
-                        'modifiedDate': function (val) {
-                            expect(val).toBeType(Number)
-                        },
-                        'createdDate': function (val) {
-                            expect(val).toBeType(Number)
-                        }
-                    })
-                    .afterJSON(function (contextDetailsJson) {
-                        frisby.create('Updating the context with NO assignees and RANDOM OWNER')
-                            .put(QuizzesApiUrl + '/v1/context/' + contextDetailsJson.id, {
-                                'assignees': [],
-                                'contextData': {
-                                    'contextMap': {
-                                        'classId': 'class-id-2'
-                                    },
-                                    'metadata': {
-                                        'title': 'Updated title'
-                                    }
-                                }
-                            }, {json: true})
-                            .addHeader('lms-id', 'quizzes')
-                            .addHeader('profile-id', '60958549-b0f5-4a3e-a348-521ed7cd45a5')
-                            .inspectRequest()
-
-                            .expectStatus(404)
-                            .toss();
-                    })
-                    .toss();
-            })
+            .expectStatus(404)
             .toss();
     })
     .toss();
@@ -464,81 +367,49 @@ frisby.create('Test Context create with two assignees')
             .addHeader('lms-id', 'quizzes')
             .inspectJSON()
             .afterJSON(function (ownerProfileJson) {
-                frisby.create('Verify that the context exists as expected')
-                    .get(QuizzesApiUrl + '/v1/context/created/' + contextJson.id)
+                frisby.create('Updating the context with NO assignees but context data dates')
+                    .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+                        'assignees': [],
+                        'contextData': {
+                            'contextMap': {
+                                'classId': 'class-id-2'
+                            },
+                            'metadata': {
+                                'title': 'Updated title',
+                                'startDate': 1483042847464,
+                                'dueDate': 1485053846353
+                            }
+                        }
+                    }, {json: true})
                     .addHeader('lms-id', 'quizzes')
                     .addHeader('profile-id', ownerProfileJson.id)
                     .inspectRequest()
 
                     .expectStatus(200)
-                    .inspectJSON()
-                    .expectJSON({
-                        'assignees': function (val) {
-                            expect(val.length).toBe(2)
-                        },
-                        'contextData': {
-                            'contextMap': {
-                                'classId': 'class-id-1'
-                            },
-                            'metadata': {
-                                'startDate': 0,
-                                'dueDate': 0
-                            }
-                        },
-                        'id': contextJson.id,
-                        'modifiedDate': function (val) {
-                            expect(val).toBeType(Number)
-                        },
-                        'createdDate': function (val) {
-                            expect(val).toBeType(Number)
-                        }
-                    })
-                    .afterJSON(function (contextDetailsJson) {
-                        frisby.create('Updating the context with NO assignees but context data dates')
-                            .put(QuizzesApiUrl + '/v1/context/' + contextDetailsJson.id, {
-                                'assignees': [],
+                    .afterJSON(function (updatedContextJson) {
+                        frisby.create('Verify that the context data was updated')
+                            .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
+                            .addHeader('lms-id', 'quizzes')
+                            .addHeader('profile-id', ownerProfileJson.id)
+                            .inspectRequest()
+
+                            .expectStatus(200)
+                            .inspectJSON()
+                            .expectJSON({
+                                "assignees": function (val) {
+                                    expect(val.length).toBe(2)
+                                },
                                 'contextData': {
                                     'contextMap': {
-                                        'classId': 'class-id-2'
+                                        'classId': 'class-id-1'
                                     },
                                     'metadata': {
                                         'title': 'Updated title',
                                         'startDate': 1483042847464,
                                         'dueDate': 1485053846353
                                     }
-                                }
-                            }, {json: true})
-                            .addHeader('lms-id', 'quizzes')
-                            .addHeader('profile-id', ownerProfileJson.id)
-                            .inspectRequest()
-
-                            .expectStatus(200)
-                            .afterJSON(function (updatedContextJson) {
-                                frisby.create('Verify that the context data was updated')
-                                    .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
-                                    .addHeader('lms-id', 'quizzes')
-                                    .addHeader('profile-id', ownerProfileJson.id)
-                                    .inspectRequest()
-
-                                    .expectStatus(200)
-                                    .inspectJSON()
-                                    .expectJSON({
-                                        "assignees": function (val) {
-                                            expect(val.length).toBe(2)
-                                        },
-                                        'contextData': {
-                                            'contextMap': {
-                                                'classId': 'class-id-1'
-                                            },
-                                            'metadata': {
-                                                'title': 'Updated title',
-                                                'startDate': 1483042847464,
-                                                'dueDate': 1485053846353
-                                            }
-                                        },
-                                        "id": updatedContextJson.id
-                                    })
-                                    .toss();
+                                },
+                                "id": updatedContextJson.id
                             })
                             .toss();
                     })
