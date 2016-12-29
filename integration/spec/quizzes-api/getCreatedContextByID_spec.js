@@ -137,7 +137,7 @@ var frisby = require('frisby');
                     .expectStatus(404)
                     .inspectJSON()
                     .expectJSON({
-                        "exception": "ContentNotFoundException"
+                        "status": 404
                     })
                     .expectJSONTypes({
                         message: String,
@@ -208,7 +208,7 @@ var frisby = require('frisby');
                     .expectStatus(404)
                     .inspectJSON()
                     .expectJSON({
-                        "exception": "ContentNotFoundException"
+                        "status": 404
                     })
                     .expectJSONTypes({
                         message: String,
