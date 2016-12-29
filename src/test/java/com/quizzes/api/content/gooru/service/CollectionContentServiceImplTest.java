@@ -2,6 +2,7 @@ package com.quizzes.api.content.gooru.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
+import com.quizzes.api.common.model.jooq.enums.ContentProvider;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
@@ -342,7 +343,7 @@ public class CollectionContentServiceImplTest {
         Collection collection = new Collection();
         collection.setExternalId(assessmentDto.getId());
         collection.setExternalParentId(assessmentDto.getId());
-        collection.setLmsId(Lms.gooru);
+        collection.setContentProvider(ContentProvider.gooru);
         collection.setOwnerProfileId(UUID.randomUUID());
         collection.setIsCollection(false);
         collection.setIsLocked(false);

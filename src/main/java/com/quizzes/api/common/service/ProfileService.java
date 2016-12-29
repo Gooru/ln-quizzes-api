@@ -6,17 +6,26 @@ import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.IdResponseDto;
 import com.quizzes.api.common.dto.ProfileGetResponseDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ProfileService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ProfileRepository profileRepository;
@@ -24,15 +33,48 @@ public class ProfileService {
     @Autowired
     Gson gson;
 
-    public ProfileGetResponseDto findById(UUID profileId) {
+    public Profile findById(UUID profileId) {
         Profile profile = profileRepository.findById(profileId);
-        ProfileGetResponseDto result = null;
-        if(profile != null) {
-            result = gson.fromJson(profile.getProfileData(), ProfileGetResponseDto.class);
+        if (profile == null) {
+            logger.error("We could not find the profile with ID: " + profileId);
+            throw new ContentNotFoundException("We could not find the profile with ID: " + profileId + ".");
+        }
+        return profile;
+    }
+
+    public ProfileGetResponseDto findProfileResponseDtoById(UUID profileId, ArrayList<String> fieldsToReturn) throws ClassNotFoundException {
+        Profile profile = findById(profileId);
+        try {
+            ProfileGetResponseDto result = gson.fromJson(profile.getProfileData(), ProfileGetResponseDto.class);
             result.setId(profileId.toString());
             result.setExternalId(profile.getExternalId());
+
+            if (fieldsToReturn != null) {
+                ArrayList<Field> profileFields = new ArrayList();
+                profileFields.addAll(Arrays.asList(result.getClass().getSuperclass().getDeclaredFields()));
+                profileFields.addAll(Arrays.asList(result.getClass().getDeclaredFields()));
+                result = (ProfileGetResponseDto) returnObjectWithFieldsInList(profileFields, fieldsToReturn, result);
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("There was an error finding the profile ID: " + profileId, e);
+            throw new InternalServerException("There was an error finding the profile ID: " + profileId + ".", e);
         }
-        return result;
+    }
+
+    private Object returnObjectWithFieldsInList(ArrayList<Field> objectFields,
+                                               ArrayList<String> fieldsToReturn,
+                                               Object object) {
+        objectFields.stream().filter(property -> !fieldsToReturn.contains(property.getName())).forEach(property -> {
+            property.setAccessible(true);
+            try {
+                property.set(object, null);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
+        return object;
     }
 
     public UUID findIdByExternalIdAndLmsId(String externalId, Lms lms) {
