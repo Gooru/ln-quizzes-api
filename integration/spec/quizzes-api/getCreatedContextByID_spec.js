@@ -1,7 +1,7 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
-    frisby.create('Test Context update for one assignee')
+    frisby.create('Test getCreatedContextByID')
         .post(QuizzesApiUrl + '/v1/context', {
             'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
             'assignees': [
@@ -80,7 +80,7 @@ var frisby = require('frisby');
     .toss();
 
 
-    frisby.create('Test Context update for one assignee')
+    frisby.create('Test getCreatedContextByID on wrong contextID')
         .post(QuizzesApiUrl + '/v1/context', {
             'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
             'assignees': [
@@ -150,7 +150,7 @@ var frisby = require('frisby');
     })
     .toss();
 
-    frisby.create('Test Context update for one assignee')
+    frisby.create('Test getCreatedContextByID on wrong profileID')
         .post(QuizzesApiUrl + '/v1/context', {
             'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
             'assignees': [
