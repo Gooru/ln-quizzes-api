@@ -3,6 +3,7 @@ package com.quizzes.api.common.service;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.AnswerDto;
 import com.quizzes.api.common.dto.ContextEventsResponseDto;
+import com.quizzes.api.common.dto.EventSummaryDataDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,8 +87,8 @@ public class ContextEventService {
             result.setId(contextId);
             result.setCurrentResourceId(contextProfile.getCurrentResourceId());
             result.setCollection(collection);
-            result.setEventsResponse(events.stream().map(event ->
-                    jsonParser.parseMap(event.getEventData())).collect(Collectors.toList()));
+            result.setEvents(events.stream().map(event ->
+                    gson.fromJson(event.getEventData(), PostResponseResourceDto.class)).collect(Collectors.toList()));
 
             return result;
         } catch (Exception e) {
@@ -223,4 +225,35 @@ public class ContextEventService {
         return userAnswer.equalsIgnoreCase(correctAnswer) ? 100 : 0;
     }
 
+    private EventSummaryDataDto calculateEventSummaryData(List<ContextProfileEvent> contextProfileEvents, boolean calculateSkipped) {
+        long totalTimeSpent = 0;
+        short totalReaction = 0;
+        short totalScore = 0;
+        short totalCorrect = 0;
+        short totalAnswered = 0;
+        short totalAnswers = 0;
+
+        for (ContextProfileEvent contextProfileEvent : contextProfileEvents){
+            PostRequestResourceDto eventDataDto = gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
+            boolean isSkipped = eventDataDto.getAnswer().isEmpty();
+            if (calculateSkipped || !isSkipped) {
+                totalTimeSpent += eventDataDto.getTimeSpent();
+                totalReaction += eventDataDto.getReaction();
+                totalScore += eventDataDto.getScore();
+                totalAnswered += isSkipped ? 0: 1;
+                totalCorrect += eventDataDto.getScore() == 100? 1: 0;
+                totalAnswers++;
+            }
+        }
+        EventSummaryDataDto result = new EventSummaryDataDto();
+
+        double averageReaction = (totalReaction / totalAnswers);
+        double averageScore = (totalScore / totalAnswers);
+        result.setTotalTimeSpent(totalTimeSpent);
+        result.setAverageReaction((short)Math.round(averageReaction));
+        result.setAverageScore((short)Math.round(averageScore));
+        result.setTotalCorrect(totalCorrect);
+        result.setTotalAnswered(totalAnswered);
+        return result;
+    }
 }

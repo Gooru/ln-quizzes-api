@@ -4,7 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.IdResponseDto;
-import com.quizzes.api.common.dto.ProfileDto;
+import com.quizzes.api.common.dto.ProfileGetResponseDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
@@ -17,6 +18,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -41,23 +45,43 @@ public class ProfileServiceTest {
     @Mock
     Gson gson = new Gson();
 
-
     @Test
-    public void findProfileDataById() throws Exception {
+    public void findById() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(profileRepository.findById(id)).thenReturn(new Profile());
+
+        Profile result = profileService.findById(id);
+        verify(profileRepository, times(1)).findById(eq(id));
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findByIdNotFound() throws Exception {
         //Setting return values from db
         UUID id = UUID.randomUUID();
+        when(profileRepository.findById(id)).thenReturn(null);
+        Profile result = profileService.findById(id);
+    }
+
+    @Test
+    public void findProfileByIdAllFields() throws Exception {
+        //Setting return values from db
+        UUID id = UUID.randomUUID();
+        UUID externalId = UUID.randomUUID();
+
         Profile profile = new Profile();
         profile.setId(id);
+        profile.setExternalId(externalId.toString());
         profile.setProfileData(
                 "{\"firstName\": \"David\"," +
-                "\"lastName\": \"Artavia\"," +
-                "\"username\": \"dartavia\"," +
-                "\"email\": \"david@quizzes.com\"}");
+                        "\"lastName\": \"Artavia\"," +
+                        "\"username\": \"dartavia\"," +
+                        "\"username\": \"dartavia\"," +
+                        "\"email\": \"david@quizzes.com\"}");
 
 
         when(profileRepository.findById(id)).thenReturn(profile);
 
-        ProfileDto result = profileService.findById(id);
+        ProfileGetResponseDto result = profileService.findProfileResponseDtoById(id, null);
 
         verify(profileRepository, times(1)).findById(eq(id));
         assertNotNull("Result is null", result);
@@ -65,6 +89,77 @@ public class ProfileServiceTest {
         assertEquals("Wrong first name", "David", result.getFirstName());
         assertEquals("Wrong last name", "Artavia", result.getLastName());
         assertEquals("Wrong username", "dartavia", result.getUsername());
+        assertEquals("Wrong email", "david@quizzes.com", result.getEmail());
+        assertEquals("Wrong externalId", externalId.toString(), result.getExternalId());
+    }
+
+    @Test
+    public void findProfileByIdWithEmailAndExternalId() throws Exception {
+        //Setting return values from db
+        UUID id = UUID.randomUUID();
+        UUID externalId = UUID.randomUUID();
+
+        Profile profile = new Profile();
+        profile.setId(id);
+        profile.setExternalId(externalId.toString());
+        profile.setProfileData(
+                "{\"firstName\": \"David\"," +
+                        "\"lastName\": \"Artavia\"," +
+                        "\"username\": \"dartavia\"," +
+                        "\"username\": \"dartavia\"," +
+                        "\"email\": \"david@quizzes.com\"}");
+
+        ArrayList<String> fields = new ArrayList<>();
+        fields.add("email");
+        fields.add("externalId");
+        when(profileRepository.findById(id)).thenReturn(profile);
+
+        ProfileGetResponseDto result = profileService.findProfileResponseDtoById(id, fields);
+
+        verify(profileRepository, times(1)).findById(eq(id));
+        assertNotNull("Result is null", result);
+        assertNull("Id is not null", result.getId());
+        assertNull("First name is not null", result.getFirstName());
+        assertNull("Last name is not null", result.getLastName());
+        assertNull("Username is not null", result.getUsername());
+        assertEquals("Wrong email", "david@quizzes.com", result.getEmail());
+        assertEquals("Wrong externalId", externalId.toString(), result.getExternalId());
+    }
+
+    @Test
+    public void returnObjectWithFieldsInList() throws Exception {
+        //Setting return values from db
+        UUID id = UUID.randomUUID();
+        UUID externalId = UUID.randomUUID();
+
+        ProfileGetResponseDto profile = new ProfileGetResponseDto();
+        profile.setId(id.toString());
+        profile.setExternalId(externalId.toString());
+        profile.setEmail("david@quizzes.com");
+        profile.setFirstName("David");
+        profile.setLastName("Artavia");
+        profile.setUsername("dartavia");
+
+        //Fields To Return
+        ArrayList<String> fieldsToReturn = new ArrayList<>();
+        fieldsToReturn.add("email");
+        fieldsToReturn.add("externalId");
+
+        //Object Fields
+        ArrayList<Field> objectFields = new ArrayList();
+        objectFields.addAll(Arrays.asList(profile.getClass().getSuperclass().getDeclaredFields()));
+        objectFields.addAll(Arrays.asList(profile.getClass().getDeclaredFields()));
+
+        ProfileGetResponseDto result = (ProfileGetResponseDto) WhiteboxImpl.invokeMethod(profileService, "returnObjectWithFieldsInList",
+                objectFields, fieldsToReturn, profile);
+
+        assertNotNull("Result is null", result);
+        assertNull("Id is not null", result.getId());
+        assertNull("First name is not null", result.getFirstName());
+        assertNull("Last name is not null", result.getLastName());
+        assertNull("Username is not null", result.getUsername());
+        assertEquals("Wrong email", "david@quizzes.com", result.getEmail());
+        assertEquals("Wrong externalId", externalId.toString(), result.getExternalId());
     }
 
     @Test
@@ -139,9 +234,9 @@ public class ProfileServiceTest {
         profile.setExternalId(externalId.toString());
         profile.setProfileData(
                 "{\"firstName\": \"David\"," +
-                "\"lastName\": \"Artavia\"," +
-                "\"username\": \"dartavia\"," +
-                "\"email\": \"david@quizzes.com\"}");
+                        "\"lastName\": \"Artavia\"," +
+                        "\"username\": \"dartavia\"," +
+                        "\"email\": \"david@quizzes.com\"}");
         profile.setLmsId(lms);
 
         when(profileRepository.save(any(Profile.class))).thenReturn(profile);
