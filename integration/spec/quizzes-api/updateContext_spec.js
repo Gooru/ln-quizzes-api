@@ -386,3 +386,31 @@ frisby.create('Test Context create with two assignees')
             .toss();
     })
     .toss();
+
+//Testing the update context with a context that doesn't exist
+frisby.create('Gets an existing owner profileId')
+    .get(QuizzesApiUrl + '/v1/profile-by-external-id/teacher-id-1')
+    .addHeader('lms-id', 'quizzes')
+    .inspectJSON()
+    .afterJSON(function (ownerProfileJson) {
+        frisby.create('Updating a random context that does not exist')
+            .put(QuizzesApiUrl + '/v1/context/9c066b3a-db63-4bb4-a1a7-ff2ee455edba', {
+                'assignees': [],
+                'contextData': {
+                    'contextMap': {
+                        'classId': 'class-id-2'
+                    },
+                    'metadata': {
+                        'title': 'Updated title'
+                    }
+                }
+            }, {json: true})
+            .addHeader('lms-id', 'quizzes')
+            .addHeader('profile-id', ownerProfileJson.id)
+            .inspectRequest()
+
+            .expectStatus(404)
+            .toss();
+    })
+    .toss();
+
