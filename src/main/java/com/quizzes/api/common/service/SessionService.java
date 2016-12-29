@@ -42,11 +42,11 @@ public class SessionService {
             Session session = new Session();
             ExternalUserDto externalUser = sessionData.getUser();
 
-            //TODO: We need to support profileService.findByExternalIdAndClientId
             UUID profileId = profileService
-                    .findIdByExternalIdAndLmsId(externalUser.getExternalId(), Lms.gooru);
+                    .findIdByExternalIdAndClientId(externalUser.getExternalId(), client.getId());
 
             if (profileId == null) {
+                //TODO: LmsId is being set with 'gooru' as default, we need to change that.
                 Profile profile = profileService
                         .saveProfileBasedOnExternalUser(externalUser, Lms.gooru, client.getId());
                 profileId = profile.getId();

@@ -12,6 +12,8 @@ public interface ProfileRepository {
 
     UUID findIdByExternalIdAndLmsId(String externalId, Lms lmsId);
 
+    UUID findIdByExternalIdAndClientId(String externalId, UUID clientId);
+
     Profile findByExternalIdAndLmsId(String externalId, Lms lmsId);
 
     Profile save(Profile id);

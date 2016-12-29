@@ -81,6 +81,10 @@ public class ProfileService {
         return profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
     }
 
+    public UUID findIdByExternalIdAndClientId(String externalId, UUID clientId) {
+        return profileRepository.findIdByExternalIdAndClientId(externalId, clientId);
+    }
+
     public IdResponseDto findIdResponseDtoByExternalIdAndLmsId(String externalId, Lms lms) {
         UUID id = findIdByExternalIdAndLmsId(externalId, lms);
         IdResponseDto result = new IdResponseDto();
