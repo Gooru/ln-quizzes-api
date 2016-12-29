@@ -271,16 +271,22 @@ public class ContextService {
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId) {
         List<ContextOwnerEntity> contexts = contextRepository.findContextOwnerByAssigneeId(assigneeId);
         return contexts.stream()
-                .map(this::mapContextOwnerEntityToContextAssignedDto)
+                //TODO: We need to find the way hot to get isContextStarted
+                .map(context -> mapContextOwnerEntityToContextAssignedDto(context, true))
                 .collect(Collectors.toList());
     }
 
     public ContextAssignedGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId) {
         ContextOwnerEntity context = contextRepository.findContextOwnerByContextIdAndAssigneeId(contextId, assigneeId);
-        return mapContextOwnerEntityToContextAssignedDto(context);
+        if (context == null) {
+            throw new ContentNotFoundException("We couldn't find a context with id: " + contextId);
+        }
+        boolean isContextStarted = contextProfileService.isContextStarted(context.getId(), assigneeId);
+        return mapContextOwnerEntityToContextAssignedDto(context, isContextStarted);
     }
 
-    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context) {
+    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context,
+                                                                                    boolean isContextStarted) {
         ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
 
         CollectionDto collection = new CollectionDto();
@@ -290,7 +296,7 @@ public class ContextService {
         response.setId(context.getId());
         response.setCreatedDate(context.getCreatedAt().getTime());
         response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
-        response.setHasStarted((context.getContextProfileId()!=null));
+        response.setHasStarted(isContextStarted);
 
         IdResponseDto ownerId = new IdResponseDto();
         ownerId.setId(context.getOwnerProfileId());

@@ -18,16 +18,20 @@ public class ContextProfileService {
         return contextProfileRepository.findByContextIdAndProfileId(contextId, profileId);
     }
 
-    public List<UUID> findContextProfileIdsByContextId(UUID contextId){
+    public List<UUID> findContextProfileIdsByContextId(UUID contextId) {
         return contextProfileRepository.findContextProfileIdsByContextId(contextId);
     }
 
-    public void delete(UUID id){
+    public void delete(UUID id) {
         contextProfileRepository.delete(id);
     }
 
     public ContextProfile save(ContextProfile contextProfile) {
         return contextProfileRepository.save(contextProfile);
+    }
+
+    public boolean isContextStarted(UUID contextId, UUID profileId) {
+        return contextProfileRepository.isContextStarted(contextId, profileId);
     }
 
 }

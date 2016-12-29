@@ -42,6 +42,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -499,8 +500,9 @@ public class ContextServiceTest {
         Context result = contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
     }
 
+    //TODO: switch to not Started
     @Test
-    public void getAssignedContextsNotStarted() {
+    public void getAssignedContextsStarted() {
         UUID id = UUID.randomUUID();
         UUID classId = UUID.randomUUID();
         UUID collectionId = UUID.randomUUID();
@@ -534,7 +536,7 @@ public class ContextServiceTest {
 
         ContextAssignedGetResponseDto resultEntity = result.get(0);
 
-        assertEquals("Wrong context profile id", Boolean.FALSE, resultEntity.getHasStarted());
+        assertEquals("Wrong context profile id", true, resultEntity.getHasStarted());
     }
 
 
@@ -580,7 +582,7 @@ public class ContextServiceTest {
         assertNotNull("First object is null", resultEntity);
         assertEquals("Wrong id", id, resultEntity.getId());
         assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
-        assertEquals("Wrong context profile id", Boolean.TRUE, resultEntity.getHasStarted());
+        assertEquals("Wrong context profile id", true, resultEntity.getHasStarted());
         assertNotNull("Created Date is null", resultEntity.getCreatedDate());
 
         MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
@@ -621,14 +623,18 @@ public class ContextServiceTest {
         when(contextRepository .findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextOwnerEntity);
 
+        when(contextProfileService .isContextStarted(any(UUID.class), any(UUID.class))).thenReturn(true);
+
         ContextAssignedGetResponseDto resultEntity =
                 contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextRepository, times(1)).findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class));
+        verify(contextProfileService, times(1)).isContextStarted(any(UUID.class), any(UUID.class));
 
         assertNotNull("First object is null", resultEntity);
         assertEquals("Wrong id", id, resultEntity.getId());
         assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
+        assertEquals("hasStarted is false", true, resultEntity.getHasStarted());
 
         assertNotNull("Created Date is null", resultEntity.getCreatedDate());
 
@@ -640,6 +646,15 @@ public class ContextServiceTest {
 
         assertEquals("Wrong owner id", ownerId, resultEntity.getOwner().getId());
         assertEquals("Wrong class id", classId.toString(), resultEntity.getContextData().getContextMap().get("classId"));
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void getAssignedContextByContextIdAndAssigneeIdThrowNotContentFoundException() {
+        when(contextRepository .findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
+                .thenReturn(null);
+
+        ContextAssignedGetResponseDto resultEntity =
+                contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
     }
 
     @Test
@@ -818,11 +833,12 @@ public class ContextServiceTest {
 
         ContextAssignedGetResponseDto result =
                 WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
-                        contextOwnerEntity);
+                        contextOwnerEntity, true);
 
         assertEquals("Wrong id", id, result.getId());
         assertEquals("Wrong collection id", collectionId.toString(), result.getCollection().getId());
         assertEquals("Wrong owner id", ownerProfileId, result.getOwner().getId());
         assertEquals("Wrong id", 1, result.getContextData().getMetadata().getStartDate());
+        assertTrue("It is not started", result.getHasStarted());
     }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
+import static org.jooq.impl.DSL.count;
 
 @Repository
 public class ContextProfileRepositoryImpl implements ContextProfileRepository {
@@ -35,6 +36,15 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
         } else {
             return updateContextProfile(contextProfile);
         }
+    }
+
+    @Override
+    public boolean isContextStarted(UUID contextId, UUID profileId) {
+        return jooq.select(count(CONTEXT_PROFILE.ID))
+                .from(CONTEXT_PROFILE)
+                .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
+                .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .fetchOneInto(int.class) > 0;
     }
 
     private ContextProfile insertContextProfile(ContextProfile contextProfile) {

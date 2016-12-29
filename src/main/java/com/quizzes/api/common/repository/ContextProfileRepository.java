@@ -15,5 +15,7 @@ public interface ContextProfileRepository {
 
     ContextProfile save(ContextProfile contextProfile);
 
+    boolean isContextStarted(UUID contextId, UUID profileId);
+
 }
 
