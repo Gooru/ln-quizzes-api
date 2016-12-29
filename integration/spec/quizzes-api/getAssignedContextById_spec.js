@@ -46,109 +46,38 @@ frisby.create('Test context creation for one assignee and owner for get assigned
             .get(QuizzesApiUrl + '/v1/profile-by-external-id/student-id-1')
             .addHeader('client-id', 'quizzes')
             .inspectRequest()
-
             .expectStatus(200)
             .inspectJSON()
             .afterJSON(function (assigneeProfile) {
-                frisby.create('Verify that owner profile was created')
-                    .get(QuizzesApiUrl + '/v1/profile-by-external-id/teacher-id-1')
+                frisby.create('Get context assigned information')
+                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
-
                     .expectStatus(200)
                     .inspectJSON()
-                    .afterJSON(function (ownerProfile) {
-                        frisby.create('Get context assigned information')
-                            .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
-                            .addHeader('profile-id', assigneeProfile.id)
-                            .addHeader('client-id', 'quizzes')
-                            .inspectRequest()
-
-                            .expectStatus(200)
-                            .inspectJSON()
-                            .expectJSON({
-                                'id': context.id,
-                                'collection': {
-                                    'id': function (val) {
-                                        expect(val).toBeType(String)
-                                    }
-                                },
-                                'hasStarted': false,
-                                'contextData': {
-                                    'contextMap': {
-                                        'classId': 'class-id-1'
-                                    },
-                                    'metadata': {}
-                                },
-                                'owner': {
-                                    'id': ownerProfile.id
-                                },
-                                "createdDate": function (val) {
-                                    expect(val).toBeType(Number)
-                                }
-                            })
-                            .afterJSON(function (contextAssigned) {
-                                frisby.create('Get the collection information')
-                                    .get(QuizzesApiUrl + '/v1/collection/' + contextAssigned.collection.id)
-                                    .addHeader('profile-id', assigneeProfile.id)
-                                    .addHeader('client-id', 'quizzes')
-                                    .inspectRequest()
-
-                                    .expectStatus(200)
-                                    .inspectJSON()
-                                    .afterJSON(function (collection) {
-                                        frisby.create('Start Context and verify the data')
-                                            .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
-                                            .addHeader('profile-id', assigneeProfile.id)
-                                            .addHeader('client-id', 'quizzes')
-                                            .inspectRequest()
-
-                                            .expectStatus(200)
-                                            .inspectJSON()
-                                            .expectJSON({
-                                                'id': context.id,
-                                                'collection': {
-                                                    'id': collection.id
-                                                },
-                                                'currentResourceId': collection.resources[0].id,
-                                                'events': []
-                                            })
-                                            .afterJSON(function () {
-                                                frisby.create('Verify context started')
-                                                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
-                                                    .addHeader('profile-id', assigneeProfile.id)
-                                                    .addHeader('client-id', 'quizzes')
-                                                    .inspectRequest()
-
-                                                    .expectStatus(200)
-                                                    .inspectJSON()
-                                                    .expectJSON({
-                                                        'id': context.id,
-                                                        'collection': {
-                                                            'id': collection.id
-                                                        },
-                                                        'hasStarted': true,
-                                                        'contextData': {
-                                                            'contextMap': {
-                                                                'classId': 'class-id-1'
-                                                            },
-                                                            'metadata': {}
-                                                        },
-                                                        'owner': {
-                                                            'id': ownerProfile.id
-                                                        },
-                                                        "createdDate": function (val) {
-                                                            expect(val).toBeType(Number)
-                                                        }
-                                                    })
-                                                    .toss();
-                                            })
-                                            .toss();
-                                    })
-                                    .toss();
-                            })
-                            .toss();
+                    .expectJSON({
+                        'id': context.id,
+                        'collection': {
+                            'id': function (val) {
+                                expect(val).toBeType(String)
+                            }
+                        },
+                        'hasStarted': false,
+                        'contextData': {
+                            'contextMap': {
+                                'classId': 'class-id-1'
+                            },
+                            'metadata': {}
+                        },
+                        'owner': {
+                            'id': function (val) {
+                                expect(val).toBeType(String)
+                            }
+                        },
+                        "createdDate": function (val) {
+                            expect(val).toBeType(Number)
+                        }
                     })
                     .toss();
             })
