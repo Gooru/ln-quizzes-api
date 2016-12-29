@@ -69,9 +69,15 @@ var frisby = require('frisby');
                                 'dueDate': 0
                             }
                         },
-                        'id': contextJson.id,
-                        'modifiedDate': function(val) {expect(val).toBeType(Number)},
-                        'createdDate': function(val) {expect(val).toBeType(Number)}
+                        'id': contextJson.id
+                    })
+                    .expectJSONTypes({
+                        assignees: Array,
+                        contextData: Object,
+                        id: String,
+                        modifiedDate: Number,
+                        createdDate: Number,
+                        collection: Object
                     })
                     .toss();
             })
