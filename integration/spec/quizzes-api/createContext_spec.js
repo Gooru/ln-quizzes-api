@@ -5,6 +5,13 @@ var frisby = require('frisby');
 frisby.create('Test Context creation for one assignee and owner')
   .post(QuizzesApiUrl + '/v1/context', {
     'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
+    'owner': {
+      'id': 'teacher-id-1',
+      'firstName': 'TeacherFirstName1',
+      'lastName': 'TeacherLastName1',
+      'username': 'teacher1',
+      'email': 'teacher1@quizzes.com'
+    },
     'assignees': [
       {
         'id': 'student-id-1',
@@ -19,13 +26,6 @@ frisby.create('Test Context creation for one assignee and owner')
         'classId': 'class-id-1'
       },
       'metadata': {}
-    },
-    'owner': {
-      'id': 'teacher-id-1',
-      'firstName': 'TeacherFirstName1',
-      'lastName': 'TeacherLastName1',
-      'username': 'teacher1',
-      'email': 'teacher1@quizzes.com'
     }
   }, {json: true})
   // This profile-id header for this specific endpoint is fake, it is useless but it is required by the endpoint
