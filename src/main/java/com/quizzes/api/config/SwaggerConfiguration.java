@@ -27,7 +27,10 @@ public class SwaggerConfiguration {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("Quizzes API")
-                .description("Quizzes API is a set of RESTful endpoints to handle Assessments and Collections. Those Assessments and Collection can be assigned to a group of people. Each Assessment or Collection can be taken by each person in the group and will have a score indicating the correct and wrong responses.")
+                .description("Quizzes API is a set of RESTful endpoints to handle Assessments and Collections. " +
+                        "Those Assessments and Collection can be assigned to a group of people. Each Assessment or " +
+                        "Collection can be taken by each person in the group and will have a score indicating the " +
+                        "correct and wrong responses.")
                 .build();
     }
 
