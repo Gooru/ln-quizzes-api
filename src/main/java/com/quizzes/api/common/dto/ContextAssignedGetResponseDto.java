@@ -21,4 +21,5 @@ public class ContextAssignedGetResponseDto extends CommonContextGetResponseDto {
     public void setHasStarted(boolean hasStarted) {
         this.hasStarted = hasStarted;
     }
+    
 }

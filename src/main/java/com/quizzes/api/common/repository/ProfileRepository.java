@@ -16,8 +16,6 @@ public interface ProfileRepository {
 
     Profile save(Profile id);
 
-    List<Profile> save(List<Profile> profiles);
-
     Profile findAssigneeInContext(UUID contextId, UUID profileId);
 
     List<UUID> findAssignedIdsByContextId(UUID contextId);
@@ -25,4 +23,6 @@ public interface ProfileRepository {
     List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms);
 
     List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms);
+
+    List<Profile> findProfilesByExternalIdAndLms(List<String> externalProfileIds, Lms lms);
 }
