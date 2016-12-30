@@ -38,15 +38,6 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
         }
     }
 
-    @Override
-    public boolean isContextStarted(UUID contextId, UUID profileId) {
-        return jooq.select(count(CONTEXT_PROFILE.ID))
-                .from(CONTEXT_PROFILE)
-                .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
-                .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
-                .fetchOneInto(int.class) > 0;
-    }
-
     private ContextProfile insertContextProfile(ContextProfile contextProfile) {
         return jooq.insertInto(CONTEXT_PROFILE)
                 .set(CONTEXT_PROFILE.ID, UUID.randomUUID())

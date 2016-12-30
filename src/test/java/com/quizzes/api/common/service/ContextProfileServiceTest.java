@@ -49,10 +49,4 @@ public class ContextProfileServiceTest {
         verify(contextProfileRepository, times(1)).save(any(ContextProfile.class));
     }
 
-    @Test
-    public void isContextStarted() throws Exception {
-        contextProfileService.isContextStarted(any(UUID.class), any(UUID.class));
-        verify(contextProfileRepository, times(1)).isContextStarted(any(UUID.class), any(UUID.class));
-    }
-
 }

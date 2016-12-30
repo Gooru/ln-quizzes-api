@@ -88,23 +88,29 @@ public class ContextRepositoryImpl implements ContextRepository {
                 GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
                 .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
-                .where(GROUP_PROFILE.PROFILE_ID.eq(assigneeId)
-                        .and(CONTEXT.IS_ACTIVE.eq(true))
-                )
+                .where(CONTEXT.GROUP_ID.in(
+                        jooq.select(GROUP_PROFILE.GROUP_ID)
+                                .from(GROUP_PROFILE)
+                                .where(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
+                ))
+                .and(CONTEXT.IS_ACTIVE.eq(true))
                 .fetchInto(ContextOwnerEntity.class);
     }
 
     @Override
     public ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, GROUP.OWNER_PROFILE_ID,
-                CONTEXT.CREATED_AT)
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
+                GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
-                .where(CONTEXT.ID.eq(contextId))
-                .and(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
+                .where(CONTEXT.GROUP_ID.in(
+                        jooq.select(GROUP_PROFILE.GROUP_ID)
+                                .from(GROUP_PROFILE)
+                                .where(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
+                ))
+                .and(CONTEXT.ID.eq(contextId))
                 .and(CONTEXT.IS_ACTIVE.eq(true))
                 .fetchOneInto(ContextOwnerEntity.class);
     }

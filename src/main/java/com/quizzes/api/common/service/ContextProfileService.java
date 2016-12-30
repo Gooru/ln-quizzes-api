@@ -30,8 +30,4 @@ public class ContextProfileService {
         return contextProfileRepository.save(contextProfile);
     }
 
-    public boolean isContextStarted(UUID contextId, UUID profileId) {
-        return contextProfileRepository.isContextStarted(contextId, profileId);
-    }
-
 }

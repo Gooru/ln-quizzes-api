@@ -269,38 +269,30 @@ public class ContextService {
     }
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId) {
-        List<ContextOwnerEntity> contexts = contextRepository.findContextOwnerByAssigneeId(assigneeId);
-        return contexts.stream()
-                //TODO: We need to find the way hot to get isContextStarted
-                .map(context -> mapContextOwnerEntityToContextAssignedDto(context, true))
+        return contextRepository.findContextOwnerByAssigneeId(assigneeId).stream()
+                .map(context -> mapContextOwnerEntityToContextAssignedDto(context))
                 .collect(Collectors.toList());
     }
 
-    public ContextAssignedGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId) {
+    public ContextAssignedGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId)
+            throws ContentNotFoundException {
         ContextOwnerEntity context = contextRepository.findContextOwnerByContextIdAndAssigneeId(contextId, assigneeId);
         if (context == null) {
-            throw new ContentNotFoundException("We couldn't find a context with id: " + contextId);
+            throw new ContentNotFoundException("Context not found for ID: " + contextId +
+                    " and Assignee ID: " + assigneeId);
         }
-        boolean isContextStarted = contextProfileService.isContextStarted(context.getId(), assigneeId);
-        return mapContextOwnerEntityToContextAssignedDto(context, isContextStarted);
+
+        return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
-    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context,
-                                                                                    boolean isContextStarted) {
+    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context) {
         ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
-
-        CollectionDto collection = new CollectionDto();
-        collection.setId(context.getCollectionId().toString());
-
-        response.setCollection(collection);
         response.setId(context.getId());
+        response.setCollection(new CollectionDto(context.getCollectionId().toString()));
         response.setCreatedDate(context.getCreatedAt().getTime());
+        response.setHasStarted(context.getContextProfileId() != null);
+        response.setOwner(new IdResponseDto(context.getOwnerProfileId()));
         response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
-        response.setHasStarted(isContextStarted);
-
-        IdResponseDto ownerId = new IdResponseDto();
-        ownerId.setId(context.getOwnerProfileId());
-        response.setOwner(ownerId);
 
         return response;
     }

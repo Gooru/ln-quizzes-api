@@ -524,6 +524,7 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
         when(contextOwnerEntity.getContextData()).thenReturn(contextData);
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+        when(contextOwnerEntity.getContextProfileId()).thenReturn(UUID.randomUUID());
 
         List<ContextOwnerEntity> list = new ArrayList<>();
         list.add(contextOwnerEntity);
@@ -619,17 +620,15 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
         when(contextOwnerEntity.getContextData()).thenReturn(contextData);
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+        when(contextOwnerEntity.getContextProfileId()).thenReturn(UUID.randomUUID());
 
         when(contextRepository .findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextOwnerEntity);
-
-        when(contextProfileService .isContextStarted(any(UUID.class), any(UUID.class))).thenReturn(true);
 
         ContextAssignedGetResponseDto resultEntity =
                 contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextRepository, times(1)).findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class));
-        verify(contextProfileService, times(1)).isContextStarted(any(UUID.class), any(UUID.class));
 
         assertNotNull("First object is null", resultEntity);
         assertEquals("Wrong id", id, resultEntity.getId());
@@ -830,10 +829,11 @@ public class ContextServiceTest {
         when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerProfileId);
         when(contextOwnerEntity.getContextData()).thenReturn(contextData);
         when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+        when(contextOwnerEntity.getContextProfileId()).thenReturn(UUID.randomUUID());
 
         ContextAssignedGetResponseDto result =
                 WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
-                        contextOwnerEntity, true);
+                        contextOwnerEntity);
 
         assertEquals("Wrong id", id, result.getId());
         assertEquals("Wrong collection id", collectionId.toString(), result.getCollection().getId());
