@@ -1,6 +1,5 @@
 package com.quizzes.api.common.repository.jooq;
 
-import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.repository.CollectionRepository;
 import org.jooq.DSLContext;
@@ -20,7 +19,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
 
     @Override
     public Collection findByExternalId(String externalId) {
-        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
+        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.CONTENT_PROVIDER, COLLECTION.COLLECTION_DATA,
                 COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
                 .where(DSL.condition("DECODE(MD5(EXTERNAL_ID), 'HEX') = DECODE(MD5(?), 'HEX')", externalId))
@@ -30,7 +29,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
 
     @Override
     public Collection findByOwnerProfileIdAndExternalParentId(UUID ownerProfileId, String externalParentId) {
-        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.LMS_ID, COLLECTION.COLLECTION_DATA,
+        return jooq.select(COLLECTION.ID, COLLECTION.EXTERNAL_ID, COLLECTION.CONTENT_PROVIDER, COLLECTION.COLLECTION_DATA,
                 COLLECTION.IS_COLLECTION, COLLECTION.OWNER_PROFILE_ID, COLLECTION.IS_LOCKED)
                 .from(COLLECTION)
                 .where(COLLECTION.OWNER_PROFILE_ID.eq(ownerProfileId))
@@ -61,7 +60,7 @@ public class CollectionRepositoryImpl implements CollectionRepository {
                 .set(COLLECTION.ID, UUID.randomUUID())
                 .set(COLLECTION.EXTERNAL_ID, collection.getExternalId())
                 .set(COLLECTION.EXTERNAL_PARENT_ID, collection.getExternalParentId())
-                .set(COLLECTION.LMS_ID, collection.getLmsId())
+                .set(COLLECTION.CONTENT_PROVIDER, collection.getContentProvider())
                 .set(COLLECTION.IS_COLLECTION, collection.getIsCollection())
                 .set(COLLECTION.OWNER_PROFILE_ID, collection.getOwnerProfileId())
                 .set(COLLECTION.COLLECTION_DATA, collection.getCollectionData())

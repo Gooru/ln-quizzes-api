@@ -1,13 +1,12 @@
 package com.quizzes.api.common.controller;
 
-import com.google.gson.JsonArray;
+import com.quizzes.api.common.dto.AnswerDto;
+import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
-import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import com.quizzes.api.common.dto.AnswerDto;
 import com.quizzes.api.common.service.ContextEventService;
 import com.quizzes.api.common.service.ContextProfileService;
 import org.junit.Test;
@@ -19,12 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -54,17 +52,40 @@ public class ContextEventControllerTest {
         CollectionDto collection = new CollectionDto();
         collection.setId(String.valueOf(collectionId));
 
+        //Setting Answers
+        AnswerDto answerDto = new AnswerDto();
+        answerDto.setValue("A");
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(answerDto);
+
+        //Setting Events
+        UUID resource1 = UUID.randomUUID();
+        PostResponseResourceDto event1 = new PostResponseResourceDto();
+        event1.setScore(0);
+        event1.setReaction(0);
+        event1.setResourceId(resource1);
+        event1.setAnswer(answers);
+        event1.setTimeSpent(1234);
+        event1.setIsSkipped(false);
+
+        UUID resource2 = UUID.randomUUID();
+        PostResponseResourceDto event2 = new PostResponseResourceDto();
+        event2.setScore(0);
+        event2.setReaction(0);
+        event2.setResourceId(resource2);
+        event2.setAnswer(new ArrayList<>());
+        event2.setTimeSpent(1234);
+        event2.setIsSkipped(true);
+
+        List<PostResponseResourceDto> events = new ArrayList<>();
+        events.add(event1);
+        events.add(event2);
+
         StartContextEventResponseDto startContext = new StartContextEventResponseDto();
         startContext.setId(id);
         startContext.setCurrentResourceId(resourceId);
         startContext.setCollection(collection);
-
-        List<Map<String, Object>> list = new ArrayList<>();
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("answer", new JsonArray());
-        list.add(map);
-
-        startContext.setEventsResponse(list);
+        startContext.setEvents(events);
 
         when(contextEventService.startContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
 
@@ -77,9 +98,24 @@ public class ContextEventControllerTest {
         assertEquals("Wrong resource id is null", resourceId, resultBody.getCurrentResourceId());
         assertEquals("Wrong id", id, resultBody.getId());
         assertEquals("Wrong collection id", collection.getId(), resultBody.getCollection().getId());
-        assertEquals("Wrong collection id", 1, resultBody.getEventsResponse().size());
-        assertTrue("Answer key not found", resultBody.getEventsResponse().get(0).containsKey("answer"));
+        assertEquals("Wrong collection id", 2, resultBody.getEvents().size());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+
+        PostResponseResourceDto result1 = resultBody.getEvents().get(0);
+        assertEquals("Wrong result1 resource1 ID", resource1, result1.getResourceId());
+        assertEquals("Wrong score for result1", 0, result1.getScore());
+        assertEquals("Wrong reaction for result1", 0, result1.getReaction());
+        assertEquals("Wrong timeSpent for result1", 1234, result1.getTimeSpent());
+        assertEquals("Wrong timeSpent for result1", "A", result1.getAnswer().get(0).getValue());
+        assertFalse("IsSkipped is true in result1", result1.getIsSkipped());
+
+        PostResponseResourceDto result2 = resultBody.getEvents().get(1);
+        assertEquals("Wrong result1 resource2 ID", resource2, result2.getResourceId());
+        assertEquals("Wrong score for result2", 0, result2.getScore());
+        assertEquals("Wrong reaction for result2", 0, result2.getReaction());
+        assertEquals("Wrong timeSpent for result2", 1234, result2.getTimeSpent());
+        assertTrue("Answer list is not empty for result2", result2.getAnswer().isEmpty());
+        assertTrue("IsSkipped is true in result2", result2.getIsSkipped());
     }
 
     @Test
@@ -139,7 +175,7 @@ public class ContextEventControllerTest {
         profileEvents.add(profileEventResponseDto);
 
         //Creating studentEventDto mock
-        ContextEventsResponseDto contextEvents =  new ContextEventsResponseDto();
+        ContextEventsResponseDto contextEvents = new ContextEventsResponseDto();
         contextEvents.setContextId(contextId);
         contextEvents.setCollection(collectionDto);
         contextEvents.setProfileEvents(profileEvents);
@@ -209,7 +245,7 @@ public class ContextEventControllerTest {
         profileEvents.add(profileEventResponseDto);
 
         //Creating studentEventDto mock
-        ContextEventsResponseDto contextEvents =  new ContextEventsResponseDto();
+        ContextEventsResponseDto contextEvents = new ContextEventsResponseDto();
         contextEvents.setContextId(contextId);
         contextEvents.setCollection(collectionDto);
         contextEvents.setProfileEvents(profileEvents);

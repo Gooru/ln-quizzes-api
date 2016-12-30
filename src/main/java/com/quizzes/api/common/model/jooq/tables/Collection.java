@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord> {
 
-	private static final long serialVersionUID = 290572731;
+	private static final long serialVersionUID = 1236157226;
 
 	/**
 	 * The singleton instance of <code>public.collection</code>
@@ -38,11 +38,6 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	 * The column <code>public.collection.external_parent_id</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, java.lang.String> EXTERNAL_PARENT_ID = createField("external_parent_id", org.jooq.impl.SQLDataType.VARCHAR.length(50).nullable(false), this, "");
-
-	/**
-	 * The column <code>public.collection.lms_id</code>.
-	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, com.quizzes.api.common.model.jooq.enums.Lms> LMS_ID = createField("lms_id", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.jooq.enums.Lms.class), this, "");
 
 	/**
 	 * The column <code>public.collection.is_collection</code>.
@@ -78,6 +73,11 @@ public class Collection extends org.jooq.impl.TableImpl<com.quizzes.api.common.m
 	 * The column <code>public.collection.updated_at</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, java.sql.Timestamp> UPDATED_AT = createField("updated_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>public.collection.content_provider</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.CollectionRecord, com.quizzes.api.common.model.jooq.enums.ContentProvider> CONTENT_PROVIDER = createField("content_provider", org.jooq.util.postgres.PostgresDataType.VARCHAR.asEnumDataType(com.quizzes.api.common.model.jooq.enums.ContentProvider.class), this, "");
 
 	/**
 	 * Create a <code>public.collection</code> table reference

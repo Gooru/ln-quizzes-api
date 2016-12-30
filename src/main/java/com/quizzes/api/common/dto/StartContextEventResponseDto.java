@@ -1,11 +1,8 @@
 package com.quizzes.api.common.dto;
 
-import com.google.gson.annotations.SerializedName;
 import com.quizzes.api.common.dto.controller.CollectionDto;
-import io.swagger.annotations.ApiModelProperty;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class StartContextEventResponseDto {
@@ -16,11 +13,7 @@ public class StartContextEventResponseDto {
 
     private UUID currentResourceId;
 
-    @ApiModelProperty(hidden = true)
-    @SerializedName("events")
-    private List<Map<String, Object>> eventsResponse;
-
-    private transient List<PostResponseResourceDto> events;
+    private List<PostResponseResourceDto> events;
 
     public StartContextEventResponseDto() {
     }
@@ -47,14 +40,6 @@ public class StartContextEventResponseDto {
 
     public void setCurrentResourceId(UUID currentResourceId) {
         this.currentResourceId = currentResourceId;
-    }
-
-    public List<Map<String, Object>> getEventsResponse() {
-        return eventsResponse;
-    }
-
-    public void setEventsResponse(List<Map<String, Object>> eventsResponse) {
-        this.eventsResponse = eventsResponse;
     }
 
     public List<PostResponseResourceDto> getEvents() {

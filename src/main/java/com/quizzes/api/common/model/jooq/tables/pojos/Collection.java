@@ -9,39 +9,38 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Collection implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1080960865;
+	private static final long serialVersionUID = -814831391;
 
-	private java.util.UUID                              id;
-	private java.lang.String                            externalId;
-	private java.lang.String                            externalParentId;
-	private com.quizzes.api.common.model.jooq.enums.Lms lmsId;
-	private java.lang.Boolean                           isCollection;
-	private java.util.UUID                              ownerProfileId;
-	private java.lang.String                            collectionData;
-	private java.lang.Boolean                           isLocked;
-	private java.lang.Boolean                           isDeleted;
-	private java.sql.Timestamp                          createdAt;
-	private java.sql.Timestamp                          updatedAt;
+	private java.util.UUID                                          id;
+	private java.lang.String                                        externalId;
+	private java.lang.String                                        externalParentId;
+	private java.lang.Boolean                                       isCollection;
+	private java.util.UUID                                          ownerProfileId;
+	private java.lang.String                                        collectionData;
+	private java.lang.Boolean                                       isLocked;
+	private java.lang.Boolean                                       isDeleted;
+	private java.sql.Timestamp                                      createdAt;
+	private java.sql.Timestamp                                      updatedAt;
+	private com.quizzes.api.common.model.jooq.enums.ContentProvider contentProvider;
 
 	public Collection() {}
 
 	public Collection(
-		java.util.UUID                              id,
-		java.lang.String                            externalId,
-		java.lang.String                            externalParentId,
-		com.quizzes.api.common.model.jooq.enums.Lms lmsId,
-		java.lang.Boolean                           isCollection,
-		java.util.UUID                              ownerProfileId,
-		java.lang.String                            collectionData,
-		java.lang.Boolean                           isLocked,
-		java.lang.Boolean                           isDeleted,
-		java.sql.Timestamp                          createdAt,
-		java.sql.Timestamp                          updatedAt
+		java.util.UUID                                          id,
+		java.lang.String                                        externalId,
+		java.lang.String                                        externalParentId,
+		java.lang.Boolean                                       isCollection,
+		java.util.UUID                                          ownerProfileId,
+		java.lang.String                                        collectionData,
+		java.lang.Boolean                                       isLocked,
+		java.lang.Boolean                                       isDeleted,
+		java.sql.Timestamp                                      createdAt,
+		java.sql.Timestamp                                      updatedAt,
+		com.quizzes.api.common.model.jooq.enums.ContentProvider contentProvider
 	) {
 		this.id = id;
 		this.externalId = externalId;
 		this.externalParentId = externalParentId;
-		this.lmsId = lmsId;
 		this.isCollection = isCollection;
 		this.ownerProfileId = ownerProfileId;
 		this.collectionData = collectionData;
@@ -49,6 +48,7 @@ public class Collection implements java.io.Serializable {
 		this.isDeleted = isDeleted;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.contentProvider = contentProvider;
 	}
 
 	public java.util.UUID getId() {
@@ -73,14 +73,6 @@ public class Collection implements java.io.Serializable {
 
 	public void setExternalParentId(java.lang.String externalParentId) {
 		this.externalParentId = externalParentId;
-	}
-
-	public com.quizzes.api.common.model.jooq.enums.Lms getLmsId() {
-		return this.lmsId;
-	}
-
-	public void setLmsId(com.quizzes.api.common.model.jooq.enums.Lms lmsId) {
-		this.lmsId = lmsId;
 	}
 
 	public java.lang.Boolean getIsCollection() {
@@ -137,5 +129,13 @@ public class Collection implements java.io.Serializable {
 
 	public void setUpdatedAt(java.sql.Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public com.quizzes.api.common.model.jooq.enums.ContentProvider getContentProvider() {
+		return this.contentProvider;
+	}
+
+	public void setContentProvider(com.quizzes.api.common.model.jooq.enums.ContentProvider contentProvider) {
+		this.contentProvider = contentProvider;
 	}
 }

@@ -58,7 +58,7 @@ public class ResourceRepositoryImpl implements ResourceRepository {
         return jooq.insertInto(RESOURCE)
                 .set(RESOURCE.ID, UUID.randomUUID())
                 .set(RESOURCE.EXTERNAL_ID, resource.getExternalId())
-                .set(RESOURCE.LMS_ID, resource.getLmsId())
+                .set(RESOURCE.CONTENT_PROVIDER, resource.getContentProvider())
                 .set(RESOURCE.COLLECTION_ID, resource.getCollectionId())
                 .set(RESOURCE.IS_RESOURCE, resource.getIsResource())
                 .set(RESOURCE.OWNER_PROFILE_ID, resource.getOwnerProfileId())

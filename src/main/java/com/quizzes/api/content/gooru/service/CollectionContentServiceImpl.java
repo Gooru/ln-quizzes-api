@@ -2,6 +2,7 @@ package com.quizzes.api.content.gooru.service;
 
 import com.google.gson.Gson;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
+import com.quizzes.api.common.model.jooq.enums.ContentProvider;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
@@ -126,7 +127,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         // TODO: The logic to obtain the correct external_id and external_parent_id must be implemented
         collection.setExternalId(assessmentDto.getId());
         collection.setExternalParentId(parentAssessmentId);
-        collection.setLmsId(Lms.gooru);
+        collection.setContentProvider(ContentProvider.gooru);
         collection.setOwnerProfileId(ownerId);
         collection.setIsCollection(false);
         collection.setIsLocked(false);
@@ -146,7 +147,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
             for (QuestionDto questionDto : questions) {
                 Resource resource = new Resource();
                 resource.setExternalId(questionDto.getId());
-                resource.setLmsId(Lms.gooru);
+                resource.setContentProvider(ContentProvider.gooru);
                 resource.setCollectionId(collection.getId());
                 resource.setOwnerProfileId(ownerId);
                 resource.setIsResource(false);
