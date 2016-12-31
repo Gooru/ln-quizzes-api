@@ -25,7 +25,6 @@ import com.quizzes.api.common.service.content.CollectionContentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,12 +43,6 @@ public class ContextService {
 
     @Autowired
     ContextProfileService contextProfileService;
-
-    @Autowired
-    JsonParser jsonParser;
-
-    @Autowired
-    private Gson gson;
 
     @Autowired
     ContextProfileEventService contextProfileEventService;
@@ -74,6 +67,9 @@ public class ContextService {
 
     @Autowired
     CollectionContentService collectionContentService;
+
+    @Autowired
+    private Gson gson;
 
     /**
      * A {@link Collection} is the Quizzes representation of an Assessment in a Content Provider
@@ -177,7 +173,7 @@ public class ContextService {
 
             notAssignedProfileDtos.stream().forEach(profileDto -> {
 
-                if (!foundProfilesMap.containsKey(profileDto.getId())){
+                if (!foundProfilesMap.containsKey(profileDto.getId())) {
                     Profile newProfile = new Profile();
                     newProfile.setExternalId(profileDto.getId());
                     newProfile.setLmsId(lms);
@@ -293,16 +289,16 @@ public class ContextService {
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
-    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity context) {
-        ContextAssignedGetResponseDto response = new ContextAssignedGetResponseDto();
-        response.setId(context.getId());
-        response.setCollection(new CollectionDto(context.getCollectionId().toString()));
-        response.setCreatedDate(context.getCreatedAt().getTime());
-        response.setHasStarted(context.getContextProfileId() != null);
-        response.setOwner(new IdResponseDto(context.getOwnerProfileId()));
-        response.setContextData(gson.fromJson(context.getContextData(), ContextDataDto.class));
+    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {
+        ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
+        contextAssigned.setId(contextOwner.getId());
+        contextAssigned.setCollection(new CollectionDto(contextOwner.getCollectionId().toString()));
+        contextAssigned.setCreatedDate(contextOwner.getCreatedAt().getTime());
+        contextAssigned.setHasStarted(contextOwner.getContextProfileId() != null);
+        contextAssigned.setOwner(new IdResponseDto(contextOwner.getOwnerProfileId()));
+        contextAssigned.setContextData(gson.fromJson(contextOwner.getContextData(), ContextDataDto.class));
 
-        return response;
+        return contextAssigned;
     }
 
     /**
