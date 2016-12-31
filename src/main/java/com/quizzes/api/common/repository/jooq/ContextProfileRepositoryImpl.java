@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
-import static org.jooq.impl.DSL.count;
 
 @Repository
 public class ContextProfileRepositoryImpl implements ContextProfileRepository {
@@ -58,7 +57,6 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .fetchOne()
                 .into(ContextProfile.class);
     }
-
 
     @Override
     public List<UUID> findContextProfileIdsByContextId(UUID contextId) {
