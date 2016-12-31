@@ -6,8 +6,6 @@ public class ContextAssignedGetResponseDto extends CommonContextGetResponseDto {
 
     private boolean hasStarted = false;
 
-    public ContextAssignedGetResponseDto() {}
-
     public IdResponseDto getOwner() {
         return owner;
     }
@@ -16,7 +14,12 @@ public class ContextAssignedGetResponseDto extends CommonContextGetResponseDto {
         this.owner = owner;
     }
 
-    public boolean getHasStarted(){ return hasStarted;}
+    public boolean getHasStarted() {
+        return hasStarted;
+    }
 
-    public void setHasStarted(boolean hasStarted){ this.hasStarted = hasStarted;}
+    public void setHasStarted(boolean hasStarted) {
+        this.hasStarted = hasStarted;
+    }
+    
 }

@@ -9,8 +9,7 @@ public class CollectionDto {
     @Size(min=1, message = "{collection.id.size}")
     private String id;
 
-    public CollectionDto() {
-    }
+    public CollectionDto() {}
 
     public CollectionDto(String id) {
         this.id = id;
@@ -23,4 +22,5 @@ public class CollectionDto {
     public void setId(String id) {
         this.id = id;
     }
+
 }

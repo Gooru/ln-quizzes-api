@@ -21,19 +21,18 @@ import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
-import org.springframework.boot.json.JsonParser;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +41,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -50,44 +50,52 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ContextService.class)
 public class ContextServiceTest {
 
     @InjectMocks
-    private ContextService contextService = Mockito.spy(ContextService.class);
+    private ContextService contextService;
 
     @Mock
-    ProfileService profileService;
+    private ProfileService profileService;
 
     @Mock
-    ContextRepository contextRepository;
+    private ContextRepository contextRepository;
 
     @Mock
-    ContextProfileEventService contextProfileEventService;
+    private ContextProfileEventService contextProfileEventService;
 
     @Mock
-    ContextProfileService contextProfileService;
+    private ContextProfileService contextProfileService;
 
     @Mock
-    JsonParser jsonParser;
+    private CollectionService collectionService;
 
     @Mock
-    CollectionService collectionService;
+    private GroupService groupService;
 
     @Mock
-    GroupService groupService;
+    private GroupProfileService groupProfileService;
 
     @Mock
-    GroupProfileService groupProfileService;
+    private CollectionContentService collectionContentService;
 
     @Mock
-    CollectionContentService collectionContentService;
+    private Gson gson = new Gson();
 
-    @Mock
-    ContextOwnerEntity contextOwnerEntity;
+    private UUID contextId;
+    private UUID collectionId;
+    private UUID ownerProfileId;
+    private UUID contextProfileId;
+    private Timestamp createdAt;
 
-    @Mock
-    Gson gson = new Gson();
+    @Before
+    public void before() throws Exception {
+        contextId = UUID.randomUUID();
+        collectionId = UUID.randomUUID();
+        ownerProfileId = UUID.randomUUID();
+        contextProfileId = UUID.randomUUID();
+        createdAt = Timestamp.from(Instant.now());
+    }
 
     @Test
     public void createContextFindProfile() throws Exception {
@@ -513,70 +521,8 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void getAssignedContextsNotStarted() {
-        UUID id = UUID.randomUUID();
-        UUID classId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
-        long startDate = 32424;
-        String contextData = "{\n" +
-                "\t\t\"metadata\": {\n" +
-                "\t\t  \"description\": \"First Partial\",\n" +
-                "\t\t  \"startDate\": \"" + startDate + "\",\n" +
-                "\t\t  \"title\": \"Math 1st Grade\"\n" +
-                "\t\t},\n" +
-                "\t\t\"contextMap\": {\n" +
-                "\t\t  \"classId\": \"" + classId + "\"\n" +
-                "\t\t}\n" +
-                "\t}";
-
-        when(contextOwnerEntity.getId()).thenReturn(id);
-        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
-        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
-        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
-        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
-
-        List<ContextOwnerEntity> list = new ArrayList<>();
-        list.add(contextOwnerEntity);
-
-        when(contextRepository.findContextOwnerByAssigneeId(any(UUID.class))).thenReturn(list);
-
-        List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID());
-
-        verify(contextRepository, times(1)).findContextOwnerByAssigneeId(any(UUID.class));
-
-        ContextAssignedGetResponseDto resultEntity = result.get(0);
-
-        assertEquals("Wrong context profile id", Boolean.FALSE, resultEntity.getHasStarted());
-    }
-
-
-
-    @Test
-    public void getAssignedContexts() {
-        UUID id = UUID.randomUUID();
-        UUID classId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
-        UUID contextProfileId = UUID.randomUUID();
-        long startDate = 324234;
-        String contextData = "{\n" +
-                "\t\t\"metadata\": {\n" +
-                "\t\t  \"description\": \"First Partial\",\n" +
-                "\t\t  \"startDate\": \"" + startDate + "\",\n" +
-                "\t\t  \"title\": \"Math 1st Grade\"\n" +
-                "\t\t},\n" +
-                "\t\t\"contextMap\": {\n" +
-                "\t\t  \"classId\": \"" + classId + "\"\n" +
-                "\t\t}\n" +
-                "\t}";
-
-        when(contextOwnerEntity.getId()).thenReturn(id);
-        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
-        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
-        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
-        when(contextOwnerEntity.getContextProfileId()).thenReturn(contextProfileId);
-        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+    public void getAssignedContexts() throws Exception {
+        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
 
         List<ContextOwnerEntity> list = new ArrayList<>();
         list.add(contextOwnerEntity);
@@ -590,48 +536,25 @@ public class ContextServiceTest {
         ContextAssignedGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());
 
-        assertNotNull("First object is null", resultEntity);
-        assertEquals("Wrong id", id, resultEntity.getId());
+        assertEquals("Wrong context id", contextId, resultEntity.getId());
         assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
-        assertEquals("Wrong context profile id", Boolean.TRUE, resultEntity.getHasStarted());
-        assertNotNull("Created Date is null", resultEntity.getCreatedDate());
+        assertEquals("Wrong owner profile id", ownerProfileId, resultEntity.getOwner().getId());
+        assertEquals("Wrong hasStarted value", true, resultEntity.getHasStarted());
+        assertEquals("Wrong created date value", createdAt.getTime(), resultEntity.getCreatedDate());
+
+        assertEquals("Wrong class id", "class-id-1", resultEntity.getContextData().getContextMap().get("classId"));
 
         MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
-        assertNotNull("Metadata is null", metadataResult);
-        assertEquals("Wrong title", "Math 1st Grade", metadataResult.getTitle());
-        assertEquals("Wrong description", "First Partial", metadataResult.getDescription());
-        assertEquals("Wrong start date", startDate, metadataResult.getStartDate());
-
-        assertEquals("Wrong owner id", ownerId, resultEntity.getOwner().getId());
-        assertEquals("Wrong class id", classId.toString(), resultEntity.getContextData().getContextMap().get("classId"));
+        assertEquals("Wrong metadata title", "metadata title", metadataResult.getTitle());
+        assertEquals("Wrong metadata description", "metadata description", metadataResult.getDescription());
+        assertEquals("Wrong metadata start date", 1, metadataResult.getStartDate());
     }
 
     @Test
-    public void getAssignedContextByContextIdAndAssigneeId() {
-        UUID id = UUID.randomUUID();
-        UUID classId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        UUID ownerId = UUID.randomUUID();
-        long startDate = 324234;
-        String contextData = "{\n" +
-                "\t\t\"metadata\": {\n" +
-                "\t\t  \"description\": \"First Partial\",\n" +
-                "\t\t  \"startDate\": \"" + startDate + "\",\n" +
-                "\t\t  \"title\": \"Math 1st Grade\"\n" +
-                "\t\t},\n" +
-                "\t\t\"contextMap\": {\n" +
-                "\t\t  \"classId\": \"" + classId + "\"\n" +
-                "\t\t}\n" +
-                "\t}";
+    public void getAssignedContextByContextIdAndAssigneeId() throws Exception {
+        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
 
-        ContextOwnerEntity contextOwnerEntity = Mockito.spy(ContextOwnerEntity.class);
-        when(contextOwnerEntity.getId()).thenReturn(id);
-        when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
-        when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerId);
-        when(contextOwnerEntity.getContextData()).thenReturn(contextData);
-        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
-
-        when(contextRepository .findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
+        when(contextRepository.findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextOwnerEntity);
 
         ContextAssignedGetResponseDto resultEntity =
@@ -639,20 +562,25 @@ public class ContextServiceTest {
 
         verify(contextRepository, times(1)).findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class));
 
-        assertNotNull("First object is null", resultEntity);
-        assertEquals("Wrong id", id, resultEntity.getId());
+        assertEquals("Wrong context id", contextId, resultEntity.getId());
         assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
+        assertEquals("Wrong owner profile id", ownerProfileId, resultEntity.getOwner().getId());
+        assertEquals("Wrong hasStarted value", true, resultEntity.getHasStarted());
+        assertEquals("Wrong created date value", createdAt.getTime(), resultEntity.getCreatedDate());
 
-        assertNotNull("Created Date is null", resultEntity.getCreatedDate());
+        assertEquals("Wrong class id", "class-id-1", resultEntity.getContextData().getContextMap().get("classId"));
 
         MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
-        assertNotNull("Metadata is null", metadataResult);
-        assertEquals("Wrong title", "Math 1st Grade", metadataResult.getTitle());
-        assertEquals("Wrong description", "First Partial", metadataResult.getDescription());
-        assertEquals("Wrong start date", startDate, metadataResult.getStartDate());
+        assertEquals("Wrong metadata title", "metadata title", metadataResult.getTitle());
+        assertEquals("Wrong metadata description", "metadata description", metadataResult.getDescription());
+        assertEquals("Wrong metadata start date", 1, metadataResult.getStartDate());
+    }
 
-        assertEquals("Wrong owner id", ownerId, resultEntity.getOwner().getId());
-        assertEquals("Wrong class id", classId.toString(), resultEntity.getContextData().getContextMap().get("classId"));
+    @Test(expected = ContentNotFoundException.class)
+    public void getAssignedContextByContextIdAndAssigneeIdThrowsContentNotFoundException() {
+        when(contextRepository.findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
+                .thenReturn(null);
+        contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
     }
 
     @Test
@@ -673,10 +601,6 @@ public class ContextServiceTest {
 
         verify(contextRepository, times(1)).findByOwnerId(any(UUID.class));
         assertNotNull("Context by owner is null", result);
-
-
-
-
     }
 
     @Test
@@ -785,8 +709,6 @@ public class ContextServiceTest {
                 .thenReturn(new HashMap());
 
         contextService.findCreatedContextByContextIdAndOwnerId(contextId, ownerId);
-
-
     }
 
     @Test
@@ -809,33 +731,41 @@ public class ContextServiceTest {
 
     @Test
     public void mapContextOwnerEntityToContextAssignedDto() throws Exception {
-        UUID id = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        UUID ownerProfileId = UUID.randomUUID();
-        String contextData = "{\n" +
-                "    \"contextMap\": {\n" +
-                "        \"classId\": \"1\"\n" +
-                "    },\n" +
-                "    \"metadata\": {\n" +
-                "    \t\"startDate\": 1\n" +
-                "    }\n" +
-                "  }";
+        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
+        ContextAssignedGetResponseDto contextAssignedDto =
+                WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
+                        contextOwnerEntity);
+        assertEquals("Wrong context id", contextId, contextAssignedDto.getId());
+        assertEquals("Wrong collection id", collectionId.toString(), contextAssignedDto.getCollection().getId());
+        assertEquals("Wrong owner profile id", ownerProfileId, contextAssignedDto.getOwner().getId());
+        assertEquals("Wrong createdDate value", createdAt.getTime(), contextAssignedDto.getCreatedDate());
+        assertEquals("Wrong metadata value", 1, contextAssignedDto.getContextData().getMetadata().getStartDate());
+        assertTrue("Wrong hasStarted value", contextAssignedDto.getHasStarted());
+    }
 
-        ContextOwnerEntity contextOwnerEntity = Mockito.spy(ContextOwnerEntity.class);
+    private ContextOwnerEntity createContextOwnerEntityMock() {
+        ContextOwnerEntity contextOwnerEntity = mock(ContextOwnerEntity.class);
+        String contextData =
+                "{" +
+                "  'contextMap': {" +
+                "    'classId': 'class-id-1'" +
+                "  }," +
+                "  'metadata': {" +
+                "    'title': 'metadata title'," +
+                "    'description': 'metadata description'," +
+                "    'startDate': 1," +
+                "    'dueDate': 2" +
+                "  }" +
+                "}";
 
-        when(contextOwnerEntity.getId()).thenReturn(id);
+        when(contextOwnerEntity.getId()).thenReturn(contextId);
         when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
         when(contextOwnerEntity.getOwnerProfileId()).thenReturn(ownerProfileId);
         when(contextOwnerEntity.getContextData()).thenReturn(contextData);
-        when(contextOwnerEntity.getCreatedAt()).thenReturn(new Timestamp(new Date().getTime()));
+        when(contextOwnerEntity.getCreatedAt()).thenReturn(createdAt);
+        when(contextOwnerEntity.getContextProfileId()).thenReturn(contextProfileId);
 
-        ContextAssignedGetResponseDto result =
-                WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
-                        contextOwnerEntity);
-
-        assertEquals("Wrong id", id, result.getId());
-        assertEquals("Wrong collection id", collectionId.toString(), result.getCollection().getId());
-        assertEquals("Wrong owner id", ownerProfileId, result.getOwner().getId());
-        assertEquals("Wrong id", 1, result.getContextData().getMetadata().getStartDate());
+        return contextOwnerEntity;
     }
+
 }

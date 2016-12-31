@@ -3,9 +3,13 @@ package com.quizzes.api.common.dto;
 import java.util.UUID;
 
 public class IdResponseDto {
+
     private UUID id;
 
-    public IdResponseDto() {
+    public IdResponseDto() {}
+
+    public IdResponseDto(UUID id) {
+        this.id = id;
     }
 
     public UUID getId() {
@@ -15,4 +19,5 @@ public class IdResponseDto {
     public void setId(UUID id) {
         this.id = id;
     }
+
 }
