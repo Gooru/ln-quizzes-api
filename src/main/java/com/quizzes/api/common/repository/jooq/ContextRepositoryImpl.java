@@ -88,7 +88,8 @@ public class ContextRepositoryImpl implements ContextRepository {
                 GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(assigneeId)))
                 .where(CONTEXT.GROUP_ID.in(
                         jooq.select(GROUP_PROFILE.GROUP_ID)
                                 .from(GROUP_PROFILE)
@@ -104,7 +105,8 @@ public class ContextRepositoryImpl implements ContextRepository {
                 GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(assigneeId)))
                 .where(CONTEXT.GROUP_ID.in(
                         jooq.select(GROUP_PROFILE.GROUP_ID)
                                 .from(GROUP_PROFILE)
