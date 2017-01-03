@@ -63,6 +63,7 @@ frisby.create('Test getCreatedContextByID')
                             .addHeader('profile-id', profileJson.id)
                             .inspectRequest()
                             .expectStatus(200)
+                            .expectHeaderContains('content-type', 'application/json')
                             .inspectJSON()
                             .expectJSON({
                                 "id": createdContextJson.collection.id,
@@ -143,8 +144,17 @@ frisby.create('Test getCollectionByID on wrong Collection ID')
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', profileJson.id)
                             .inspectRequest()
-                            .expectStatus(500)
+                            .expectStatus(404)
+                            .expectHeaderContains('content-type', 'application/json')
                             .inspectJSON()
+                            .expectJSON({
+                                "status": 404
+                            })
+                            .expectJSONTypes({
+                                message: String,
+                                status: Number,
+                                exception: String
+                            })
                             .toss();
                     })
                     .toss();
@@ -214,8 +224,17 @@ frisby.create('Test getCollectionID on wrong profileID')
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', contextJson.id)
                             .inspectRequest()
-                            .expectStatus(500)
+                            .expectStatus(404)
+                            .expectHeaderContains('content-type', 'application/json')
                             .inspectJSON()
+                            .expectJSON({
+                                "status": 404
+                            })
+                            .expectJSONTypes({
+                                message: String,
+                                status: Number,
+                                exception: String
+                            })
                             .toss();
 
                     })
