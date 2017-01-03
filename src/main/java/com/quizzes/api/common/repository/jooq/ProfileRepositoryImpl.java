@@ -32,14 +32,6 @@ public class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     @Override
-    public List<Profile> save(final List<Profile> profiles) {
-        return profiles.stream().map(profile -> {
-            Profile newProfile = insertProfile(profile);
-            return newProfile;
-        }).collect(Collectors.toList());
-    }
-
-    @Override
     public Profile findById(UUID id) {
         return jooq.select()
                 .from(PROFILE)
@@ -112,6 +104,16 @@ public class ProfileRepositoryImpl implements ProfileRepository {
                 .where(PROFILE.EXTERNAL_ID.in(externalProfileIds))
                 .and(PROFILE.LMS_ID.eq(lms))
                 .fetchInto(UUID.class);
+    }
+
+    @Override
+    public List<Profile> findProfilesByExternalIdAndLms(List<String> externalProfileIds, Lms lms){
+        return jooq.select(PROFILE.ID, PROFILE.EXTERNAL_ID, PROFILE.LMS_ID, PROFILE.PROFILE_DATA, PROFILE.CREATED_AT,
+                PROFILE.UPDATED_AT, PROFILE.CLIENT_ID)
+                .from(PROFILE)
+                .where(PROFILE.EXTERNAL_ID.in(externalProfileIds))
+                .and(PROFILE.LMS_ID.eq(lms))
+                .fetchInto(Profile.class);
     }
 
     private Profile insertProfile(final Profile profile) {
