@@ -60,8 +60,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                     .expectJSON('?',
 
                         {
-                            id: context.id,
-                            collection: { id: 'be389274-eb52-485f-a451-5ce94e68313f' }
+                            id: context.id
                         }
 
                     ).toss();
