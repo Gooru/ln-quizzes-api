@@ -60,7 +60,8 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                     .expectJSON('?',
 
                         {
-                            id: context.id
+                            id: context.id,
+                            'hasStarted': false
                         }
 
                     ).toss();
