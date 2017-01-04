@@ -53,9 +53,11 @@ public class ContextController {
     @RequestMapping(path = "/v1/context",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> assignContext(@ApiParam(value = "Json body", required = true, name = "Body")
+    public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's owner, assignees, external collection ID and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
+                                           @ApiParam(name = "lms-id", value = "Client LMS ID", required = true)
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                           @ApiParam(name = "lms-id", value = "Context's owner Profile ID", required = true)
                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
