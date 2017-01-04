@@ -1,7 +1,7 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
-frisby.create('Test getCreatedContextByID')
+frisby.create('Test getCollectionByID endpoint')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
         'assignees': [
