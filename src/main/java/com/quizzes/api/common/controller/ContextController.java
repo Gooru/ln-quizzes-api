@@ -45,9 +45,6 @@ public class ContextController {
     @Autowired
     private ContextService contextService;
 
-    @Autowired
-    private HttpServletRequest httpServletRequest;
-
     @ApiOperation(
             value = "Creates an assignment",
             notes = "Creates an assignment of a collection (assessment) to a group of people (students) in " +
