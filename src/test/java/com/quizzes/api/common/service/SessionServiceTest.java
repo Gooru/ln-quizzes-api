@@ -72,7 +72,7 @@ public class SessionServiceTest {
         //Search profile
         Lms lms = Lms.gooru;
         UUID profileId = UUID.randomUUID();
-        when(profileService.findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms))).thenReturn(profileId);
+        when(profileService.findIdByExternalIdAndClientId(eq(userDto.getExternalId()), eq(clientId))).thenReturn(profileId);
 
         //Setting session
         UUID sessionId = UUID.randomUUID();
@@ -87,7 +87,7 @@ public class SessionServiceTest {
         SessionTokenDto result = sessionService.generateToken(session);
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey.toString()), eq(apiSecret.toString()));
-        verify(profileService, times(1)).findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms));
+        verify(profileService, times(1)).findIdByExternalIdAndClientId(eq(userDto.getExternalId()), eq(clientId));
         verify(profileService, times(0)).saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
 
         verify(sessionRepository, times(1)).findLastSessionByProfileId(eq(profileId));
@@ -126,7 +126,7 @@ public class SessionServiceTest {
         //Search profile
         Lms lms = Lms.gooru;
         UUID profileId = UUID.randomUUID();
-        when(profileService.findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms))).thenReturn(profileId);
+        when(profileService.findIdByExternalIdAndClientId(eq(userDto.getExternalId()), eq(clientId))).thenReturn(profileId);
 
         //Last session is null
         when(sessionRepository.findLastSessionByProfileId(eq(profileId))).thenReturn(null);
@@ -142,7 +142,7 @@ public class SessionServiceTest {
         SessionTokenDto result = sessionService.generateToken(session);
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey.toString()), eq(apiSecret.toString()));
-        verify(profileService, times(1)).findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms));
+        verify(profileService, times(1)).findIdByExternalIdAndClientId(eq(userDto.getExternalId()), eq(clientId));
         verify(profileService, times(0)).saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
 
         verify(sessionRepository, times(1)).findLastSessionByProfileId(eq(profileId));
@@ -180,7 +180,7 @@ public class SessionServiceTest {
 
         //Search profile, it returns null
         Lms lms = Lms.gooru;
-        when(profileService.findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms))).thenReturn(null);
+        when(profileService.findIdByExternalIdAndClientId(eq(userDto.getExternalId()), eq(clientId))).thenReturn(null);
 
         //Setting Profile
         Profile profile = new Profile();
@@ -201,7 +201,7 @@ public class SessionServiceTest {
         SessionTokenDto result = sessionService.generateToken(session);
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey.toString()), eq(apiSecret.toString()));
-        verify(profileService, times(1)).findIdByExternalIdAndLmsId(eq(userDto.getExternalId()), eq(lms));
+        verify(profileService, times(1)).findIdByExternalIdAndClientId(eq(userDto.getExternalId()), eq(clientId));
         verify(profileService, times(1)).saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
 
         verify(sessionRepository, times(0)).findLastSessionByProfileId(any());

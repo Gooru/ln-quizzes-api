@@ -12,11 +12,11 @@ public interface ProfileRepository {
 
     UUID findIdByExternalIdAndLmsId(String externalId, Lms lmsId);
 
+    UUID findIdByExternalIdAndClientId(String externalId, UUID clientId);
+
     Profile findByExternalIdAndLmsId(String externalId, Lms lmsId);
 
     Profile save(Profile id);
-
-    List<Profile> save(List<Profile> profiles);
 
     Profile findAssigneeInContext(UUID contextId, UUID profileId);
 
@@ -25,4 +25,6 @@ public interface ProfileRepository {
     List<String> findExternalProfileIds(List<String> externalProfileIds, Lms lms);
 
     List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms);
+
+    List<Profile> findProfilesByExternalIdAndLms(List<String> externalProfileIds, Lms lms);
 }

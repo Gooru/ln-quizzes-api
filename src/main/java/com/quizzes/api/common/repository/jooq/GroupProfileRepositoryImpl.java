@@ -34,22 +34,11 @@ public class GroupProfileRepositoryImpl implements GroupProfileRepository {
             .execute();
     }
 
-    public List<GroupProfile> findGroupProfilesByGroupId(UUID id){
-        List<GroupProfile> groupProfiles = new ArrayList<>();
-
-        GroupProfile asignee1 = new GroupProfile();
-        asignee1.setGroupId(id);
-        asignee1.setId(UUID.randomUUID());
-        asignee1.setProfileId(UUID.randomUUID());
-        groupProfiles.add(asignee1);
-
-        GroupProfile asignee2 = new GroupProfile();
-        asignee2.setGroupId(id);
-        asignee2.setId(UUID.randomUUID());
-        asignee2.setProfileId(UUID.randomUUID());
-        groupProfiles.add(asignee2);
-
-        return groupProfiles;
+    public List<GroupProfile> findGroupProfilesByGroupId(UUID groupId){
+        return jooq.select()
+                .from(GROUP_PROFILE)
+                .where(GROUP_PROFILE.GROUP_ID.eq(groupId))
+                .fetchInto(GroupProfile.class);
     }
 
 }
