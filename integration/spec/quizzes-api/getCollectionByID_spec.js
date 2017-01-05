@@ -95,7 +95,7 @@ frisby.create('Test getCollectionByID endpoint')
                         .toss();
 
                         frisby.create('Verify that the collection cant be retrieved with a wrong profile-id')
-                            .get(QuizzesApiUrl + '/v1/collection/' + createdContextJson.id)
+                            .get(QuizzesApiUrl + '/v1/collection/' + createdContextJson.collection.id)
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', contextJson.id)
                             .inspectRequest()
