@@ -87,11 +87,12 @@ public class ContextEventControllerTest {
         startContext.setCollection(collection);
         startContext.setEvents(events);
 
-        when(contextEventService.startContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
+        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
 
-        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(UUID.randomUUID(), "quizzes", UUID.randomUUID());
+        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(UUID.randomUUID(),
+                "quizzes", UUID.randomUUID());
 
-        verify(contextEventService, times(1)).startContextEvent(any(UUID.class), any(UUID.class));
+        verify(contextEventService, times(1)).processStartContextEvent(any(UUID.class), any(UUID.class));
 
         StartContextEventResponseDto resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
@@ -121,18 +122,19 @@ public class ContextEventControllerTest {
     @Test
     public void finishContextEvent() throws Exception {
         ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning", UUID.randomUUID());
-        verify(contextEventService, times(1)).finishContextEvent(any(UUID.class), any(UUID.class));
+        verify(contextEventService, times(1)).processFinishContextEvent(any(UUID.class), any(UUID.class));
 
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
     }
 
     @Test
     public void addEvent() throws Exception {
-        ResponseEntity<?> result = controller.onResourceEvent(UUID.randomUUID(), UUID.randomUUID(), new OnResourceEventPostRequestDto(), "quizzes", UUID.randomUUID());
+        ResponseEntity<?> result = controller.onResourceEvent(UUID.randomUUID(), UUID.randomUUID(),
+                new OnResourceEventPostRequestDto(), "quizzes", UUID.randomUUID());
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
     }
 
@@ -182,7 +184,8 @@ public class ContextEventControllerTest {
 
         when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(contextEvents);
 
-        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes", UUID.randomUUID());
+        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes",
+                UUID.randomUUID());
 
         verify(contextEventService, times(1)).getContextEvents(contextId);
 
@@ -252,7 +255,8 @@ public class ContextEventControllerTest {
 
         when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(contextEvents);
 
-        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes", UUID.randomUUID());
+        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes",
+                UUID.randomUUID());
 
         verify(contextEventService, times(1)).getContextEvents(contextId);
 
