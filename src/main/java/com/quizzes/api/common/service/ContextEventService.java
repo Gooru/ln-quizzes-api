@@ -79,7 +79,6 @@ public class ContextEventService {
             doStartContextEventTransaction(contextProfile);
         } else if (contextProfile.getIsComplete()) {
             contextProfile = createNewContextProfile(contextId, profileId);
-            contextProfile.setIsComplete(true);
             doStartContextEventTransaction(contextProfile);
         }
 
@@ -190,10 +189,6 @@ public class ContextEventService {
 
     @Transactional
     public ContextProfile doStartContextEventTransaction(ContextProfile contextProfile) {
-        if (contextProfile.getIsComplete()) {
-            contextProfileEventService.deleteByContextProfileId(contextProfile.getId());
-            contextProfile.setIsComplete(false);
-        }
         return contextProfileService.save(contextProfile);
     }
 

@@ -16,12 +16,12 @@ import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.messaging.ActiveMQClientService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.JsonParser;
@@ -43,11 +43,10 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ContextEventService.class)
 public class ContextEventServiceTest {
 
     @InjectMocks
-    private ContextEventService contextEventService = Mockito.spy(ContextEventService.class);
+    private ContextEventService contextEventService;
 
     @Mock
     ContextProfileService contextProfileService;
@@ -79,23 +78,31 @@ public class ContextEventServiceTest {
     @Mock
     JsonParser jsonParser;
 
+    private UUID collectionId;
+    private UUID contextId;
+    private UUID resourceId;
+    private UUID contextProfileId;
+
+    @Before
+    public void beforeEachTest() {
+        collectionId = UUID.randomUUID();
+        contextId = UUID.randomUUID();
+        resourceId = UUID.randomUUID();
+        contextProfileId = UUID.randomUUID();
+    }
 
     @Test
     public void startContextEventWithEventsAndIsCompleteFalse() throws Exception {
         //Setting context
-        UUID collectionId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
         //Setting resource
-        UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
         //Setting contextProfile
-        UUID contextProfileId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
         contextProfile.setCurrentResourceId(resourceId);
@@ -183,19 +190,15 @@ public class ContextEventServiceTest {
     @Test
     public void startContextEventWhenContextProfileNull() throws Exception {
         //Setting context
-        UUID collectionId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
         //Setting resource
-        UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
         //Setting ContextProfile
-        UUID contextProfileId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
         contextProfile.setCurrentResourceId(resourceId);
@@ -229,19 +232,15 @@ public class ContextEventServiceTest {
     @Test
     public void startContextEventWithEventsAndIsCompleteTrue() throws Exception {
         //Setting context
-        UUID collectionId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
         //Setting resource
-        UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
         //Setting ContextProfile
-        UUID contextProfileId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
         contextProfile.setCurrentResourceId(resourceId);
@@ -268,7 +267,6 @@ public class ContextEventServiceTest {
         verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
         verify(contextProfileEventService, times(0)).findByContextProfileId(any(UUID.class));
-        verify(contextProfileEventService, times(1)).deleteByContextProfileId(any(UUID.class));
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong context ID", contextId, result.getId());
@@ -287,16 +285,13 @@ public class ContextEventServiceTest {
     @Test
     public void onResourceEvent() throws Exception {
         //Params
-        UUID contextId = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
 
         //Creating contextProfile
-        UUID contextProfileId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
 
         //Creating resource
-        UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
@@ -514,8 +509,6 @@ public class ContextEventServiceTest {
 
         //Setting context
         Context contextMock = new Context();
-        UUID contextId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
         contextMock.setId(contextId);
         contextMock.setCollectionId(collectionId);
 
@@ -567,8 +560,6 @@ public class ContextEventServiceTest {
 
         //Setting context
         Context contextMock = new Context();
-        UUID contextId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
         contextMock.setId(contextId);
         contextMock.setCollectionId(collectionId);
 
@@ -623,7 +614,7 @@ public class ContextEventServiceTest {
         assertEquals(eventSummaryDataDto.getTotalAnswered(), 4);
     }
 
-    private List<ContextProfileEvent> createContextProfileEvents(){
+    private List<ContextProfileEvent> createContextProfileEvents() {
         UUID contextProfileId = UUID.randomUUID();
         ContextProfileEvent event1 = new ContextProfileEvent();
         event1.setId(UUID.randomUUID());
