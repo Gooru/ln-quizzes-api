@@ -1,4 +1,4 @@
-package com.quizzes.api.realtime.messaging;
+package com.quizzes.api.common.service.messaging;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -6,13 +6,13 @@ import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WebSocketBroker {
+public class WebSocketBrokerService {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
     /**
-     * Broadcasts the message to all the clients connected to the destination channel
+     * Sends the message to all the clients connected to the destination channel
      * @param destination the destination channel
      * @param message the message body
      */
