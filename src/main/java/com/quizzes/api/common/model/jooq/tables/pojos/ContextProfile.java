@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1739127953;
+	private static final long serialVersionUID = 1913888419;
 
 	private java.util.UUID     id;
 	private java.util.UUID     contextId;
@@ -18,6 +18,7 @@ public class ContextProfile implements java.io.Serializable {
 	private java.lang.Boolean  isComplete;
 	private java.sql.Timestamp createdAt;
 	private java.sql.Timestamp updatedAt;
+	private java.lang.String   eventSummaryData;
 
 	public ContextProfile() {}
 
@@ -28,7 +29,8 @@ public class ContextProfile implements java.io.Serializable {
 		java.util.UUID     currentResourceId,
 		java.lang.Boolean  isComplete,
 		java.sql.Timestamp createdAt,
-		java.sql.Timestamp updatedAt
+		java.sql.Timestamp updatedAt,
+		java.lang.String   eventSummaryData
 	) {
 		this.id = id;
 		this.contextId = contextId;
@@ -37,6 +39,7 @@ public class ContextProfile implements java.io.Serializable {
 		this.isComplete = isComplete;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.eventSummaryData = eventSummaryData;
 	}
 
 	public java.util.UUID getId() {
@@ -93,5 +96,13 @@ public class ContextProfile implements java.io.Serializable {
 
 	public void setUpdatedAt(java.sql.Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public java.lang.String getEventSummaryData() {
+		return this.eventSummaryData;
+	}
+
+	public void setEventSummaryData(java.lang.String eventSummaryData) {
+		this.eventSummaryData = eventSummaryData;
 	}
 }

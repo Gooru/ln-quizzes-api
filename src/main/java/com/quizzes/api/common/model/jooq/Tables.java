@@ -22,11 +22,6 @@ public class Tables {
 	public static final com.quizzes.api.common.model.jooq.tables.Collection COLLECTION = com.quizzes.api.common.model.jooq.tables.Collection.COLLECTION;
 
 	/**
-	 * The table public.collection_on_air
-	 */
-	public static final com.quizzes.api.common.model.jooq.tables.CollectionOnAir COLLECTION_ON_AIR = com.quizzes.api.common.model.jooq.tables.CollectionOnAir.COLLECTION_ON_AIR;
-
-	/**
 	 * The table public.context
 	 */
 	public static final com.quizzes.api.common.model.jooq.tables.Context CONTEXT = com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
@@ -40,16 +35,6 @@ public class Tables {
 	 * The table public.context_profile_event
 	 */
 	public static final com.quizzes.api.common.model.jooq.tables.ContextProfileEvent CONTEXT_PROFILE_EVENT = com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
-
-	/**
-	 * The table public.event
-	 */
-	public static final com.quizzes.api.common.model.jooq.tables.Event EVENT = com.quizzes.api.common.model.jooq.tables.Event.EVENT;
-
-	/**
-	 * The table public.event_index
-	 */
-	public static final com.quizzes.api.common.model.jooq.tables.EventIndex EVENT_INDEX = com.quizzes.api.common.model.jooq.tables.EventIndex.EVENT_INDEX;
 
 	/**
 	 * The table public.group

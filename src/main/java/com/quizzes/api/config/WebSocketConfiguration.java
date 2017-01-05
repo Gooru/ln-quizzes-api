@@ -1,4 +1,4 @@
-package com.quizzes.api.realtime.messaging;
+package com.quizzes.api.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -9,7 +9,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+public class WebSocketConfiguration extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -22,8 +22,8 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // Register here the STOMP endpoints
-        registry.addEndpoint("/ws/realtime").setAllowedOrigins("*").withSockJS();
+        // Registers STOMP endpoints
+        registry.addEndpoint("/ws/quizzes-realtime").setAllowedOrigins("*").withSockJS();
     }
 
 }
