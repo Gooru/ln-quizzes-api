@@ -12,7 +12,7 @@ public class WebSocketBrokerService {
     private SimpMessagingTemplate messagingTemplate;
 
     /**
-     * Broadcasts the message to all the clients connected to the destination channel
+     * Sends the message to all the clients connected to the destination channel
      * @param destination the destination channel
      * @param message the message body
      */

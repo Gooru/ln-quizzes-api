@@ -83,7 +83,7 @@ public class ContextEventService {
             doStartContextEventTransaction(contextProfile);
         }
 
-        broadcastStartEventMessage(contextProfile, isNewAttempt);
+        sendStartEventMessage(contextProfile, isNewAttempt);
 
         return prepareStartContextEventResponse(context, contextProfile, isNewAttempt);
     }
@@ -135,7 +135,7 @@ public class ContextEventService {
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
         doOnResourceEventTransaction(contextProfile, contextProfileEvent);
 
-        broadcastOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
+        sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
     }
 
     public void processFinishContextEvent(UUID contextId, UUID profileId) {
@@ -150,7 +150,7 @@ public class ContextEventService {
             doFinishContextEventTransaction(contextProfile);
         }
 
-        broadcastFinishContextEventMessage(contextProfile);
+        sendFinishContextEventMessage(contextProfile);
     }
 
     public ContextEventsResponseDto getContextEvents(UUID contextId) {
@@ -230,7 +230,7 @@ public class ContextEventService {
         return response;
     }
 
-    private void broadcastStartEventMessage(ContextProfile contextProfile, boolean isNewAttempt) {
+    private void sendStartEventMessage(ContextProfile contextProfile, boolean isNewAttempt) {
         StartContextEventMessageDto startEventMessage = new StartContextEventMessageDto();
         startEventMessage.setIsNewAttempt(isNewAttempt);
         startEventMessage.setCurrentResourceId(contextProfile.getCurrentResourceId());
@@ -238,7 +238,7 @@ public class ContextEventService {
                 contextProfile.getProfileId(), startEventMessage);
     }
 
-    private void broadcastOnResourceEventMessage(ContextProfile contextProfile,
+    private void sendOnResourceEventMessage(ContextProfile contextProfile,
                                                  PostRequestResourceDto previousResource,
                                                  EventSummaryDataDto eventSummary) {
         OnResourceEventMessageDto onResourceEventMessage = new OnResourceEventMessageDto();
@@ -249,7 +249,7 @@ public class ContextEventService {
                 onResourceEventMessage);
     }
 
-    private void broadcastFinishContextEventMessage(ContextProfile contextProfile) {
+    private void sendFinishContextEventMessage(ContextProfile contextProfile) {
         FinishContextEventMessageDto finishContextEventMessage = new FinishContextEventMessageDto();
         finishContextEventMessage.setEventSummary(null);
         activeMQClientService.sendFinishContextEventMessage(contextProfile.getContextId(),
