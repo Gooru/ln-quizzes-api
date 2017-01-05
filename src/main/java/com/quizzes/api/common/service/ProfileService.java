@@ -81,6 +81,10 @@ public class ProfileService {
         return profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
     }
 
+    public UUID findIdByExternalIdAndClientId(String externalId, UUID clientId) {
+        return profileRepository.findIdByExternalIdAndClientId(externalId, clientId);
+    }
+
     public IdResponseDto findIdResponseDtoByExternalIdAndLmsId(String externalId, Lms lms) {
         UUID id = findIdByExternalIdAndLmsId(externalId, lms);
         IdResponseDto result = new IdResponseDto();
@@ -94,14 +98,6 @@ public class ProfileService {
 
     public Profile save(Profile profile) {
         return profileRepository.save(profile);
-    }
-
-    public List<Profile> save(List<Profile> profiles) {
-        return profileRepository.save(profiles);
-    }
-
-    public List<UUID> findAssignedIdsByContextId(UUID contextId) {
-        return profileRepository.findAssignedIdsByContextId(contextId);
     }
 
     /**
@@ -124,6 +120,17 @@ public class ProfileService {
      */
     public List<UUID> findProfileIdsByExternalIdAndLms(List<String> externalProfileIds, Lms lms) {
         return profileRepository.findProfileIdsByExternalIdAndLms(externalProfileIds, lms);
+    }
+
+    /**
+     * Finds the list of profiles that exist in the profile table
+     *
+     * @param externalProfileIds The list of external profile Ids to find
+     * @param lms                the profile lms
+     * @return The Id list of the found profiles
+     */
+    public List<Profile> findProfilesByExternalIdAndLms(List<String> externalProfileIds, Lms lms) {
+        return profileRepository.findProfilesByExternalIdAndLms(externalProfileIds, lms);
     }
 
     /**

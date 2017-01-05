@@ -60,7 +60,6 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .into(ContextProfile.class);
     }
 
-
     @Override
     public List<UUID> findContextProfileIdsByContextId(UUID contextId) {
         List<UUID> ids = new ArrayList<>();

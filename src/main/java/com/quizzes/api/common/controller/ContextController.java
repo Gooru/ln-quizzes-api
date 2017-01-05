@@ -123,9 +123,9 @@ public class ContextController {
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-        ContextAssignedGetResponseDto result =
+        ContextAssignedGetResponseDto response =
                 contextService.getAssignedContextByContextIdAndAssigneeId(contextId, profileId);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Get assigned contexts",
