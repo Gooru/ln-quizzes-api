@@ -3,6 +3,7 @@ package com.quizzes.api.common.controller;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
+import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,18 @@ public class HandlerExceptionController {
     public ExceptionMessage handleException(Exception e) {
         logger.error("Internal Server Error", e);
         return new ExceptionMessage("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    }
+
+    /**
+     * Handles invalid session errors
+     *
+     * @return Invalid Session and status 401
+     */
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(value = InvalidSessionException.class)
+    public ExceptionMessage handleInvalidSessionException(InvalidSessionException e) {
+        logger.error("Invalid Session", e);
+        return new ExceptionMessage("Invalid Session", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
     }
 
 }

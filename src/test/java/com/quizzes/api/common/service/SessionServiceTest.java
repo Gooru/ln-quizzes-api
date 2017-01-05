@@ -5,11 +5,16 @@ import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
+import com.quizzes.api.common.exception.InvalidSessionException;
+import com.quizzes.api.common.interceptor.SessionInterceptor;
+import com.quizzes.api.common.model.entities.SessionProfileEntity;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Client;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Session;
 import com.quizzes.api.common.repository.SessionRepository;
+import com.quizzes.api.content.gooru.rest.AuthenticationRestClient;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,11 +23,16 @@ import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
@@ -30,7 +40,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(SessionService.class)
 public class SessionServiceTest {
 
     @InjectMocks
@@ -43,14 +52,24 @@ public class SessionServiceTest {
     ClientService clientService;
 
     @Mock
+    ConfigurationService configurationService;
+
+    @Mock
     ProfileService profileService;
+
+    private UUID apiKey;
+    private UUID apiSecret;
+    private UUID sessionId;
+
+    @Before
+    public void beforeEachTest() {
+        apiKey = UUID.randomUUID();
+        apiSecret = UUID.randomUUID();
+        sessionId = UUID.randomUUID();
+    }
 
     @Test
     public void generateTokenWhenLastSessionIsNotNull() throws Exception {
-        //Setting sessionDto
-        UUID apiKey = UUID.randomUUID();
-        UUID apiSecret = UUID.randomUUID();
-
         ExternalUserDto userDto = new ExternalUserDto();
         userDto.setExternalId(UUID.randomUUID().toString());
         userDto.setFirstName("Keylor");
@@ -75,14 +94,13 @@ public class SessionServiceTest {
         when(profileService.findIdByExternalIdAndClientId(eq(userDto.getExternalId()), eq(clientId))).thenReturn(profileId);
 
         //Setting session
-        UUID sessionId = UUID.randomUUID();
         Session sessionResult = new Session();
         sessionResult.setProfileId(profileId);
         sessionResult.setId(sessionId);
 
         //Reusing same session as result since we don't have a way to validate the last_access_at
         when(sessionRepository.findLastSessionByProfileId(eq(profileId))).thenReturn(sessionResult);
-        when(sessionRepository.updateLastAccess(any(Session.class))).thenReturn(sessionResult);
+        when(sessionRepository.updateLastAccess(any(UUID.class))).thenReturn(sessionResult);
 
         SessionTokenDto result = sessionService.generateToken(session);
 
@@ -91,7 +109,7 @@ public class SessionServiceTest {
         verify(profileService, times(0)).saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()));
 
         verify(sessionRepository, times(1)).findLastSessionByProfileId(eq(profileId));
-        verify(sessionRepository, times(1)).updateLastAccess(any(Session.class));
+        verify(sessionRepository, times(1)).updateLastAccess(any(UUID.class));
 
         verify(sessionRepository, times(0)).save(any(Session.class));
 
@@ -101,10 +119,6 @@ public class SessionServiceTest {
 
     @Test
     public void generateTokenWhenLastSessionIsNull() throws Exception {
-        //Setting sessionDto
-        UUID apiKey = UUID.randomUUID();
-        UUID apiSecret = UUID.randomUUID();
-
         ExternalUserDto userDto = new ExternalUserDto();
         userDto.setExternalId(UUID.randomUUID().toString());
         userDto.setFirstName("Keylor");
@@ -132,7 +146,6 @@ public class SessionServiceTest {
         when(sessionRepository.findLastSessionByProfileId(eq(profileId))).thenReturn(null);
 
         //Setting session
-        UUID sessionId = UUID.randomUUID();
         Session sessionResult = new Session();
         sessionResult.setProfileId(profileId);
         sessionResult.setId(sessionId);
@@ -156,10 +169,6 @@ public class SessionServiceTest {
 
     @Test
     public void generateTokenWhenProfileIsNull() throws Exception {
-        //Setting sessionDto
-        UUID apiKey = UUID.randomUUID();
-        UUID apiSecret = UUID.randomUUID();
-
         ExternalUserDto userDto = new ExternalUserDto();
         userDto.setExternalId(UUID.randomUUID().toString());
         userDto.setFirstName("Keylor");
@@ -191,7 +200,6 @@ public class SessionServiceTest {
                 .saveProfileBasedOnExternalUser(eq(userDto), eq(lms), eq(client.getId()))).thenReturn(profile);
 
         //Setting session
-        UUID sessionId = UUID.randomUUID();
         Session sessionResult = new Session();
         sessionResult.setProfileId(profileId);
         sessionResult.setId(sessionId);
@@ -215,10 +223,6 @@ public class SessionServiceTest {
 
     @Test(expected = InvalidCredentialsException.class)
     public void generateTokenShouldThrowExceptionWhenClientIsNull() throws Exception {
-        //Setting sessionDto
-        UUID apiKey = UUID.randomUUID();
-        UUID apiSecret = UUID.randomUUID();
-
         ExternalUserDto userDto = new ExternalUserDto();
         userDto.setExternalId(UUID.randomUUID().toString());
         userDto.setFirstName("Keylor");
@@ -255,8 +259,6 @@ public class SessionServiceTest {
 
     @Test
     public void findProfileBySessionId() throws Exception {
-        UUID sessionId = UUID.randomUUID();
-
         //Setting return values from db
         UUID id = UUID.randomUUID();
         UUID externalId = UUID.randomUUID();
@@ -277,6 +279,54 @@ public class SessionServiceTest {
         assertEquals("Wrong profile id", profile.getId(), result.getId());
         assertEquals("Wrong profile external id", externalId.toString(), result.getExternalId());
         assertEquals("Wrong profile data", data, result.getProfileData());
+    }
+
+    @Test
+    public void updateLastAccess() throws Exception {
+        Session result = sessionService.updateLastAccess(sessionId);
+        verify(sessionRepository, times(1)).updateLastAccess(eq(sessionId));
+    }
+
+    @Test
+    public void findSessionProfileEntityBySessionId() throws Exception {
+        SessionProfileEntity sessionProfileEntity = Mockito.spy(SessionProfileEntity.class);
+        when(sessionProfileEntity.getSessionId()).thenReturn(sessionId);
+
+        when(sessionRepository.findSessionProfileEntityBySessionId(sessionId)).thenReturn(sessionProfileEntity);
+
+        SessionProfileEntity result = sessionService.findSessionProfileEntityBySessionId(sessionId);
+
+        verify(sessionRepository, times(1)).findSessionProfileEntityBySessionId(eq(sessionId));
+        assertEquals("Wrong Session ID", sessionId, result.getSessionId());
+    }
+
+    @Test(expected = InvalidSessionException.class)
+    public void findSessionProfileEntityBySessionIdThrowException() throws Exception {
+        when(sessionRepository.findSessionProfileEntityBySessionId(sessionId)).thenReturn(null);
+        SessionProfileEntity entity = sessionService.findSessionProfileEntityBySessionId(sessionId);
+    }
+
+    @Test
+    public void isSessionAlive(){
+        Timestamp lastAccess = Timestamp.valueOf("2007-09-23 10:05:10.0");
+        Timestamp current = Timestamp.valueOf("2007-09-23 10:10:10.0");
+
+        when(configurationService.getSessionMinutes()).thenReturn(Double.valueOf(360));
+
+        boolean result = sessionService.isSessionAlive(sessionId, lastAccess, current);
+        verify(configurationService, times(1)).getSessionMinutes();
+        assertTrue("Result is false", result);
+    }
+
+    @Test(expected = InvalidSessionException.class)
+    public void isSessionAliveThrowException(){
+        Timestamp lastAccess = Timestamp.valueOf("2007-09-23 10:10:10.0");
+        Timestamp current = Timestamp.valueOf("2007-09-25 10:10:10.0");
+
+        when(configurationService.getSessionMinutes()).thenReturn(Double.valueOf(360));
+
+        boolean result = sessionService.isSessionAlive(sessionId, lastAccess, current);
+        verify(configurationService, times(1)).getSessionMinutes();
     }
 
 }
