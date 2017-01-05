@@ -116,17 +116,10 @@ frisby.create('Creates a Context and assigns it to an Assignee, then tries to re
                     .addHeader('profile-id', ownerProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
-                    .expectStatus(404)
+                    .expectStatus(200)
                     .expectHeaderContains('content-type', 'application/json')
                     .inspectJSON()
-                    .expectJSON({
-                        "status": 404
-                    })
-                    .expectJSONTypes({
-                        message: String,
-                        status: Number,
-                        exception: String
-                    })
+                    .expectJSON([])
                     .toss();
             })
             .toss();
