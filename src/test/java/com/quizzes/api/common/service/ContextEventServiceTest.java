@@ -450,13 +450,70 @@ public class ContextEventServiceTest {
     public void finishContextEvent() throws Exception {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setIsComplete(false);
+        contextProfile.setId(UUID.randomUUID());
 
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextProfile);
 
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+
+        ContextProfileEvent contextProfileEvent1 = new ContextProfileEvent();
+        contextProfileEvent1.setId(UUID.randomUUID());
+        contextProfileEvent1.setContextProfileId(contextProfile.getId());
+        PostRequestResourceDto eventData1 =  new PostRequestResourceDto();
+        eventData1.setIsSkipped(false);
+        eventData1.setScore(100);
+        eventData1.setReaction(1);
+        eventData1.setResourceId(UUID.randomUUID());
+        eventData1.setTimeSpent(12000);
+        List<AnswerDto> answerDtosEvent1 = new ArrayList<>();
+        AnswerDto answerDtoEvent1 = new AnswerDto();
+        answerDtoEvent1.setValue("A");
+        answerDtosEvent1.add(answerDtoEvent1);
+        eventData1.setAnswer(answerDtosEvent1);
+        contextProfileEvent1.setEventData(gson.toJson(eventData1, PostRequestResourceDto.class));
+
+        ContextProfileEvent contextProfileEvent2 = new ContextProfileEvent();
+        contextProfileEvent2.setId(UUID.randomUUID());
+        contextProfileEvent2.setContextProfileId(contextProfile.getId());
+        PostRequestResourceDto eventData2 =  new PostRequestResourceDto();
+        eventData2.setIsSkipped(true);
+        eventData2.setScore(0);
+        eventData2.setReaction(1);
+        eventData2.setResourceId(UUID.randomUUID());
+        eventData2.setTimeSpent(11000);
+        List<AnswerDto> answerDtosEvent2 = new ArrayList<>();// skipped so no answers
+        eventData2.setAnswer(answerDtosEvent2);
+        contextProfileEvent2.setEventData(gson.toJson(eventData2, PostRequestResourceDto.class));
+
+        ContextProfileEvent contextProfileEvent3 = new ContextProfileEvent();
+        contextProfileEvent3.setId(UUID.randomUUID());
+        contextProfileEvent3.setContextProfileId(contextProfile.getId());
+        PostRequestResourceDto eventData3 =  new PostRequestResourceDto();
+        eventData3.setIsSkipped(false);
+        eventData3.setScore(0);
+        eventData3.setReaction(3);
+        eventData3.setResourceId(UUID.randomUUID());
+        eventData3.setTimeSpent(10000);
+        List<AnswerDto> answerDtosEvent3 = new ArrayList<>();
+        AnswerDto answerDtoEvent3 = new AnswerDto();
+        answerDtoEvent3.setValue("C");
+        answerDtosEvent3.add(answerDtoEvent3);
+        eventData3.setAnswer(answerDtosEvent3);
+        contextProfileEvent3.setEventData(gson.toJson(eventData3, PostRequestResourceDto.class));
+
+        contextProfileEvents.add(contextProfileEvent1);
+        contextProfileEvents.add(contextProfileEvent2);
+        contextProfileEvents.add(contextProfileEvent3);
+
+        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(contextProfileEvents);
+
         contextEventService.processFinishContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
+        //there are 3 events but 2 are already saved, here we save 1 skipped event
+        verify(contextProfileEventService, times(1)).save(any(ContextProfileEvent.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
     }
 

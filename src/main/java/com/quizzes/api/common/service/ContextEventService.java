@@ -149,19 +149,7 @@ public class ContextEventService {
             contextProfile.setIsComplete(true);
             List<ContextProfileEvent> contextProfileEvents =
                     contextProfileEventService.findByContextProfileId(contextProfile.getId());
-            contextProfileEvents.stream()
-                    .forEach(event -> {
-                        PostRequestResourceDto eventData = gson.fromJson(event.getEventData(), PostRequestResourceDto.class);
-                        if (eventData.getAnswer().isEmpty()){
-                            eventData.setScore(0);
-                            eventData.setIsSkipped(true);
-                            contextProfileEventService.save(event);
-                        }
-                    });
-            EventSummaryDataDto eventSummary =  calculateEventSummary(contextProfileEvents, true);
-            contextProfile.setEventSummaryData(gson.toJson(eventSummary));
-
-            doFinishContextEventTransaction(contextProfile);
+            doFinishContextEventTransaction(contextProfile, contextProfileEvents);
         }
 
         sendFinishContextEventMessage(contextProfile);
@@ -218,7 +206,18 @@ public class ContextEventService {
     }
 
     @Transactional
-    public void doFinishContextEventTransaction(ContextProfile contextProfile) {
+    public void doFinishContextEventTransaction(ContextProfile contextProfile, List<ContextProfileEvent> events) {
+        events.stream()
+                .forEach(event -> {
+                    PostRequestResourceDto eventData = gson.fromJson(event.getEventData(), PostRequestResourceDto.class);
+                    if (eventData.getAnswer() == null || eventData.getAnswer().isEmpty()){
+                        eventData.setScore(0);
+                        eventData.setIsSkipped(true);
+                        contextProfileEventService.save(event);
+                    }
+                });
+        EventSummaryDataDto eventSummary =  calculateEventSummary(events, true);
+        contextProfile.setEventSummaryData(gson.toJson(eventSummary));
         contextProfileService.save(contextProfile);
     }
 
