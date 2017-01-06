@@ -147,6 +147,20 @@ public class ContextEventService {
 
         if (!contextProfile.getIsComplete()) {
             contextProfile.setIsComplete(true);
+            List<ContextProfileEvent> contextProfileEvents =
+                    contextProfileEventService.findByContextProfileId(contextProfile.getId());
+            contextProfileEvents.stream()
+                    .forEach(event -> {
+                        PostRequestResourceDto eventData = gson.fromJson(event.getEventData(), PostRequestResourceDto.class);
+                        if (eventData.getAnswer().isEmpty()){
+                            eventData.setScore(0);
+                            eventData.setIsSkipped(true);
+                            contextProfileEventService.save(event);
+                        }
+                    });
+            EventSummaryDataDto eventSummary =  calculateEventSummary(contextProfileEvents, true);
+            contextProfile.setEventSummaryData(gson.toJson(eventSummary));
+
             doFinishContextEventTransaction(contextProfile);
         }
 
