@@ -39,6 +39,7 @@ public class ResourceRepositoryImpl implements ResourceRepository {
                 .from(RESOURCE)
                 .where(RESOURCE.COLLECTION_ID.eq(collectionId))
                 .and(RESOURCE.IS_DELETED.eq(false))
+                .orderBy(RESOURCE.SEQUENCE)
                 .fetchInto(Resource.class);
     }
 
