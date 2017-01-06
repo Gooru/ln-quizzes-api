@@ -26,6 +26,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
                 .and(CONTEXT_PROFILE.IS_COMPLETE.eq(false))
+                .limit(1)
                 .fetchOneInto(ContextProfile.class);
     }
 

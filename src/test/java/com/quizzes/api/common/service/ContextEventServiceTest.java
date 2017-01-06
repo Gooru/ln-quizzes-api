@@ -9,6 +9,7 @@ import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
@@ -206,7 +207,8 @@ public class ContextEventServiceTest {
         List<ContextProfileEvent> list = new ArrayList<>();
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenThrow(ContentNotFoundException.class);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
 
@@ -227,52 +229,6 @@ public class ContextEventServiceTest {
         assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
         assertEquals("Event list has wrong size", 0, result.getEvents().size());
-    }
-
-    @Test
-    public void startContextEventWithEventsAndIsCompleteTrue() throws Exception {
-        //Setting context
-        Context context = new Context();
-        context.setId(contextId);
-        context.setCollectionId(collectionId);
-
-        //Setting resource
-        Resource resource = new Resource();
-        resource.setId(resourceId);
-
-        //Setting ContextProfile
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentResourceId(resourceId);
-        contextProfile.setIsComplete(true);
-
-        ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "someJson", null);
-
-        List<ContextProfileEvent> list = new ArrayList<>();
-        list.add(contextProfileEvent);
-
-        when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
-                .thenReturn(contextProfile);
-        when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
-        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
-        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
-
-        StartContextEventResponseDto result =
-                contextEventService.processStartContextEvent(contextId, UUID.randomUUID());
-
-        verify(contextService, times(1)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(0)).findByContextProfileId(any(UUID.class));
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong context ID", contextId, result.getId());
-        assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
-        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertEquals("Events list is not empty", 0, result.getEvents().size());
     }
 
     @Test
@@ -455,18 +411,15 @@ public class ContextEventServiceTest {
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
     }
 
-    @Test
+    @Test(expected = ContentNotFoundException.class)
     public void finishContextEventDoNothing() throws Exception {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setIsComplete(true);
 
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
-                .thenReturn(contextProfile);
+                .thenThrow(ContentNotFoundException.class);
 
         contextEventService.processFinishContextEvent(UUID.randomUUID(), UUID.randomUUID());
-
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
     }
 
     @Test

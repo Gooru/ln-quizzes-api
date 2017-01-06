@@ -71,19 +71,17 @@ public class ContextEventService {
             throw new ContentNotFoundException("Not Found Context Id: " + contextId);
         }
 
-        ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
-        boolean isNewAttempt = contextProfile == null || contextProfile.getIsComplete();
-
-        if (contextProfile == null) {
-            contextProfile = createNewContextProfile(contextId, profileId);
-            doStartContextEventTransaction(contextProfile);
-        } else if (contextProfile.getIsComplete()) {
+        ContextProfile contextProfile;
+        boolean isNewAttempt = false;
+        try {
+            contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
+        } catch (ContentNotFoundException cne) {
+            isNewAttempt = true;
             contextProfile = createNewContextProfile(contextId, profileId);
             doStartContextEventTransaction(contextProfile);
         }
 
         sendStartEventMessage(contextProfile, isNewAttempt);
-
         return prepareStartContextEventResponse(context, contextProfile, isNewAttempt);
     }
 
@@ -92,10 +90,6 @@ public class ContextEventService {
         PostRequestResourceDto resourceDto = body.getPreviousResource();
 
         ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
-        if (contextProfile == null) {
-            throw new ContentNotFoundException("Not Found ContextProfile for Context Id: " + contextId
-                    + " and Profile Id: " + profileId);
-        }
 
         Resource resource = resourceService.findById(resourceId);
         if (resource == null) {
@@ -139,15 +133,8 @@ public class ContextEventService {
 
     public void processFinishContextEvent(UUID contextId, UUID profileId) {
         ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
-        if (contextProfile == null) {
-            throw new ContentNotFoundException("Not Found ContextProfile for Context Id: " + contextId
-                    + " and Profile Id: " + profileId);
-        }
-
-        if (!contextProfile.getIsComplete()) {
-            contextProfile.setIsComplete(true);
-            doFinishContextEventTransaction(contextProfile);
-        }
+        contextProfile.setIsComplete(true);
+        doFinishContextEventTransaction(contextProfile);
 
         sendFinishContextEventMessage(contextProfile);
     }
