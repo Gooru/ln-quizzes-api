@@ -36,6 +36,7 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
                 .from(CONTEXT_PROFILE)
                 .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
+                .and(CONTEXT_PROFILE.IS_COMPLETE.eq(false))
                 .fetchGroups(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"), AssigneeEventEntity.class);
     }
 

@@ -139,7 +139,7 @@ public class ContextEventService {
     }
 
     public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
-        Context context = contextService.findByIdAndOwnerId(contextId, ownerId);
+        Context context = contextService.findActiveContextByIdAndOwnerId(contextId, ownerId);
 
         Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
                 contextProfileEventService.findByContextId(contextId);

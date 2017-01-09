@@ -425,6 +425,31 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void findActiveContextByIdAndOwnerId() {
+        Context contextResult = new Context();
+        contextResult.setId(contextId);
+        contextResult.setGroupId(groupId);
+        contextResult.setCollectionId(collectionId);
+        contextResult.setContextData("{\"context\":\"value\"}");
+        contextResult.setIsDeleted(false);
+        when(contextRepository.findActiveContextByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(contextResult);
+
+        Context result = contextService.findActiveContextByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
+
+        verify(contextRepository, times(1)).findActiveContextByIdAndOwnerId(any(UUID.class), any(UUID.class));
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong id for context", contextId, result.getId());
+        assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
+        assertEquals("Wrong id for group", groupId, result.getGroupId());
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findActiveContextByIdAndOwnerIdThrowException() {
+        when(contextRepository.findActiveContextByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        Context result = contextService.findActiveContextByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
+    }
+
+    @Test
     public void update() throws Exception {
         ContextDataDto contextDataDto = new ContextDataDto();
         ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
