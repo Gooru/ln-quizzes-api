@@ -71,15 +71,6 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
                                     .expectStatus(200)
-                                    .inspectJSON()
-                                    .expectJSON({
-                                        'id': context.id,
-                                        'collection': {
-                                            'id': collection.id
-                                        },
-                                        'currentResourceId': collection.resources[0].id,
-                                        'events': []
-                                    })
                                     .afterJSON(function (startResponse) {
 
                                         frisby.create('Answer the first and current question with a wrong contextID')
