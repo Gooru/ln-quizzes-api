@@ -83,13 +83,13 @@ public class ContextService {
      * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.
      * Some Examples are:
      * ++Collection ID = c1 with external ID (Assessment ID) = a1 external parent ID (parent Assessment ID) = a1 and owner ID = o1
-     *   this is a Collection from an original Assessment, not copied
+     * this is a Collection from an original Assessment, not copied
      * ++Collection ID = c2 with external ID (Assessment ID) = a2 external parent ID (parent Assessment ID) = a1 and owner ID = o2
-     *   this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
+     * this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
      * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o3
-     *   this is an owner's o3 copy of Assessment ID = a2
+     * this is an owner's o3 copy of Assessment ID = a2
      * ++Collection ID = c5 with external ID (Assessment ID) = a5 external parent ID (parent Assessment ID) = a5 and owner ID = o4
-     *   this is an owner's o4 own Assessment ID = a5
+     * this is an owner's o4 own Assessment ID = a5
      *
      * @param contextPostRequestDto information to create the new {@link Context}
      * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
@@ -106,7 +106,7 @@ public class ContextService {
         if (collection == null) {
             collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
             if (collection == null
-                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))){
+                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))) {
                 // the collection is noll OR the collection has a different owner
                 collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
             }
@@ -132,7 +132,12 @@ public class ContextService {
     }
 
     public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
-        return contextRepository.findByIdAndOwnerId(contextId, ownerId);
+        Context context = contextRepository.findByIdAndOwnerId(contextId, ownerId);
+        if (context == null) {
+            throw new ContentNotFoundException("We couldn't find a context with id :" + contextId +
+                    "for owner profile ID: " + ownerId);
+        }
+        return context;
     }
 
     /**
@@ -143,10 +148,6 @@ public class ContextService {
      */
     public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Context context = findByIdAndOwnerId(contextId, profileId);
-        if (context == null) {
-            logger.error("Error updating context: " + contextId + " was not found");
-            throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
-        }
 
         List<ProfileDto> profileDtos = contextPutRequestDto.getAssignees();
 

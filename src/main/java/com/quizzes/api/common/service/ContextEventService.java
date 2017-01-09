@@ -16,7 +16,6 @@ import com.quizzes.api.common.dto.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.common.dto.messaging.StartContextEventMessageDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.exception.InternalServerException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
@@ -123,7 +122,7 @@ public class ContextEventService {
         }
         contextProfileEvent.setEventData(gson.toJson(resourceDto));
 
-        EventSummaryDataDto eventSummary =  calculateEventSummary(contextProfileEvents, false);
+        EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
         contextProfile.setCurrentResourceId(resource.getId());
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
         doOnResourceEventTransaction(contextProfile, contextProfileEvent);
@@ -139,39 +138,35 @@ public class ContextEventService {
         sendFinishContextEventMessage(contextProfile);
     }
 
-    public ContextEventsResponseDto getContextEvents(UUID contextId) {
-        try {
-            Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
-                    contextProfileEventService.findByContextId(contextId);
-            ContextEventsResponseDto response = new ContextEventsResponseDto();
-            response.setContextId(contextId);
+    public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
+        Context context = contextService.findByIdAndOwnerId(contextId, ownerId);
 
-            Context context = contextService.findById(contextId);
-            CollectionDto collection = new CollectionDto();
-            collection.setId(context.getCollectionId().toString());
-            response.setCollection(collection);
+        Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
+                contextProfileEventService.findByContextId(contextId);
+        ContextEventsResponseDto response = new ContextEventsResponseDto();
+        response.setContextId(contextId);
 
-            List<ProfileEventResponseDto> profileEvents = assigneeEvents.entrySet().stream().map(entity -> {
-                List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
-                ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
-                profileEvent.setProfileId(entity.getKey());
-                if (!entity.getValue().isEmpty()) {
-                    profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
-                }
+        CollectionDto collection = new CollectionDto();
+        collection.setId(context.getCollectionId().toString());
+        response.setCollection(collection);
 
-                profileEvent.setEvents(assigneeEventEntityList.stream()
-                        .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
-                        .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
-                                PostResponseResourceDto.class)).collect(Collectors.toList()));
-                return profileEvent;
+        List<ProfileEventResponseDto> profileEvents = assigneeEvents.entrySet().stream().map(entity -> {
+            List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
+            ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
+            profileEvent.setProfileId(entity.getKey());
+            if (!entity.getValue().isEmpty()) {
+                profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
+            }
 
-            }).collect(Collectors.toList());
-            response.setProfileEvents(profileEvents);
-            return response;
-        } catch (Exception e) {
-            logger.error("We could not get the events for context " + contextId + ".", e);
-            throw new InternalServerException("We could not get the events for context " + contextId + ".", e);
-        }
+            profileEvent.setEvents(assigneeEventEntityList.stream()
+                    .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
+                    .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
+                            PostResponseResourceDto.class)).collect(Collectors.toList()));
+            return profileEvent;
+
+        }).collect(Collectors.toList());
+        response.setProfileEvents(profileEvents);
+        return response;
     }
 
     @Transactional
@@ -221,8 +216,8 @@ public class ContextEventService {
     }
 
     private void sendOnResourceEventMessage(ContextProfile contextProfile,
-                                                 PostRequestResourceDto previousResource,
-                                                 EventSummaryDataDto eventSummary) {
+                                            PostRequestResourceDto previousResource,
+                                            EventSummaryDataDto eventSummary) {
         OnResourceEventMessageDto onResourceEventMessage = new OnResourceEventMessageDto();
         onResourceEventMessage.setCurrentResourceId(contextProfile.getCurrentResourceId());
         onResourceEventMessage.setPreviousResource(previousResource);

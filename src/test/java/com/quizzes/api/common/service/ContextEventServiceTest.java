@@ -83,6 +83,8 @@ public class ContextEventServiceTest {
     private UUID contextId;
     private UUID resourceId;
     private UUID contextProfileId;
+    private UUID ownerId;
+    private UUID profileId;
 
     @Before
     public void beforeEachTest() {
@@ -90,6 +92,8 @@ public class ContextEventServiceTest {
         contextId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
         contextProfileId = UUID.randomUUID();
+        ownerId = UUID.randomUUID();
+        profileId = UUID.randomUUID();
     }
 
     @Test
@@ -240,9 +244,6 @@ public class ContextEventServiceTest {
 
     @Test
     public void onResourceEvent() throws Exception {
-        //Params
-        UUID profileId = UUID.randomUUID();
-
         //Creating contextProfile
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
@@ -466,12 +467,12 @@ public class ContextEventServiceTest {
         contextMock.setCollectionId(collectionId);
 
         when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
-        when(contextService.findById(contextId)).thenReturn(contextMock);
+        when(contextService.findByIdAndOwnerId(contextId, ownerId)).thenReturn(contextMock);
 
-        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId);
+        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
 
         verify(contextProfileEventService, times(1)).findByContextId(contextId);
-        verify(contextService, times(1)).findById(contextId);
+        verify(contextService, times(1)).findByIdAndOwnerId(contextId, ownerId);
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong context ID", contextId, result.getContextId());
@@ -517,12 +518,12 @@ public class ContextEventServiceTest {
         contextMock.setCollectionId(collectionId);
 
         when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
-        when(contextService.findById(contextId)).thenReturn(contextMock);
+        when(contextService.findByIdAndOwnerId(contextId, ownerId)).thenReturn(contextMock);
 
-        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId);
+        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
 
         verify(contextProfileEventService, times(1)).findByContextId(contextId);
-        verify(contextService, times(1)).findById(contextId);
+        verify(contextService, times(1)).findByIdAndOwnerId(contextId, ownerId);
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong context ID", contextId, result.getContextId());
@@ -533,6 +534,12 @@ public class ContextEventServiceTest {
         assertEquals("Wrong event size", 0, profileResult.getEvents().size());
         assertEquals("Wrong profile ID", assigneeId, profileResult.getProfileId());
         assertEquals("Wrong current resource", currentResourceId, profileResult.getCurrentResourceId());
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void getContextEventsThrowException() throws Exception {
+        when(contextService.findByIdAndOwnerId(contextId, ownerId)).thenThrow(ContentNotFoundException.class);
+        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
     }
 
     @Test

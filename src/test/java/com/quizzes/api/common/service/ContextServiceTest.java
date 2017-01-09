@@ -83,6 +83,7 @@ public class ContextServiceTest {
     private Gson gson = new Gson();
 
     private UUID contextId;
+    private UUID groupId;
     private UUID collectionId;
     private UUID ownerProfileId;
     private UUID contextProfileId;
@@ -95,6 +96,7 @@ public class ContextServiceTest {
         ownerProfileId = UUID.randomUUID();
         contextProfileId = UUID.randomUUID();
         createdAt = Timestamp.from(Instant.now());
+        groupId = UUID.randomUUID();
     }
 
     @Test
@@ -380,11 +382,8 @@ public class ContextServiceTest {
 
     @Test
     public void findById() {
-        UUID id = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
         Context contextResult = new Context();
-        contextResult.setId(id);
+        contextResult.setId(contextId);
         contextResult.setGroupId(groupId);
         contextResult.setCollectionId(collectionId);
         contextResult.setContextData("{\"context\":\"value\"}");
@@ -395,18 +394,15 @@ public class ContextServiceTest {
 
         verify(contextRepository, times(1)).findById(any(UUID.class));
         assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", id, result.getId());
+        assertEquals("Wrong id for context", contextId, result.getId());
         assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
         assertEquals("Wrong id for group", groupId, result.getGroupId());
     }
 
     @Test
     public void findByIdAndOwnerId() {
-        UUID id = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
         Context contextResult = new Context();
-        contextResult.setId(id);
+        contextResult.setId(contextId);
         contextResult.setGroupId(groupId);
         contextResult.setCollectionId(collectionId);
         contextResult.setContextData("{\"context\":\"value\"}");
@@ -417,9 +413,15 @@ public class ContextServiceTest {
 
         verify(contextRepository, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
         assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", id, result.getId());
+        assertEquals("Wrong id for context", contextId, result.getId());
         assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
         assertEquals("Wrong id for group", groupId, result.getGroupId());
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findByIdAndOwnerIdThrowException() {
+        when(contextRepository.findByIdAndOwnerId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        Context result = contextService.findByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
     }
 
     @Test
@@ -606,7 +608,6 @@ public class ContextServiceTest {
     @Test
     public void findCreatedContexts() {
         Map<UUID, List<ContextAssigneeEntity>> contextsMap = new HashMap<>();
-        UUID contextId = UUID.randomUUID();
 
         ContextAssigneeEntity row1 = mock(ContextAssigneeEntity.class);
         when(row1.getId()).thenReturn(contextId);
@@ -661,7 +662,6 @@ public class ContextServiceTest {
     @Test
     public void findCreatedContextByContextIdAndOwnerId() {
         Map<UUID, List<ContextAssigneeEntity>> contextsMap = new HashMap<>();
-        UUID contextId = UUID.randomUUID();
         UUID ownerId = UUID.randomUUID();
         UUID classId = UUID.randomUUID();
 
@@ -702,7 +702,6 @@ public class ContextServiceTest {
 
     @Test(expected = ContentNotFoundException.class)
     public void findCreatedContextByContextIdAndOwnerIdNoContentFoundResponse() {
-        UUID contextId = UUID.randomUUID();
         UUID ownerId = UUID.randomUUID();
 
         when(contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId))
