@@ -1,5 +1,6 @@
 package com.quizzes.api.common.interceptor;
 
+import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.model.entities.SessionProfileEntity;
 import com.quizzes.api.common.service.SessionService;
 import org.junit.Before;
@@ -9,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
@@ -20,6 +22,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 public class SessionInterceptorTest {
@@ -31,12 +34,14 @@ public class SessionInterceptorTest {
     private SessionService sessionService;
 
     private UUID sessionId;
+    private String authorization;
     private MockHttpServletRequest request;
 
 
     @Before
     public void beforeEachTest() {
         sessionId = UUID.randomUUID();
+        authorization = "Token " + sessionId;
         request = new MockHttpServletRequest();
     }
 
@@ -52,7 +57,7 @@ public class SessionInterceptorTest {
 
     @Test
     public void preHandleThrowException() throws Exception {
-        request.addHeader("session-token", sessionId);
+        request.addHeader("Authorization", authorization);
 
         SessionProfileEntity sessionProfileEntity = Mockito.spy(SessionProfileEntity.class);
         when(sessionProfileEntity.getSessionId()).thenReturn(sessionId);
@@ -68,6 +73,26 @@ public class SessionInterceptorTest {
         verify(sessionService, times(1)).isSessionAlive(any(), any(), any());
 
         assertTrue("Result is false", result);
+    }
+
+    @Test
+    public void validateTokenFormat() throws Exception {
+        String result =
+                WhiteboxImpl.invokeMethod(sessionInterceptor, "validateTokenFormat", authorization);
+
+        assertEquals("Wrong session value", sessionId.toString(), result);
+    }
+
+    @Test(expected = InvalidSessionException.class)
+    public void validateTokenFormatExceptionWhenNull() throws Exception {
+        String result =
+                WhiteboxImpl.invokeMethod(sessionInterceptor, "validateTokenFormat", "");
+    }
+
+    @Test(expected = InvalidSessionException.class)
+    public void validateTokenFormatExceptionWhenWrongData() throws Exception {
+        String result =
+                WhiteboxImpl.invokeMethod(sessionInterceptor, "validateTokenFormat", sessionId.toString());
     }
 
 }
