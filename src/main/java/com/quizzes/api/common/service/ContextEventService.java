@@ -311,8 +311,8 @@ public class ContextEventService {
         }
 
         result.setTotalTimeSpent(totalTimeSpent);
-        result.setAverageReaction((short) Math.round(sumReaction / totalReactions));
-        result.setAverageScore((short) Math.round(sumScore / totalAnswered));
+        result.setAverageReaction(totalReactions > 0 ? (short) Math.round(sumReaction / totalReactions) : 0);
+        result.setAverageScore(totalAnswered > 0 ? (short) Math.round(sumScore / totalAnswered) : 0);
         result.setTotalCorrect(totalCorrect);
         result.setTotalAnswered(totalAnswered);
 
