@@ -64,90 +64,43 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                             .expectStatus(200)
                             .inspectJSON()
                             .afterJSON(function (collection) {
+                                frisby.create('Answer the first and current question without starting the context')
+                                    .post(QuizzesApiUrl + '/v1/context/'
+                                        + context.id + '/event/on-resource/' + collection.resources[1].id , {
+                                        "previousResource": {
+                                            "answer": [
+                                                {
+                                                    "value": "4"
+                                                }
+                                            ],
+                                            "reaction": 3,
+                                            "resourceId": collection.resources[0].id,
+                                            "timeSpent": 4525
+                                        }
+                                    }, {json: true})
+                                    .addHeader('profile-id', profile.id)
+                                    .addHeader('lms-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(404)
+                                    .inspectJSON()
+                                    .expectJSON({
+                                        "status": 404
+                                    })
+                                    .expectJSONTypes({
+                                        message: String,
+                                        status: Number,
+                                        exception: String
+                                    })
+                                    .toss();
 
-                                frisby.create('Start Context and verify the data')
+
+                                frisby.create('Start Context to be able to answer')
                                     .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
                                     .addHeader('profile-id', profile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
                                     .expectStatus(200)
                                     .afterJSON(function (startResponse) {
-
-                                        frisby.create('Answer the first and current question with a wrong contextID')
-                                            .post(QuizzesApiUrl + '/v1/context/' + collection.resources[0].id + '/event/on-resource/' + collection.resources[1].id , {
-                                                "previousResource": {
-                                                    "answer": [
-                                                        {
-                                                            "value": "4"
-                                                        }
-                                                    ],
-                                                    "reaction": 3,
-                                                    "resourceId": startResponse.currentResourceId,
-                                                    "timeSpent": 4525
-                                                }
-                                            }, {json: true})
-                                            .addHeader('profile-id', profile.id)
-                                            .addHeader('lms-id', 'quizzes')
-                                            .inspectRequest()
-                                            .expectStatus(404)
-                                            .inspectJSON()
-                                            .expectJSON({
-                                                "status": 404
-                                            })
-                                            .expectJSONTypes({
-                                                message: String,
-                                                status: Number,
-                                                exception: String
-                                            })
-                                            .toss();
-                                        frisby.create('Answer the first and current question with a wrong resourceID')
-                                            .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/on-resource/74b62b82-6e77-48b8-b5bc-aac34148b77a'  , {
-                                                "previousResource": {
-                                                    "answer": [
-                                                        {
-                                                            "value": "4"
-                                                        }
-                                                    ],
-                                                    "reaction": 3,
-                                                    "resourceId": startResponse.currentResourceId,
-                                                    "timeSpent": 4525
-                                                }
-                                            }, {json: true})
-                                            .addHeader('profile-id', profile.id)
-                                            .addHeader('lms-id', 'quizzes')
-                                            .inspectRequest()
-                                            .expectStatus(404)
-                                            .inspectJSON()
-                                            .expectJSON({
-                                                "status": 404
-                                            })
-                                            .expectJSONTypes({
-                                                message: String,
-                                                status: Number,
-                                                exception: String
-                                            })
-                                            .toss();
-
-
-                                        frisby.create('Answer the first and current question')
-                                            .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/on-resource/' + collection.resources[1].id , {
-                                                "previousResource": {
-                                                    "answer": [
-                                                        {
-                                                            "value": "4"
-                                                        }
-                                                    ],
-                                                    "reaction": 3,
-                                                    "resourceId": startResponse.currentResourceId,
-                                                    "timeSpent": 4525
-                                                }
-                                            }, {json: true})
-                                            .addHeader('profile-id', profile.id)
-                                            .addHeader('lms-id', 'quizzes')
-                                            .inspectRequest()
-                                            .expectStatus(204)
-                                            .toss();
-
                                         frisby.create('Get the owner id in Quizzes')
                                             .get(QuizzesApiUrl + '/v1/profile-by-external-id/teacher-id-1')
                                             .addHeader('client-id', 'quizzes')
@@ -184,6 +137,86 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                                                     .toss();
                                             })
                                             .toss();
+
+                                        frisby.create('Answer the first and current question with a wrong contextID')
+                                            .post(QuizzesApiUrl + '/v1/context/'
+                                                + collection.resources[0].id + '/event/on-resource/' + collection.resources[1].id , {
+                                                "previousResource": {
+                                                    "answer": [
+                                                        {
+                                                            "value": "4"
+                                                        }
+                                                    ],
+                                                    "reaction": 3,
+                                                    "resourceId": startResponse.currentResourceId,
+                                                    "timeSpent": 4525
+                                                }
+                                            }, {json: true})
+                                            .addHeader('profile-id', profile.id)
+                                            .addHeader('lms-id', 'quizzes')
+                                            .inspectRequest()
+                                            .expectStatus(404)
+                                            .inspectJSON()
+                                            .expectJSON({
+                                                "status": 404
+                                            })
+                                            .expectJSONTypes({
+                                                message: String,
+                                                status: Number,
+                                                exception: String
+                                            })
+                                            .toss();
+                                        frisby.create('Answer the first and current question with a wrong resourceID')
+                                            .post(QuizzesApiUrl + '/v1/context/' + context.id
+                                                + '/event/on-resource/74b62b82-6e77-48b8-b5bc-aac34148b77a'  , {
+                                                "previousResource": {
+                                                    "answer": [
+                                                        {
+                                                            "value": "4"
+                                                        }
+                                                    ],
+                                                    "reaction": 3,
+                                                    "resourceId": startResponse.currentResourceId,
+                                                    "timeSpent": 4525
+                                                }
+                                            }, {json: true})
+                                            .addHeader('profile-id', profile.id)
+                                            .addHeader('lms-id', 'quizzes')
+                                            .inspectRequest()
+                                            .expectStatus(404)
+                                            .inspectJSON()
+                                            .expectJSON({
+                                                "status": 404
+                                            })
+                                            .expectJSONTypes({
+                                                message: String,
+                                                status: Number,
+                                                exception: String
+                                            })
+                                            .toss();
+
+
+                                        frisby.create('Answer the first and current question')
+                                            .post(QuizzesApiUrl + '/v1/context/'
+                                                + context.id + '/event/on-resource/' + collection.resources[1].id , {
+                                                "previousResource": {
+                                                    "answer": [
+                                                        {
+                                                            "value": "4"
+                                                        }
+                                                    ],
+                                                    "reaction": 3,
+                                                    "resourceId": startResponse.currentResourceId,
+                                                    "timeSpent": 4525
+                                                }
+                                            }, {json: true})
+                                            .addHeader('profile-id', profile.id)
+                                            .addHeader('lms-id', 'quizzes')
+                                            .inspectRequest()
+                                            .expectStatus(204)
+                                            .toss();
+
+
 
                                     })
                                     .toss();
