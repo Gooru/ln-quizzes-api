@@ -8,6 +8,8 @@ import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
+import com.quizzes.api.common.dto.QuestionDataDto;
+import com.quizzes.api.common.dto.ResourceDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
@@ -402,6 +404,11 @@ public class ContextEventServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setIsComplete(false);
         contextProfile.setId(UUID.randomUUID());
+        UUID resourceId1 = UUID.randomUUID();
+        UUID resourceId2 = UUID.randomUUID();
+        UUID resourceId3 = UUID.randomUUID();
+        UUID resourceId4 = UUID.randomUUID();
+        UUID resourceId5 = UUID.randomUUID();
 
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextProfile);
@@ -411,11 +418,12 @@ public class ContextEventServiceTest {
         ContextProfileEvent contextProfileEvent1 = new ContextProfileEvent();
         contextProfileEvent1.setId(UUID.randomUUID());
         contextProfileEvent1.setContextProfileId(contextProfile.getId());
+        contextProfileEvent1.setResourceId(resourceId1);
         PostRequestResourceDto eventData1 =  new PostRequestResourceDto();
         eventData1.setIsSkipped(false);
         eventData1.setScore(100);
         eventData1.setReaction(1);
-        eventData1.setResourceId(UUID.randomUUID());
+        eventData1.setResourceId(resourceId1);
         eventData1.setTimeSpent(12000);
         List<AnswerDto> answerDtosEvent1 = new ArrayList<>();
         AnswerDto answerDtoEvent1 = new AnswerDto();
@@ -427,11 +435,12 @@ public class ContextEventServiceTest {
         ContextProfileEvent contextProfileEvent2 = new ContextProfileEvent();
         contextProfileEvent2.setId(UUID.randomUUID());
         contextProfileEvent2.setContextProfileId(contextProfile.getId());
+        contextProfileEvent2.setResourceId(resourceId2);
         PostRequestResourceDto eventData2 =  new PostRequestResourceDto();
         eventData2.setIsSkipped(true);
         eventData2.setScore(0);
         eventData2.setReaction(1);
-        eventData2.setResourceId(UUID.randomUUID());
+        eventData2.setResourceId(resourceId2);
         eventData2.setTimeSpent(11000);
         List<AnswerDto> answerDtosEvent2 = new ArrayList<>();// skipped so no answers
         eventData2.setAnswer(answerDtosEvent2);
@@ -440,11 +449,12 @@ public class ContextEventServiceTest {
         ContextProfileEvent contextProfileEvent3 = new ContextProfileEvent();
         contextProfileEvent3.setId(UUID.randomUUID());
         contextProfileEvent3.setContextProfileId(contextProfile.getId());
+        contextProfileEvent3.setResourceId(resourceId3);
         PostRequestResourceDto eventData3 =  new PostRequestResourceDto();
         eventData3.setIsSkipped(false);
         eventData3.setScore(0);
         eventData3.setReaction(3);
-        eventData3.setResourceId(UUID.randomUUID());
+        eventData3.setResourceId(resourceId3);
         eventData3.setTimeSpent(10000);
         List<AnswerDto> answerDtosEvent3 = new ArrayList<>();
         AnswerDto answerDtoEvent3 = new AnswerDto();
@@ -459,12 +469,57 @@ public class ContextEventServiceTest {
 
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(contextProfileEvents);
 
+        Context context = new Context();
+        context.setId(contextId);
+        context.setCollectionId(collectionId);
+        when(contextService.findById(any(UUID.class))).thenReturn(context);
+
+        List<Resource> resources = new ArrayList<>();
+        Resource resource1 = new Resource();
+        resource1.setCollectionId(collectionId);
+        resource1.setId(resourceId1);
+        resource1.setIsDeleted(false);
+        resource1.setSequence((short)1);
+        resources.add(resource1);
+
+        Resource resource2 = new Resource();
+        resource2.setCollectionId(collectionId);
+        resource2.setId(resourceId2);
+        resource2.setIsDeleted(false);
+        resource2.setSequence((short)2);
+        resources.add(resource2);
+
+        Resource resource3 = new Resource();
+        resource3.setCollectionId(collectionId);
+        resource3.setId(resourceId3);
+        resource3.setIsDeleted(false);
+        resource3.setSequence((short)3);
+        resources.add(resource3);
+
+        Resource resource4 = new Resource();
+        resource4.setCollectionId(collectionId);
+        resource4.setId(resourceId4);
+        resource4.setIsDeleted(false);
+        resource4.setSequence((short)4);
+        resources.add(resource4);
+
+        Resource resource5 = new Resource();
+        resource5.setCollectionId(collectionId);
+        resource5.setId(resourceId5);
+        resource5.setIsDeleted(false);
+        resource5.setSequence((short)5);
+        resources.add(resource5);
+
+        when(resourceService.findByCollectionId(any(UUID.class))).thenReturn(resources);
+
         contextEventService.processFinishContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
-        //there are 3 events but 2 are already saved, here we save 1 skipped event
-        verify(contextProfileEventService, times(1)).save(any(ContextProfileEvent.class));
+        verify(contextService, times(1)).findById(any(UUID.class));
+        verify(resourceService, times(1)).findByCollectionId(any(UUID.class));
+        //there are 3 events but 2 are already saved, here we save 1 skipped event plus 2 more just created
+        verify(contextProfileEventService, times(3)).save(any(ContextProfileEvent.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
     }
 
