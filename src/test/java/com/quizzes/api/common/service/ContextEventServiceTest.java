@@ -14,6 +14,7 @@ import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.common.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.messaging.ActiveMQClientService;
@@ -37,6 +38,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -71,6 +73,9 @@ public class ContextEventServiceTest {
     AssigneeEventEntity assigneeEventEntity;
 
     @Mock
+    CurrentContextProfileService currentContextProfileService;
+
+    @Mock
     ActiveMQClientService activeMQClientService;
 
     @Mock
@@ -85,6 +90,7 @@ public class ContextEventServiceTest {
     private UUID contextProfileId;
     private UUID ownerId;
     private UUID profileId;
+    private CurrentContextProfile currentContextProfile;
 
     @Before
     public void beforeEachTest() {
@@ -94,10 +100,11 @@ public class ContextEventServiceTest {
         contextProfileId = UUID.randomUUID();
         ownerId = UUID.randomUUID();
         profileId = UUID.randomUUID();
+        currentContextProfile = new CurrentContextProfile();
     }
 
     @Test
-    public void startContextEventWithEventsAndIsCompleteFalse() throws Exception {
+    public void startContextEventWithEvents() throws Exception {
         //Setting context
         Context context = new Context();
         context.setId(contextId);
@@ -111,7 +118,6 @@ public class ContextEventServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
         contextProfile.setCurrentResourceId(resourceId);
-        contextProfile.setIsComplete(false);
 
         //Setting Answers
         AnswerDto answerDto = new AnswerDto();
@@ -153,21 +159,27 @@ public class ContextEventServiceTest {
         list.add(contextProfileEvent1);
         list.add(contextProfileEvent2);
 
-        when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+        CurrentContextProfile currentContextProfile = createCurrentContextProfile();
+
+        when(contextService.findById(contextId)).thenReturn(context);
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
+        when(contextProfileService.findById(currentContextProfile.getContextProfileId()))
                 .thenReturn(contextProfile);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
         StartContextEventResponseDto result =
-                contextEventService.processStartContextEvent(contextId, UUID.randomUUID());
+                contextEventService.processStartContextEvent(contextId, profileId);
 
-        verify(contextService, times(1)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        verify(contextService, times(1)).findById(contextId);
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(eq(contextId), eq(profileId));
+        verify(contextProfileService, times(1)).findById(eq(currentContextProfile.getContextProfileId()));
         verify(resourceService, times(0)).findFirstByContextIdOrderBySequence(any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
+        verify(currentContextProfileService, times(0)).save(any(CurrentContextProfile.class));
         verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
-        verify(contextProfileEventService, times(0)).deleteByContextProfileId(any(UUID.class));
+        verify(activeMQClientService, times(1)).sendStartContextEventMessage(any(), any(), any());
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong context ID", contextId, result.getId());
@@ -193,7 +205,7 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void startContextEventWhenContextProfileNull() throws Exception {
+    public void startContextEventWhenCurrentContextProfileNull() throws Exception {
         //Setting context
         Context context = new Context();
         context.setId(contextId);
@@ -207,11 +219,10 @@ public class ContextEventServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
         contextProfile.setCurrentResourceId(resourceId);
-        contextProfile.setIsComplete(false);
         List<ContextProfileEvent> list = new ArrayList<>();
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
                 .thenThrow(ContentNotFoundException.class);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
@@ -219,14 +230,15 @@ public class ContextEventServiceTest {
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
         StartContextEventResponseDto result =
-                contextEventService.processStartContextEvent(contextId, UUID.randomUUID());
+                contextEventService.processStartContextEvent(contextId, profileId);
 
-        verify(contextService, times(1)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
+        verify(contextService, times(1)).findById(eq(contextId));
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(eq(contextId), eq(profileId));
+        verify(contextProfileService, times(0)).findById(any(UUID.class));
+        verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(eq(contextId));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(0)).findByContextProfileId(any(UUID.class));
-        verify(contextProfileEventService, times(0)).deleteByContextProfileId(any(UUID.class));
+        verify(currentContextProfileService, times(1)).save(any(CurrentContextProfile.class));
+        verify(activeMQClientService, times(1)).sendStartContextEventMessage(any(), any(), any());
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong context ID", contextId, result.getId());
@@ -293,7 +305,11 @@ public class ContextEventServiceTest {
         OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
         body.setPreviousResource(resourceDto);
 
-        when(contextProfileService.findByContextIdAndProfileId(contextId, profileId)).thenReturn(contextProfile);
+        CurrentContextProfile currentContextProfile = createCurrentContextProfile();
+
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
+        when(contextProfileService.findById(currentContextProfile.getContextProfileId())).thenReturn(contextProfile);
         when(resourceService.findById(bodyResourceId)).thenReturn(previousResource);
         when(resourceService.findById(resourceId)).thenReturn(resource);
         when(contextProfileEventService
@@ -301,7 +317,8 @@ public class ContextEventServiceTest {
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(eq(contextId), eq(profileId));
+        verify(contextProfileService, times(1)).findById(currentContextProfile.getContextProfileId());
         verify(resourceService, times(2)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
@@ -400,27 +417,24 @@ public class ContextEventServiceTest {
 
     @Test
     public void finishContextEvent() throws Exception {
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setIsComplete(false);
+        CurrentContextProfile currentContextProfile = createCurrentContextProfile();
 
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
-                .thenReturn(contextProfile);
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
 
-        contextEventService.processFinishContextEvent(UUID.randomUUID(), UUID.randomUUID());
+        contextEventService.processFinishContextEvent(contextId, profileId);
 
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(eq(contextId), eq(profileId));
+        verify(currentContextProfileService, times(1)).finish(eq(currentContextProfile));
+        verify(activeMQClientService, times(1)).sendFinishContextEventMessage(any(), any(), any());
     }
 
     @Test(expected = ContentNotFoundException.class)
     public void finishContextEventDoNothing() throws Exception {
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setIsComplete(true);
-
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
                 .thenThrow(ContentNotFoundException.class);
 
-        contextEventService.processFinishContextEvent(UUID.randomUUID(), UUID.randomUUID());
+        contextEventService.processFinishContextEvent(contextId, profileId);
     }
 
     @Test
@@ -629,5 +643,12 @@ public class ContextEventServiceTest {
         contextProfileEvents.add(event5);
 
         return contextProfileEvents;
+    }
+
+    private CurrentContextProfile createCurrentContextProfile() {
+        currentContextProfile.setContextProfileId(contextProfileId);
+        currentContextProfile.setContextId(contextId);
+        currentContextProfile.setProfileId(profileId);
+        return currentContextProfile;
     }
 }

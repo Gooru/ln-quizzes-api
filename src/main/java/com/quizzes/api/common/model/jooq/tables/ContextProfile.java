@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile extends org.jooq.impl.TableImpl<com.quizzes.api.common.model.jooq.tables.records.ContextProfileRecord> {
 
-	private static final long serialVersionUID = -491154631;
+	private static final long serialVersionUID = 232561012;
 
 	/**
 	 * The singleton instance of <code>public.context_profile</code>
@@ -43,11 +43,6 @@ public class ContextProfile extends org.jooq.impl.TableImpl<com.quizzes.api.comm
 	 * The column <code>public.context_profile.current_resource_id</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ContextProfileRecord, java.util.UUID> CURRENT_RESOURCE_ID = createField("current_resource_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
-
-	/**
-	 * The column <code>public.context_profile.is_complete</code>.
-	 */
-	public final org.jooq.TableField<com.quizzes.api.common.model.jooq.tables.records.ContextProfileRecord, java.lang.Boolean> IS_COMPLETE = createField("is_complete", org.jooq.impl.SQLDataType.BOOLEAN.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * The column <code>public.context_profile.created_at</code>.

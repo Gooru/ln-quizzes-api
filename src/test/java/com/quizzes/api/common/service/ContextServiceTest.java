@@ -399,6 +399,12 @@ public class ContextServiceTest {
         assertEquals("Wrong id for group", groupId, result.getGroupId());
     }
 
+    @Test(expected = ContentNotFoundException.class)
+    public void findByIdThrowException() {
+        when(contextRepository.findById(contextId)).thenReturn(null);
+        Context result = contextService.findById(contextId);
+    }
+
     @Test
     public void findByIdAndOwnerId() {
         Context contextResult = new Context();

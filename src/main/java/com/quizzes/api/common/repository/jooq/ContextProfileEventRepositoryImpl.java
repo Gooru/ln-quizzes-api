@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
 import static com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
+import static com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
 
 @Repository
 public class ContextProfileEventRepositoryImpl implements ContextProfileEventRepository {
@@ -31,13 +32,13 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
 
     @Override
     public Map<UUID, List<AssigneeEventEntity>> findByContextIdGroupByProfileId(UUID contextId) {
-        return jooq.select(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"),
+        return jooq.select(CURRENT_CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"),
                 CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
-                .from(CONTEXT_PROFILE)
+                .from(CURRENT_CONTEXT_PROFILE)
+                .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.ID.eq(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID))
                 .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
-                .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
-                .and(CONTEXT_PROFILE.IS_COMPLETE.eq(false))
-                .fetchGroups(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"), AssigneeEventEntity.class);
+                .where(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
+                .fetchGroups(CURRENT_CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"), AssigneeEventEntity.class);
     }
 
     @Override

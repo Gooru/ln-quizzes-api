@@ -128,14 +128,18 @@ public class ContextService {
     }
 
     public Context findById(UUID contextId) {
-        return contextRepository.findById(contextId);
+        Context context = contextRepository.findById(contextId);
+        if (context == null) {
+            throw new ContentNotFoundException("We couldn't find a context with ID: " + contextId);
+        }
+        return context;
     }
 
     public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
         Context context = contextRepository.findByIdAndOwnerId(contextId, ownerId);
         if (context == null) {
             throw new ContentNotFoundException("We couldn't find a context with ID: " + contextId +
-                    "for owner profile ID: " + ownerId);
+                    " for owner profile ID: " + ownerId);
         }
         return context;
     }
@@ -144,7 +148,7 @@ public class ContextService {
         Context context = contextRepository.findActiveContextByIdAndOwnerId(contextId, ownerId);
         if (context == null) {
             throw new ContentNotFoundException("We couldn't find a context with ID: " + contextId +
-                    "for owner profile ID: " + ownerId);
+                    " for owner profile ID: " + ownerId);
         }
         return context;
     }

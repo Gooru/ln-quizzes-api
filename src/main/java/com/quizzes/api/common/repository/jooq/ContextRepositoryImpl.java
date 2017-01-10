@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
 import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
 import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
 import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
@@ -54,11 +55,10 @@ public class ContextRepositoryImpl implements ContextRepository {
     public Context findActiveContextByIdAndOwnerId(UUID contextId, UUID ownerId) {
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
-                .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
+                .join(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .where(CONTEXT.ID.eq(contextId))
                 .and(GROUP.OWNER_PROFILE_ID.eq(ownerId))
-                .and(CONTEXT_PROFILE.IS_COMPLETE.eq(false))
                 .fetchOneInto(Context.class);
     }
 

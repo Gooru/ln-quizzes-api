@@ -20,6 +20,7 @@ import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.common.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.messaging.ActiveMQClientService;
@@ -37,8 +38,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class ContextEventService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ContextProfileService contextProfileService;
@@ -59,6 +58,12 @@ public class ContextEventService {
     ProfileService profileService;
 
     @Autowired
+    CollectionService collectionService;
+
+    @Autowired
+    CurrentContextProfileService currentContextProfileService;
+
+    @Autowired
     ActiveMQClientService activeMQClientService;
 
     @Autowired
@@ -66,29 +71,38 @@ public class ContextEventService {
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
         Context context = contextService.findById(contextId);
-        if (context == null) {
-            throw new ContentNotFoundException("Not Found Context Id: " + contextId);
-        }
 
         ContextProfile contextProfile;
+        CurrentContextProfile currentContextProfile;
         boolean isNewAttempt = false;
+
         try {
-            contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
+            currentContextProfile = currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
+            contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
         } catch (ContentNotFoundException cne) {
             isNewAttempt = true;
             contextProfile = createNewContextProfile(contextId, profileId);
-            doStartContextEventTransaction(contextProfile);
+            currentContextProfile = createNewCurrentContextProfile(contextId, profileId);
+            doStartContextEventTransaction(contextProfile, currentContextProfile);
         }
 
         sendStartEventMessage(contextProfile, isNewAttempt);
         return prepareStartContextEventResponse(context, contextProfile, isNewAttempt);
     }
 
+    private CurrentContextProfile createNewCurrentContextProfile(UUID contextId, UUID profileId) {
+        CurrentContextProfile currentContextProfile = new CurrentContextProfile();
+        currentContextProfile.setContextId(contextId);
+        currentContextProfile.setProfileId(profileId);
+        return currentContextProfile;
+    }
+
     public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
                                        OnResourceEventPostRequestDto body) {
         PostRequestResourceDto resourceDto = body.getPreviousResource();
 
-        ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
+        CurrentContextProfile currentContextProfile =
+                currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
 
         Resource resource = resourceService.findById(resourceId);
         if (resource == null) {
@@ -111,16 +125,20 @@ public class ContextEventService {
         }
 
         List<ContextProfileEvent> contextProfileEvents =
-                contextProfileEventService.findByContextProfileId(contextProfile.getId());
+                contextProfileEventService.findByContextProfileId(currentContextProfile.getContextProfileId());
         ContextProfileEvent contextProfileEvent = contextProfileEvents.stream()
                 .filter(event -> event.getResourceId().equals(previousResource.getId()))
                 .findFirst()
                 .orElse(null);
         if (contextProfileEvent == null) {
-            contextProfileEvent = createNewContextProfileEvent(contextProfile.getId(), previousResource.getId());
+            contextProfileEvent = createNewContextProfileEvent(
+                    currentContextProfile.getContextProfileId(),
+                    previousResource.getId());
             contextProfileEvents.add(contextProfileEvent);
         }
         contextProfileEvent.setEventData(gson.toJson(resourceDto));
+
+        ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
 
         EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
         contextProfile.setCurrentResourceId(resource.getId());
@@ -131,11 +149,11 @@ public class ContextEventService {
     }
 
     public void processFinishContextEvent(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
-        contextProfile.setIsComplete(true);
-        doFinishContextEventTransaction(contextProfile);
+        CurrentContextProfile currentContextProfile =
+                currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
+        doFinishContextEventTransaction(currentContextProfile);
 
-        sendFinishContextEventMessage(contextProfile);
+        sendFinishContextEventMessage(currentContextProfile);
     }
 
     public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
@@ -170,8 +188,11 @@ public class ContextEventService {
     }
 
     @Transactional
-    public ContextProfile doStartContextEventTransaction(ContextProfile contextProfile) {
-        return contextProfileService.save(contextProfile);
+    public void doStartContextEventTransaction(ContextProfile contextProfile,
+                                               CurrentContextProfile currentContextProfile) {
+        contextProfile = contextProfileService.save(contextProfile);
+        currentContextProfile.setContextProfileId(contextProfile.getId());
+        currentContextProfileService.save(currentContextProfile);
     }
 
     @Transactional
@@ -181,13 +202,15 @@ public class ContextEventService {
     }
 
     @Transactional
-    public void doFinishContextEventTransaction(ContextProfile contextProfile) {
-        contextProfileService.save(contextProfile);
+    public void doFinishContextEventTransaction(CurrentContextProfile currentContextProfile) {
+        currentContextProfileService.finish(currentContextProfile);
     }
 
-    private StartContextEventResponseDto prepareStartContextEventResponse(Context context,
-                                                                          ContextProfile contextProfile,
-                                                                          boolean isNewAttempt) {
+    private StartContextEventResponseDto prepareStartContextEventResponse(
+            Context context,
+            ContextProfile contextProfile,
+            boolean isNewAttempt) {
+
         StartContextEventResponseDto response = new StartContextEventResponseDto();
         response.setId(context.getId());
         response.setCurrentResourceId(contextProfile.getCurrentResourceId());
@@ -226,11 +249,11 @@ public class ContextEventService {
                 onResourceEventMessage);
     }
 
-    private void sendFinishContextEventMessage(ContextProfile contextProfile) {
+    private void sendFinishContextEventMessage(CurrentContextProfile currentContextProfile) {
         FinishContextEventMessageDto finishContextEventMessage = new FinishContextEventMessageDto();
         finishContextEventMessage.setEventSummary(null);
-        activeMQClientService.sendFinishContextEventMessage(contextProfile.getContextId(),
-                contextProfile.getProfileId(), finishContextEventMessage);
+        activeMQClientService.sendFinishContextEventMessage(currentContextProfile.getContextId(),
+                currentContextProfile.getProfileId(), finishContextEventMessage);
     }
 
     private ContextProfile createNewContextProfile(UUID contextId, UUID profileId) {
@@ -239,7 +262,6 @@ public class ContextEventService {
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
         contextProfile.setCurrentResourceId(firstResource.getId());
-        contextProfile.setIsComplete(false);
         return contextProfile;
     }
 

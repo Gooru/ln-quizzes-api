@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Public extends org.jooq.impl.SchemaImpl {
 
-	private static final long serialVersionUID = 1746873909;
+	private static final long serialVersionUID = 351568750;
 
 	/**
 	 * The singleton instance of <code>public</code>
@@ -37,6 +37,7 @@ public class Public extends org.jooq.impl.SchemaImpl {
 			com.quizzes.api.common.model.jooq.tables.Context.CONTEXT,
 			com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE,
 			com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT,
+			com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE,
 			com.quizzes.api.common.model.jooq.tables.Group.GROUP,
 			com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE,
 			com.quizzes.api.common.model.jooq.tables.Profile.PROFILE,
