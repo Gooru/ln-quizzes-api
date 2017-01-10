@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -307,7 +308,7 @@ public class SessionServiceTest {
     }
 
     @Test
-    public void isSessionAlive(){
+    public void isSessionAliveReturnsTrue(){
         Timestamp lastAccess = Timestamp.valueOf("2007-09-23 10:05:10.0");
         Timestamp current = Timestamp.valueOf("2007-09-23 10:10:10.0");
 
@@ -318,15 +319,16 @@ public class SessionServiceTest {
         assertTrue("Result is false", result);
     }
 
-    @Test(expected = InvalidSessionException.class)
-    public void isSessionAliveThrowException(){
-        Timestamp lastAccess = Timestamp.valueOf("2007-09-23 10:10:10.0");
-        Timestamp current = Timestamp.valueOf("2007-09-25 10:10:10.0");
+    @Test
+    public void isSessionAliveReturnsFalse(){
+        Timestamp lastAccess = Timestamp.valueOf("2007-09-23 10:05:10.0");
+        Timestamp current = Timestamp.valueOf("2007-09-23 10:10:10.0");
 
-        when(configurationService.getSessionMinutes()).thenReturn(Double.valueOf(360));
+        when(configurationService.getSessionMinutes()).thenReturn(Double.valueOf(2));
 
         boolean result = sessionService.isSessionAlive(sessionId, lastAccess, current);
         verify(configurationService, times(1)).getSessionMinutes();
+        assertFalse("Result is true", result);
     }
 
 }

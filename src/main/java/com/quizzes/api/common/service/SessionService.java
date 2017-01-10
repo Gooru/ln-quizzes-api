@@ -98,15 +98,11 @@ public class SessionService {
         return entity;
     }
 
-    public boolean isSessionAlive(UUID sessionId, Timestamp lastAccessAt, Timestamp currentTimestamp)
-            throws InvalidSessionException {
+    public boolean isSessionAlive(UUID sessionId, Timestamp lastAccessAt, Timestamp currentTimestamp) {
         long diff = currentTimestamp.getTime() - lastAccessAt.getTime();
         long diffInMinutes = TimeUnit.MILLISECONDS.toMinutes(diff);
 
-        if (diffInMinutes > configurationService.getSessionMinutes()) {
-            throw new InvalidSessionException("Session ID: " + sessionId + " expired");
-        }
-        return true;
+        return configurationService.getSessionMinutes() > diffInMinutes;
     }
 
 }

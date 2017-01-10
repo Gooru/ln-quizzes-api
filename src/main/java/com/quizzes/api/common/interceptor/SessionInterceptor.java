@@ -3,6 +3,7 @@ package com.quizzes.api.common.interceptor;
 import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.model.entities.SessionProfileEntity;
 import com.quizzes.api.common.service.SessionService;
+import org.omg.CORBA.DynAnyPackage.Invalid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -26,7 +27,14 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
             String sessionToken = validateTokenFormat(authorization);
             SessionProfileEntity session = sessionService
                     .findSessionProfileEntityBySessionId(UUID.fromString(sessionToken));
-            sessionService.isSessionAlive(session.getSessionId(), session.getLastAccessAt(), session.getCurrentTimestamp());
+
+            boolean isSessionAlive = sessionService
+                    .isSessionAlive(session.getSessionId(), session.getLastAccessAt(), session.getCurrentTimestamp());
+
+            if(!isSessionAlive){
+                throw new InvalidSessionException("Session ID: " + session.getSessionId() + " expired");
+            }
+
             request.setAttribute("profileId", session.getProfileId());
             request.setAttribute("clientId", session.getClientId());
             sessionService.updateLastAccess(session.getSessionId());

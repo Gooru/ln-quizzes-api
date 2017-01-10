@@ -56,7 +56,7 @@ public class SessionInterceptorTest {
     }
 
     @Test
-    public void preHandleThrowException() throws Exception {
+    public void preHandleAuthorization() throws Exception {
         request.addHeader("Authorization", authorization);
 
         SessionProfileEntity sessionProfileEntity = Mockito.spy(SessionProfileEntity.class);
@@ -73,6 +73,21 @@ public class SessionInterceptorTest {
         verify(sessionService, times(1)).isSessionAlive(any(), any(), any());
 
         assertTrue("Result is false", result);
+    }
+
+    @Test(expected = InvalidSessionException.class)
+    public void preHandleAuthorizationInvalidSession() throws Exception {
+        request.addHeader("Authorization", authorization);
+
+        SessionProfileEntity sessionProfileEntity = Mockito.spy(SessionProfileEntity.class);
+        when(sessionProfileEntity.getSessionId()).thenReturn(sessionId);
+        when(sessionProfileEntity.getLastAccessAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
+        when(sessionProfileEntity.getCurrentTimestamp()).thenReturn(new Timestamp(System.currentTimeMillis()));
+
+        when(sessionService.findSessionProfileEntityBySessionId(sessionId)).thenReturn(sessionProfileEntity);
+        when(sessionService.isSessionAlive(any(), any(), any())).thenReturn(false);
+
+        boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
     }
 
     @Test
