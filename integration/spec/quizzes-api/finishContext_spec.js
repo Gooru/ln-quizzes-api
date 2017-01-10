@@ -64,22 +64,12 @@ frisby.create('Test context creation for one assignee and owner for start contex
                             .expectStatus(200)
                             .inspectJSON()
                             .afterJSON(function (collection) {
-
                                 frisby.create('Start Context and verify the data')
                                     .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
                                     .addHeader('profile-id', profile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
                                     .expectStatus(200)
-                                    .inspectJSON()
-                                    .expectJSON({
-                                        'id': context.id,
-                                        'collection': {
-                                            'id': collection.id
-                                        },
-                                        'currentResourceId': collection.resources[0].id,
-                                        'events': []
-                                    })
                                     .afterJSON(function (startResponse) {
                                         frisby.create('Answer the first and current question')
                                             .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/on-resource/' + collection.resources[1].id , {
