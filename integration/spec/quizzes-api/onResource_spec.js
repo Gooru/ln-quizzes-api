@@ -103,7 +103,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
     .toss();
 
 
-frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint.')
+frisby.create('Test context creation for one assignee and owner for answering a non-started context using onResource endpoint.')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
@@ -205,7 +205,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
     .toss();
 
 
-frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint.')
+frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint and try to answer as owner')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
@@ -323,7 +323,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
     })
     .toss();
 
-frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint.')
+frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint with a wrong contextId or ResourceId')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
