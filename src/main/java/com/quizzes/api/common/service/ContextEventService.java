@@ -24,8 +24,6 @@ import com.quizzes.api.common.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.messaging.ActiveMQClientService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,11 +77,16 @@ public class ContextEventService {
         try {
             currentContextProfile = currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
             contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
+            if (currentContextProfile.getIsCompleted()) {
+                isNewAttempt = true;
+                contextProfile = createNewContextProfile(contextId, profileId);
+                doStartUpdateContextEventTransaction(contextProfile, currentContextProfile);
+            }
         } catch (ContentNotFoundException cne) {
             isNewAttempt = true;
             contextProfile = createNewContextProfile(contextId, profileId);
             currentContextProfile = createNewCurrentContextProfile(contextId, profileId);
-            doStartContextEventTransaction(contextProfile, currentContextProfile);
+            doStartNewContextEventTransaction(contextProfile, currentContextProfile);
         }
 
         sendStartEventMessage(contextProfile, isNewAttempt);
@@ -188,11 +191,19 @@ public class ContextEventService {
     }
 
     @Transactional
-    public void doStartContextEventTransaction(ContextProfile contextProfile,
+    public void doStartNewContextEventTransaction(ContextProfile contextProfile,
                                                CurrentContextProfile currentContextProfile) {
         contextProfile = contextProfileService.save(contextProfile);
         currentContextProfile.setContextProfileId(contextProfile.getId());
         currentContextProfileService.save(currentContextProfile);
+    }
+
+    @Transactional
+    public void doStartUpdateContextEventTransaction(ContextProfile contextProfile,
+                                                     CurrentContextProfile currentContextProfile) {
+        contextProfile = contextProfileService.save(contextProfile);
+        currentContextProfile.setContextProfileId(contextProfile.getId());
+        currentContextProfileService.startAttempt(currentContextProfile);
     }
 
     @Transactional

@@ -104,7 +104,7 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void startContextEventWithEvents() throws Exception {
+    public void startContextEventWithCurrentContextProfileFalse() throws Exception {
         //Setting context
         Context context = new Context();
         context.setId(contextId);
@@ -160,6 +160,7 @@ public class ContextEventServiceTest {
         list.add(contextProfileEvent2);
 
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
+        currentContextProfile.setIsCompleted(false);
 
         when(contextService.findById(contextId)).thenReturn(context);
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
@@ -202,6 +203,52 @@ public class ContextEventServiceTest {
         assertEquals("Wrong timeSpent for result2", 1234, result2.getTimeSpent());
         assertTrue("Answer list is not empty for result2", result2.getAnswer().isEmpty());
         assertTrue("IsSkipped is true in result2", result2.getIsSkipped());
+    }
+
+    @Test
+    public void startContextEventWithCurrentContextProfileTrue() throws Exception {
+        //Setting context
+        Context context = new Context();
+        context.setId(contextId);
+        context.setCollectionId(collectionId);
+
+        //Setting resource
+        Resource resource = new Resource();
+        resource.setId(resourceId);
+
+        //Setting contextProfile
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setId(contextProfileId);
+        contextProfile.setCurrentResourceId(resourceId);
+
+        CurrentContextProfile currentContextProfile = createCurrentContextProfile();
+        currentContextProfile.setIsCompleted(true);
+
+        when(contextService.findById(contextId)).thenReturn(context);
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
+        when(contextProfileService.findById(currentContextProfile.getContextProfileId()))
+                .thenReturn(contextProfile);
+        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
+        when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
+
+        StartContextEventResponseDto result =
+                contextEventService.processStartContextEvent(contextId, profileId);
+
+        verify(contextService, times(1)).findById(contextId);
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(eq(contextId), eq(profileId));
+        verify(contextProfileService, times(1)).findById(eq(currentContextProfile.getContextProfileId()));
+        verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        verify(currentContextProfileService, times(0)).save(any(CurrentContextProfile.class));
+        verify(currentContextProfileService, times(1)).startAttempt(any(CurrentContextProfile.class));
+        verify(activeMQClientService, times(1)).sendStartContextEventMessage(any(), any(), any());
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong context ID", contextId, result.getId());
+        assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
+        assertEquals("Wrong size", 0, result.getEvents().size());
     }
 
     @Test

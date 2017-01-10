@@ -53,7 +53,7 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Context findActiveContextByIdAndOwnerId(UUID contextId, UUID ownerId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
+        return jooq.selectDistinct(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
                 .from(CONTEXT)
                 .join(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))

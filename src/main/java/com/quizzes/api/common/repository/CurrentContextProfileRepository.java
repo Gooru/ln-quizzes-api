@@ -10,5 +10,7 @@ public interface CurrentContextProfileRepository {
 
     CurrentContextProfile save(CurrentContextProfile currentContextProfile);
 
-    void finish(CurrentContextProfile currentContextProfile);
+    CurrentContextProfile finish(CurrentContextProfile currentContextProfile);
+
+    CurrentContextProfile startAttempt(CurrentContextProfile currentContextProfile);
 }

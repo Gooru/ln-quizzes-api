@@ -34,5 +34,9 @@ public class CurrentContextProfileService {
     public void finish(CurrentContextProfile currentContextProfile) {
         currentContextProfileRepository.finish(currentContextProfile);
     }
+
+    public CurrentContextProfile startAttempt(CurrentContextProfile currentContextProfile) {
+        return currentContextProfileRepository.startAttempt(currentContextProfile);
+    }
 }
 
