@@ -53,9 +53,11 @@ public class ContextController {
     @RequestMapping(path = "/v1/context",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> assignContext(@ApiParam(value = "Json body", required = true, name = "Body")
+    public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's owner, assignees, external collection ID and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
+                                           @ApiParam(name = "lms-id", value = "Client LMS ID", required = true)
                                            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+                                           @ApiParam(name = "lms-id", value = "Context's owner Profile ID", required = true)
                                            @RequestHeader(value = "profile-id") UUID profileId) {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -143,7 +145,7 @@ public class ContextController {
         return new ResponseEntity<>(contexts, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Update context", notes = "Update the context metadata.")
+    @ApiOperation(value = "Update context", notes = "Updates the context data and adds assignees to the context.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
     })
@@ -151,9 +153,10 @@ public class ContextController {
             method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<IdResponseDto> updateContext(
             @PathVariable UUID contextId,
-            @ApiParam(value = "Body", required = true, name = "Body")
+            @ApiParam(name = "Body", required = true, value = "The Assignees to add and the context data to update")
             @RequestBody ContextPutRequestDto contextPutRequestDto,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @ApiParam(name = "profile-id", required = true, value = "Context's owner profile ID")
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
         Context context = contextService.update(contextId, profileId, contextPutRequestDto, Lms.valueOf(lmsId));

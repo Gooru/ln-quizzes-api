@@ -1,6 +1,5 @@
-package com.quizzes.api.realtime.controller;
+package com.quizzes.api.common.controller;
 
-import com.quizzes.api.common.controller.ContextController;
 import com.quizzes.api.common.dto.ContextAssignedGetResponseDto;
 import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;

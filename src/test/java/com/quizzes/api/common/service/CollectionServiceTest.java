@@ -1,24 +1,18 @@
 package com.quizzes.api.common.service;
 
-import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.quizzes.api.common.dto.CollectionGetResponseDto;
 import com.quizzes.api.common.dto.ResourceDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.jooq.enums.ContentProvider;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.CollectionRepository;
-import com.quizzes.api.realtime.model.CollectionOnAir;
-import com.quizzes.api.realtime.repository.CollectionOnAirRepository;
-import com.quizzes.api.realtime.service.EventService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +20,6 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -38,17 +31,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(CollectionService.class)
 public class CollectionServiceTest {
 
     @InjectMocks
-    private CollectionService collectionService = Mockito.spy(CollectionService.class);
-
-    @Mock
-    private EventService eventService;
-
-    @Mock
-    private CollectionOnAirRepository collectionOnAirRepository;
+    private CollectionService collectionService;
 
     @Mock
     private CollectionRepository collectionRepository;
@@ -57,90 +43,53 @@ public class CollectionServiceTest {
     private ResourceService resourceService;
 
     @Mock
-    private JsonParser jsonParser;
-
-    @Mock
     Gson gson = new Gson();
 
     @Test
-    public void findByExternalId() throws Exception {
-        UUID id = UUID.randomUUID();
-        UUID profileId = UUID.randomUUID();
-        Collection collection = new Collection(id, "external-id", "external-parent-id",
-                true, profileId, "{}", false, false, null, null, ContentProvider.gooru);
-
-        doReturn(collection).when(collectionService).findByExternalId("external-id");
-
-        Collection result = collectionService.findByExternalId("external-id");
-        verify(collectionService, times(1))
-                .findByExternalId(Mockito.eq("external-id"));
-        assertNotNull("Response is null", result);
-        assertEquals("Wrong id", id, result.getId());
-        assertEquals("Wrong external id", "external-id", result.getExternalId());
-        assertEquals("Wrong external parent id", "external-parent-id", result.getExternalParentId());
-        assertEquals("Wrong content provider", ContentProvider.gooru, result.getContentProvider());
-        assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
-        assertEquals("Wrong collection data", "{}", result.getCollectionData());
-        assertTrue("isCollection is not true", result.getIsCollection());
-        assertFalse("isLock is not false", result.getIsLocked());
-        assertFalse("isDeleted is not false", result.getIsDeleted());
-        assertNull("createdAt is not null", result.getCreatedAt());
+    public void findByExternalIdWhenExternalIdDoesNotExist() throws Exception {
+        when(collectionRepository.findByExternalId(any(String.class))).thenReturn(null);
+        Collection collection = collectionService.findByExternalId("external-id");
+        assertNull("Collection should be null", collection);
     }
 
     @Test
-    public void save() throws Exception {
-        UUID id = UUID.randomUUID();
+    public void findByExternalIdWhenExternalIdExists() throws Exception {
+        UUID collectionId = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
-        Collection collection = new Collection(null, "external-id", "external-parent-id",
-                true, profileId, "{}", false, false, null, null, ContentProvider.gooru);
+        String externalId = "external-id";
+        String externalParentId = "external-parent-id";
+        String collectionData = "{}";
 
-        doReturn(collection).when(collectionService).save(collection);
-
-        Collection result = collectionService.save(collection);
-        collection.setId(id);
-        verify(collectionService, times(1)).save(Mockito.eq(collection));
-        assertNotNull("Response is null", result);
-        assertEquals("Wrong id", id, result.getId());
-        assertEquals("Wrong external id", "external-id", result.getExternalId());
-        assertEquals("Wrong external parent id", "external-parent-id", result.getExternalParentId());
-        assertEquals("Wrong content provider", ContentProvider.gooru, result.getContentProvider());
-        assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
-        assertEquals("Wrong collection data", "{}", result.getCollectionData());
-        assertTrue("isCollection is not true", result.getIsCollection());
-        assertFalse("isLock is not false", result.getIsLocked());
-        assertFalse("isDeleted is not false", result.getIsDeleted());
-        assertNull("createdAt is not null", result.getCreatedAt());
-    }
-
-    @Test
-    public void findById() throws Exception {
         Collection collection = new Collection();
-        collection.setId(UUID.randomUUID());
-        collection.setIsCollection(false);
-        when(collectionRepository.findById(any(UUID.class))).thenReturn(collection);
+        collection.setId(collectionId);
+        collection.setExternalId(externalId);
+        collection.setExternalParentId(externalParentId);
+        collection.setOwnerProfileId(profileId);
+        collection.setIsCollection(true);
+        collection.setContentProvider(ContentProvider.quizzes);
+        collection.setCollectionData(collectionData);
 
-        Collection result = collectionService.findById(UUID.randomUUID());
+        doReturn(collection).when(collectionRepository).findByExternalId(any(String.class));
 
-        verify(collectionRepository, times(1)).findById(any(UUID.class));
+        Collection result = collectionService.findByExternalId(externalId);
+        assertEquals("Wrong collection id", collectionId, result.getId());
+        assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
+        assertEquals("Wrong external id", externalId, result.getExternalId());
+        assertEquals("Wrong external parent id", externalParentId, result.getExternalParentId());
+        assertEquals("Wrong content provider", ContentProvider.quizzes, result.getContentProvider());
 
-        assertNotNull("Result is Null", result);
-        assertSame(result.getClass(), Collection.class);
+        assertEquals("Wrong collection data", collectionData, result.getCollectionData());
+        assertTrue("Wrong isCollection value", result.getIsCollection());
     }
 
-    @Test
-    public void getCollectionNull() throws Exception {
+    @Test(expected = ContentNotFoundException.class)
+    public void findCollectionByIdWhenThrowsContentNotFoundException() throws Exception {
         when(collectionRepository.findById(any(UUID.class))).thenReturn(null);
-
-        CollectionGetResponseDto result = collectionService.getCollection(UUID.randomUUID());
-
-        verify(collectionRepository, times(1)).findById(any(UUID.class));
-        verify(resourceService, times(0)).findByCollectionId(any(UUID.class));
-
-        assertNull("Result is not Null", result);
+        collectionService.findCollectionById(UUID.randomUUID());
     }
 
     @Test
-    public void getCollection() throws Exception {
+    public void findCollectionByIdWhenIdExists() throws Exception {
         Collection collection = new Collection();
         UUID collectionId = UUID.randomUUID();
         collection.setId(collectionId);
@@ -156,8 +105,9 @@ public class CollectionServiceTest {
         resource1.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"single_choice\"," +
                 "\"correctAnswer\": [{\"value\": \"A\"}],\"body\": \"mocked body\",\"interaction\":" +
                 " {\"shuffle\": true,\"maxChoices\": 10,\"prompt\": \"mocked Interaction\",\"choices\":" +
-                " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\",\"isFixed\":" +
-                " false,\"value\": \"B\"},{\"text\": \"option 3\",\"isFixed\": false,\"value\": \"C\"}]}}");
+                " [{\"text\": \"option 1\",\"isFixed\": false,\"value\": \"A\"},{\"text\": \"option 2\"," +
+                "\"isFixed\": false,\"value\": \"B\"},{\"text\": \"option 3\",\"isFixed\": false," +
+                "\"value\": \"C\"}]}}");
         resources.add(resource1);
 
         Resource resource2 = new Resource();
@@ -166,12 +116,12 @@ public class CollectionServiceTest {
         resource2.setSequence((short) 1);
         resource2.setResourceData("{\"title\": \"mocked Question Data\",\"type\": \"true_false\",\"correctAnswer\":" +
                 " [{\"value\": \"T\"}],\"body\": \"mocked body\",\"interaction\": {\"shuffle\": true,\"maxChoices\":" +
-                " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false,\"value\": " +
-                "\"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
+                " 10,\"prompt\": \"mocked Interaction\",\"choices\": [{\"text\": \"True\",\"isFixed\": false," +
+                "\"value\": \"T\"},{\"text\": \"False\",\"isFixed\": false,\"value\": \"F\"}]}}");
         resources.add(resource2);
         when(resourceService.findByCollectionId(collection.getId())).thenReturn(resources);
 
-        CollectionGetResponseDto result = collectionService.getCollection(collectionId);
+        CollectionGetResponseDto result = collectionService.findCollectionById(collectionId);
 
         verify(collectionRepository, times(1)).findById(any(UUID.class));
         verify(resourceService, times(1)).findByCollectionId(collectionId);
@@ -189,96 +139,33 @@ public class CollectionServiceTest {
     }
 
     @Test
-    public void removeCollectionOnAir() throws Exception {
-        CollectionOnAir mockCollection = new CollectionOnAir("classId", "collectionId");
-        doReturn(mockCollection).when(collectionService).findCollectionOnAir("classId", "collectionId");
+    public void save() throws Exception {
+        UUID collectionId = UUID.randomUUID();
+        UUID profileId = UUID.randomUUID();
+        String externalId = "external-id";
+        String externalParentId = "external-parent-id";
+        String collectionData = "{}";
 
-        collectionService.removeCollectionOnAir("classId", "collectionId");
-        verify(collectionOnAirRepository, times(1)).delete(Mockito.eq(mockCollection));
+        Collection collection = new Collection();
+        collection.setId(collectionId);
+        collection.setExternalId(externalId);
+        collection.setExternalParentId(externalParentId);
+        collection.setOwnerProfileId(profileId);
+        collection.setIsCollection(true);
+        collection.setContentProvider(ContentProvider.quizzes);
+        collection.setCollectionData(collectionData);
+
+        doReturn(collection).when(collectionRepository).save(collection);
+
+        Collection result = collectionService.save(collection);
+        assertEquals("Wrong collection id", collectionId, result.getId());
+        assertEquals("Wrong owner profile", profileId, result.getOwnerProfileId());
+        assertEquals("Wrong external id", externalId, result.getExternalId());
+        assertEquals("Wrong external parent id", externalParentId, result.getExternalParentId());
+        assertEquals("Wrong content provider", ContentProvider.quizzes, result.getContentProvider());
+
+        assertEquals("Wrong collection data", collectionData, result.getCollectionData());
+        assertTrue("Wrong isCollection value", result.getIsCollection());
     }
-
-    @Test
-    public void removeCollectionOnAirWhenNotExist() throws Exception {
-        doReturn(null).when(collectionService).findCollectionOnAir("classId", "collectionId");
-
-        collectionService.removeCollectionOnAir("classId", "collectionId");
-        verify(collectionOnAirRepository, times(0)).delete(any(CollectionOnAir.class));
-    }
-
-    @Test
-    public void completeCollectionForUser() throws Exception {
-        collectionService.completeCollectionForUser("collectionUniqueId", "userId");
-        verify(eventService, times(1)).completeEventIndexByUser(Mockito.eq("collectionUniqueId"), Mockito.eq("userId"));
-    }
-
-    @Test
-    public void resetCollectionForUser() throws Exception {
-        collectionService.resetCollectionForUser("collectionUniqueId", "userId");
-        verify(eventService, times(1)).deleteCollectionEventsByUser(Mockito.eq("collectionUniqueId"), Mockito.eq("userId"));
-    }
-
-    @Test
-    public void findCollectionOnAir() throws Exception {
-        CollectionOnAir mockCollection = new CollectionOnAir("classId", "collectionId");
-        when(collectionOnAirRepository.findFirstByClassIdAndCollectionId("classId", "collectionId")).thenReturn(mockCollection);
-
-        CollectionOnAir result = collectionService.findCollectionOnAir("classId", "collectionId");
-        verify(collectionOnAirRepository, times(1)).findFirstByClassIdAndCollectionId(Mockito.eq("classId"), Mockito.eq("collectionId"));
-        assertEquals("Wrong class", "classId", mockCollection.getClassId());
-        assertEquals("Wrong collection", "collectionId", mockCollection.getCollectionId());
-        assertNotNull("Response is Null", result);
-    }
-
-    @Test
-    public void addCollectionOnAirWhenNotExist() throws Exception {
-        doReturn(null).when(collectionService).findCollectionOnAir("classId", "collectionId");
-        when(collectionOnAirRepository.save(any(CollectionOnAir.class))).thenReturn(new CollectionOnAir("classId", "collectionId"));
-
-        CollectionOnAir result = collectionService.addCollectionOnAir("classId", "collectionId");
-
-        verify(collectionService, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
-        verify(collectionOnAirRepository, times(1)).save(any(CollectionOnAir.class));
-        assertEquals("Wrong class", "classId", result.getClassId());
-        assertEquals("Wrong collection", "collectionId", result.getCollectionId());
-        assertNotNull("Response is Null", result);
-    }
-
-    @Test
-    public void addCollectionOnAir() throws Exception {
-        CollectionOnAir mockCollection = new CollectionOnAir("classId", "collectionId");
-        doReturn(mockCollection).when(collectionService).findCollectionOnAir("classId", "collectionId");
-
-        CollectionOnAir result = collectionService.addCollectionOnAir("classId", "collectionId");
-
-        verify(collectionService, times(1)).findCollectionOnAir(Mockito.eq("classId"), Mockito.eq("collectionId"));
-        verify(collectionOnAirRepository, times(0)).save(any(CollectionOnAir.class));
-        assertEquals("Wrong class", "classId", result.getClassId());
-        assertEquals("Wrong collection", "collectionId", result.getCollectionId());
-        assertNotNull("Response is Null", result);
-    }
-
-    @Test
-    public void findCollectionsOnAirByClass() throws Exception {
-        List<CollectionOnAir> collections = new ArrayList<>();
-        collections.add(new CollectionOnAir("classId", "firstCollection"));
-        collections.add(new CollectionOnAir("classId", "secondCollection"));
-        when(collectionOnAirRepository.findByClassId("classId")).thenReturn(collections);
-
-        Iterable<CollectionOnAir> result = collectionService.findCollectionsOnAirByClass("classId");
-        verify(collectionOnAirRepository, times(1)).findByClassId(Mockito.eq("classId"));
-
-        // Creating the list to verify the size
-        List<CollectionOnAir> resultList = Lists.newArrayList(result);
-        assertEquals("Wrong size in list", 2, resultList.size());
-
-        assertEquals("Wrong collection in array", "firstCollection", resultList.get(0).getCollectionId());
-        assertEquals("Wrong collection in array", "secondCollection", resultList.get(1).getCollectionId());
-
-        assertNotEquals("Wrong collection in array", "secondCollection", resultList.get(0).getCollectionId());
-        assertNotEquals("Wrong collection in array", "firstCollection", resultList.get(1).getCollectionId());
-
-        assertNotNull("Response is Null", result);
-    }
-
 
 }

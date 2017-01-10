@@ -1,5 +1,6 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.repository.ContextProfileRepository;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ContextProfileServiceTest {
@@ -27,13 +29,22 @@ public class ContextProfileServiceTest {
 
     @Test
     public void findContextProfileByContextIdAndProfileId() throws Exception {
-        ContextProfile context = contextProfileRepository.findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+        when(contextProfileRepository.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(new ContextProfile());
+        ContextProfile context = contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(contextProfileRepository, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findContextProfileByContextIdAndProfileIdThrowException() throws Exception {
+        when(contextProfileRepository.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(null);
+        ContextProfile context = contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
     }
 
     @Test
     public void findContextProfileIdsByContextId() throws Exception {
-        List<UUID> ids = contextProfileRepository.findContextProfileIdsByContextId(any(UUID.class));
+        List<UUID> ids = contextProfileService.findContextProfileIdsByContextId(any(UUID.class));
         verify(contextProfileRepository, times(1)).findContextProfileIdsByContextId(any(UUID.class));
     }
 

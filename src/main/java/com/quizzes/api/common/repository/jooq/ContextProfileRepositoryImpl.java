@@ -25,6 +25,8 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .from(CONTEXT_PROFILE)
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .and(CONTEXT_PROFILE.IS_COMPLETE.eq(false))
+                .limit(1)
                 .fetchOneInto(ContextProfile.class);
     }
 
@@ -43,6 +45,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .set(CONTEXT_PROFILE.CONTEXT_ID, contextProfile.getContextId())
                 .set(CONTEXT_PROFILE.PROFILE_ID, contextProfile.getProfileId())
                 .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
+                .set(CONTEXT_PROFILE.EVENT_SUMMARY_DATA, contextProfile.getEventSummaryData())
                 .returning()
                 .fetchOne()
                 .into(ContextProfile.class);
@@ -52,6 +55,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
         return jooq.update(CONTEXT_PROFILE)
                 .set(CONTEXT_PROFILE.IS_COMPLETE, contextProfile.getIsComplete())
                 .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
+                .set(CONTEXT_PROFILE.EVENT_SUMMARY_DATA, contextProfile.getEventSummaryData())
                 .where(CONTEXT_PROFILE.ID.eq(contextProfile.getId()))
                 .returning()
                 .fetchOne()

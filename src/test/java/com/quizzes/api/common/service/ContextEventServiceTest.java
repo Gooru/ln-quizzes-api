@@ -9,18 +9,20 @@ import com.quizzes.api.common.dto.PostRequestResourceDto;
 import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ContextRepository;
+import com.quizzes.api.common.service.messaging.ActiveMQClientService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.JsonParser;
@@ -42,17 +44,13 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(ContextEventService.class)
 public class ContextEventServiceTest {
 
     @InjectMocks
-    private ContextEventService contextEventService = Mockito.spy(ContextEventService.class);
+    private ContextEventService contextEventService;
 
     @Mock
     ContextProfileService contextProfileService;
-
-    @Mock
-    JsonParser jsonParser;
 
     @Mock
     ContextProfileEventService contextProfileEventService;
@@ -70,27 +68,42 @@ public class ContextEventServiceTest {
     ResourceService resourceService;
 
     @Mock
+    AssigneeEventEntity assigneeEventEntity;
+
+    @Mock
+    ActiveMQClientService activeMQClientService;
+
+    @Mock
     Gson gson = new Gson();
 
     @Mock
-    AssigneeEventEntity assigneeEventEntity;
+    JsonParser jsonParser;
+
+    private UUID collectionId;
+    private UUID contextId;
+    private UUID resourceId;
+    private UUID contextProfileId;
+
+    @Before
+    public void beforeEachTest() {
+        collectionId = UUID.randomUUID();
+        contextId = UUID.randomUUID();
+        resourceId = UUID.randomUUID();
+        contextProfileId = UUID.randomUUID();
+    }
 
     @Test
     public void startContextEventWithEventsAndIsCompleteFalse() throws Exception {
         //Setting context
-        UUID collectionId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
         //Setting resource
-        UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
         //Setting contextProfile
-        UUID contextProfileId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
         contextProfile.setCurrentResourceId(resourceId);
@@ -137,11 +150,13 @@ public class ContextEventServiceTest {
         list.add(contextProfileEvent2);
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(contextProfile);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
-        StartContextEventResponseDto result = contextEventService.startContextEvent(contextId, UUID.randomUUID());
+        StartContextEventResponseDto result =
+                contextEventService.processStartContextEvent(contextId, UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
@@ -176,32 +191,31 @@ public class ContextEventServiceTest {
     @Test
     public void startContextEventWhenContextProfileNull() throws Exception {
         //Setting context
-        UUID collectionId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
 
         //Setting resource
-        UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
         //Setting ContextProfile
-        UUID contextProfileId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
         contextProfile.setCurrentResourceId(resourceId);
+        contextProfile.setIsComplete(false);
         List<ContextProfileEvent> list = new ArrayList<>();
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(null);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenThrow(ContentNotFoundException.class);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
 
         when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
 
-        StartContextEventResponseDto result = contextEventService.startContextEvent(contextId, UUID.randomUUID());
+        StartContextEventResponseDto result =
+                contextEventService.processStartContextEvent(contextId, UUID.randomUUID());
 
         verify(contextService, times(1)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
@@ -218,91 +232,6 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void startContextEventWithEventsAndIsCompleteTrue() throws Exception {
-        //Setting context
-        UUID collectionId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
-        Context context = new Context();
-        context.setId(contextId);
-        context.setCollectionId(collectionId);
-
-        //Setting resource
-        UUID resourceId = UUID.randomUUID();
-        Resource resource = new Resource();
-        resource.setId(resourceId);
-
-        //Setting ContextProfile
-        UUID contextProfileId = UUID.randomUUID();
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentResourceId(resourceId);
-        contextProfile.setIsComplete(true);
-
-        ContextProfileEvent contextProfileEvent =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "someJson", null);
-
-        List<ContextProfileEvent> list = new ArrayList<>();
-        list.add(contextProfileEvent);
-
-        when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
-        when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
-        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
-        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
-
-        StartContextEventResponseDto result = contextEventService.startContextEvent(contextId, UUID.randomUUID());
-
-        verify(contextService, times(1)).findById(any(UUID.class));
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(0)).findByContextProfileId(any(UUID.class));
-        verify(contextProfileEventService, times(1)).deleteByContextProfileId(any(UUID.class));
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong context ID", contextId, result.getId());
-        assertEquals("Wrong current resource ID", resourceId, result.getCurrentResourceId());
-        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertEquals("Events list is not empty", 0, result.getEvents().size());
-    }
-
-    @Test
-    public void restartContextProfile() throws Exception {
-        //Setting Resource
-        UUID resourceId = UUID.randomUUID();
-        Resource resource = new Resource();
-        resource.setId(resourceId);
-
-        //Setting ContextProfile
-        UUID profileId = UUID.randomUUID();
-        UUID contextId = UUID.randomUUID();
-        UUID id = UUID.randomUUID();
-
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setIsComplete(false);
-        contextProfile.setContextId(contextId);
-        contextProfile.setCurrentResourceId(resourceId);
-        contextProfile.setProfileId(profileId);
-        contextProfile.setId(id);
-
-        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(contextProfile);
-        when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
-
-        ContextProfile result = WhiteboxImpl.invokeMethod(contextEventService, "restartContextProfile",
-                contextProfile);
-
-        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong ID", id, result.getId());
-        assertEquals("Wrong context ID", contextId, result.getContextId());
-        assertEquals("Wrong profile ID", profileId, result.getProfileId());
-        assertEquals("Wrong resource ID", resourceId, result.getCurrentResourceId());
-        assertFalse("ContextProfile is not complete", result.getIsComplete());
-    }
-
-    @Test
     public void getFirstResourceByContextId() throws Exception {
         Resource result =
                 WhiteboxImpl.invokeMethod(contextEventService, "findFirstResourceByContextId", UUID.randomUUID());
@@ -312,16 +241,13 @@ public class ContextEventServiceTest {
     @Test
     public void onResourceEvent() throws Exception {
         //Params
-        UUID contextId = UUID.randomUUID();
         UUID profileId = UUID.randomUUID();
 
         //Creating contextProfile
-        UUID contextProfileId = UUID.randomUUID();
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
 
         //Creating resource
-        UUID resourceId = UUID.randomUUID();
         Resource resource = new Resource();
         resource.setId(resourceId);
 
@@ -372,13 +298,12 @@ public class ContextEventServiceTest {
         when(contextProfileEventService
                 .findByContextProfileIdAndResourceId(contextProfileId, bodyResourceId)).thenReturn(null);
 
-        contextEventService.onResourceEvent(contextId, resourceId, profileId, body);
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(resourceService, times(2)).findById(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
-        verify(contextProfileEventService, times(1))
-                .findByContextProfileIdAndResourceId(contextProfileId, bodyResourceId);
+        verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
         verify(contextProfileEventService, times(1)).save(any(ContextProfileEvent.class));
     }
 
@@ -457,8 +382,8 @@ public class ContextEventServiceTest {
         String userAnswer = "A";
         String correctAnswer = "a";
 
-        int result =
-                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForSimpleOption", userAnswer, correctAnswer);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForSimpleOption", userAnswer,
+                correctAnswer);
         assertEquals("Score should be 100", 100, result);
     }
 
@@ -467,8 +392,8 @@ public class ContextEventServiceTest {
         String userAnswer = "A";
         String correctAnswer = "B";
 
-        int result =
-                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForSimpleOption", userAnswer, correctAnswer);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForSimpleOption", userAnswer,
+                correctAnswer);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -477,25 +402,24 @@ public class ContextEventServiceTest {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setIsComplete(false);
 
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(contextProfile);
 
-        contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
+        contextEventService.processFinishContextEvent(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));
     }
 
-    @Test
+    @Test(expected = ContentNotFoundException.class)
     public void finishContextEventDoNothing() throws Exception {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setIsComplete(true);
 
-        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class))).thenReturn(contextProfile);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenThrow(ContentNotFoundException.class);
 
-        contextEventService.finishContextEvent(UUID.randomUUID(), UUID.randomUUID());
-
-        verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
+        contextEventService.processFinishContextEvent(UUID.randomUUID(), UUID.randomUUID());
     }
 
     @Test
@@ -538,8 +462,6 @@ public class ContextEventServiceTest {
 
         //Setting context
         Context contextMock = new Context();
-        UUID contextId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
         contextMock.setId(contextId);
         contextMock.setCollectionId(collectionId);
 
@@ -591,8 +513,6 @@ public class ContextEventServiceTest {
 
         //Setting context
         Context contextMock = new Context();
-        UUID contextId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
         contextMock.setId(contextId);
         contextMock.setCollectionId(collectionId);
 
@@ -620,7 +540,7 @@ public class ContextEventServiceTest {
         List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
 
         EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
-                "calculateEventSummaryData",
+                "calculateEventSummary",
                 contextProfileEvents, true);
 
         assertNotNull("ContextProfile EventSummaryData is null", eventSummaryDataDto);
@@ -628,7 +548,7 @@ public class ContextEventServiceTest {
         assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 50);
         assertEquals(eventSummaryDataDto.getAverageReaction(), 2);
         assertEquals(eventSummaryDataDto.getTotalCorrect(), 3);
-        assertEquals(eventSummaryDataDto.getTotalAnswered(), 4);
+        assertEquals(eventSummaryDataDto.getTotalAnswered(), 5);
     }
 
     @Test
@@ -636,18 +556,32 @@ public class ContextEventServiceTest {
         List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
 
         EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
-                "calculateEventSummaryData",
+                "calculateEventSummary",
                 contextProfileEvents, false);
 
         assertNotNull("ContextProfile EventSummaryData is null", eventSummaryDataDto);
         assertEquals(eventSummaryDataDto.getAverageScore(), 75);
-        assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 49);
+        assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 50);
         assertEquals(eventSummaryDataDto.getAverageReaction(), 2);
         assertEquals(eventSummaryDataDto.getTotalCorrect(), 3);
         assertEquals(eventSummaryDataDto.getTotalAnswered(), 4);
     }
 
-    private List<ContextProfileEvent> createContextProfileEvents(){
+    @Test
+    public void calculateEventSummaryDataForEmptyEventList() throws Exception {
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
+                "calculateEventSummary",
+                contextProfileEvents, false);
+
+        assertEquals(eventSummaryDataDto.getAverageScore(), 0);
+        assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 0);
+        assertEquals(eventSummaryDataDto.getAverageReaction(), 0);
+        assertEquals(eventSummaryDataDto.getTotalCorrect(), 0);
+        assertEquals(eventSummaryDataDto.getTotalAnswered(), 0);
+    }
+
+    private List<ContextProfileEvent> createContextProfileEvents() {
         UUID contextProfileId = UUID.randomUUID();
         ContextProfileEvent event1 = new ContextProfileEvent();
         event1.setId(UUID.randomUUID());
