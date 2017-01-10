@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class ContextService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -95,6 +94,7 @@ public class ContextService {
      * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
+    @Transactional
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
         Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
         if (owner == null) {
@@ -141,6 +141,7 @@ public class ContextService {
      * @param lms                  the LMS id
      * @return the updated Context
      */
+    @Transactional
     public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Context context = findByIdAndOwnerId(contextId, profileId);
         if (context == null) {
@@ -308,6 +309,7 @@ public class ContextService {
      * @param lmsId      Lms
      * @return the created Profile
      */
+    @Transactional
     private Profile createProfile(ProfileDto profileDto, Lms lmsId) {
         Profile profile = new Profile();
         profile.setExternalId(profileDto.getId());
