@@ -635,6 +635,20 @@ public class ContextEventServiceTest {
         assertEquals(eventSummaryDataDto.getTotalAnswered(), 4);
     }
 
+    @Test
+    public void calculateEventSummaryDataForEmptyEventList() throws Exception {
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
+                "calculateEventSummary",
+                contextProfileEvents, false);
+
+        assertEquals(eventSummaryDataDto.getAverageScore(), 0);
+        assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 0);
+        assertEquals(eventSummaryDataDto.getAverageReaction(), 0);
+        assertEquals(eventSummaryDataDto.getTotalCorrect(), 0);
+        assertEquals(eventSummaryDataDto.getTotalAnswered(), 0);
+    }
+
     private List<ContextProfileEvent> createContextProfileEvents() {
         UUID contextProfileId = UUID.randomUUID();
         ContextProfileEvent event1 = new ContextProfileEvent();

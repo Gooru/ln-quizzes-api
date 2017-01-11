@@ -64,7 +64,6 @@ frisby.create('Test context creation for one assignee and owner for start contex
                             .expectStatus(200)
                             .inspectJSON()
                             .afterJSON(function (collection) {
-
                                 frisby.create('Start Context and verify the data')
                                     .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
                                     .addHeader('profile-id', profile.id)
@@ -72,17 +71,10 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                     .inspectRequest()
                                     .expectStatus(200)
                                     .inspectJSON()
-                                    .expectJSON({
-                                        'id': context.id,
-                                        'collection': {
-                                            'id': collection.id
-                                        },
-                                        'currentResourceId': collection.resources[0].id,
-                                        'events': []
-                                    })
                                     .afterJSON(function (startResponse) {
                                         frisby.create('Answer the first and current question')
-                                            .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/on-resource/' + collection.resources[1].id , {
+                                            .post(QuizzesApiUrl + '/v1/context/' + context.id
+                                                + '/event/on-resource/' + collection.resources[1].id , {
                                                 "previousResource": {
                                                     "answer": [
                                                         {
@@ -107,7 +99,8 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                     .inspectJSON()
                                                     .afterJSON(function (ownerProfile) {
                                                         frisby.create('Get the context Events as an owner')
-                                                            .get(QuizzesApiUrl + '/v1/context/' + context.id + '/events')
+                                                            .get(QuizzesApiUrl + '/v1/context/'
+                                                                    + context.id + '/events')
                                                             .addHeader('profile-id', ownerProfile.id)
                                                             .addHeader('lms-id', 'quizzes')
                                                             .inspectRequest()
@@ -121,17 +114,17 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                                     {
                                                                         "currentResourceId": collection.resources[1].id,
                                                                         "events": [
-                                                                            {
-                                                                                "answer": [
-                                                                                    {
-                                                                                        "value": "4"
-                                                                                    }
-                                                                                ],
-                                                                                "isSkipped": false,
-                                                                                "reaction": 3,
-                                                                                "resourceId": collection.resources[0].id,
-                                                                                "timeSpent": 4525
-                                                                            }
+                                                                        {
+                                                                            "answer": [
+                                                                                {
+                                                                                    "value": "4"
+                                                                                }
+                                                                            ],
+                                                                            "isSkipped": false,
+                                                                            "reaction": 3,
+                                                                            "resourceId": collection.resources[0].id,
+                                                                            "timeSpent": 4525
+                                                                        }
                                                                         ],
                                                                         "profileId": profile.id
                                                                     }
@@ -171,7 +164,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
     })
 .toss();
 
-frisby.create('Test context creation for one assignee and owner for start context ')
+frisby.create('Test context events for one assignee and owner for a not started context ')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
@@ -259,7 +252,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
     })
 .toss();
 
-frisby.create('Test context creation for one assignee and owner for start context ')
+frisby.create('Test context events for one assignee and owner for started context without events ')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
@@ -330,15 +323,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                     .inspectRequest()
                                     .expectStatus(200)
                                     .inspectJSON()
-                                    .expectJSON({
-                                        'id': context.id,
-                                        'collection': {
-                                            'id': collection.id
-                                        },
-                                        'currentResourceId': collection.resources[0].id,
-                                        'events': []
-                                    })
-                                    .afterJSON(function (startResponse) {
+                                    .afterJSON(function () {
                                         frisby.create('Get the owner id in Quizzes')
                                             .get(QuizzesApiUrl + '/v1/profile-by-external-id/teacher-id-1')
                                             .addHeader('client-id', 'quizzes')
