@@ -40,40 +40,40 @@ frisby.create('Test context creation for one assignee and owner for start contex
     .expectStatus(200)
     .expectHeaderContains('content-type', 'application/json')
     .inspectJSON()
-    .afterJSON(function (context) {
+    .afterJSON(function (contextCreated) {
         frisby.create('Get the assignee id in Quizzes')
             .get(QuizzesApiUrl + '/v1/profile-by-external-id/student-id-1')
             .addHeader('client-id', 'quizzes')
             .inspectRequest()
             .expectStatus(200)
             .inspectJSON()
-            .afterJSON(function (profile) {
+            .afterJSON(function (assigneeProfile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
-                    .addHeader('profile-id', profile.id)
+                    .get(QuizzesApiUrl + '/v1/context/assigned/' + contextCreated.id)
+                    .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
                     .expectStatus(200)
                     .inspectJSON()
-                    .afterJSON(function (contextCreated) {
+                    .afterJSON(function (contextAssigned) {
                         frisby.create('Get the collection information')
-                            .get(QuizzesApiUrl + '/v1/collection/' + contextCreated.collection.id)
-                            .addHeader('profile-id', profile.id)
+                            .get(QuizzesApiUrl + '/v1/collection/' + contextAssigned.collection.id)
+                            .addHeader('profile-id', assigneeProfile.id)
                             .addHeader('client-id', 'quizzes')
                             .inspectRequest()
                             .expectStatus(200)
                             .inspectJSON()
                             .afterJSON(function (collection) {
                                 frisby.create('Start Context and verify the data')
-                                    .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
-                                    .addHeader('profile-id', profile.id)
+                                    .post(QuizzesApiUrl + '/v1/context/' + contextAssigned.id + '/event/start')
+                                    .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
                                     .expectStatus(200)
                                     .inspectJSON()
                                     .afterJSON(function (startResponse) {
                                         frisby.create('Answer the first and current question')
-                                            .post(QuizzesApiUrl + '/v1/context/' + context.id
+                                            .post(QuizzesApiUrl + '/v1/context/' + contextAssigned.id
                                                 + '/event/on-resource/' + collection.resources[1].id , {
                                                 "previousResource": {
                                                     "answer": [
@@ -86,7 +86,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                     "timeSpent": 4525
                                                 }
                                             }, {json: true})
-                                            .addHeader('profile-id', profile.id)
+                                            .addHeader('profile-id', assigneeProfile.id)
                                             .addHeader('lms-id', 'quizzes')
                                             .inspectRequest()
                                             .expectStatus(204)
@@ -100,16 +100,17 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                     .afterJSON(function (ownerProfile) {
                                                         frisby.create('Get the context Events as an owner')
                                                             .get(QuizzesApiUrl + '/v1/context/'
-                                                                    + context.id + '/events')
+                                                                    + contextAssigned.id + '/events')
                                                             .addHeader('profile-id', ownerProfile.id)
                                                             .addHeader('lms-id', 'quizzes')
                                                             .inspectRequest()
                                                             .expectStatus(200)
+                                                            .inspectJSON()
                                                             .expectJSON({
                                                                 "collection": {
                                                                     "id": collection.id
                                                                 },
-                                                                "contextId": context.id,
+                                                                "contextId": contextAssigned.id,
                                                                 "profileEvents": [
                                                                     {
                                                                         "currentResourceId": collection.resources[1].id,
@@ -126,28 +127,19 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                                             "timeSpent": 4525
                                                                         }
                                                                         ],
-                                                                        "profileId": profile.id
+                                                                        "profileId": assigneeProfile.id,
+                                                                        "contextProfileSummary":
+                                                                            {
+                                                                                "totalTimeSpent": 4525,
+                                                                                "averageReaction": 3,
+                                                                                "averageScore": 0,
+                                                                                "totalCorrect": 0,
+                                                                                "totalAnswered": 1
+                                                                            }
                                                                     }
                                                                 ]
                                                             })
                                                         .toss()
-
-                                                        frisby.create('Get the context Events as an assignee')
-                                                            .get(QuizzesApiUrl + '/v1/context/' + context.id + '/events')
-                                                            .addHeader('profile-id', profile.id)
-                                                            .addHeader('lms-id', 'quizzes')
-                                                            .inspectRequest()
-                                                            .expectStatus(404)
-                                                            .inspectJSON()
-                                                            .expectJSON({
-                                                                "status": 404
-                                                            })
-                                                            .expectJSONTypes({
-                                                                message: String,
-                                                                status: Number,
-                                                                exception: String
-                                                            })
-                                                            .toss();
                                                     })
                                                 .toss();
 

@@ -16,5 +16,9 @@ public interface AssigneeEventEntity {
 
     void setEventData(String eventData);
 
+    String getEventsSummary();
+
+    void setEventsSummary(String eventsSummary);
+
 }
 
