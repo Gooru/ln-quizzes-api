@@ -3,6 +3,7 @@ package com.quizzes.api.common.controller;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
+import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +68,17 @@ public class HandlerExceptionControllerTest {
         assertEquals("Wrong exception", "InvalidCredentialsException", result.getException());
         assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
         assertEquals("Wrong message exception", "Invalid client credentials.", result.getMessage());
+    }
+
+    @Test
+    public void handleInvalidSessionException() throws Exception {
+        InvalidSessionException exceptionMock = new InvalidSessionException("Invalid session message");
+        ExceptionMessage result = controller.handleInvalidSessionException(exceptionMock);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", "Invalid session message", result.getException());
+        assertEquals("Wrong status code", HttpStatus.UNAUTHORIZED.value(), result.getStatus());
+        assertEquals("Wrong message exception", "Invalid Session", result.getMessage());
     }
 
 }
