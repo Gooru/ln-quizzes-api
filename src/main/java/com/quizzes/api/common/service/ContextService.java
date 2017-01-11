@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class ContextService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -83,18 +82,19 @@ public class ContextService {
      * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.
      * Some Examples are:
      * ++Collection ID = c1 with external ID (Assessment ID) = a1 external parent ID (parent Assessment ID) = a1 and owner ID = o1
-     *   this is a Collection from an original Assessment, not copied
+     * this is a Collection from an original Assessment, not copied
      * ++Collection ID = c2 with external ID (Assessment ID) = a2 external parent ID (parent Assessment ID) = a1 and owner ID = o2
-     *   this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
+     * this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
      * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o3
-     *   this is an owner's o3 copy of Assessment ID = a2
+     * this is an owner's o3 copy of Assessment ID = a2
      * ++Collection ID = c5 with external ID (Assessment ID) = a5 external parent ID (parent Assessment ID) = a5 and owner ID = o4
-     *   this is an owner's o4 own Assessment ID = a5
+     * this is an owner's o4 own Assessment ID = a5
      *
      * @param contextPostRequestDto information to create the new {@link Context}
      * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
      * @return The only value in the result is the context ID
      */
+    @Transactional
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
         Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
         if (owner == null) {
@@ -106,7 +106,7 @@ public class ContextService {
         if (collection == null) {
             collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
             if (collection == null
-                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))){
+                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))) {
                 // the collection is noll OR the collection has a different owner
                 collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
             }
@@ -141,6 +141,7 @@ public class ContextService {
      * @param lms                  the LMS id
      * @return the updated Context
      */
+    @Transactional
     public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Context context = findByIdAndOwnerId(contextId, profileId);
         if (context == null) {
@@ -308,6 +309,7 @@ public class ContextService {
      * @param lmsId      Lms
      * @return the created Profile
      */
+    @Transactional
     private Profile createProfile(ProfileDto profileDto, Lms lmsId) {
         Profile profile = new Profile();
         profile.setExternalId(profileDto.getId());
