@@ -178,6 +178,8 @@ public class ContextEventService {
             if (!entity.getValue().isEmpty()) {
                 profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
             }
+            //TODO: Add this property in the Entity and in the query
+            profileEvent.setIsCompleted(true);
 
             profileEvent.setEvents(assigneeEventEntityList.stream()
                     .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
