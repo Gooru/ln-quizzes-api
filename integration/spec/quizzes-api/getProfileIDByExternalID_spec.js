@@ -14,7 +14,7 @@ frisby.create('Get the assignee id in Quizzes')
     .toss();
 
 
-frisby.create('Get the assignee id in Quizzes')
+frisby.create('Get the assignee id in Quizzes with a random nonexisting id')
     .get(QuizzesApiUrl + '/v1/profile-by-external-id/random-nonexisting-id')
     .addHeader('client-id', 'quizzes')
     .inspectRequest()
