@@ -1,5 +1,6 @@
 package com.quizzes.api.common.repository;
 
+import com.quizzes.api.common.model.entities.SessionProfileEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Session;
 
@@ -11,7 +12,9 @@ public interface SessionRepository {
 
     Session findLastSessionByProfileId(UUID profileId);
 
-    Session updateLastAccess(Session session);
+    Session updateLastAccess(UUID sessionId);
+
+    SessionProfileEntity findSessionProfileEntityBySessionId(UUID sessionId);
 
     Profile findProfileBySessionId(UUID sessionId);
 }
