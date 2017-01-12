@@ -111,6 +111,17 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .fetchOneInto(ContextOwnerEntity.class);
     }
 
+    @Override
+    public Context findByIdAndAssigneeId(UUID contextId, UUID assigneeId) {
+        return jooq.select()
+                .from(CONTEXT)
+                .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
+                .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(GROUP.ID))
+                .where(CONTEXT.ID.eq(contextId))
+                .and(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
+                .fetchOneInto(Context.class);
+    }
+
     private Context insertContext(final Context context) {
         return jooq.insertInto(CONTEXT)
                 .set(CONTEXT.ID, UUID.randomUUID())

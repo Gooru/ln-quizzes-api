@@ -290,6 +290,10 @@ public class ContextService {
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
+    public Context findByIdAndAssigneeId(UUID contextId, UUID assigneeId) {
+        return contextRepository.findByIdAndAssigneeId(contextId, assigneeId);
+    }
+
     private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {
         ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
         contextAssigned.setId(contextOwner.getId());

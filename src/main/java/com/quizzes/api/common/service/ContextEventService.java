@@ -72,6 +72,9 @@ public class ContextEventService {
         if (context == null) {
             throw new ContentNotFoundException("Not Found Context Id: " + contextId);
         }
+        if (contextService.findByIdAndAssigneeId(contextId, profileId) == null) {
+            throw new ContentNotFoundException(String.format("Content not found for context %s and assignee %s", contextId, profileId));
+        }
 
         ContextProfile contextProfile;
         boolean isNewAttempt = false;

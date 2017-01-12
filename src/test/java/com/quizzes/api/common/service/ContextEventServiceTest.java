@@ -152,6 +152,7 @@ public class ContextEventServiceTest {
         list.add(contextProfileEvent2);
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextProfile);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
@@ -209,6 +210,7 @@ public class ContextEventServiceTest {
         List<ContextProfileEvent> list = new ArrayList<>();
 
         when(contextService.findById(any(UUID.class))).thenReturn(context);
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenThrow(ContentNotFoundException.class);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
