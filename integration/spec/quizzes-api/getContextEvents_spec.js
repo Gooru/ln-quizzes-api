@@ -140,6 +140,23 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                                 ]
                                                             })
                                                         .toss()
+
+                                                        frisby.create('Get the context Events as an assignee')
+                                                            .get(QuizzesApiUrl + '/v1/context/' + contextAssigned.id + '/events')
+                                                            .addHeader('profile-id', assigneeProfile.id)
+                                                            .addHeader('lms-id', 'quizzes')
+                                                            .inspectRequest()
+                                                            .expectStatus(404)
+                                                            .inspectJSON()
+                                                            .expectJSON({
+                                                                "status": 404
+                                                            })
+                                                            .expectJSONTypes({
+                                                                message: String,
+                                                                status: Number,
+                                                                exception: String
+                                                            })
+                                                        .toss();
                                                     })
                                                 .toss();
 
