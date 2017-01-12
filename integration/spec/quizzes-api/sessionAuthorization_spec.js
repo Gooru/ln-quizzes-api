@@ -39,7 +39,7 @@ frisby.create('Token creation with invalid api key')
     // This profile-id header for this specific endpoint is fake, it is useless but it is required by the endpoint
     // Both headers will be replaced by the session-token header once we finish with the Session implementation
     .inspectRequest()
-    .expectStatus(404)
+    .expectStatus(401)
     .expectHeaderContains('content-type', 'application/json')
     .inspectJSON()
     .expectJSON({
@@ -67,7 +67,7 @@ frisby.create('Token creation with invalid api secret')
     // This profile-id header for this specific endpoint is fake, it is useless but it is required by the endpoint
     // Both headers will be replaced by the session-token header once we finish with the Session implementation
     .inspectRequest()
-    .expectStatus(200)
+    .expectStatus(401)
     .expectHeaderContains('content-type', 'application/json')
     .inspectJSON()
     .expectJSON({
