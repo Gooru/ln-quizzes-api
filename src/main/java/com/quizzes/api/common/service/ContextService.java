@@ -12,6 +12,7 @@ import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -20,6 +21,7 @@ import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.Group;
 import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
+import com.quizzes.api.common.model.mappers.EntityMapper;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
 import org.slf4j.Logger;
@@ -127,32 +129,6 @@ public class ContextService {
         return result;
     }
 
-    public Context findById(UUID contextId) {
-        Context context = contextRepository.findById(contextId);
-        if (context == null) {
-            throw new ContentNotFoundException("We couldn't find a context with ID: " + contextId);
-        }
-        return context;
-    }
-
-    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
-        Context context = contextRepository.findByIdAndOwnerId(contextId, ownerId);
-        if (context == null) {
-            throw new ContentNotFoundException("We couldn't find a context with ID: " + contextId +
-                    " for owner profile ID: " + ownerId);
-        }
-        return context;
-    }
-
-    public Context findActiveContextByIdAndOwnerId(UUID contextId, UUID ownerId) {
-        Context context = contextRepository.findActiveContextByIdAndOwnerId(contextId, ownerId);
-        if (context == null) {
-            throw new ContentNotFoundException("We couldn't find a context with ID: " + contextId +
-                    " for owner profile ID: " + ownerId);
-        }
-        return context;
-    }
-
     /**
      * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
@@ -213,15 +189,29 @@ public class ContextService {
         return contextRepository.save(context);
     }
 
-    public List<Context> findContextByOwnerId(UUID profileId) {
-        return contextRepository.findByOwnerId(profileId);
+    public Context findById(UUID contextId) {
+        Context context = contextRepository.findById(contextId);
+        if (context == null) {
+            throw new ContentNotFoundException("Context not found for Context ID: " + contextId);
+        }
+        return context;
+    }
+
+    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
+        ContextOwnerEntity contextOwner = contextRepository.findContextOwnerById(contextId);
+        if (contextOwner == null) {
+            throw new ContentNotFoundException("Context not found for Context ID: " + contextId);
+        }
+        if (!contextOwner.getOwnerProfileId().equals(ownerId)) {
+            throw new InvalidOwnerException("Invalid Owner ID: " + ownerId + " for Context ID: " + contextId);
+        }
+        return EntityMapper.mapContextEntityToContext(contextOwner);
     }
 
     public List<CreatedContextGetResponseDto> findCreatedContexts(UUID ownerId) {
         List<CreatedContextGetResponseDto> result = new ArrayList<>();
         Map<UUID, List<ContextAssigneeEntity>> contextByOwnerList =
                 contextRepository.findContextAssigneeByOwnerId(ownerId);
-
 
         if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
             contextByOwnerList.forEach(
@@ -356,4 +346,5 @@ public class ContextService {
         jsonObject.remove("id");
         return jsonObject;
     }
+
 }

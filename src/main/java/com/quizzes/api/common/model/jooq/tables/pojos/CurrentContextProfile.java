@@ -9,12 +9,12 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CurrentContextProfile implements java.io.Serializable {
 
-	private static final long serialVersionUID = -1050315748;
+	private static final long serialVersionUID = -664202534;
 
 	private java.util.UUID    contextId;
 	private java.util.UUID    profileId;
 	private java.util.UUID    contextProfileId;
-	private java.lang.Boolean isCompleted;
+	private java.lang.Boolean isComplete;
 
 	public CurrentContextProfile() {}
 
@@ -22,12 +22,12 @@ public class CurrentContextProfile implements java.io.Serializable {
 		java.util.UUID    contextId,
 		java.util.UUID    profileId,
 		java.util.UUID    contextProfileId,
-		java.lang.Boolean isCompleted
+		java.lang.Boolean isComplete
 	) {
 		this.contextId = contextId;
 		this.profileId = profileId;
 		this.contextProfileId = contextProfileId;
-		this.isCompleted = isCompleted;
+		this.isComplete = isComplete;
 	}
 
 	public java.util.UUID getContextId() {
@@ -54,11 +54,11 @@ public class CurrentContextProfile implements java.io.Serializable {
 		this.contextProfileId = contextProfileId;
 	}
 
-	public java.lang.Boolean getIsCompleted() {
-		return this.isCompleted;
+	public java.lang.Boolean getIsComplete() {
+		return this.isComplete;
 	}
 
-	public void setIsCompleted(java.lang.Boolean isCompleted) {
-		this.isCompleted = isCompleted;
+	public void setIsComplete(java.lang.Boolean isComplete) {
+		this.isComplete = isComplete;
 	}
 }

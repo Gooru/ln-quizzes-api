@@ -10,6 +10,7 @@ import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
@@ -106,9 +107,7 @@ public class ContextEventServiceTest {
     @Test
     public void startContextEventWithCurrentContextProfileFalse() throws Exception {
         //Setting context
-        Context context = new Context();
-        context.setId(contextId);
-        context.setCollectionId(collectionId);
+        Context context = createContext();
 
         //Setting resource
         Resource resource = new Resource();
@@ -160,7 +159,7 @@ public class ContextEventServiceTest {
         list.add(contextProfileEvent2);
 
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
-        currentContextProfile.setIsCompleted(false);
+        currentContextProfile.setIsComplete(false);
 
         when(contextService.findById(contextId)).thenReturn(context);
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
@@ -208,9 +207,7 @@ public class ContextEventServiceTest {
     @Test
     public void startContextEventWithCurrentContextProfileTrue() throws Exception {
         //Setting context
-        Context context = new Context();
-        context.setId(contextId);
-        context.setCollectionId(collectionId);
+        Context context = createContext();
 
         //Setting resource
         Resource resource = new Resource();
@@ -222,7 +219,7 @@ public class ContextEventServiceTest {
         contextProfile.setCurrentResourceId(resourceId);
 
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
-        currentContextProfile.setIsCompleted(true);
+        currentContextProfile.setIsComplete(true);
 
         when(contextService.findById(contextId)).thenReturn(context);
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
@@ -254,9 +251,7 @@ public class ContextEventServiceTest {
     @Test
     public void startContextEventWhenCurrentContextProfileNull() throws Exception {
         //Setting context
-        Context context = new Context();
-        context.setId(contextId);
-        context.setCollectionId(collectionId);
+        Context context = createContext();
 
         //Setting resource
         Resource resource = new Resource();
@@ -523,17 +518,15 @@ public class ContextEventServiceTest {
         contextEventsMap.put(assigneeId1, events);
 
         //Setting context
-        Context contextMock = new Context();
-        contextMock.setId(contextId);
-        contextMock.setCollectionId(collectionId);
+        Context context = createContext();
 
         when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
-        when(contextService.findActiveContextByIdAndOwnerId(contextId, ownerId)).thenReturn(contextMock);
+        when(contextService.findByIdAndOwnerId(contextId, ownerId)).thenReturn(context);
 
         ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
 
         verify(contextProfileEventService, times(1)).findByContextId(contextId);
-        verify(contextService, times(1)).findActiveContextByIdAndOwnerId(contextId, ownerId);
+        verify(contextService, times(1)).findByIdAndOwnerId(contextId, ownerId);
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong context ID", contextId, result.getContextId());
@@ -574,17 +567,15 @@ public class ContextEventServiceTest {
         contextEventsMap.put(assigneeId, events);
 
         //Setting context
-        Context contextMock = new Context();
-        contextMock.setId(contextId);
-        contextMock.setCollectionId(collectionId);
+        Context context = createContext();
 
         when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
-        when(contextService.findActiveContextByIdAndOwnerId(contextId, ownerId)).thenReturn(contextMock);
+        when(contextService.findByIdAndOwnerId(contextId, ownerId)).thenReturn(context);
 
         ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
 
         verify(contextProfileEventService, times(1)).findByContextId(contextId);
-        verify(contextService, times(1)).findActiveContextByIdAndOwnerId(contextId, ownerId);
+        verify(contextService, times(1)).findByIdAndOwnerId(contextId, ownerId);
 
         assertNotNull("Result is null", result);
         assertEquals("Wrong context ID", contextId, result.getContextId());
@@ -598,9 +589,17 @@ public class ContextEventServiceTest {
     }
 
     @Test(expected = ContentNotFoundException.class)
-    public void getContextEventsThrowException() throws Exception {
-        when(contextService.findActiveContextByIdAndOwnerId(contextId, ownerId)).thenThrow(ContentNotFoundException.class);
-        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
+    public void getContextEventsThrowsContentNotFoundException() {
+        when(contextService.findByIdAndOwnerId(any(UUID.class), any(UUID.class)))
+                .thenThrow(ContentNotFoundException.class);
+        contextEventService.getContextEvents(UUID.randomUUID(), UUID.randomUUID());
+    }
+
+    @Test(expected = InvalidOwnerException.class)
+    public void getContextEventsThrowsInvalidOwnerException() {
+        when(contextService.findByIdAndOwnerId(any(UUID.class), any(UUID.class)))
+                .thenThrow(InvalidOwnerException.class);
+        contextEventService.getContextEvents(UUID.randomUUID(), UUID.randomUUID());
     }
 
     @Test
@@ -712,4 +711,13 @@ public class ContextEventServiceTest {
         currentContextProfile.setProfileId(profileId);
         return currentContextProfile;
     }
+
+    private Context createContext() {
+        Context context = new Context();
+        context.setId(contextId);
+        context.setCollectionId(collectionId);
+        context.setContextData("{}");
+        return context;
+    }
+
 }

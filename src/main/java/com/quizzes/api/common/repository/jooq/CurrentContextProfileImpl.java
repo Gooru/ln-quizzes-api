@@ -44,7 +44,7 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
     @Override
     public CurrentContextProfile finish(CurrentContextProfile currentContextProfile) {
         return jooq.update(CURRENT_CONTEXT_PROFILE)
-                .set(CURRENT_CONTEXT_PROFILE.IS_COMPLETED, true)
+                .set(CURRENT_CONTEXT_PROFILE.IS_COMPLETE, true)
                 .where(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(currentContextProfile.getContextId()))
                 .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(currentContextProfile.getProfileId()))
                 .returning()
@@ -55,7 +55,7 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
     @Override
     public CurrentContextProfile startAttempt(CurrentContextProfile currentContextProfile) {
         return jooq.update(CURRENT_CONTEXT_PROFILE)
-                .set(CURRENT_CONTEXT_PROFILE.IS_COMPLETED, false)
+                .set(CURRENT_CONTEXT_PROFILE.IS_COMPLETE, false)
                 .set(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID, currentContextProfile.getContextProfileId())
                 .where(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(currentContextProfile.getContextId()))
                 .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(currentContextProfile.getProfileId()))

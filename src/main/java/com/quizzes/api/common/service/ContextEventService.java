@@ -16,12 +16,15 @@ import com.quizzes.api.common.dto.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.common.dto.messaging.StartContextEventMessageDto;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
+import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.common.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
+import com.quizzes.api.common.model.mappers.EntityMapper;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +80,7 @@ public class ContextEventService {
         try {
             currentContextProfile = currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
             contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
-            if (currentContextProfile.getIsCompleted()) {
+            if (currentContextProfile.getIsComplete()) {
                 isNewAttempt = true;
                 contextProfile = createNewContextProfile(contextId, profileId);
                 doStartUpdateContextEventTransaction(contextProfile, currentContextProfile);
@@ -160,8 +163,7 @@ public class ContextEventService {
     }
 
     public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
-        Context context = contextService.findActiveContextByIdAndOwnerId(contextId, ownerId);
-
+        Context context = contextService.findByIdAndOwnerId(contextId, ownerId);
         Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
                 contextProfileEventService.findByContextId(contextId);
         ContextEventsResponseDto response = new ContextEventsResponseDto();
@@ -179,7 +181,7 @@ public class ContextEventService {
                 profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
             }
             //TODO: Add this property in the Entity and in the query
-            profileEvent.setIsCompleted(true);
+            profileEvent.setIsComplete(true);
 
             profileEvent.setEvents(assigneeEventEntityList.stream()
                     .filter(studentEventEntity -> studentEventEntity.getEventData() != null)

@@ -9,7 +9,7 @@ package com.quizzes.api.common.model.jooq.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CurrentContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.common.model.jooq.tables.records.CurrentContextProfileRecord> implements org.jooq.Record4<java.util.UUID, java.util.UUID, java.util.UUID, java.lang.Boolean> {
 
-	private static final long serialVersionUID = 492682057;
+	private static final long serialVersionUID = -1548050751;
 
 	/**
 	 * Setter for <code>public.current_context_profile.context_id</code>.
@@ -54,16 +54,16 @@ public class CurrentContextProfileRecord extends org.jooq.impl.TableRecordImpl<c
 	}
 
 	/**
-	 * Setter for <code>public.current_context_profile.is_completed</code>.
+	 * Setter for <code>public.current_context_profile.is_complete</code>.
 	 */
-	public void setIsCompleted(java.lang.Boolean value) {
+	public void setIsComplete(java.lang.Boolean value) {
 		setValue(3, value);
 	}
 
 	/**
-	 * Getter for <code>public.current_context_profile.is_completed</code>.
+	 * Getter for <code>public.current_context_profile.is_complete</code>.
 	 */
-	public java.lang.Boolean getIsCompleted() {
+	public java.lang.Boolean getIsComplete() {
 		return (java.lang.Boolean) getValue(3);
 	}
 
@@ -116,7 +116,7 @@ public class CurrentContextProfileRecord extends org.jooq.impl.TableRecordImpl<c
 	 */
 	@Override
 	public org.jooq.Field<java.lang.Boolean> field4() {
-		return com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE.IS_COMPLETED;
+		return com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE.IS_COMPLETE;
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class CurrentContextProfileRecord extends org.jooq.impl.TableRecordImpl<c
 	 */
 	@Override
 	public java.lang.Boolean value4() {
-		return getIsCompleted();
+		return getIsComplete();
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class CurrentContextProfileRecord extends org.jooq.impl.TableRecordImpl<c
 	 */
 	@Override
 	public CurrentContextProfileRecord value4(java.lang.Boolean value) {
-		setIsCompleted(value);
+		setIsComplete(value);
 		return this;
 	}
 
@@ -209,12 +209,12 @@ public class CurrentContextProfileRecord extends org.jooq.impl.TableRecordImpl<c
 	/**
 	 * Create a detached, initialised CurrentContextProfileRecord
 	 */
-	public CurrentContextProfileRecord(java.util.UUID contextId, java.util.UUID profileId, java.util.UUID contextProfileId, java.lang.Boolean isCompleted) {
+	public CurrentContextProfileRecord(java.util.UUID contextId, java.util.UUID profileId, java.util.UUID contextProfileId, java.lang.Boolean isComplete) {
 		super(com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE);
 
 		setValue(0, contextId);
 		setValue(1, profileId);
 		setValue(2, contextProfileId);
-		setValue(3, isCompleted);
+		setValue(3, isComplete);
 	}
 }

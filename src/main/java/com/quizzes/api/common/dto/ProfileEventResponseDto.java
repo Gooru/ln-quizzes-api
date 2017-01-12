@@ -8,7 +8,7 @@ public class ProfileEventResponseDto {
     private UUID currentResourceId;
     private UUID profileId;
     private List<PostResponseResourceDto> events;
-    private boolean isCompleted;
+    private boolean isComplete;
 
     public ProfileEventResponseDto() {
     }
@@ -37,11 +37,12 @@ public class ProfileEventResponseDto {
         this.events = events;
     }
 
-    public boolean getIsCompleted() {
-        return isCompleted;
+    public boolean isComplete() {
+        return isComplete;
     }
 
-    public void setIsCompleted(boolean completed) {
-        isCompleted = completed;
+    public void setIsComplete(boolean isComplete) {
+        this.isComplete = isComplete;
     }
+
 }
