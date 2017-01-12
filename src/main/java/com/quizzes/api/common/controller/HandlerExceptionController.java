@@ -3,6 +3,7 @@ package com.quizzes.api.common.controller;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
+import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.slf4j.Logger;
@@ -57,18 +58,6 @@ public class HandlerExceptionController {
     }
 
     /**
-     * Handles any general exception
-     *
-     * @return Exception message with status code 500
-     */
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(value = Exception.class)
-    public ExceptionMessage handleException(Exception e) {
-        logger.error("Internal Server Error", e);
-        return new ExceptionMessage("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
-    }
-
-    /**
      * Handles invalid session errors
      *
      * @return Invalid Session and status 401
@@ -78,6 +67,30 @@ public class HandlerExceptionController {
     public ExceptionMessage handleInvalidSessionException(InvalidSessionException e) {
         logger.error("Invalid Session", e);
         return new ExceptionMessage("Invalid Session", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    }
+
+    /**
+     * Handles Invalid Owner exception scenarios
+     *
+     * @return Unprocessable Entity error with Status 422
+     */
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(value = InvalidOwnerException.class)
+    public ExceptionMessage handleInvalidOwnerException(InvalidOwnerException e) {
+        logger.error("The Owner is invalid", e);
+        return new ExceptionMessage("The Owner is invalid", HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
+    }
+
+    /**
+     * Handles any general exception
+     *
+     * @return Exception message with status code 500
+     */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = Exception.class)
+    public ExceptionMessage handleException(Exception e) {
+        logger.error("Internal Server Error", e);
+        return new ExceptionMessage("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
     }
 
 }
