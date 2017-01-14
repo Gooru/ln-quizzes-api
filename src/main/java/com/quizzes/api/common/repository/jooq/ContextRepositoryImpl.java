@@ -3,6 +3,7 @@ package com.quizzes.api.common.repository.jooq;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
+import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.common.repository.ContextRepository;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,14 +113,15 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public Context findByIdAndAssigneeId(UUID contextId, UUID assigneeId) {
-        return jooq.select()
+    public List<ContextAssigneeEntity> findContextAssigneeByContextId(UUID contextId){
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
+                CONTEXT.UPDATED_AT, CONTEXT.IS_DELETED, CONTEXT.IS_ACTIVE, CONTEXT.GROUP_ID ,
+                GROUP_PROFILE.PROFILE_ID.as("assignee_profile_id"))
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .join(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(GROUP.ID))
+                .leftJoin(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
                 .where(CONTEXT.ID.eq(contextId))
-                .and(GROUP_PROFILE.PROFILE_ID.eq(assigneeId))
-                .fetchOneInto(Context.class);
+                .fetchInto(ContextAssigneeEntity.class);
     }
 
     private Context insertContext(final Context context) {

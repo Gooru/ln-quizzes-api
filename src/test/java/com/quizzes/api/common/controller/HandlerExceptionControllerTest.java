@@ -2,6 +2,7 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
+import com.quizzes.api.common.exception.InvalidAssigneeException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
@@ -33,7 +34,7 @@ public class HandlerExceptionControllerTest {
         ExceptionMessage result = controller.handleInvalidJsonPropertiesException(exceptionMock);
 
         assertNotNull("Response is Null", result);
-        assertEquals("Wrong exception", "MissingJsonPropertiesException", result.getException());
+        assertEquals("Wrong exception", MissingJsonPropertiesException.class.getSimpleName(), result.getException());
         assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
         assertEquals("Wrong message exception", "Missing JSON properties: classId, unitId", result.getMessage());
     }
@@ -43,9 +44,9 @@ public class HandlerExceptionControllerTest {
         Exception exceptionMock = new Exception("New Error");
         ExceptionMessage exceptionMessage = controller.handleException(exceptionMock);
         assertNotNull("Exception Message is null", exceptionMessage);
-        assertEquals("Wrong message exception", "Internal Server Error", exceptionMessage.getMessage());
+        assertEquals("Wrong message exception", "New Error", exceptionMessage.getMessage());
         assertEquals("Wrong status code", HttpStatus.INTERNAL_SERVER_ERROR.value(), exceptionMessage.getStatus());
-        assertEquals("Wrong exception", "New Error", exceptionMessage.getException());
+        assertEquals("Wrong exception", Exception.class.getSimpleName(), exceptionMessage.getException());
     }
 
     @Test
@@ -54,7 +55,7 @@ public class HandlerExceptionControllerTest {
         ExceptionMessage result = controller.handleContentNotFoundException(exceptionMock);
 
         assertNotNull("Response is Null", result);
-        assertEquals("Wrong exception", "ContentNotFoundException", result.getException());
+        assertEquals("Wrong exception", ContentNotFoundException.class.getSimpleName(), result.getException());
         assertEquals("Wrong status code", HttpStatus.NOT_FOUND.value(), result.getStatus());
         assertEquals("Wrong message exception", "We couldn't find the param", result.getMessage());
     }
@@ -65,7 +66,7 @@ public class HandlerExceptionControllerTest {
         ExceptionMessage result = controller.handleInvalidCredentialsException(exceptionMock);
 
         assertNotNull("Response is Null", result);
-        assertEquals("Wrong exception", "InvalidCredentialsException", result.getException());
+        assertEquals("Wrong exception", InvalidCredentialsException.class.getSimpleName(), result.getException());
         assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
         assertEquals("Wrong message exception", "Invalid client credentials.", result.getMessage());
     }
@@ -76,9 +77,20 @@ public class HandlerExceptionControllerTest {
         ExceptionMessage result = controller.handleInvalidSessionException(exceptionMock);
 
         assertNotNull("Response is Null", result);
-        assertEquals("Wrong exception", "Invalid session message", result.getException());
+        assertEquals("Wrong exception", InvalidSessionException.class.getSimpleName(), result.getException());
         assertEquals("Wrong status code", HttpStatus.UNAUTHORIZED.value(), result.getStatus());
-        assertEquals("Wrong message exception", "Invalid Session", result.getMessage());
+        assertEquals("Wrong message exception", "Invalid session message", result.getMessage());
+    }
+
+    @Test
+    public void handleInvalidAssigneeException() throws Exception {
+        InvalidAssigneeException exceptionMock = new InvalidAssigneeException("Invalid assignee request");
+        ExceptionMessage result = controller.handleInvalidAssigneeException(exceptionMock);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", InvalidAssigneeException.class.getSimpleName(), result.getException());
+        assertEquals("Wrong status code", HttpStatus.FORBIDDEN.value(), result.getStatus());
+        assertEquals("Wrong message exception", "Invalid assignee request", result.getMessage());
     }
 
 }

@@ -4,6 +4,7 @@ import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.service.ContextEventService;
+import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -30,6 +31,9 @@ public class ContextEventController {
     @Autowired
     private ContextEventService contextEventService;
 
+    @Autowired
+    private ContextService contextService;
+
     @ApiOperation(
             value = "Start collection attempt",
             notes = "Sends event to start the Collection attempt associated to the context. " +
@@ -45,6 +49,7 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) {
+        contextService.findByIdAndAssigneeId(contextId, profileId);
         return new ResponseEntity<>(contextEventService.processStartContextEvent(contextId, profileId), HttpStatus.OK);
     }
 
