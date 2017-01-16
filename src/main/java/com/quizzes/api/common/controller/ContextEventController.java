@@ -92,8 +92,11 @@ public class ContextEventController {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ContextEventsResponseDto> getContextEvents(
+            @ApiParam(value = "Context ID", required = true, name = "contextId")
             @PathVariable UUID contextId,
+            @ApiParam(value = "Client LMS ID", required = false, name = "lms-id")
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId,
+            @ApiParam(value = "Context owner Profile ID", required = true, name = "profile-id")
             @RequestHeader(value = "profile-id") UUID profileId) {
         ContextEventsResponseDto contextEvents = contextEventService.getContextEvents(contextId);
         return new ResponseEntity<>(contextEvents, HttpStatus.OK);
