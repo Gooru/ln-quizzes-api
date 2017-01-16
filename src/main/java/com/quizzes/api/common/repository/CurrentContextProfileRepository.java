@@ -8,9 +8,8 @@ public interface CurrentContextProfileRepository {
 
     CurrentContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId);
 
-    CurrentContextProfile save(CurrentContextProfile currentContextProfile);
+    CurrentContextProfile create(CurrentContextProfile currentContextProfile);
 
-    CurrentContextProfile finish(CurrentContextProfile currentContextProfile);
+    void delete(CurrentContextProfile currentContextProfile);
 
-    CurrentContextProfile startAttempt(CurrentContextProfile currentContextProfile);
 }

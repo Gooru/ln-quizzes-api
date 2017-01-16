@@ -24,6 +24,7 @@ import com.quizzes.api.common.service.messaging.ActiveMQClientService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -46,16 +47,17 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.spy;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
 public class ContextEventServiceTest {
 
     @InjectMocks
-    private ContextEventService contextEventService;
+    private ContextEventService contextEventService = spy(ContextEventService.class);
 
     @Mock
-    ContextProfileService contextProfileService;
+    private ContextProfileService contextProfileService;
 
     @Mock
     ContextProfileEventService contextProfileEventService;
@@ -108,68 +110,33 @@ public class ContextEventServiceTest {
 
     @Test
     public void startContextEventWithCurrentContextProfileFalse() throws Exception {
-        //Setting context
         Context context = createContext();
-
-        //Setting resource
-        Resource resource = new Resource();
-        resource.setId(resourceId);
-
-        //Setting contextProfile
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentResourceId(resourceId);
-
-        //Setting Answers
-        AnswerDto answerDto = new AnswerDto();
-        answerDto.setValue("A");
-        List<AnswerDto> answers = new ArrayList<>();
-        answers.add(answerDto);
-
-        //Setting Events
-        UUID resource1 = UUID.randomUUID();
-        PostResponseResourceDto event1 = new PostResponseResourceDto();
-        event1.setScore(0);
-        event1.setReaction(0);
-        event1.setResourceId(resource1);
-        event1.setAnswer(answers);
-        event1.setTimeSpent(1234);
-        event1.setIsSkipped(false);
-
-        //Setting ContextProfileEvent1
-        ContextProfileEvent contextProfileEvent1 =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                        gson.toJson(event1), null);
-
-        //event2
-        UUID resource2 = UUID.randomUUID();
-        PostResponseResourceDto event2 = new PostResponseResourceDto();
-        event2.setScore(0);
-        event2.setReaction(0);
-        event2.setResourceId(resource2);
-        event2.setAnswer(new ArrayList<>());
-        event2.setTimeSpent(1234);
-        event2.setIsSkipped(true);
-
-        //Setting ContextProfileEvent2
-        ContextProfileEvent contextProfileEvent2 =
-                new ContextProfileEvent(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(),
-                        gson.toJson(event2), null);
-
-        List<ContextProfileEvent> list = new ArrayList<>();
-        list.add(contextProfileEvent1);
-        list.add(contextProfileEvent2);
-
+        Resource resource = createResource();
+        ContextProfile contextProfile = createContextProfile();
+        contextProfile.setIsComplete(false);
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
-        currentContextProfile.setIsComplete(false);
+        //Setting Answers
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(new AnswerDto("A"));
+        //Setting Events
+        PostResponseResourceDto resourceDto1 = createResponseResourceDto(UUID.randomUUID(), 0, 0, 1234, answers, false);
+        PostResponseResourceDto resourceDto2 = createResponseResourceDto(UUID.randomUUID(), 0, 0, 1234,
+                new ArrayList<>(), false);
+        ContextProfileEvent contextProfileEvent1 = createContextProfileEvent(contextProfileId, resourceId,
+                gson.toJson(resourceDto1));
+        ContextProfileEvent contextProfileEvent2 = createContextProfileEvent(contextProfileId, resourceId,
+                gson.toJson(resourceDto2));
 
-        when(contextService.findById(contextId)).thenReturn(context);
-        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        contextProfileEvents.add(contextProfileEvent1);
+        contextProfileEvents.add(contextProfileEvent2);
+
+        when(contextService.findById(any(UUID.class))).thenReturn(context);
+        when(contextProfileService.findById(any(UUID.class))).thenReturn(contextProfile);
+        when(currentContextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(currentContextProfile);
-        when(contextProfileService.findById(currentContextProfile.getContextProfileId()))
-                .thenReturn(contextProfile);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
-        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(list);
+        when(contextProfileEventService.findByContextProfileId(any(UUID.class))).thenReturn(contextProfileEvents);
 
         StartContextEventResponseDto result =
                 contextEventService.processStartContextEvent(contextId, profileId);
@@ -179,7 +146,7 @@ public class ContextEventServiceTest {
         verify(contextProfileService, times(1)).findById(eq(currentContextProfile.getContextProfileId()));
         verify(resourceService, times(0)).findFirstByContextIdOrderBySequence(any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
-        verify(currentContextProfileService, times(0)).save(any(CurrentContextProfile.class));
+        verify(currentContextProfileService, times(0)).create(any(CurrentContextProfile.class));
         verify(contextProfileEventService, times(1)).findByContextProfileId(any(UUID.class));
         verify(activeMQClientService, times(1)).sendStartContextEventMessage(any(), any(), any());
 
@@ -208,20 +175,11 @@ public class ContextEventServiceTest {
 
     @Test
     public void startContextEventWithCurrentContextProfileTrue() throws Exception {
-        //Setting context
         Context context = createContext();
-
-        //Setting resource
-        Resource resource = new Resource();
-        resource.setId(resourceId);
-
-        //Setting contextProfile
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentResourceId(resourceId);
-
+        Resource resource = createResource();
+        ContextProfile contextProfile = createContextProfile();
+        contextProfile.setIsComplete(false);
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
-        currentContextProfile.setIsComplete(true);
 
         when(contextService.findById(contextId)).thenReturn(context);
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
@@ -361,6 +319,11 @@ public class ContextEventServiceTest {
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
+        ArgumentCaptor<ContextProfile> contextProfileArgument = ArgumentCaptor.forClass(ContextProfile.class);
+        verify(contextEventService, times(1)).doOnResourceEventTransaction(contextProfileArgument.capture(),
+                any(ContextProfileEvent.class));
+        //contextProfileArgument.getValue().getProfileId()
+
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(eq(contextId), eq(profileId));
         verify(contextProfileService, times(1)).findById(currentContextProfile.getContextProfileId());
         verify(resourceService, times(2)).findById(any(UUID.class));
@@ -409,15 +372,12 @@ public class ContextEventServiceTest {
         String questionType = "single_choice";
 
         //Same answer for both
-        AnswerDto answer = new AnswerDto();
-        answer.setValue("A");
-
+        AnswerDto answer = new AnswerDto("A");
         List<AnswerDto> userAnswers = Arrays.asList(answer);
         List<AnswerDto> correctAnswers = Arrays.asList(answer);
 
-        int result =
-                WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                        questionType, userAnswers, correctAnswers);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", questionType,
+                userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
@@ -545,7 +505,7 @@ public class ContextEventServiceTest {
         resource1.setCollectionId(collectionId);
         resource1.setId(resourceId1);
         resource1.setIsDeleted(false);
-        resource1.setSequence((short)1);
+        resource1.setSequence((short) 1);
         resources.add(resource1);
 
         Resource resource2 = new Resource();
@@ -573,7 +533,7 @@ public class ContextEventServiceTest {
         resource5.setCollectionId(collectionId);
         resource5.setId(resourceId5);
         resource5.setIsDeleted(false);
-        resource5.setSequence((short)5);
+        resource5.setSequence((short) 5);
         resources.add(resource5);
 
         when(resourceService.findByCollectionId(any(UUID.class))).thenReturn(resources);
@@ -802,11 +762,14 @@ public class ContextEventServiceTest {
         event4.setId(UUID.randomUUID());
         event4.setContextProfileId(contextProfileId);
         event4.setResourceId(UUID.randomUUID());
-        event4.setEventData("{\"timeSpent\":\"1\"," +
-                " \"reaction\":\"0\"," +
-                " \"answer\":[]," +
-                " \"score\":\"0\"," +
-                " \"isSkipped\":\"true\"}");
+        event4.setEventData(
+                "{" +
+                "   'timeSpent': 1," +
+                "   'reaction': 0," +
+                "   'answer': []," +
+                "   'score': 0," +
+                "   'isSkipped': true" +
+                "}");
         ContextProfileEvent event5 = new ContextProfileEvent();
         event5.setId(UUID.randomUUID());
         event5.setContextProfileId(contextProfileId);
@@ -826,19 +789,53 @@ public class ContextEventServiceTest {
         return contextProfileEvents;
     }
 
-    private CurrentContextProfile createCurrentContextProfile() {
-        currentContextProfile.setContextProfileId(contextProfileId);
-        currentContextProfile.setContextId(contextId);
-        currentContextProfile.setProfileId(profileId);
-        return currentContextProfile;
-    }
-
     private Context createContext() {
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
         context.setContextData("{}");
         return context;
+    }
+
+    private ContextProfile createContextProfile() {
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setId(contextProfileId);
+        contextProfile.setCurrentResourceId(resourceId);
+        return contextProfile;
+    }
+
+    private CurrentContextProfile createCurrentContextProfile() {
+        currentContextProfile.setContextId(contextId);
+        currentContextProfile.setProfileId(profileId);
+        currentContextProfile.setContextProfileId(contextProfileId);
+        return currentContextProfile;
+    }
+
+    private PostResponseResourceDto createResponseResourceDto(UUID resourceId, int score, int reaction, long timeSpent,
+                                                              List<AnswerDto> answers, boolean isSkipped) {
+        PostResponseResourceDto resourceDto = new PostResponseResourceDto();
+        resourceDto.setResourceId(resourceId);
+        resourceDto.setScore(score);
+        resourceDto.setReaction(reaction);
+        resourceDto.setTimeSpent(timeSpent);
+        resourceDto.setAnswer(answers);
+        resourceDto.setIsSkipped(isSkipped);
+        return resourceDto;
+    }
+
+    private ContextProfileEvent createContextProfileEvent(UUID contextProfileId, UUID resourceId, String evenData) {
+        ContextProfileEvent contextProfileEvent = new ContextProfileEvent();
+        contextProfileEvent.setId(UUID.randomUUID());
+        contextProfileEvent.setContextProfileId(contextProfileId);
+        contextProfileEvent.setResourceId(resourceId);
+        contextProfileEvent.setEventData(evenData);
+        return contextProfileEvent;
+    }
+
+    private Resource createResource() {
+        Resource resource = new Resource();
+        resource.setId(resourceId);
+        return resource;
     }
 
 }

@@ -9,25 +9,25 @@ package com.quizzes.api.common.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CurrentContextProfile implements java.io.Serializable {
 
-	private static final long serialVersionUID = -664202534;
+	private static final long serialVersionUID = 1263284452;
 
-	private java.util.UUID    contextId;
-	private java.util.UUID    profileId;
-	private java.util.UUID    contextProfileId;
-	private java.lang.Boolean isComplete;
+	private java.util.UUID     contextId;
+	private java.util.UUID     profileId;
+	private java.util.UUID     contextProfileId;
+	private java.sql.Timestamp createdAt;
 
 	public CurrentContextProfile() {}
 
 	public CurrentContextProfile(
-		java.util.UUID    contextId,
-		java.util.UUID    profileId,
-		java.util.UUID    contextProfileId,
-		java.lang.Boolean isComplete
+		java.util.UUID     contextId,
+		java.util.UUID     profileId,
+		java.util.UUID     contextProfileId,
+		java.sql.Timestamp createdAt
 	) {
 		this.contextId = contextId;
 		this.profileId = profileId;
 		this.contextProfileId = contextProfileId;
-		this.isComplete = isComplete;
+		this.createdAt = createdAt;
 	}
 
 	public java.util.UUID getContextId() {
@@ -54,11 +54,11 @@ public class CurrentContextProfile implements java.io.Serializable {
 		this.contextProfileId = contextProfileId;
 	}
 
-	public java.lang.Boolean getIsComplete() {
-		return this.isComplete;
+	public java.sql.Timestamp getCreatedAt() {
+		return this.createdAt;
 	}
 
-	public void setIsComplete(java.lang.Boolean isComplete) {
-		this.isComplete = isComplete;
+	public void setCreatedAt(java.sql.Timestamp createdAt) {
+		this.createdAt = createdAt;
 	}
 }
