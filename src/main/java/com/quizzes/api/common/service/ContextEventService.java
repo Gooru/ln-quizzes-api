@@ -86,6 +86,10 @@ public class ContextEventService {
 
     public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
                                        OnResourceEventPostRequestDto body) {
+
+        //this call is to validate that there is a context and the profile is assigned to it
+        contextService.findByIdAndAssigneeId(contextId, profileId);
+
         PostRequestResourceDto resourceDto = body.getPreviousResource();
 
         ContextProfile contextProfile = contextProfileService.findByContextIdAndProfileId(contextId, profileId);
