@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-@EnableWebMvc
+//@EnableWebMvc
 public class InterceptorConfiguration extends WebMvcConfigurerAdapter {
 
     @Bean
@@ -16,11 +16,10 @@ public class InterceptorConfiguration extends WebMvcConfigurerAdapter {
         return new SessionInterceptor();
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(quizzesInterceptor())
-                .addPathPatterns("/**")
-                .excludePathPatterns("/**/session/authorization");
-    }
-
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(quizzesInterceptor())
+//                .addPathPatterns("/**")
+//                .excludePathPatterns("/**/session/authorization");
+//    }
 }
