@@ -151,8 +151,7 @@ public class ContextEventServiceTest {
         list.add(contextProfileEvent1);
         list.add(contextProfileEvent2);
 
-        when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(context);
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextProfile);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
@@ -161,7 +160,7 @@ public class ContextEventServiceTest {
         StartContextEventResponseDto result =
                 contextEventService.processStartContextEvent(contextId, UUID.randomUUID());
 
-        verify(contextService, times(1)).findById(any(UUID.class));
+        verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(0)).findFirstByContextIdOrderBySequence(any(UUID.class));
         verify(contextProfileService, times(0)).save(any(ContextProfile.class));
@@ -209,8 +208,7 @@ public class ContextEventServiceTest {
         contextProfile.setIsComplete(false);
         List<ContextProfileEvent> list = new ArrayList<>();
 
-        when(contextService.findById(any(UUID.class))).thenReturn(context);
-        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(context);
         when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenThrow(ContentNotFoundException.class);
         when(resourceService.findFirstByContextIdOrderBySequence(any(UUID.class))).thenReturn(resource);
@@ -221,7 +219,7 @@ public class ContextEventServiceTest {
         StartContextEventResponseDto result =
                 contextEventService.processStartContextEvent(contextId, UUID.randomUUID());
 
-        verify(contextService, times(1)).findById(any(UUID.class));
+        verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
         verify(contextProfileService, times(1)).findByContextIdAndProfileId(any(UUID.class), any(UUID.class));
         verify(resourceService, times(1)).findFirstByContextIdOrderBySequence(any(UUID.class));
         verify(contextProfileService, times(1)).save(any(ContextProfile.class));

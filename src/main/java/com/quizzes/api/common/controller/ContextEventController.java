@@ -49,7 +49,6 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) {
-        contextService.findByIdAndAssigneeId(contextId, profileId);
         return new ResponseEntity<>(contextEventService.processStartContextEvent(contextId, profileId), HttpStatus.OK);
     }
 
