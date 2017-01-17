@@ -42,6 +42,7 @@ public class ContextEventController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
+            @ApiParam(value = "Id of the context that will be started", required = true, name = "ContextID")
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) {
@@ -59,7 +60,7 @@ public class ContextEventController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> onResourceEvent(@PathVariable UUID resourceId,
                                                 @PathVariable UUID contextId,
-                                                @ApiParam(value = "Json body", required = true, name = "Body")
+                                                    @ApiParam(value = "Json body", required = true, name = "Body")
                                                 @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
                                                 @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                 @RequestHeader(value = "profile-id") UUID profileId) {
