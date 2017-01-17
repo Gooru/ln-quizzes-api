@@ -94,24 +94,6 @@ frisby.create('Test getCollectionByID endpoint')
                             })
                         .toss();
 
-                        frisby.create('Verify that the collection cant be retrieved with a wrong profile-id')
-                            .get(QuizzesApiUrl + '/v1/collection/' + createdContextJson.collection.id)
-                            .addHeader('lms-id', 'quizzes')
-                            .addHeader('profile-id', contextJson.id)
-                            .inspectRequest()
-                            .expectStatus(404)
-                            .expectHeaderContains('content-type', 'application/json')
-                            .inspectJSON()
-                            .expectJSON({
-                                "status": 404
-                            })
-                            .expectJSONTypes({
-                                message: String,
-                                status: Number,
-                                exception: String
-                            })
-                        .toss();
-
                     })
                     .toss();
             })
