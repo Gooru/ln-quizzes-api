@@ -105,6 +105,7 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/created/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreatedContextGetResponseDto> findCreatedContextByContextId(
+            @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of created contexts.")
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
@@ -122,6 +123,7 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/assigned/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ContextAssignedGetResponseDto> getAssignedContextByContextId(
+            @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of assigned contexts.")
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
