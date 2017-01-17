@@ -28,8 +28,8 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = MissingJsonPropertiesException.class)
     public ExceptionMessage handleInvalidJsonPropertiesException(MissingJsonPropertiesException e) {
-        logger.error("Bad request. Invalid JSON ", e);
-        return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(), e.getClass().getSimpleName());
+        logger.error("Bad request. Invalid JSON", e);
+        return new ExceptionMessage("Invalid JSON", HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
     /**
@@ -40,8 +40,8 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(value = ContentNotFoundException.class)
     public ExceptionMessage handleContentNotFoundException(ContentNotFoundException e) {
-        logger.error("Content not found ", e);
-        return new ExceptionMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(), e.getClass().getSimpleName());
+        logger.error("Content not found", e);
+        return new ExceptionMessage("Content not found", HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
     /**
@@ -52,8 +52,8 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = InvalidCredentialsException.class)
     public ExceptionMessage handleInvalidCredentialsException(InvalidCredentialsException e) {
-        logger.error("Content not found ", e);
-        return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(), e.getClass().getSimpleName());
+        logger.error("Invalid credentials", e);
+        return new ExceptionMessage("Invalid credentials", HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
     /**
@@ -65,8 +65,8 @@ public class HandlerExceptionController {
     @ExceptionHandler(value = Exception.class)
     public ExceptionMessage handleException(Exception e) {
         logger.error("Internal Server Error", e);
-        return new ExceptionMessage(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                e.getClass().getSimpleName());
+        return new ExceptionMessage("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                e.getMessage());
     }
 
     /**
@@ -78,7 +78,7 @@ public class HandlerExceptionController {
     @ExceptionHandler(value = InvalidSessionException.class)
     public ExceptionMessage handleInvalidSessionException(InvalidSessionException e) {
         logger.error("Invalid Session", e);
-        return new ExceptionMessage(e.getMessage(), HttpStatus.UNAUTHORIZED.value(), e.getClass().getSimpleName());
+        return new ExceptionMessage("Invalid Session", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
     }
 
     /**
@@ -89,8 +89,8 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(value = InvalidAssigneeException.class)
     public ExceptionMessage handleInvalidAssigneeException(InvalidAssigneeException e) {
-        logger.error("Forbidden request ", e);
-        return new ExceptionMessage(e.getMessage(), HttpStatus.FORBIDDEN.value(), e.getClass().getSimpleName());
+        logger.error("Forbidden request", e);
+        return new ExceptionMessage("Forbidden request", HttpStatus.FORBIDDEN.value(), e.getMessage());
     }
 
 }
