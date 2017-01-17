@@ -310,6 +310,7 @@ public class ContextService {
         result.setGroupId(contextAssigneeEntity.getGroupId());
         result.setUpdatedAt(contextAssigneeEntity.getUpdatedAt());
         result.setCreatedAt(contextAssigneeEntity.getCreatedAt());
+        result.setIsActive(contextAssigneeEntity.isActive());
         return result;
     }
 
