@@ -47,9 +47,9 @@ public class HandlerExceptionController {
     /**
      * Handles exceptions when client credentials are wrong
      *
-     * @return Invalid Credentials and status 400
+     * @return Invalid Credentials and status 401
      */
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(value = InvalidCredentialsException.class)
     public ExceptionMessage handleInvalidCredentialsException(InvalidCredentialsException e) {
         logger.error("Invalid credentials", e);

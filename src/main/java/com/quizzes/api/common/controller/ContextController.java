@@ -86,7 +86,9 @@ public class ContextController {
     @RequestMapping(path = "/v1/contexts/created",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CreatedContextGetResponseDto>> findCreatedContexts(
+            @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @ApiParam(name = "profile-id", required = true, value = "Context owner Profile ID")
             @RequestHeader(value = "profile-id") UUID profileId,
             @ApiParam(value = "optional query params", required = true, name = "filterMap")
             @RequestParam Map<String, String> filterMap) throws Exception {
@@ -105,8 +107,11 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/created/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CreatedContextGetResponseDto> findCreatedContextByContextId(
+            @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of created contexts.")
             @PathVariable UUID contextId,
+            @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @ApiParam(name = "profile-id", required = true, value = "Context owner Profile ID")
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
         CreatedContextGetResponseDto result = contextService.findCreatedContextByContextIdAndOwnerId(contextId, profileId);
@@ -122,6 +127,7 @@ public class ContextController {
     @RequestMapping(path = "/v1/context/assigned/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ContextAssignedGetResponseDto> getAssignedContextByContextId(
+            @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of assigned contexts.")
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {

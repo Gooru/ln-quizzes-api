@@ -8,6 +8,7 @@ public class ProfileEventResponseDto {
     private UUID currentResourceId;
     private UUID profileId;
     private List<PostResponseResourceDto> events;
+    private EventSummaryDataDto contextProfileSummary;
 
     public ProfileEventResponseDto() {
     }
@@ -34,5 +35,13 @@ public class ProfileEventResponseDto {
 
     public void setEvents(List<PostResponseResourceDto> events) {
         this.events = events;
+    }
+
+    public EventSummaryDataDto getContextProfileSummary() {
+        return contextProfileSummary;
+    }
+
+    public void setContextProfileSummary(EventSummaryDataDto contextProfileSummary) {
+        this.contextProfileSummary = contextProfileSummary;
     }
 }
