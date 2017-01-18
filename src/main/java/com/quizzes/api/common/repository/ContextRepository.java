@@ -14,7 +14,7 @@ public interface ContextRepository {
 
     Context findById(UUID id);
 
-    Context findByIdAndOwnerId(UUID contextId, UUID ownerId);
+    ContextOwnerEntity findContextOwnerById(UUID id);
 
     List<Context> findByOwnerId(UUID ownerId);
 

@@ -1,9 +1,14 @@
 package com.quizzes.api.common.dto;
 
 public class AnswerDto {
+
     private String value;
 
     public AnswerDto() {
+    }
+
+    public AnswerDto(String value) {
+        this.value = value;
     }
 
     public String getValue() {
@@ -13,4 +18,5 @@ public class AnswerDto {
     public void setValue(String value) {
         this.value = value;
     }
+
 }

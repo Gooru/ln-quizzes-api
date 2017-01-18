@@ -37,6 +37,11 @@ public class Tables {
 	public static final com.quizzes.api.common.model.jooq.tables.ContextProfileEvent CONTEXT_PROFILE_EVENT = com.quizzes.api.common.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
 
 	/**
+	 * The table public.current_context_profile
+	 */
+	public static final com.quizzes.api.common.model.jooq.tables.CurrentContextProfile CURRENT_CONTEXT_PROFILE = com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
+
+	/**
 	 * The table public.group
 	 */
 	public static final com.quizzes.api.common.model.jooq.tables.Group GROUP = com.quizzes.api.common.model.jooq.tables.Group.GROUP;
