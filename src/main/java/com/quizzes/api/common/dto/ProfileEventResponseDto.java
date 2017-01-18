@@ -9,6 +9,7 @@ public class ProfileEventResponseDto {
     private UUID profileId;
     private List<PostResponseResourceDto> events;
     private boolean isComplete;
+    private EventSummaryDataDto contextProfileSummary;
 
     public ProfileEventResponseDto() {
     }
@@ -45,4 +46,11 @@ public class ProfileEventResponseDto {
         this.isComplete = isComplete;
     }
 
+    public EventSummaryDataDto getContextProfileSummary() {
+        return contextProfileSummary;
+    }
+
+    public void setContextProfileSummary(EventSummaryDataDto contextProfileSummary) {
+        this.contextProfileSummary = contextProfileSummary;
+    }
 }

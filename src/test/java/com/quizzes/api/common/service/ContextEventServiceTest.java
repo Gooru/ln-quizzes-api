@@ -14,7 +14,6 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.common.dto.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
-import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.model.entities.AssigneeEventEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.ContextProfile;
@@ -33,7 +32,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.JsonParser;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;

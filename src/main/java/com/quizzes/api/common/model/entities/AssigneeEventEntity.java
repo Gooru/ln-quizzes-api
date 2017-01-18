@@ -20,5 +20,8 @@ public interface AssigneeEventEntity {
 
     void setIsComplete(boolean isComplete);
 
-}
+    String getEventsSummary();
 
+    void setEventsSummary(String eventsSummary);
+
+}
