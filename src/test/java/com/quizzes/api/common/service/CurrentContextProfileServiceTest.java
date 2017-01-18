@@ -63,17 +63,17 @@ public class CurrentContextProfileServiceTest {
     }
 
     @Test
-    public void save() throws Exception {
+    public void create() throws Exception {
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
-        currentContextProfileService.finish(currentContextProfile);
-        verify(currentContextProfileRepository, times(1)).finish(eq(currentContextProfile));
+        currentContextProfileService.create(currentContextProfile);
+        verify(currentContextProfileRepository, times(1)).create(eq(currentContextProfile));
     }
 
     @Test
-    public void finish() throws Exception {
+    public void delete() throws Exception {
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
-        currentContextProfileService.finish(currentContextProfile);
-        verify(currentContextProfileRepository, times(1)).finish(eq(currentContextProfile));
+        currentContextProfileService.delete(currentContextProfile);
+        verify(currentContextProfileRepository, times(1)).delete(eq(currentContextProfile));
     }
 
     private CurrentContextProfile createCurrentContextProfile(){

@@ -41,7 +41,8 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
     public void delete(CurrentContextProfile currentContextProfile) {
         jooq.deleteFrom(CURRENT_CONTEXT_PROFILE)
                 .where(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(currentContextProfile.getContextId()))
-                .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(currentContextProfile.getProfileId()));
+                .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(currentContextProfile.getProfileId()))
+                .execute();
     }
 
 }

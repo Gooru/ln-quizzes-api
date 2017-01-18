@@ -28,8 +28,8 @@ public class CurrentContextProfileService {
         return currentContextProfileRepository.create(currentContextProfile);
     }
 
-    public CurrentContextProfile delete(CurrentContextProfile currentContextProfile) {
-        return currentContextProfileRepository.create(currentContextProfile);
+    public void delete(CurrentContextProfile currentContextProfile) {
+        currentContextProfileRepository.delete(currentContextProfile);
     }
 
 }

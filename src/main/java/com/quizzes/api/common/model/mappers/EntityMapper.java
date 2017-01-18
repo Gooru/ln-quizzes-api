@@ -11,7 +11,7 @@ public class EntityMapper {
         context.setCollectionId(contextEntity.getCollectionId());
         context.setGroupId(contextEntity.getGroupId());
         context.setContextData(contextEntity.getContextData());
-        context.setIsActive(contextEntity.isActive());
+        context.setIsActive(contextEntity.getIsActive());
         return context;
     }
 

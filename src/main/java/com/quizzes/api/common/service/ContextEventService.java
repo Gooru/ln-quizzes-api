@@ -93,16 +93,8 @@ public class ContextEventService {
 
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
-
         Resource resource = resourceService.findById(resourceId);
-        if (resource == null) {
-            throw new ContentNotFoundException("Not Found Resource Id: " + resourceId);
-        }
-
         Resource previousResource = resourceService.findById(resourceDto.getResourceId());
-        if (previousResource == null) {
-            throw new ContentNotFoundException("Not Found Previous Resource Id: " + resourceDto.getResourceId());
-        }
 
         QuestionDataDto previousResourceData =
                 gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
@@ -120,10 +112,10 @@ public class ContextEventService {
                 .filter(event -> event.getResourceId().equals(previousResource.getId()))
                 .findFirst()
                 .orElse(null);
+
         if (contextProfileEvent == null) {
-            contextProfileEvent = createContextProfileEvent(
-                    currentContextProfile.getContextProfileId(),
-                    previousResource.getId());
+            contextProfileEvent =
+                    createContextProfileEvent(currentContextProfile.getContextProfileId(), previousResource.getId());
             contextProfileEvents.add(contextProfileEvent);
         }
         contextProfileEvent.setEventData(gson.toJson(resourceDto));
@@ -167,7 +159,7 @@ public class ContextEventService {
         EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, true);
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
 
-        doFinishContextEventTransaction(contextProfile, contextProfileEventsToCreate);
+        doFinishContextEventTransaction(contextProfile, currentContextProfile, contextProfileEventsToCreate);
 
         sendFinishContextEventMessage(contextId, profileId, eventSummary);
     }
@@ -189,9 +181,8 @@ public class ContextEventService {
             profileEvent.setProfileId(entity.getKey());
             if (!entity.getValue().isEmpty()) {
                 profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
+                profileEvent.setIsComplete(entity.getValue().get(0).getIsComplete());
             }
-            //TODO: Add this property in the Entity and in the query
-            profileEvent.setIsComplete(true);
 
             profileEvent.setEvents(assigneeEventEntityList.stream()
                     .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
@@ -220,6 +211,7 @@ public class ContextEventService {
 
     @Transactional
     public void doFinishContextEventTransaction(ContextProfile contextProfile,
+                                                CurrentContextProfile currentContextProfile,
                                                 List<ContextProfileEvent> eventsToCreate) {
         contextProfileService.save(contextProfile);
         eventsToCreate.stream().forEach(event -> contextProfileEventService.save(event));
