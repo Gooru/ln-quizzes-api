@@ -179,7 +179,7 @@ public class ContextEventService {
             List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
             ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
             profileEvent.setProfileId(entity.getKey());
-            
+
             AssigneeEventEntity anyAssigneeEventEntity = assigneeEventEntityList.get(0);
             if (!assigneeEventEntityList.isEmpty()) {
                 profileEvent.setCurrentResourceId(anyAssigneeEventEntity.getCurrentResourceId());

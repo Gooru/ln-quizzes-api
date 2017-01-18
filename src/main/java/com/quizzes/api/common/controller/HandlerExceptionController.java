@@ -72,13 +72,13 @@ public class HandlerExceptionController {
     /**
      * Handles Invalid Owner exception scenarios
      *
-     * @return Unprocessable Entity error with Status 422
+     * @return Forbidden Entity error with Status 403
      */
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(value = InvalidOwnerException.class)
     public ExceptionMessage handleInvalidOwnerException(InvalidOwnerException e) {
         logger.error("The Owner is invalid", e);
-        return new ExceptionMessage("The Owner is invalid", HttpStatus.UNPROCESSABLE_ENTITY.value(), e.getMessage());
+        return new ExceptionMessage("The Owner is invalid", HttpStatus.FORBIDDEN.value(), e.getMessage());
     }
 
     /**

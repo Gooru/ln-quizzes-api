@@ -94,6 +94,7 @@ public class ContextEventController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class),
             @ApiResponse(code = 404, message = "Provided contextId does not exist"),
+            @ApiResponse(code = 403, message = "Invalid owner"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(path = "/v1/context/{contextId}/events",
