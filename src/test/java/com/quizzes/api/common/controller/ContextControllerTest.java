@@ -430,7 +430,7 @@ public class ContextControllerTest {
 
         when(contextService.getAssignedContexts(any(UUID.class))).thenReturn(contexts);
 
-        ResponseEntity<List<ContextAssignedGetResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID());
+        ResponseEntity<List<ContextAssignedGetResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID(), null, null, null);
 
         verify(contextService, times(1)).getAssignedContexts(any(UUID.class));
 

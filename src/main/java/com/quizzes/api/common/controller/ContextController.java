@@ -140,7 +140,13 @@ public class ContextController {
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextAssignedGetResponseDto>> getAssignedContexts(
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
+            @RequestHeader(value = "profile-id") UUID profileId,
+            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
+            @RequestParam(value = "isActive", required = false) Boolean isActive,
+            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "startDate")
+            @RequestParam(value = "startDate", required = false) Long startDate,
+            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "dueDate")
+            @RequestParam(value = "dueDate", required = false) Long dueDate) throws Exception {
         List<ContextAssignedGetResponseDto> contexts = contextService.getAssignedContexts(profileId);
         return new ResponseEntity<>(contexts, HttpStatus.OK);
     }
