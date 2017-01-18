@@ -68,10 +68,7 @@ public class ContextEventService {
     Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
-        Context context = contextService.findById(contextId);
-        if (context == null) {
-            throw new ContentNotFoundException("Not Found Context Id: " + contextId);
-        }
+        Context context = contextService.findByIdAndAssigneeId(contextId, profileId);
 
         ContextProfile contextProfile;
         boolean isNewAttempt = false;

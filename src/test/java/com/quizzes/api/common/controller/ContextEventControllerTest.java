@@ -7,8 +7,10 @@ import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextEventService;
 import com.quizzes.api.common.service.ContextProfileService;
+import com.quizzes.api.common.service.ContextService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -42,7 +44,7 @@ public class ContextEventControllerTest {
     private ContextEventService contextEventService;
 
     @Mock
-    private ContextProfileService contextProfileService;
+    private ContextService contextService;
 
     @Test
     public void startContextEvent() throws Exception {
@@ -86,6 +88,8 @@ public class ContextEventControllerTest {
         startContext.setCurrentResourceId(resourceId);
         startContext.setCollection(collection);
         startContext.setEvents(events);
+
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
 
         when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
 

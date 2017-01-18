@@ -120,6 +120,24 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                     .toss();
                                             })
                                             .toss();
+
+                                        frisby.create('Start Context with a not assigned profile')
+                                            .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
+                                            .addHeader('profile-id', 'fd5fea6a-3ce8-4b8c-9be8-bb1b1330700a')
+                                            .addHeader('client-id', 'quizzes')
+                                            .inspectRequest()
+
+                                            .expectStatus(403)
+                                            .toss();
+
+                                        frisby.create('Start a non existent Context')
+                                            .post(QuizzesApiUrl + '/v1/context/78856489-1501-4eb6-bc13-d73382dfd7be/event/start')
+                                            .addHeader('profile-id', profile.id)
+                                            .addHeader('client-id', 'quizzes')
+                                            .inspectRequest()
+
+                                            .expectStatus(404)
+                                            .toss();
                                     })
                                     .toss();
                             })
