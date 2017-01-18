@@ -68,10 +68,7 @@ public class ContextEventService {
     Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
-        Context context = contextService.findById(contextId);
-        if (context == null) {
-            throw new ContentNotFoundException("Not Found Context Id: " + contextId);
-        }
+        Context context = contextService.findByIdAndAssigneeId(contextId, profileId);
 
         ContextProfile contextProfile;
         boolean isNewAttempt = false;
@@ -184,14 +181,19 @@ public class ContextEventService {
                 List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
                 ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
                 profileEvent.setProfileId(entity.getKey());
-                if (!entity.getValue().isEmpty()) {
-                    profileEvent.setCurrentResourceId(entity.getValue().get(0).getCurrentResourceId());
+                AssigneeEventEntity anyAssigneeEventEntity = assigneeEventEntityList.get(0);
+                if (!assigneeEventEntityList.isEmpty()) {
+                    profileEvent.setCurrentResourceId(anyAssigneeEventEntity.getCurrentResourceId());
                 }
 
                 profileEvent.setEvents(assigneeEventEntityList.stream()
                         .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
                         .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
                                 PostResponseResourceDto.class)).collect(Collectors.toList()));
+
+                EventSummaryDataDto eventSummaryDataDto =
+                        gson.fromJson(anyAssigneeEventEntity.getEventsSummary(), EventSummaryDataDto.class);
+                profileEvent.setContextProfileSummary(eventSummaryDataDto);
                 return profileEvent;
 
             }).collect(Collectors.toList());

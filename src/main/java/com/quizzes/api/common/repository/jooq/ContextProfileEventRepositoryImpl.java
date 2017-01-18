@@ -31,12 +31,13 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
 
     @Override
     public Map<UUID, List<AssigneeEventEntity>> findByContextIdGroupByProfileId(UUID contextId) {
-        return jooq.select(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"),
-                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
+        return jooq.select(CONTEXT_PROFILE.PROFILE_ID.as("AssigneeProfileId"),
+                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA,
+                CONTEXT_PROFILE.EVENT_SUMMARY_DATA.as("EventsSummary"))
                 .from(CONTEXT_PROFILE)
                 .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
-                .fetchGroups(CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"), AssigneeEventEntity.class);
+                .fetchGroups(CONTEXT_PROFILE.PROFILE_ID.as("AssigneeProfileId"), AssigneeEventEntity.class);
     }
 
     @Override
