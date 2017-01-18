@@ -42,6 +42,7 @@ public class ContextEventController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
+            @ApiParam(value = "Id of the context that will be started", required = true, name = "ContextID")
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) {
@@ -57,9 +58,11 @@ public class ContextEventController {
     @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> onResourceEvent(@PathVariable UUID resourceId,
+    public ResponseEntity<Void> onResourceEvent(@ApiParam(value = "ID of the resource that we are sending data to", required = true, name = "Resource ID")
+                                                @PathVariable UUID resourceId,
+                                                @ApiParam(value = "ID of the context that the resource belongs to", required = true, name = "Context ID")
                                                 @PathVariable UUID contextId,
-                                                @ApiParam(value = "Json body", required = true, name = "Body")
+                                                @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true, name = "Body")
                                                 @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
                                                 @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
                                                 @RequestHeader(value = "profile-id") UUID profileId) {
@@ -77,6 +80,7 @@ public class ContextEventController {
     @RequestMapping(path = "/v1/context/{contextId}/event/finish", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> finishContextEvent(
+            @ApiParam(value = "ID of the context to have its attempt finished.", required = true, name = "ContextID")
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) {
