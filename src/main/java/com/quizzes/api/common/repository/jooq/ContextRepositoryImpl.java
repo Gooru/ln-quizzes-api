@@ -114,8 +114,7 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public List<ContextAssigneeEntity> findContextAssigneeByContextId(UUID contextId){
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
-                CONTEXT.UPDATED_AT, CONTEXT.IS_ACTIVE, CONTEXT.GROUP_ID ,
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.GROUP_ID,
                 GROUP_PROFILE.PROFILE_ID.as("assignee_profile_id"))
                 .from(CONTEXT)
                 .leftJoin(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
