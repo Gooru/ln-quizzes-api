@@ -119,23 +119,24 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void startContextEventWithCurrentContextProfileIsCompleteFalse() throws Exception {
+    public void processStartContextEventWithCurrentContextProfileIsCompleteFalse() throws Exception {
         Context context = createContext();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
         ContextProfile contextProfile = createContextProfile();
         contextProfile.setIsComplete(false);
 
-        when(contextService.findById(contextId)).thenReturn(context);
+        when(contextService.findByIdAndAssigneeId(contextId, profileId)).thenReturn(context);
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
         when(contextProfileService.findById(currentContextProfile.getContextProfileId())).thenReturn(contextProfile);
-        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
-                .thenReturn(currentContextProfile);
         doReturn(createStartContextEventResponseDto())
                 .when(contextEventService, "resumeStartContextEvent", context, contextProfile);
 
         StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
 
+        verify(contextService, times(1)).findByIdAndAssigneeId(contextId, profileId);
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, Mockito.times(1)).invoke("resumeStartContextEvent", context, contextProfile);
         assertEquals("Wrong startContext ID", startContextId, result.getId());
         assertEquals("Wrong currentResourceId", resourceId, result.getCurrentResourceId());
@@ -144,7 +145,7 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void startContextEventWithCurrentContextProfileIsCompleteTrue() throws Exception {
+    public void processStartContextEventWithCurrentContextProfileIsCompleteTrue() throws Exception {
         Context context = createContext();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
         ContextProfile contextProfile = createContextProfile();
@@ -154,30 +155,18 @@ public class ContextEventServiceTest {
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
         when(contextProfileService.findById(currentContextProfile.getContextProfileId())).thenReturn(contextProfile);
-        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
-                .thenReturn(currentContextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "createStartContextEvent", context, profileId);
 
-        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
-
-        verifyPrivate(contextEventService, Mockito.times(1)).invoke("createStartContextEvent", context, profileId);
-        assertEquals("Wrong startContext ID", startContextId, result.getId());
-        assertEquals("Wrong currentResourceId", resourceId, result.getCurrentResourceId());
-        assertEquals("Wrong collectionId", collectionId.toString(), result.getCollection().getId());
-        assertEquals("There are events", 0, result.getEvents().size());
-    }
-
-    @Test
-    public void startContextEventWithCurrentContextProfileThrowException() throws Exception {
-        Context context = createContext();
-
-        when(contextService.findById(contextId)).thenReturn(context);
-        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(context);
+        when(contextProfileService.findByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenThrow(ContentNotFoundException.class);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "createStartContextEvent", context, profileId);
 
         StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
 
+        verify(contextService, times(1)).findByIdAndAssigneeId(contextId, profileId);
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, Mockito.times(1)).invoke("createStartContextEvent", context, profileId);
         assertEquals("Wrong startContext ID", startContextId, result.getId());
         assertEquals("Wrong currentResourceId", resourceId, result.getCurrentResourceId());
@@ -344,6 +333,11 @@ public class ContextEventServiceTest {
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(resourceService, times(1)).findById(resourceId);
+        verify(resourceService, times(1)).findById(previousResourceId);
+        verify(contextProfileService, times(1)).findById(contextProfileId);
+        verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
         verifyPrivate(contextEventService, times(0)).invoke("calculateScoreByQuestionType", any(), any(), any());
         verifyPrivate(contextEventService, times(0)).invoke("createContextProfileEvent", any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
@@ -393,6 +387,10 @@ public class ContextEventServiceTest {
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(resourceService, times(1)).findById(resourceId);
+        verify(resourceService, times(1)).findById(previousResourceId);
+        verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
                 eq(questionDataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent",

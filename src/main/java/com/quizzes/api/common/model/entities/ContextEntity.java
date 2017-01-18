@@ -1,7 +1,5 @@
 package com.quizzes.api.common.model.entities;
 
-import com.quizzes.api.common.model.jooq.tables.pojos.Context;
-
 import java.util.UUID;
 import java.sql.Timestamp;
 

@@ -69,9 +69,7 @@ public class ContextEventService {
     Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
-        Context context = contextService.findById(contextId);
-
-        // TODO Add validation to verify profileId is in the list of Assignees of the Context
+        Context context = contextService.findByIdAndAssigneeId(contextId, profileId);
 
         try {
             CurrentContextProfile currentContextProfile =

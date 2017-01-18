@@ -12,6 +12,7 @@ import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InvalidAssigneeException;
 import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
@@ -294,6 +295,26 @@ public class ContextService {
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
+    public Context findByIdAndAssigneeId(UUID contextId, UUID assigneeId) {
+        List<ContextAssigneeEntity> assigneeEntities = contextRepository.findContextAssigneeByContextId(contextId);
+        if (assigneeEntities.isEmpty()) {
+            throw new ContentNotFoundException("Context not found for ID: " + contextId);
+        }
+        ContextAssigneeEntity contextAssigneeEntity = assigneeEntities.stream()
+                .filter(entity -> entity.getAssigneeProfileId().equals(assigneeId))
+                .findAny()
+                .orElse(null);
+        if (contextAssigneeEntity == null) {
+            throw new InvalidAssigneeException("Profile ID: " + assigneeId + " not assigned to the context ID: " + contextId);
+        }
+        Context result = new Context();
+        result.setId(contextAssigneeEntity.getId());
+        result.setCollectionId(contextAssigneeEntity.getCollectionId());
+        result.setContextData(contextAssigneeEntity.getContextData());
+        result.setGroupId(contextAssigneeEntity.getGroupId());
+        return result;
+    }
+
     private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {
         ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
         contextAssigned.setId(contextOwner.getId());
@@ -348,5 +369,4 @@ public class ContextService {
         jsonObject.remove("id");
         return jsonObject;
     }
-
 }

@@ -4,6 +4,7 @@ import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.service.ContextEventService;
+import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -29,6 +30,9 @@ public class ContextEventController {
 
     @Autowired
     private ContextEventService contextEventService;
+
+    @Autowired
+    private ContextService contextService;
 
     @ApiOperation(
             value = "Start collection attempt",
