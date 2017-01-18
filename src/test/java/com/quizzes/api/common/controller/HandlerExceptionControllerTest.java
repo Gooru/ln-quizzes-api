@@ -66,7 +66,7 @@ public class HandlerExceptionControllerTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong exception", "InvalidCredentialsException", result.getException());
-        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong status code", HttpStatus.UNAUTHORIZED.value(), result.getStatus());
         assertEquals("Wrong message exception", "Invalid client credentials.", result.getMessage());
     }
 
