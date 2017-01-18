@@ -308,8 +308,6 @@ public class ContextService {
         result.setCollectionId(contextAssigneeEntity.getCollectionId());
         result.setContextData(contextAssigneeEntity.getContextData());
         result.setGroupId(contextAssigneeEntity.getGroupId());
-        result.setUpdatedAt(contextAssigneeEntity.getUpdatedAt());
-        result.setCreatedAt(contextAssigneeEntity.getCreatedAt());
         return result;
     }
 

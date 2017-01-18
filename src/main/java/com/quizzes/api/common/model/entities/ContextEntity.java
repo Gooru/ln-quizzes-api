@@ -25,10 +25,6 @@ public interface ContextEntity {
 
     void setContextData(String contextData);
 
-    boolean isDeleted();
-
-    void setIsDeleted(boolean isDeleted);
-
     boolean isActive();
 
     void setIsActive(boolean isActive);
