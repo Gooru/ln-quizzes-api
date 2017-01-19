@@ -8,6 +8,7 @@ public class ProfileEventResponseDto {
     private UUID currentResourceId;
     private UUID profileId;
     private List<PostResponseResourceDto> events;
+    private boolean isComplete;
     private EventSummaryDataDto contextProfileSummary;
 
     public ProfileEventResponseDto() {
@@ -35,6 +36,14 @@ public class ProfileEventResponseDto {
 
     public void setEvents(List<PostResponseResourceDto> events) {
         this.events = events;
+    }
+
+    public boolean isComplete() {
+        return isComplete;
+    }
+
+    public void setIsComplete(boolean isComplete) {
+        this.isComplete = isComplete;
     }
 
     public EventSummaryDataDto getContextProfileSummary() {

@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
 import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
+import static com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
 import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
 import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
@@ -35,25 +36,27 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Context findById(UUID id) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.IS_ACTIVE)
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
+                .and(CONTEXT.IS_DELETED.eq(false))
                 .fetchOneInto(Context.class);
     }
 
     @Override
-    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
+    public ContextOwnerEntity findContextOwnerById(UUID id) {
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.IS_ACTIVE,
+                GROUP.OWNER_PROFILE_ID)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
-                .where(CONTEXT.ID.eq(contextId))
-                .and(GROUP.OWNER_PROFILE_ID.eq(ownerId))
-                .fetchOneInto(Context.class);
+                .where(CONTEXT.ID.eq(id))
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .fetchOneInto(ContextOwnerEntity.class);
     }
 
     @Override
     public List<Context> findByOwnerId(UUID ownerId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA)
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.GROUP_ID, CONTEXT.CONTEXT_DATA, CONTEXT.IS_ACTIVE)
                 .from(CONTEXT)
                 .join(GROUP).on(GROUP.ID.eq(CONTEXT.GROUP_ID))
                 .where(GROUP.OWNER_PROFILE_ID.eq(ownerId))

@@ -336,8 +336,6 @@ public class ContextControllerTest {
 
         contextsCreatedByOwner.add(context);
 
-        when(contextService.findContextByOwnerId(any(UUID.class))).thenReturn(contextsCreatedByOwner);
-
         List<CreatedContextGetResponseDto> createdContextGetResponseDtos = new ArrayList<>();
         CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
         createdContextGetResponseDto.setId(UUID.randomUUID());
@@ -376,8 +374,8 @@ public class ContextControllerTest {
 
         Map<String, String> filter = new HashMap<>();
         filter.put("classId", UUID.randomUUID().toString());
-        ResponseEntity<List<CreatedContextGetResponseDto>> response = controller
-                .findCreatedContexts(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
+        ResponseEntity<List<CreatedContextGetResponseDto>> response =
+                controller.findCreatedContexts(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());

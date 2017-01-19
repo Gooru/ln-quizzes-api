@@ -1,7 +1,10 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ResourceRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -22,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-
 public class ResourceServiceTest {
 
     @InjectMocks
@@ -30,6 +32,13 @@ public class ResourceServiceTest {
 
     @Mock
     private ResourceRepository resourceRepository;
+
+    private UUID resourceId;
+
+    @Before
+    public void beforeEachTest() {
+        resourceId = UUID.randomUUID();
+    }
 
     @Test
     public void findByCollectionId() {
@@ -75,12 +84,27 @@ public class ResourceServiceTest {
         verify(resourceRepository, times(1)).save(any(Resource.class));
     }
 
-    @Test
-    public void findById() {
-        Resource result = resourceService.findById(UUID.randomUUID());
-        verify(resourceRepository, times(1)).findById(any(UUID.class));
+    @Test(expected = ContentNotFoundException.class)
+    public void findByIdThrowException() {
+        when(resourceService.findById(resourceId)).thenReturn(null);
+        Resource result = resourceService.findById(resourceId);
     }
 
+    @Test
+    public void findById() {
+        when(resourceRepository.findById(resourceId)).thenReturn(createResource());
+
+        Resource result = resourceService.findById(resourceId);
+
+        verify(resourceRepository, times(1)).findById(resourceId);
+        assertEquals("Wrong resource Id", resourceId, result.getId());
+    }
+
+    private Resource createResource() {
+        Resource resource = new Resource();
+        resource.setId(resourceId);
+        return resource;
+    }
 
 
 }
