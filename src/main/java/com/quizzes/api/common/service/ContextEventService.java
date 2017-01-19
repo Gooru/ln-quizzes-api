@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -312,6 +313,7 @@ public class ContextEventService {
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
         contextProfile.setCurrentResourceId(firstResource.getId());
+        contextProfile.setEventSummaryData(gson.toJson(calculateEventSummary(Collections.EMPTY_LIST, false)));
         return contextProfile;
     }
 
