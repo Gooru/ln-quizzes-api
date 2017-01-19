@@ -15,5 +15,6 @@ public interface ContextProfileRepository {
 
     ContextProfile save(ContextProfile contextProfile);
 
+    ContextProfile findById(UUID contextProfileId);
 }
 

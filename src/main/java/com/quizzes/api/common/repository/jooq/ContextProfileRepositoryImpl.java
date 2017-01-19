@@ -21,12 +21,20 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
     @Override
     public ContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId) {
         return jooq.select(CONTEXT_PROFILE.ID, CONTEXT_PROFILE.CONTEXT_ID, CONTEXT_PROFILE.CURRENT_RESOURCE_ID,
-                CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.PROFILE_ID)
+                CONTEXT_PROFILE.PROFILE_ID)
                 .from(CONTEXT_PROFILE)
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
-                .and(CONTEXT_PROFILE.IS_COMPLETE.eq(false))
                 .limit(1)
+                .fetchOneInto(ContextProfile.class);
+    }
+
+    @Override
+    public ContextProfile findById(UUID contextProfileId) {
+        return jooq.select(CONTEXT_PROFILE.ID, CONTEXT_PROFILE.CONTEXT_ID, CONTEXT_PROFILE.CURRENT_RESOURCE_ID,
+                CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.PROFILE_ID)
+                .from(CONTEXT_PROFILE)
+                .where(CONTEXT_PROFILE.ID.eq(contextProfileId))
                 .fetchOneInto(ContextProfile.class);
     }
 
@@ -53,9 +61,9 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
 
     private ContextProfile updateContextProfile(ContextProfile contextProfile) {
         return jooq.update(CONTEXT_PROFILE)
-                .set(CONTEXT_PROFILE.IS_COMPLETE, contextProfile.getIsComplete())
                 .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
                 .set(CONTEXT_PROFILE.EVENT_SUMMARY_DATA, contextProfile.getEventSummaryData())
+                .set(CONTEXT_PROFILE.IS_COMPLETE, contextProfile.getIsComplete())
                 .where(CONTEXT_PROFILE.ID.eq(contextProfile.getId()))
                 .returning()
                 .fetchOne()

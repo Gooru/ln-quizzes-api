@@ -1,5 +1,6 @@
 package com.quizzes.api.common.service;
 
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.common.repository.ResourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +20,18 @@ public class ResourceService {
     }
 
     public Resource findById(UUID resourceId) {
-        return resourceRepository.findById(resourceId);
+        Resource resource = resourceRepository.findById(resourceId);
+        if (resource == null) {
+            throw new ContentNotFoundException("Not Found Resource Id: " + resourceId);
+        }
+        return resource;
     }
 
-    public List<Resource> findByCollectionId(UUID collectionId){
+    public List<Resource> findByCollectionId(UUID collectionId) {
         return resourceRepository.findByCollectionId(collectionId);
     }
 
-    public Resource findFirstByContextIdOrderBySequence(UUID contextId){
+    public Resource findFirstByContextIdOrderBySequence(UUID contextId) {
         return resourceRepository.findFirstByContextIdOrderBySequence(contextId);
     }
 }
