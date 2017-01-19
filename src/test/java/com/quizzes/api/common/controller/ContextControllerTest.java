@@ -428,11 +428,11 @@ public class ContextControllerTest {
         contextAssigned.setOwner(ownerData);
         contexts.add(contextAssigned);
 
-        when(contextService.getAssignedContexts(any(UUID.class))).thenReturn(contexts);
+        when(contextService.getAssignedContexts(any(UUID.class),any(Boolean.class), any(Long.class), any(Long.class))).thenReturn(contexts);
 
         ResponseEntity<List<ContextAssignedGetResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID(), null, null, null);
 
-        verify(contextService, times(1)).getAssignedContexts(any(UUID.class));
+        verify(contextService, times(1)).getAssignedContexts(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class));
 
         List<ContextAssignedGetResponseDto> list = response.getBody();
         assertNotNull("Response is Null", response);

@@ -4,6 +4,7 @@ import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.InvalidAssigneeException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
+import com.quizzes.api.common.exception.InvalidRequestException;
 import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.slf4j.Logger;
@@ -91,6 +92,18 @@ public class HandlerExceptionController {
     public ExceptionMessage handleInvalidAssigneeException(InvalidAssigneeException e) {
         logger.error("Forbidden request", e);
         return new ExceptionMessage("Forbidden request", HttpStatus.FORBIDDEN.value(), e.getMessage());
+    }
+
+    /**
+     * Handles invalid request errors
+     *
+     * @return Invalid request and status 400
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = InvalidRequestException.class)
+    public ExceptionMessage handleInvalidRequestException(InvalidRequestException e) {
+        logger.error("Invalid request", e);
+        return new ExceptionMessage("Invalid request", HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
 }

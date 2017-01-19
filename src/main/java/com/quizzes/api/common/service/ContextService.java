@@ -13,6 +13,7 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.InvalidAssigneeException;
+import com.quizzes.api.common.exception.InvalidRequestException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -274,7 +275,16 @@ public class ContextService {
         return response;
     }
 
-    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId) {
+    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDate, Long dueDate) {
+        if (isActive != null && (startDate != null || dueDate != null)) {
+            throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
+        }
+        if (startDate != null && startDate == 0) {
+            throw new InvalidRequestException("startDate value is not valid");
+        }
+        if (dueDate != null && dueDate == 0) {
+            throw new InvalidRequestException("dueDate value is not valid");
+        }
         return contextRepository.findContextOwnerByAssigneeId(assigneeId).stream()
                 .map(context -> mapContextOwnerEntityToContextAssignedDto(context))
                 .collect(Collectors.toList());

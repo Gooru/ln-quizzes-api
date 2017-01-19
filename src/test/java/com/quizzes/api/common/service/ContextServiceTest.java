@@ -529,7 +529,7 @@ public class ContextServiceTest {
 
         when(contextRepository.findContextOwnerByAssigneeId(any(UUID.class))).thenReturn(list);
 
-        List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID());
+        List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID(), null, null, null);
 
         verify(contextRepository, times(1)).findContextOwnerByAssigneeId(any(UUID.class));
 
