@@ -78,7 +78,11 @@ public class ProfileService {
     }
 
     public UUID findIdByExternalIdAndLmsId(String externalId, Lms lms) {
-        return profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
+        UUID profileId = profileRepository.findIdByExternalIdAndLmsId(externalId, lms);
+        if(profileId == null){
+            throw new ContentNotFoundException("Profile with external ID: " + externalId + " was not found");
+        }
+        return profileId;
     }
 
     public UUID findIdByExternalIdAndClientId(String externalId, UUID clientId) {
@@ -87,9 +91,7 @@ public class ProfileService {
 
     public IdResponseDto findIdResponseDtoByExternalIdAndLmsId(String externalId, Lms lms) {
         UUID id = findIdByExternalIdAndLmsId(externalId, lms);
-        IdResponseDto result = new IdResponseDto();
-        result.setId(id);
-        return result;
+        return new IdResponseDto(id);
     }
 
     public Profile findByExternalIdAndLmsId(String externalId, Lms lms) {
