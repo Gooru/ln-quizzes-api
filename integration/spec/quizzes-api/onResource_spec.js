@@ -1,7 +1,7 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
-frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint.')
+frisby.create('Test context creation for two assignees and one owner for answering a started context using onResource endpoint.')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
@@ -298,10 +298,10 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                                                     .addHeader('profile-id', ownerProfile.id)
                                                     .addHeader('lms-id', 'quizzes')
                                                     .inspectRequest()
-                                                    .expectStatus(404)
+                                                    .expectStatus(403)
                                                     .inspectJSON()
                                                     .expectJSON({
-                                                        "status": 404
+                                                        "status": 403
                                                     })
                                                     .expectJSONTypes({
                                                         message: String,
