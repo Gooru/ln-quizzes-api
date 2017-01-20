@@ -139,7 +139,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                                                     }
                                                                 ]
                                                             })
-                                                        .toss()
+                                                        .toss();
 
                                                         frisby.create('Get the context Events as an assignee')
                                                             .get(QuizzesApiUrl + '/v1/context/' + contextAssigned.id + '/events')
