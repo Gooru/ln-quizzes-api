@@ -5,10 +5,12 @@ import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.common.repository.ContextRepository;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -87,7 +89,25 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId) {
+    public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId, Boolean isActive, Date startDate, Date dueDate) {
+        Condition condition = CONTEXT.IS_ACTIVE.eq(true);
+        if (isActive != null) {
+            condition = condition.and(CONTEXT.IS_ACTIVE.eq(isActive));
+        }
+        if (startDate != null) {
+            condition = condition
+                    .and("jsonb_typeof(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate') = 'number'")
+                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate' as text)::bigint > 0")
+                    .and("and cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate' as text)::timestamp " +
+                            ">= to_timestamp('" + startDate.getTime() + "')");
+        }
+        if (dueDate != null) {
+            condition = condition
+                    .and("jsonb_typeof(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate') = 'number'")
+                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate' as text)::bigint > 0")
+                    .and("and cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate' as text)::timestamp " +
+                            ">= to_timestamp('" + dueDate.getTime() + "')");
+        }
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
                 GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
@@ -96,7 +116,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                         .and(GROUP_PROFILE.PROFILE_ID.eq(assigneeId)))
                 .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
                         .and(CONTEXT_PROFILE.PROFILE_ID.eq(assigneeId)))
-                .where(CONTEXT.IS_ACTIVE.eq(true))
+                .where(condition)
                 .fetchInto(ContextOwnerEntity.class);
     }
 

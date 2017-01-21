@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -279,17 +280,29 @@ public class ContextService {
         return response;
     }
 
-    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDate, Long dueDate) {
-        if (isActive != null && (startDate != null || dueDate != null)) {
+    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDateMilis, Long dueDateMilis) {
+        if (isActive != null && (startDateMilis != null || dueDateMilis != null)) {
             throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
         }
-        if (startDate != null && startDate == 0) {
-            throw new InvalidRequestException("startDate value is not valid");
+        Date startDate = null;
+        if (startDateMilis != null) {
+            try {
+                startDate = new Date(startDateMilis);
+            }
+            catch (Exception e) {
+                throw new InvalidRequestException("startDate value is not valid");
+            }
         }
-        if (dueDate != null && dueDate == 0) {
-            throw new InvalidRequestException("dueDate value is not valid");
+        Date dueDate = null;
+        if (dueDateMilis != null) {
+            try {
+                dueDate = new Date(dueDateMilis);
+            }
+            catch (Exception e) {
+                throw new InvalidRequestException("dueDate value is not valid");
+            }
         }
-        return contextRepository.findContextOwnerByAssigneeId(assigneeId).stream()
+        return contextRepository.findContextOwnerByAssigneeId(assigneeId, isActive, startDate, dueDate).stream()
                 .map(context -> mapContextOwnerEntityToContextAssignedDto(context))
                 .collect(Collectors.toList());
     }

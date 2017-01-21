@@ -31,6 +31,7 @@ import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -545,11 +546,11 @@ public class ContextServiceTest {
         List<ContextOwnerEntity> list = new ArrayList<>();
         list.add(contextOwnerEntity);
 
-        when(contextRepository.findContextOwnerByAssigneeId(any(UUID.class))).thenReturn(list);
+        when(contextRepository.findContextOwnerByAssigneeId(any(UUID.class), any(Boolean.class), any(Date.class), any(Date.class))).thenReturn(list);
 
         List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID(), null, null, null);
 
-        verify(contextRepository, times(1)).findContextOwnerByAssigneeId(any(UUID.class));
+        verify(contextRepository, times(1)).findContextOwnerByAssigneeId(any(UUID.class), any(Boolean.class), any(Date.class), any(Date.class));
 
         ContextAssignedGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());

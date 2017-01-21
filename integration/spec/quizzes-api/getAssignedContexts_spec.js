@@ -126,7 +126,7 @@ frisby.create('Creates a Context and assigns it to an Assignee, then tries to re
     })
     .toss();
 
-//Tests for filter parameters "isActive", "startDate" and "dueDate"
+//Tests for filter parameters combinations "isActive", "startDate" and "dueDate"
 frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
@@ -253,23 +253,149 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                     .inspectJSON()
                 .toss();
 
-                frisby.create('Verifies that startDate parameter with no value is invalid')
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?startDate')
-                    .addHeader('profile-id', assigneeProfile.id)
+            }).toss();
+    }).toss();
+
+function generateUUID() {
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+};
+
+var randomAssigneeID = "student_id_" + generateUUID();
+
+//Tests for filter parameters combinations "isActive", "startDate" and "dueDate"
+frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
+    .post(QuizzesApiUrl + '/v1/context', {
+        'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+        'owner': {
+            'id': 'teacher-id-1',
+            'firstName': 'TeacherFirstName1',
+            'lastName': 'TeacherLastName1',
+            'username': 'teacher1',
+            'email': 'teacher1@quizzes.com'
+        },
+        'assignees': [
+            {
+                'id': randomAssigneeID,
+                'firstName': 'StudentFirstName1',
+                'lastName': 'StudentLastName1',
+                'username': 'student1',
+                'email': 'student1@quizzes.com'
+            }
+        ],
+        'contextData': {
+            'contextMap': {
+                'classId': 'class-id-2'
+            },
+            'metadata': {
+                "startDate" : 1483358400000, // Monday, January 2, 2017 12:00:00 GMT
+                "dueDate" : 1485777600000 // Monday, January 30, 2017 12:00:00 GMT
+            }
+        }
+    }, {json: true})
+    .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
+    .addHeader('client-id', 'quizzes')
+    .inspectRequest()
+    .expectStatus(200)
+    .expectHeaderContains('content-type', 'application/json')
+    .inspectJSON()
+    .afterJSON(function () {
+        frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
+            .post(QuizzesApiUrl + '/v1/context', {
+                'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+                'owner': {
+                    'id': 'teacher-id-1',
+                    'firstName': 'TeacherFirstName1',
+                    'lastName': 'TeacherLastName1',
+                    'username': 'teacher1',
+                    'email': 'teacher1@quizzes.com'
+                },
+                'assignees': [
+                    {
+                        'id': randomAssigneeID,
+                        'firstName': 'StudentFirstName1',
+                        'lastName': 'StudentLastName1',
+                        'username': 'student1',
+                        'email': 'student1@quizzes.com'
+                    }
+                ],
+                'contextData': {
+                    'contextMap': {
+                        'classId': 'class-id-3'
+                    },
+                    'metadata': {
+                        "startDate" : 1483531200000, // Wed, 04 Jan 2017 12:00:00 GMT
+                        "dueDate" : 1485604800000 // Sat, 28 Jan 2017 12:00:00 GMT
+                    }
+                }
+            }, {json: true})
+            .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
+            .addHeader('client-id', 'quizzes')
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(function () {
+                frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
+                    .post(QuizzesApiUrl + '/v1/context', {
+                        'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+                        'owner': {
+                            'id': 'teacher-id-1',
+                            'firstName': 'TeacherFirstName1',
+                            'lastName': 'TeacherLastName1',
+                            'username': 'teacher1',
+                            'email': 'teacher1@quizzes.com'
+                        },
+                        'assignees': [
+                            {
+                                'id': randomAssigneeID,
+                                'firstName': 'StudentFirstName1',
+                                'lastName': 'StudentLastName1',
+                                'username': 'student1',
+                                'email': 'student1@quizzes.com'
+                            }
+                        ],
+                        'contextData': {
+                            'contextMap': {
+                                'classId': 'class-id-4'
+                            },
+                            'metadata': {
+                                "startDate" : 1483704000000, // Fri, 06 Jan 2017 12:00:00 GMT
+                                "dueDate" : 1485432000000 // Thu, 26 Jan 2017 12:00:00 GMT
+                            }
+                        }
+                    }, {json: true})
+                    .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
-                    .expectStatus(400)
+                    .expectStatus(200)
                     .expectHeaderContains('content-type', 'application/json')
                     .inspectJSON()
-                    .expectJSON(
-                        {
-                            'status': 400,
-                            'exception': 'isActive parameter can\'t be combined with startDate or dueDate',
-                            'message': 'Invalid request'
-                        }
-
-                    )
-                .toss();
-
+                    .afterJSON(function () {
+                        frisby.create('Retrieves an Assignee Profile')
+                            .get(QuizzesApiUrl + '/v1/profile-by-external-id/' + randomAssigneeID)
+                            .addHeader('client-id', 'quizzes')
+                            .inspectRequest()
+                            .expectStatus(200)
+                            .expectHeaderContains('content-type', 'application/json')
+                            .inspectJSON()
+                            .afterJSON(function (assigneeProfile) {
+                                frisby.create('Verifies error when combination isActive + startDate + dueDate')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?isActive=true')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(3)
+                                .toss();
+                            }).toss();
+                    }).toss();
             }).toss();
     }).toss();
