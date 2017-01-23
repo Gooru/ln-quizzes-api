@@ -9,6 +9,7 @@ import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.repository.ProfileRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -43,98 +44,80 @@ public class ProfileServiceTest {
     private ProfileRepository profileRepository;
 
     @Mock
-    Gson gson = new Gson();
+    private Gson gson = new Gson();
+
+    private UUID profileId;
+    private UUID contextId;
+    private UUID clientId;
+    private String externalId;
+    private Lms gooruLms;
+
+    @Before
+    public void beforeEachTest() {
+        profileId = UUID.randomUUID();
+        contextId = UUID.randomUUID();
+        clientId = UUID.randomUUID();
+        externalId = UUID.randomUUID().toString();
+        gooruLms = Lms.gooru;
+    }
 
     @Test
     public void findById() throws Exception {
-        UUID id = UUID.randomUUID();
-        when(profileRepository.findById(id)).thenReturn(new Profile());
+        when(profileRepository.findById(profileId)).thenReturn(new Profile());
 
-        Profile result = profileService.findById(id);
-        verify(profileRepository, times(1)).findById(eq(id));
+        Profile result = profileService.findById(profileId);
+        verify(profileRepository, times(1)).findById(eq(profileId));
     }
 
     @Test(expected = ContentNotFoundException.class)
     public void findByIdNotFound() throws Exception {
-        //Setting return values from db
-        UUID id = UUID.randomUUID();
-        when(profileRepository.findById(id)).thenReturn(null);
-        Profile result = profileService.findById(id);
+        when(profileRepository.findById(profileId)).thenReturn(null);
+        profileService.findById(profileId);
     }
 
     @Test
     public void findProfileByIdAllFields() throws Exception {
-        //Setting return values from db
-        UUID id = UUID.randomUUID();
-        UUID externalId = UUID.randomUUID();
+        Profile profile = createProfile();
+        when(profileRepository.findById(profileId)).thenReturn(profile);
 
-        Profile profile = new Profile();
-        profile.setId(id);
-        profile.setExternalId(externalId.toString());
-        profile.setProfileData(
-                "{\"firstName\": \"David\"," +
-                        "\"lastName\": \"Artavia\"," +
-                        "\"username\": \"dartavia\"," +
-                        "\"username\": \"dartavia\"," +
-                        "\"email\": \"david@quizzes.com\"}");
+        ProfileGetResponseDto result = profileService.findProfileResponseDtoById(profileId, null);
 
-
-        when(profileRepository.findById(id)).thenReturn(profile);
-
-        ProfileGetResponseDto result = profileService.findProfileResponseDtoById(id, null);
-
-        verify(profileRepository, times(1)).findById(eq(id));
+        verify(profileRepository, times(1)).findById(eq(profileId));
         assertNotNull("Result is null", result);
-        assertEquals("Wrong Id", id.toString(), result.getId());
-        assertEquals("Wrong first name", "David", result.getFirstName());
-        assertEquals("Wrong last name", "Artavia", result.getLastName());
-        assertEquals("Wrong username", "dartavia", result.getUsername());
-        assertEquals("Wrong email", "david@quizzes.com", result.getEmail());
-        assertEquals("Wrong externalId", externalId.toString(), result.getExternalId());
+        assertEquals("Wrong Id", profileId.toString(), result.getId());
+        assertEquals("Wrong first name", "firstName", result.getFirstName());
+        assertEquals("Wrong last name", "lastName", result.getLastName());
+        assertEquals("Wrong username", "username", result.getUsername());
+        assertEquals("Wrong email", "user@email.com", result.getEmail());
+        assertEquals("Wrong externalId", externalId, result.getExternalId());
     }
 
     @Test
     public void findProfileByIdWithEmailAndExternalId() throws Exception {
-        //Setting return values from db
-        UUID id = UUID.randomUUID();
-        UUID externalId = UUID.randomUUID();
-
-        Profile profile = new Profile();
-        profile.setId(id);
-        profile.setExternalId(externalId.toString());
-        profile.setProfileData(
-                "{\"firstName\": \"David\"," +
-                        "\"lastName\": \"Artavia\"," +
-                        "\"username\": \"dartavia\"," +
-                        "\"username\": \"dartavia\"," +
-                        "\"email\": \"david@quizzes.com\"}");
+        Profile profile = createProfile();
 
         ArrayList<String> fields = new ArrayList<>();
         fields.add("email");
         fields.add("externalId");
-        when(profileRepository.findById(id)).thenReturn(profile);
+        when(profileRepository.findById(profileId)).thenReturn(profile);
 
-        ProfileGetResponseDto result = profileService.findProfileResponseDtoById(id, fields);
+        ProfileGetResponseDto result = profileService.findProfileResponseDtoById(profileId, fields);
 
-        verify(profileRepository, times(1)).findById(eq(id));
+        verify(profileRepository, times(1)).findById(eq(profileId));
         assertNotNull("Result is null", result);
         assertNull("Id is not null", result.getId());
         assertNull("First name is not null", result.getFirstName());
         assertNull("Last name is not null", result.getLastName());
         assertNull("Username is not null", result.getUsername());
-        assertEquals("Wrong email", "david@quizzes.com", result.getEmail());
-        assertEquals("Wrong externalId", externalId.toString(), result.getExternalId());
+        assertEquals("Wrong email", "user@email.com", result.getEmail());
+        assertEquals("Wrong externalId", externalId, result.getExternalId());
     }
 
     @Test
     public void returnObjectWithFieldsInList() throws Exception {
-        //Setting return values from db
-        UUID id = UUID.randomUUID();
-        UUID externalId = UUID.randomUUID();
-
         ProfileGetResponseDto profile = new ProfileGetResponseDto();
-        profile.setId(id.toString());
-        profile.setExternalId(externalId.toString());
+        profile.setId(String.valueOf(profileId));
+        profile.setExternalId(externalId);
         profile.setEmail("david@quizzes.com");
         profile.setFirstName("David");
         profile.setLastName("Artavia");
@@ -150,8 +133,8 @@ public class ProfileServiceTest {
         objectFields.addAll(Arrays.asList(profile.getClass().getSuperclass().getDeclaredFields()));
         objectFields.addAll(Arrays.asList(profile.getClass().getDeclaredFields()));
 
-        ProfileGetResponseDto result = (ProfileGetResponseDto) WhiteboxImpl.invokeMethod(profileService, "returnObjectWithFieldsInList",
-                objectFields, fieldsToReturn, profile);
+        ProfileGetResponseDto result = (ProfileGetResponseDto) WhiteboxImpl.invokeMethod(profileService,
+                "returnObjectWithFieldsInList", objectFields, fieldsToReturn, profile);
 
         assertNotNull("Result is null", result);
         assertNull("Id is not null", result.getId());
@@ -159,53 +142,51 @@ public class ProfileServiceTest {
         assertNull("Last name is not null", result.getLastName());
         assertNull("Username is not null", result.getUsername());
         assertEquals("Wrong email", "david@quizzes.com", result.getEmail());
-        assertEquals("Wrong externalId", externalId.toString(), result.getExternalId());
+        assertEquals("Wrong externalId", externalId, result.getExternalId());
     }
 
     @Test
     public void findIdResponseDtoByExternalIdAndLmsId() throws Exception {
-        UUID id = UUID.randomUUID();
-        Lms lms = Lms.its_learning;
-        when(profileRepository
-                .findIdByExternalIdAndLmsId("external-id", Lms.its_learning))
-                .thenReturn(id);
+        when(profileRepository.findIdByExternalIdAndLmsId(externalId, gooruLms)).thenReturn(profileId);
 
-        IdResponseDto result = profileService.findIdResponseDtoByExternalIdAndLmsId("external-id", lms);
-        verify(profileRepository, times(1)).findIdByExternalIdAndLmsId(eq("external-id"), eq(lms));
+        IdResponseDto result = profileService.findIdResponseDtoByExternalIdAndLmsId(externalId, gooruLms);
+        verify(profileRepository, times(1)).findIdByExternalIdAndLmsId(eq(externalId), eq(gooruLms));
         assertNotNull("Response is null", result);
-        assertEquals("Wrong id", id, result.getId());
+        assertEquals("Wrong id", profileId, result.getId());
     }
 
     @Test
     public void findIdByExternalIdAndLmsId() throws Exception {
-        UUID result = profileService.findIdByExternalIdAndLmsId("external-id", Lms.its_learning);
-        verify(profileRepository, times(1)).findIdByExternalIdAndLmsId(eq("external-id"), eq(Lms.its_learning));
+        when(profileRepository.findIdByExternalIdAndLmsId(externalId, gooruLms)).thenReturn(profileId);
+        UUID result = profileService.findIdByExternalIdAndLmsId(externalId, gooruLms);
+        verify(profileRepository, times(1)).findIdByExternalIdAndLmsId(eq(externalId), eq(gooruLms));
+        assertEquals("Wrong profileId", profileId, result);
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findIdByExternalIdAndLmsIdThrowsException() throws Exception {
+        when(profileRepository.findIdByExternalIdAndLmsId(externalId, gooruLms)).thenReturn(null);
+        profileService.findIdByExternalIdAndLmsId(externalId, gooruLms);
     }
 
     @Test
     public void findIdByExternalIdAndClientId() throws Exception {
-        UUID clientId = UUID.randomUUID();
-        UUID result = profileService.findIdByExternalIdAndClientId("external-id", clientId);
-        verify(profileRepository, times(1)).findIdByExternalIdAndClientId(eq("external-id"), eq(clientId));
+        UUID result = profileService.findIdByExternalIdAndClientId(externalId, clientId);
+        verify(profileRepository, times(1)).findIdByExternalIdAndClientId(eq(externalId), eq(clientId));
     }
 
     @Test
     public void findAssigneeInContext() throws Exception {
-        when(profileRepository.findAssigneeInContext(any(UUID.class), any(UUID.class))).thenReturn(new Profile());
-        Profile result = profileService.findAssigneeInContext(any(UUID.class), any(UUID.class));
-        verify(profileRepository, times(1)).findAssigneeInContext(any(UUID.class), any(UUID.class));
+        when(profileRepository.findAssigneeInContext(contextId, profileId)).thenReturn(new Profile());
+        Profile result = profileService.findAssigneeInContext(contextId, profileId);
+        verify(profileRepository, times(1)).findAssigneeInContext(contextId, profileId);
         assertNotNull("Response is null", result);
         assertEquals("Response is not a profile", Profile.class, result.getClass());
     }
 
     @Test
     public void save() throws Exception {
-        Profile profile = new Profile();
-        profile.setId(UUID.randomUUID());
-        profile.setExternalId("external-id");
-        profile.setClientId(UUID.randomUUID());
-        profile.setLmsId(Lms.quizzes);
-        profile.setProfileData("{\"firstName\":\"name\"}");
+        Profile profile = createProfile();
 
         when(profileRepository.save(any(Profile.class))).thenReturn(profile);
 
@@ -223,32 +204,17 @@ public class ProfileServiceTest {
 
     @Test
     public void saveProfileBasedOnExternalUser() throws Exception {
-        UUID clientId = UUID.randomUUID();
-        Lms lms = Lms.gooru;
-
-        //Setting ExternalUserDto
-        UUID externalId = UUID.randomUUID();
-        ExternalUserDto userDto = new ExternalUserDto();
-        userDto.setExternalId(externalId.toString());
-        userDto.setEmail("david@quizzes.com");
-        userDto.setFirstName("David");
-        userDto.setLastName("Artavia");
-        userDto.setUsername("dartavia");
+        ExternalUserDto userDto = createExternalUserDto();
 
         Profile profile = new Profile();
-        UUID id = UUID.randomUUID();
-        profile.setId(id);
-        profile.setExternalId(externalId.toString());
-        profile.setProfileData(
-                "{\"firstName\": \"David\"," +
-                        "\"lastName\": \"Artavia\"," +
-                        "\"username\": \"dartavia\"," +
-                        "\"email\": \"david@quizzes.com\"}");
-        profile.setLmsId(lms);
+        profile.setId(profileId);
+        profile.setExternalId(String.valueOf(externalId));
+        profile.setProfileData(gson.toJson(createExternalUserDto()));
+        profile.setLmsId(gooruLms);
 
         when(profileRepository.save(any(Profile.class))).thenReturn(profile);
 
-        Profile result = profileService.saveProfileBasedOnExternalUser(userDto, lms, clientId);
+        Profile result = profileService.saveProfileBasedOnExternalUser(userDto, gooruLms, clientId);
 
         verify(profileRepository, times(1)).save(any(Profile.class));
 
@@ -262,18 +228,35 @@ public class ProfileServiceTest {
 
     @Test
     public void removeExternalIdFromExternalUserDto() throws Exception {
-        ExternalUserDto userDto = new ExternalUserDto();
-        userDto.setExternalId(UUID.randomUUID().toString());
-        userDto.setFirstName("Keylor");
-        userDto.setLastName("Navas");
-        userDto.setUsername("knavas");
+        ExternalUserDto userDto = createExternalUserDto();
 
         JsonObject jsonObject = WhiteboxImpl.invokeMethod(profileService, "removeExternalIdFromExternalUserDto", userDto);
 
-        assertEquals(jsonObject.size(), 3);
-        assertEquals("Wrong first name", "Keylor", jsonObject.get("firstName").getAsString());
-        assertEquals("wrong last name", "Navas", jsonObject.get("lastName").getAsString());
-        assertEquals("Wrong username", "knavas", jsonObject.get("username").getAsString());
+        assertEquals(jsonObject.size(), 4);
+        assertEquals("Wrong first name", "firstName", jsonObject.get("firstName").getAsString());
+        assertEquals("wrong last name", "lastName", jsonObject.get("lastName").getAsString());
+        assertEquals("Wrong username", "username", jsonObject.get("username").getAsString());
+        assertEquals("Wrong email", "user@email.com", jsonObject.get("email").getAsString());
         assertNull(jsonObject.get("externalId"));
+    }
+
+    private ExternalUserDto createExternalUserDto() {
+        ExternalUserDto userDto = new ExternalUserDto();
+        userDto.setExternalId(externalId);
+        userDto.setFirstName("firstName");
+        userDto.setLastName("lastName");
+        userDto.setUsername("username");
+        userDto.setEmail("user@email.com");
+        return userDto;
+    }
+
+    private Profile createProfile() {
+        Profile profile = new Profile();
+        profile.setId(profileId);
+        profile.setExternalId(externalId);
+        profile.setClientId(clientId);
+        profile.setLmsId(gooruLms);
+        profile.setProfileData(gson.toJson(createExternalUserDto()));
+        return profile;
     }
 }
