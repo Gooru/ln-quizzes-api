@@ -90,23 +90,26 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId, Boolean isActive, Date startDate, Date dueDate) {
-        Condition condition = CONTEXT.IS_ACTIVE.eq(true);
+        Condition condition = null;
         if (isActive != null) {
-            condition = condition.and(CONTEXT.IS_ACTIVE.eq(isActive));
+            //if the isActive parameter is present we use that value
+            condition = CONTEXT.IS_ACTIVE.eq(isActive);
+        }
+        else {
+            //if the isActive parameter is NOT present we true as default
+            condition = CONTEXT.IS_ACTIVE.eq(true);
         }
         if (startDate != null) {
             condition = condition
                     .and("jsonb_typeof(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate') = 'number'")
-                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate' as text)::bigint > 0")
-                    .and("and cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate' as text)::timestamp " +
-                            ">= to_timestamp('" + startDate.getTime() + "')");
+                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate' as text)::bigint " +
+                            ">= " + startDate.getTime());
         }
         if (dueDate != null) {
             condition = condition
                     .and("jsonb_typeof(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate') = 'number'")
-                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate' as text)::bigint > 0")
-                    .and("and cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate' as text)::timestamp " +
-                            ">= to_timestamp('" + dueDate.getTime() + "')");
+                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate' as text)::bigint " +
+                            "<= " + dueDate.getTime());
         }
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
                 GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))

@@ -385,7 +385,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                             .expectHeaderContains('content-type', 'application/json')
                             .inspectJSON()
                             .afterJSON(function (assigneeProfile) {
-                                frisby.create('Verifies error when combination isActive + startDate + dueDate')
+                                frisby.create('Verifies isActive=true')
                                     .get(QuizzesApiUrl + '/v1/contexts/assigned/?isActive=true')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
@@ -394,7 +394,108 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                                     .expectHeaderContains('content-type', 'application/json')
                                     .inspectJSON()
                                     .expectJSONLength(3)
-                                .toss();
+                                    .toss();
+
+                                frisby.create('Verifies isActive=false')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?isActive=false')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(0)
+                                    .toss();
+
+                                frisby.create('Verifies startDate with a date in the range')
+                                //startDate = Tue, 03 Jan 2017 12:00:00 GMT
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?startDate=1483444800000')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(2)
+                                    .toss();
+
+                                frisby.create('Verifies startDate with a date out of the range')
+                                //startDte = Sat, 07 Jan 2017 12:00:00 GMT
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?startDate=1483790400000')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(0)
+                                    .toss();
+
+                                frisby.create('Verifies dueDate with a date in the range')
+                                //dueDate = Sun, 29 Jan 2017 12:00:00 GMT
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?dueDate=1485691200000')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(2)
+                                    .toss();
+
+                                frisby.create('Verifies dueDate with a date out of the range')
+                                //dueDate = Wed, 25 Jan 2017 12:00:00 GMT
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?dueDate=1485345600000')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(0)
+                                    .toss();
+
+                                frisby.create('Verifies startDate and dueDate with a date in the range')
+                                //startDate = Tue, 03 Jan 2017 12:00:00 GMT
+                                //dueDate = Sun, 29 Jan 2017 12:00:00 GMT
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?' +
+                                        'startDate=1483444800000&dueDate=1485691200000')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(2)
+                                    .toss();
+
+                                frisby.create('Verifies startDate and dueDate with a date in the range')
+                                //startDate = Tue, 03 Jan 2017 12:00:00 GMT
+                                //dueDate = Fri, 27 Jan 2017 12:00:00 GMT
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?' +
+                                        'startDate=1483444800000&dueDate=1485518400000')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(1)
+                                    .toss();
+
+                                frisby.create('Verifies startDate and dueDate with a date out of the range')
+                                //startDate = Sat, 07 Jan 2017 12:00:00 GMT - this is out
+                                //dueDate = Fri, 27 Jan 2017 12:00:00 GMT - this is in
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned/?' +
+                                        'startDate=1483790400000&dueDate=1485518400000')
+                                    .addHeader('profile-id', assigneeProfile.id)
+                                    .addHeader('client-id', 'quizzes')
+                                    .inspectRequest()
+                                    .expectStatus(200)
+                                    .expectHeaderContains('content-type', 'application/json')
+                                    .inspectJSON()
+                                    .expectJSONLength(0)
+                                    .toss();
                             }).toss();
                     }).toss();
             }).toss();
