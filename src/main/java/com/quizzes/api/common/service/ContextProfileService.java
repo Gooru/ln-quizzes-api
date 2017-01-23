@@ -15,6 +15,14 @@ public class ContextProfileService {
     @Autowired
     ContextProfileRepository contextProfileRepository;
 
+    public ContextProfile findById(UUID contextProfileId) throws ContentNotFoundException {
+        ContextProfile contextProfile = contextProfileRepository.findById(contextProfileId);
+        if (contextProfile == null) {
+            throw new ContentNotFoundException("Not Found ContextProfile Id: " + contextProfile);
+        }
+        return contextProfile;
+    }
+
     public ContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId) throws ContentNotFoundException {
         ContextProfile contextProfile = contextProfileRepository.findByContextIdAndProfileId(contextId, profileId);
         if (contextProfile == null) {

@@ -2,7 +2,9 @@ package com.quizzes.api.common.controller;
 
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.ExceptionMessage;
+import com.quizzes.api.common.exception.InvalidAssigneeException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
+import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.slf4j.Logger;
@@ -27,8 +29,8 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = MissingJsonPropertiesException.class)
     public ExceptionMessage handleInvalidJsonPropertiesException(MissingJsonPropertiesException e) {
-        return new ExceptionMessage(e.getMessage(), HttpStatus.BAD_REQUEST.value(),
-                MissingJsonPropertiesException.class.getSimpleName());
+        logger.error("Bad request. Invalid JSON", e);
+        return new ExceptionMessage("Invalid JSON", HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
     /**
@@ -40,8 +42,7 @@ public class HandlerExceptionController {
     @ExceptionHandler(value = ContentNotFoundException.class)
     public ExceptionMessage handleContentNotFoundException(ContentNotFoundException e) {
         logger.error("Content not found", e);
-        return new ExceptionMessage(e.getMessage(), HttpStatus.NOT_FOUND.value(),
-                ContentNotFoundException.class.getSimpleName());
+        return new ExceptionMessage("Content not found", HttpStatus.NOT_FOUND.value(), e.getMessage());
     }
 
     /**
@@ -52,8 +53,32 @@ public class HandlerExceptionController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(value = InvalidCredentialsException.class)
     public ExceptionMessage handleInvalidCredentialsException(InvalidCredentialsException e) {
-        return new ExceptionMessage(e.getMessage(), HttpStatus.UNAUTHORIZED.value(),
-                InvalidCredentialsException.class.getSimpleName());
+        logger.error("Invalid credentials", e);
+        return new ExceptionMessage("Invalid credentials", HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    }
+
+    /**
+     * Handles invalid session errors
+     *
+     * @return Invalid Session and status 401
+     */
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(value = InvalidSessionException.class)
+    public ExceptionMessage handleInvalidSessionException(InvalidSessionException e) {
+        logger.error("Invalid Session", e);
+        return new ExceptionMessage("Invalid Session", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    }
+
+    /**
+     * Handles Invalid Owner exception scenarios
+     *
+     * @return Forbidden Entity error with Status 403
+     */
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(value = InvalidOwnerException.class)
+    public ExceptionMessage handleInvalidOwnerException(InvalidOwnerException e) {
+        logger.error("The Owner is invalid", e);
+        return new ExceptionMessage("The Owner is invalid", HttpStatus.FORBIDDEN.value(), e.getMessage());
     }
 
     /**
@@ -69,15 +94,15 @@ public class HandlerExceptionController {
     }
 
     /**
-     * Handles invalid session errors
+     * Handles forbidden request errors
      *
-     * @return Invalid Session and status 401
+     * @return Exception message
      */
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(value = InvalidSessionException.class)
-    public ExceptionMessage handleInvalidSessionException(InvalidSessionException e) {
-        logger.error("Invalid Session", e);
-        return new ExceptionMessage("Invalid Session", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(value = InvalidAssigneeException.class)
+    public ExceptionMessage handleInvalidAssigneeException(InvalidAssigneeException e) {
+        logger.error("Forbidden request", e);
+        return new ExceptionMessage("Forbidden request", HttpStatus.FORBIDDEN.value(), e.getMessage());
     }
 
 }

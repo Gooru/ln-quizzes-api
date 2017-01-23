@@ -14,7 +14,7 @@ public interface ContextRepository {
 
     Context findById(UUID id);
 
-    Context findByIdAndOwnerId(UUID contextId, UUID ownerId);
+    ContextOwnerEntity findContextOwnerById(UUID id);
 
     List<Context> findByOwnerId(UUID ownerId);
 
@@ -26,4 +26,12 @@ public interface ContextRepository {
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 
-}
+    /**
+     * Finds the a combinated entity with the {@link Context}
+     * and the assigned {@link com.quizzes.api.common.model.jooq.tables.pojos.Profile} ID
+     * @param contextId {@link Context} ID to find
+     * @return a list with the rows containing the Context and Assignee IDs
+     */
+    List<ContextAssigneeEntity> findContextAssigneeByContextId(UUID contextId);
+
+    }

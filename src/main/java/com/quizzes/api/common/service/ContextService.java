@@ -12,6 +12,8 @@ import com.quizzes.api.common.dto.ProfileDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
+import com.quizzes.api.common.exception.InvalidAssigneeException;
+import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -20,6 +22,7 @@ import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.model.jooq.tables.pojos.Group;
 import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
+import com.quizzes.api.common.model.mappers.EntityMapper;
 import com.quizzes.api.common.repository.ContextRepository;
 import com.quizzes.api.common.service.content.CollectionContentService;
 import org.slf4j.Logger;
@@ -127,14 +130,6 @@ public class ContextService {
         return result;
     }
 
-    public Context findById(UUID contextId) {
-        return contextRepository.findById(contextId);
-    }
-
-    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
-        return contextRepository.findByIdAndOwnerId(contextId, ownerId);
-    }
-
     /**
      * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
@@ -144,10 +139,6 @@ public class ContextService {
     @Transactional
     public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
         Context context = findByIdAndOwnerId(contextId, profileId);
-        if (context == null) {
-            logger.error("Error updating context: " + contextId + " was not found");
-            throw new ContentNotFoundException("We couldn't find a context with id :" + contextId);
-        }
 
         List<ProfileDto> profileDtos = contextPutRequestDto.getAssignees();
 
@@ -200,15 +191,29 @@ public class ContextService {
         return contextRepository.save(context);
     }
 
-    public List<Context> findContextByOwnerId(UUID profileId) {
-        return contextRepository.findByOwnerId(profileId);
+    public Context findById(UUID contextId) {
+        Context context = contextRepository.findById(contextId);
+        if (context == null) {
+            throw new ContentNotFoundException("Context not found for Context ID: " + contextId);
+        }
+        return context;
+    }
+
+    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
+        ContextOwnerEntity contextOwner = contextRepository.findContextOwnerById(contextId);
+        if (contextOwner == null) {
+            throw new ContentNotFoundException("Context not found for Context ID: " + contextId);
+        }
+        if (!contextOwner.getOwnerProfileId().equals(ownerId)) {
+            throw new InvalidOwnerException("Invalid Owner ID: " + ownerId + " for Context ID: " + contextId);
+        }
+        return EntityMapper.mapContextEntityToContext(contextOwner);
     }
 
     public List<CreatedContextGetResponseDto> findCreatedContexts(UUID ownerId) {
         List<CreatedContextGetResponseDto> result = new ArrayList<>();
         Map<UUID, List<ContextAssigneeEntity>> contextByOwnerList =
                 contextRepository.findContextAssigneeByOwnerId(ownerId);
-
 
         if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
             contextByOwnerList.forEach(
@@ -288,6 +293,26 @@ public class ContextService {
         }
 
         return mapContextOwnerEntityToContextAssignedDto(context);
+    }
+
+    public Context findByIdAndAssigneeId(UUID contextId, UUID assigneeId) {
+        List<ContextAssigneeEntity> assigneeEntities = contextRepository.findContextAssigneeByContextId(contextId);
+        if (assigneeEntities.isEmpty()) {
+            throw new ContentNotFoundException("Context not found for ID: " + contextId);
+        }
+        ContextAssigneeEntity contextAssigneeEntity = assigneeEntities.stream()
+                .filter(entity -> entity.getAssigneeProfileId().equals(assigneeId))
+                .findAny()
+                .orElse(null);
+        if (contextAssigneeEntity == null) {
+            throw new InvalidAssigneeException("Profile ID: " + assigneeId + " not assigned to the context ID: " + contextId);
+        }
+        Context result = new Context();
+        result.setId(contextAssigneeEntity.getId());
+        result.setCollectionId(contextAssigneeEntity.getCollectionId());
+        result.setContextData(contextAssigneeEntity.getContextData());
+        result.setGroupId(contextAssigneeEntity.getGroupId());
+        return result;
     }
 
     private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {

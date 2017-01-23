@@ -4,6 +4,7 @@ import com.quizzes.api.common.dto.ContextEventsResponseDto;
 import com.quizzes.api.common.dto.OnResourceEventPostRequestDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.service.ContextEventService;
+import com.quizzes.api.common.service.ContextService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -29,6 +30,9 @@ public class ContextEventController {
 
     @Autowired
     private ContextEventService contextEventService;
+
+    @Autowired
+    private ContextService contextService;
 
     @ApiOperation(
             value = "Start collection attempt",
@@ -91,7 +95,12 @@ public class ContextEventController {
     @ApiOperation(value = "Get All Student Events by Context ID",
             notes = "Returns the whole list of student events assigned to for the provided Context ID. The profile-id " +
                     "passed in the request header corresponds to the context owner Profile ID.")
-    @ApiResponses({@ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class)})
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class),
+            @ApiResponse(code = 404, message = "Provided contextId does not exist"),
+            @ApiResponse(code = 403, message = "Invalid owner"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
+    })
     @RequestMapping(path = "/v1/context/{contextId}/events",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -102,7 +111,7 @@ public class ContextEventController {
             @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId,
             @ApiParam(value = "Context owner Profile ID", required = true, name = "profile-id")
             @RequestHeader(value = "profile-id") UUID profileId) {
-        ContextEventsResponseDto contextEvents = contextEventService.getContextEvents(contextId);
+        ContextEventsResponseDto contextEvents = contextEventService.getContextEvents(contextId, profileId);
         return new ResponseEntity<>(contextEvents, HttpStatus.OK);
     }
 

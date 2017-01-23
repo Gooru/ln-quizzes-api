@@ -7,8 +7,11 @@ import com.quizzes.api.common.dto.PostResponseResourceDto;
 import com.quizzes.api.common.dto.ProfileEventResponseDto;
 import com.quizzes.api.common.dto.StartContextEventResponseDto;
 import com.quizzes.api.common.dto.controller.CollectionDto;
+import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextEventService;
 import com.quizzes.api.common.service.ContextProfileService;
+import com.quizzes.api.common.service.ContextService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,6 +20,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +41,7 @@ import static org.mockito.Mockito.when;
 public class ContextEventControllerTest {
 
     @InjectMocks
-    private ContextEventController controller = new ContextEventController();
+    private ContextEventController controller;
 
     @Mock
     private ContextEventService contextEventService;
@@ -44,11 +49,24 @@ public class ContextEventControllerTest {
     @Mock
     private ContextProfileService contextProfileService;
 
+    @Mock
+    private ContextService contextService;
+
+    private UUID contextId;
+    private UUID collectionId;
+    private UUID resourceId;
+    private UUID ownerId;
+
+    @Before
+    public void before() throws Exception {
+        contextId = UUID.randomUUID();
+        collectionId = UUID.randomUUID();
+        resourceId = UUID.randomUUID();
+        ownerId = UUID.randomUUID();
+    }
+
     @Test
     public void startContextEvent() throws Exception {
-        UUID id = UUID.randomUUID();
-        UUID resourceId = UUID.randomUUID();
-        UUID collectionId = UUID.randomUUID();
         CollectionDto collection = new CollectionDto();
         collection.setId(String.valueOf(collectionId));
 
@@ -82,10 +100,12 @@ public class ContextEventControllerTest {
         events.add(event2);
 
         StartContextEventResponseDto startContext = new StartContextEventResponseDto();
-        startContext.setId(id);
+        startContext.setId(contextId);
         startContext.setCurrentResourceId(resourceId);
         startContext.setCollection(collection);
         startContext.setEvents(events);
+
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
 
         when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
 
@@ -97,7 +117,7 @@ public class ContextEventControllerTest {
         StartContextEventResponseDto resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
         assertEquals("Wrong resource id is null", resourceId, resultBody.getCurrentResourceId());
-        assertEquals("Wrong id", id, resultBody.getId());
+        assertEquals("Wrong id", contextId, resultBody.getId());
         assertEquals("Wrong collection id", collection.getId(), resultBody.getCollection().getId());
         assertEquals("Wrong collection id", 2, resultBody.getEvents().size());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
@@ -140,10 +160,7 @@ public class ContextEventControllerTest {
 
     @Test
     public void getContextEventsIsSkippedFalse() throws Exception {
-        UUID contextId = UUID.randomUUID();
-
         //Setting collectionDto
-        UUID collectionId = UUID.randomUUID();
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
 
@@ -154,7 +171,6 @@ public class ContextEventControllerTest {
         answers.add(answerDto);
 
         //Setting Events
-        UUID resourceId = UUID.randomUUID();
         PostResponseResourceDto event = new PostResponseResourceDto();
         event.setScore(0);
         event.setReaction(0);
@@ -182,12 +198,12 @@ public class ContextEventControllerTest {
         contextEvents.setCollection(collectionDto);
         contextEvents.setProfileEvents(profileEvents);
 
-        when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(contextEvents);
+        when(contextEventService.getContextEvents(any(UUID.class), any(UUID.class))).thenReturn(contextEvents);
 
         ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes",
-                UUID.randomUUID());
+                ownerId);
 
-        verify(contextEventService, times(1)).getContextEvents(contextId);
+        verify(contextEventService, times(1)).getContextEvents(contextId, ownerId);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
@@ -213,10 +229,8 @@ public class ContextEventControllerTest {
 
     @Test
     public void getContextEventsIsSkippedTrue() throws Exception {
-        UUID contextId = UUID.randomUUID();
 
         //Setting collectionDto
-        UUID collectionId = UUID.randomUUID();
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
 
@@ -225,7 +239,6 @@ public class ContextEventControllerTest {
         List<AnswerDto> answers = new ArrayList<>();
 
         //Setting Events
-        UUID resourceId = UUID.randomUUID();
         PostResponseResourceDto event = new PostResponseResourceDto();
         event.setScore(0);
         event.setReaction(0);
@@ -253,12 +266,12 @@ public class ContextEventControllerTest {
         contextEvents.setCollection(collectionDto);
         contextEvents.setProfileEvents(profileEvents);
 
-        when(contextEventService.getContextEvents(any(UUID.class))).thenReturn(contextEvents);
+        when(contextEventService.getContextEvents(any(UUID.class), any(UUID.class))).thenReturn(contextEvents);
 
         ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes",
-                UUID.randomUUID());
+                ownerId);
 
-        verify(contextEventService, times(1)).getContextEvents(contextId);
+        verify(contextEventService, times(1)).getContextEvents(contextId, ownerId);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());

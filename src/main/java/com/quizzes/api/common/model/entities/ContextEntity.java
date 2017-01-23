@@ -25,4 +25,8 @@ public interface ContextEntity {
 
     void setContextData(String contextData);
 
+    boolean getIsActive();
+
+    void setIsActive(boolean isActive);
+
 }
