@@ -203,8 +203,6 @@ public class ContextEventServiceTest {
     @Test
     public void createContextProfilePrivateMethod() throws Exception {
         Resource resource = createResource();
-        ContextProfile contextProfile = createContextProfile();
-
         doReturn(resource).when(contextEventService, "findFirstResourceByContextId", contextId);
 
         ContextProfile result =
@@ -214,6 +212,13 @@ public class ContextEventServiceTest {
         assertEquals("Wrong contextId", contextId, result.getContextId());
         assertEquals("Wrong profileId", profileId, result.getProfileId());
         assertEquals("Wrong currentResourceId", resourceId, result.getCurrentResourceId());
+
+        EventSummaryDataDto eventSummaryResult = gson.fromJson(result.getEventSummaryData(), EventSummaryDataDto.class);
+        assertEquals("Wrong averageReaction", 0, eventSummaryResult.getAverageReaction());
+        assertEquals("Wrong averageScore", 0, eventSummaryResult.getAverageScore());
+        assertEquals("Wrong total answered", 0, eventSummaryResult.getTotalAnswered());
+        assertEquals("Wrong total correct", 0, eventSummaryResult.getTotalCorrect());
+        assertEquals("Wrong total time spent", 0, eventSummaryResult.getTotalTimeSpent());
     }
 
     @Test

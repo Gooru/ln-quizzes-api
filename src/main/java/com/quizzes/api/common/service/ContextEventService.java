@@ -316,6 +316,7 @@ public class ContextEventService {
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
         contextProfile.setCurrentResourceId(firstResource.getId());
+        contextProfile.setEventSummaryData(gson.toJson(calculateEventSummary(Collections.EMPTY_LIST, false)));
         return contextProfile;
     }
 
