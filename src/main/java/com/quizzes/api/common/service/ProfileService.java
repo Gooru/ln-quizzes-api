@@ -89,7 +89,7 @@ public class ProfileService {
         UUID profileId = profileRepository.findIdByExternalIdAndClientId(externalId, clientId);
         if(profileId == null){
             throw new ContentNotFoundException("Profile with external ID: " + externalId + " and client: " + clientId +
-                    "was not found");
+                    " was not found");
         }
         return profileId;
     }
