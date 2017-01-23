@@ -195,7 +195,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                             'message': 'Invalid request'
                         }
 
-                ).toss();
+                    ).toss();
 
                 frisby.create('Verifies error when combination isActive + startDate')
                 // startDate = Sunday, January 1, 2017 12:00:00 PM GMT
@@ -213,7 +213,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                             'message': 'Invalid request'
                         }
 
-                ).toss();
+                    ).toss();
 
                 frisby.create('Verifies error when combination isActive + dueDate')
                 // dueDate = Tuesday, January 31, 2017 12:00:00 PM GMT
@@ -231,8 +231,8 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                             'message': 'Invalid request'
                         }
 
-                ).toss();
-
+                    ).toss();
+                
                 frisby.create('Verifies that isActive parameter with no value is valid')
                     .get(QuizzesApiUrl + '/v1/contexts/assigned/?isActive')
                     .addHeader('profile-id', assigneeProfile.id)
@@ -241,7 +241,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                     .expectStatus(200)
                     .expectHeaderContains('content-type', 'application/json')
                     .inspectJSON()
-                .toss();
+                    .toss();
 
                 frisby.create('Verifies that isActive parameter with value is valid')
                     .get(QuizzesApiUrl + '/v1/contexts/assigned/?isActive=false')
@@ -251,7 +251,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                     .expectStatus(200)
                     .expectHeaderContains('content-type', 'application/json')
                     .inspectJSON()
-                .toss();
+                    .toss();
 
             }).toss();
     }).toss();

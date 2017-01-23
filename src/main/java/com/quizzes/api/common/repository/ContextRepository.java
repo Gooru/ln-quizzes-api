@@ -4,7 +4,6 @@ import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 
-import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,14 +29,13 @@ public interface ContextRepository {
      * 3 - startDate, optional, default is null
      * 4 - dueDate, optional, default is null
      *
-     *
      * @param assigneeId This is mandatory
-     * @param isActive
-     * @param startDate
-     * @param dueDate
-     * @return
+     * @param isActive if null, then the default is true, can't be used with startDate or dueDate
+     * @param startDate if not null the query looks for records with startDate >= than this param, can't be used with isActive
+     * @param dueDate if not null the query looks for records with dueDate <= than this param, can't be used with isActive
+     * @return the list of {@link ContextAssigneeEntity} found
      */
-    List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId, Boolean isActive, Date startDate, Date dueDate);
+    List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId, Boolean isActive, Long startDate, Long dueDate);
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 

@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -280,29 +279,25 @@ public class ContextService {
         return response;
     }
 
-    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDateMilis, Long dueDateMilis) {
-        if (isActive != null && (startDateMilis != null || dueDateMilis != null)) {
+    /**
+     * Finds the list of all {@link ContextOwnerEntity} for an assignee based on four criteria.
+     * 1 - assigneeId, mandatory
+     * 2 - isActive flag, optional param, default is true
+     * 3 - startDate, optional, default is null
+     * 4 - dueDate, optional, default is null
+     *
+     * @param assigneeId This is mandatory
+     * @param isActive if null, then the default is true, can't be used with startDate or dueDate
+     * @param startDateMillis start date milliseconds, if not null the query looks for records with startDate >= than this param, can't be used with isActive
+     * @param dueDateMillis due date milliseconds, if not null the query looks for records with dueDate <= than this param, can't be used with isActive
+     * @return the list of {@link ContextAssigneeEntity} found
+     */
+
+    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
+        if (isActive != null && (startDateMillis != null || dueDateMillis != null)) {
             throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
         }
-        Date startDate = null;
-        if (startDateMilis != null) {
-            try {
-                startDate = new Date(startDateMilis);
-            }
-            catch (Exception e) {
-                throw new InvalidRequestException("startDate value is not valid");
-            }
-        }
-        Date dueDate = null;
-        if (dueDateMilis != null) {
-            try {
-                dueDate = new Date(dueDateMilis);
-            }
-            catch (Exception e) {
-                throw new InvalidRequestException("dueDate value is not valid");
-            }
-        }
-        return contextRepository.findContextOwnerByAssigneeId(assigneeId, isActive, startDate, dueDate).stream()
+        return contextRepository.findContextOwnerByAssigneeId(assigneeId, isActive, startDateMillis, dueDateMillis).stream()
                 .map(context -> mapContextOwnerEntityToContextAssignedDto(context))
                 .collect(Collectors.toList());
     }
