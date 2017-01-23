@@ -34,31 +34,50 @@ public class SessionService {
     ClientService clientService;
 
     public SessionTokenDto generateToken(SessionPostRequestDto sessionData) {
-        Client client = clientService.findByApiKeyAndApiSecret(sessionData.getClientApiKey(), sessionData.getClientApiSecret());
-        Session session = new Session();
+        Client client =
+                clientService.findByApiKeyAndApiSecret(sessionData.getClientApiKey(), sessionData.getClientApiSecret());
         ExternalUserDto externalUser = sessionData.getUser();
+        SessionProfileEntity sessionProfile;
         UUID profileId;
 
         try {
-            profileId = profileService.findIdByExternalIdAndClientId(externalUser.getExternalId(), client.getId());
-            try {
-                Session lastSession = findLastSessionByProfileId(profileId);
-                session = updateLastAccess(lastSession.getId());
-                return getSessionToken(session);
-            } catch(ContentNotFoundException cne){}
+            sessionProfile = findLastSessionProfileByClientIdAndExternalId(client.getId(), externalUser.getExternalId());
+            if(sessionProfile.getSessionId() != null){
+                return getSessionToken(updateLastAccess(sessionProfile.getSessionId()));
+            }
+            profileId = sessionProfile.getProfileId();
         } catch (ContentNotFoundException cne) {
-            //TODO: LmsId is being set with 'gooru' as default, we need to change that.
-            Profile profile = profileService.saveProfileBasedOnExternalUser(externalUser, Lms.gooru, client.getId());
-            profileId = profile.getId();
+            profileId = createProfile(externalUser, client.getId()).getId();
         }
 
-        session.setProfileId(profileId);
-        return getSessionToken(save(session));
+        Session session = createSession(profileId);
+        return getSessionToken(session);
     }
 
-    public Session findLastSessionByProfileId(UUID profileId){
+    private SessionProfileEntity findLastSessionProfileByClientIdAndExternalId(UUID clientId, String externalId) {
+        SessionProfileEntity sessionProfile =
+                sessionRepository.findLastSessionProfileByClientIdAndExternalId(clientId, externalId);
+        if(sessionProfile == null){
+            throw new ContentNotFoundException("There is no profile with for client ID: " + clientId +
+            " and external ID: " + externalId);
+        }
+        return sessionProfile;
+    }
+
+    private Session createSession(UUID profileId) {
+        Session session = new Session();
+        session.setProfileId(profileId);
+        return save(session);
+    }
+
+    private Profile createProfile(ExternalUserDto externalUser, UUID clientId) {
+        //TODO: LmsId is being set with 'gooru' as default, we need to change that.
+        return profileService.saveProfileBasedOnExternalUser(externalUser, Lms.gooru, clientId);
+    }
+
+    public Session findLastSessionByProfileId(UUID profileId) {
         Session session = sessionRepository.findLastSessionByProfileId(profileId);
-        if(session == null){
+        if (session == null) {
             throw new ContentNotFoundException("Active session not found for profile ID: " + profileId);
         }
         return session;

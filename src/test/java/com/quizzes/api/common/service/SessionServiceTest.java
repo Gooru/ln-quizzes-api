@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
@@ -30,27 +31,33 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
+import static org.powermock.api.mockito.PowerMockito.doThrow;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
+@PrepareForTest(SessionService.class)
 public class SessionServiceTest {
 
     @InjectMocks
-    private SessionService sessionService = Mockito.spy(SessionService.class);
+    private SessionService sessionService = spy(new SessionService());
 
     @Mock
-    SessionRepository sessionRepository;
+    private SessionRepository sessionRepository;
 
     @Mock
-    ClientService clientService;
+    private ClientService clientService;
 
     @Mock
-    ConfigurationService configurationService;
+    private ConfigurationService configurationService;
 
     @Mock
-    ProfileService profileService;
+    private ProfileService profileService;
 
     @Mock
     private Gson gson = new Gson();
@@ -60,6 +67,7 @@ public class SessionServiceTest {
     private UUID sessionId;
     private UUID profileId;
     private UUID clientId;
+    private UUID sessionToken;
     private String externalUserId;
     private Lms gooruLms;
 
@@ -70,6 +78,7 @@ public class SessionServiceTest {
         sessionId = UUID.randomUUID();
         profileId = UUID.randomUUID();
         clientId = UUID.randomUUID();
+        sessionToken = UUID.randomUUID();
         externalUserId = UUID.randomUUID().toString();
         gooruLms = Lms.gooru;
     }
@@ -78,73 +87,116 @@ public class SessionServiceTest {
     public void generateTokenWhenProfileIsNull() throws Exception {
         SessionPostRequestDto sessionPostRequestDto = createSessionPostRequestDto();
         Client client = createClient();
+        Session session = createSession();
+        SessionTokenDto sessionTokenDto = createSessionTokenDto();
+        Profile profile = createProfile();
 
         when(clientService.findByApiKeyAndApiSecret(apiKey, apiSecret)).thenReturn(client);
-        when(profileService.findIdByExternalIdAndClientId(externalUserId, clientId))
-                .thenThrow(ContentNotFoundException.class);
-        when(profileService.saveProfileBasedOnExternalUser(sessionPostRequestDto.getUser(), gooruLms, clientId))
-                .thenReturn(createProfile());
-        when(sessionRepository.save(any(Session.class))).thenReturn(createSession());
+        doReturn(profile).when(sessionService, "createProfile", sessionPostRequestDto.getUser(), clientId);
+        doThrow(new ContentNotFoundException("Message"))
+                .when(sessionService, "findLastSessionProfileByClientIdAndExternalId", clientId, externalUserId);
+        doReturn(session).when(sessionService, "createSession", profileId);
+        doReturn(sessionTokenDto).when(sessionService, "getSessionToken", session);
 
         SessionTokenDto result = sessionService.generateToken(sessionPostRequestDto);
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey), eq(apiSecret));
-        verify(profileService, times(1)).findIdByExternalIdAndClientId(eq(externalUserId), eq(clientId));
-        verify(profileService, times(1))
-                .saveProfileBasedOnExternalUser(eq(sessionPostRequestDto.getUser()), eq(gooruLms), eq(clientId));
-        verify(sessionRepository, times(0)).findLastSessionByProfileId(any());
-        verify(sessionRepository, times(0)).updateLastAccess(any());
-        verify(sessionRepository, times(1)).save(any(Session.class));
+        verifyPrivate(sessionService, times(1))
+                .invoke("findLastSessionProfileByClientIdAndExternalId", clientId, externalUserId);
+        verifyPrivate(sessionService, times(0)).invoke("updateLastAccess", any());
+        verifyPrivate(sessionService, times(1)).invoke("createProfile", sessionPostRequestDto.getUser(), clientId);
+        verifyPrivate(sessionService, times(1)).invoke("createSession", profileId);
+        verifyPrivate(sessionService, times(1)).invoke("getSessionToken", session);
 
         assertNotNull("Result is null", result);
-        assertEquals("Wrong session Id", sessionId, result.getSessionToken());
+        assertEquals("Wrong session token", sessionToken, result.getSessionToken());
     }
 
     @Test
     public void generateTokenWhenLastSessionIsNull() throws Exception {
         SessionPostRequestDto sessionPostRequestDto = createSessionPostRequestDto();
         Client client = createClient();
+        Session session = createSession();
+        SessionTokenDto sessionTokenDto = createSessionTokenDto();
+        SessionProfileEntity sessionProfileEntity = createSessionProfile();
 
         when(clientService.findByApiKeyAndApiSecret(apiKey, apiSecret)).thenReturn(client);
-        when(profileService.findIdByExternalIdAndClientId(externalUserId, clientId)).thenReturn(profileId);
-        when(sessionRepository.findLastSessionByProfileId(profileId)).thenThrow(ContentNotFoundException.class);
-        when(sessionRepository.save(any(Session.class))).thenReturn(createSession());
+        doReturn(sessionProfileEntity)
+                .when(sessionService, "findLastSessionProfileByClientIdAndExternalId", clientId, externalUserId);
+        doReturn(session).when(sessionService, "createSession", profileId);
+        doReturn(sessionTokenDto).when(sessionService, "getSessionToken", session);
 
         SessionTokenDto result = sessionService.generateToken(sessionPostRequestDto);
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey), eq(apiSecret));
-        verify(profileService, times(1)).findIdByExternalIdAndClientId(eq(externalUserId), eq(clientId));
-        verify(profileService, times(0)).saveProfileBasedOnExternalUser(any(), any(), any());
-        verify(sessionRepository, times(1)).findLastSessionByProfileId(eq(profileId));
-        verify(sessionRepository, times(0)).updateLastAccess(any());
-        verify(sessionRepository, times(1)).save(any(Session.class));
+        verifyPrivate(sessionService, times(1))
+                .invoke("findLastSessionProfileByClientIdAndExternalId", clientId, externalUserId);
+        verifyPrivate(sessionService, times(0)).invoke("updateLastAccess", any());
+        verifyPrivate(sessionService, times(0)).invoke("createProfile", any(), any());
+        verifyPrivate(sessionService, times(1)).invoke("createSession", profileId);
+        verifyPrivate(sessionService, times(1)).invoke("getSessionToken", session);
 
         assertNotNull("Result is null", result);
-        assertEquals("Wrong session Id", sessionId, result.getSessionToken());
+        assertEquals("Wrong session token", sessionToken, result.getSessionToken());
     }
 
     @Test
     public void generateTokenWhenLastSessionIsNotNull() throws Exception {
         SessionPostRequestDto sessionPostRequestDto = createSessionPostRequestDto();
-        Session session = createSession();
         Client client = createClient();
+        Session session = createSession();
+        SessionTokenDto sessionTokenDto = createSessionTokenDto();
+        SessionProfileEntity sessionProfileEntity = createSessionProfile();
+
+        when(sessionProfileEntity.getSessionId()).thenReturn(sessionId);
 
         when(clientService.findByApiKeyAndApiSecret(apiKey, apiSecret)).thenReturn(client);
-        when(profileService.findIdByExternalIdAndClientId(externalUserId, clientId)).thenReturn(profileId);
-        when(sessionRepository.findLastSessionByProfileId(profileId)).thenReturn(session);
-        when(sessionRepository.updateLastAccess(sessionId)).thenReturn(session);
+        doReturn(sessionProfileEntity)
+                .when(sessionService, "findLastSessionProfileByClientIdAndExternalId", clientId, externalUserId);
+        doReturn(session).when(sessionService, "updateLastAccess", sessionId);
+        doReturn(sessionTokenDto).when(sessionService, "getSessionToken", session);
 
         SessionTokenDto result = sessionService.generateToken(sessionPostRequestDto);
 
         verify(clientService, times(1)).findByApiKeyAndApiSecret(eq(apiKey), eq(apiSecret));
-        verify(profileService, times(1)).findIdByExternalIdAndClientId(eq(externalUserId), eq(clientId));
-        verify(profileService, times(0)).saveProfileBasedOnExternalUser(any(), any(), any());
-        verify(sessionRepository, times(1)).findLastSessionByProfileId(eq(profileId));
-        verify(sessionRepository, times(1)).updateLastAccess(eq(sessionId));
-        verify(sessionRepository, times(0)).save(any());
+        verifyPrivate(sessionService, times(1))
+                .invoke("findLastSessionProfileByClientIdAndExternalId", clientId, externalUserId);
+        verifyPrivate(sessionService, times(1)).invoke("updateLastAccess", sessionId);
+        verifyPrivate(sessionService, times(0)).invoke("createProfile", any(), any());
+        verifyPrivate(sessionService, times(0)).invoke("createSession", profileId);
+        verifyPrivate(sessionService, times(1)).invoke("getSessionToken", session);
 
         assertNotNull("Result is null", result);
-        assertEquals("Wrong session Id", sessionId, result.getSessionToken());
+        assertEquals("Wrong session token", sessionToken, result.getSessionToken());
+    }
+
+    @Test
+    public void createProfilePrivateMethod() throws Exception {
+        ExternalUserDto externalUser = createExternalUserDto();
+        Profile profile = createProfile();
+
+        when(profileService.saveProfileBasedOnExternalUser(externalUser, gooruLms, clientId)).thenReturn(profile);
+
+        Profile result =
+                WhiteboxImpl.invokeMethod(sessionService, "createProfile", externalUser, clientId);
+
+        verify(profileService, times(1)).saveProfileBasedOnExternalUser(externalUser, gooruLms, clientId);
+        assertEquals("Wrong profileId", profileId, result.getId());
+        assertEquals("Wrong clientId", clientId, result.getClientId());
+        assertEquals("Wrong externalId", externalUserId, result.getExternalId());
+        assertEquals("Wrong lmsId", gooruLms, result.getLmsId());
+    }
+
+    @Test
+    public void createSessionPrivateMethod() throws Exception {
+        doReturn(createSession()).when(sessionService, "save", any(Session.class));
+
+        Session result =
+                WhiteboxImpl.invokeMethod(sessionService, "createSession", profileId);
+
+        verifyPrivate(sessionService, times(1)).invoke("save", any(Session.class));
+        assertEquals("Wrong profileId", profileId, result.getProfileId());
+        assertEquals("Wrong sessionId", sessionId, result.getId());
     }
 
     @Test
@@ -156,6 +208,31 @@ public class SessionServiceTest {
         verify(sessionRepository, times(1)).save(eq(session));
         assertEquals("Wrong session ID", sessionId, result.getId());
         assertEquals("Wrong profile ID", profileId, result.getProfileId());
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findLastSessionProfileByClientIdAndExternalIdThrowsException() throws Exception {
+        when(sessionRepository.findLastSessionProfileByClientIdAndExternalId(clientId, externalUserId))
+                .thenReturn(null);
+        WhiteboxImpl.invokeMethod(sessionService, "findLastSessionProfileByClientIdAndExternalId",
+                clientId, externalUserId);
+    }
+
+    @Test
+    public void findLastSessionProfileByClientIdAndExternalId() throws Exception {
+        SessionProfileEntity sessionProfile = createSessionProfile();
+        when(sessionRepository.findLastSessionProfileByClientIdAndExternalId(clientId, externalUserId))
+                .thenReturn(sessionProfile);
+        when(sessionProfile.getSessionId()).thenReturn(sessionId);
+
+        SessionProfileEntity result =
+                WhiteboxImpl.invokeMethod(sessionService, "findLastSessionProfileByClientIdAndExternalId",
+                        clientId, externalUserId);
+
+        verify(sessionRepository, times(1)).findLastSessionProfileByClientIdAndExternalId(clientId, externalUserId);
+        assertEquals("Wrong session ID", sessionId, result.getSessionId());
+        assertEquals("Wrong profile ID", profileId, result.getProfileId());
+        assertEquals("Wrong client ID", clientId, result.getClientId());
     }
 
     @Test
@@ -279,8 +356,23 @@ public class SessionServiceTest {
     private Profile createProfile() {
         Profile profile = new Profile();
         profile.setId(profileId);
+        profile.setClientId(clientId);
+        profile.setLmsId(gooruLms);
         profile.setExternalId(externalUserId);
         profile.setProfileData(gson.toJson(createExternalUserDto()));
         return profile;
+    }
+
+    private SessionTokenDto createSessionTokenDto() {
+        SessionTokenDto sessionTokenDto = new SessionTokenDto();
+        sessionTokenDto.setSessionToken(sessionToken);
+        return sessionTokenDto;
+    }
+
+    private SessionProfileEntity createSessionProfile() {
+        SessionProfileEntity sessionProfileEntity = mock(SessionProfileEntity.class);
+        when(sessionProfileEntity.getClientId()).thenReturn(clientId);
+        when(sessionProfileEntity.getProfileId()).thenReturn(profileId);
+        return sessionProfileEntity;
     }
 }

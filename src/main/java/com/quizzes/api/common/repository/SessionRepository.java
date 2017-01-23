@@ -16,6 +16,8 @@ public interface SessionRepository {
 
     SessionProfileEntity findSessionProfileEntityBySessionId(UUID sessionId);
 
+    SessionProfileEntity findLastSessionProfileByClientIdAndExternalId(UUID clientId, String externalId);
+
     Profile findProfileBySessionId(UUID sessionId);
 }
 
