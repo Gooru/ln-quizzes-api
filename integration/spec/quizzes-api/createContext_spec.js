@@ -149,12 +149,21 @@ frisby.create('Test context without assignees')
     .expectStatus(406)
     .expectHeaderContains('content-type', 'application/json')
     .inspectJSON()
-    .expectJSONTypes("Errors", [
+    .expectJSON({"Errors": [
         "Error in assignees: {assignment.assignees.size}"
-    ])
+    ]})
     .toss();
 
 frisby.create('Test context without assignee fields')
+    /*
+     [
+     "Error in assignees[4].email: Email is required",
+     "Error in assignees[3].username: Username is required",
+     "Error in assignees[1].firstName: Firstname is required",
+     "Error in assignees[2].lastName: Lastname is required",
+     "Error in assignees[0].id: ID is required"
+     ]
+     */
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
@@ -209,13 +218,7 @@ frisby.create('Test context without assignee fields')
     .expectStatus(406)
     .expectHeaderContains('content-type', 'application/json')
     .inspectJSON()
-    .expectJSONTypes("Errors", [
-        "Error in assignees[4].email: Email is required",
-        "Error in assignees[3].username: Username is required",
-        "Error in assignees[1].firstName: Firstname is required",
-        "Error in assignees[2].lastName: Lastname is required",
-        "Error in assignees[0].id: ID is required"
-    ])
+    .expectJSONLength("Errors", 5)
     .toss();
 
 frisby.create('Test context without owner')
@@ -256,6 +259,15 @@ frisby.create('Test context without owner')
     .toss();
 
 frisby.create('Test context with owner fields errors')
+    /*
+     "Errors": [
+     "Error in owner.email: Email is required",
+     "Error in owner.id: ID is required",
+     "Error in owner.firstName: Firstname is required",
+     "Error in owner.lastName: Lastname is required",
+     "Error in owner.username: Username is required"
+     ]
+     */
     .post(QuizzesApiUrl + '/v1/context', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
@@ -290,11 +302,91 @@ frisby.create('Test context with owner fields errors')
     .expectStatus(406)
     .expectHeaderContains('content-type', 'application/json')
     .inspectJSON()
+    .expectJSONLength("Errors", 5)
+    .toss();
+
+frisby.create('Test context with owner fields errors')
+/*
+ "Errors": [
+ "Error in owner.email: Email is required",
+ "Error in owner.id: ID is required",
+ "Error in owner.firstName: Firstname is required",
+ "Error in owner.lastName: Lastname is required",
+ "Error in owner.username: Username is required"
+ ]
+ */
+    .post(QuizzesApiUrl + '/v1/context', {
+        'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+        'assignees': [
+            {
+                'id': 'student-id-1',
+                'firstName': 'StudentFirstName1',
+                'lastName': 'StudentLastName1',
+                'username': 'student1',
+                'email': 'student1@quizzes.com'
+            },
+            {
+                'id': 'student-id-2',
+                'firstName': 'StudentFirstName2',
+                'lastName': 'StudentLastName2',
+                'username': 'student2',
+                'email': 'student2@quizzes.com'
+            }
+        ],
+        'contextData': {
+            'contextMap': {
+                'classId': 'class-id-1'
+            },
+            'metadata': {}
+        },
+        'owner': {
+        }
+
+    }, {json: true})
+    .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
+    .addHeader('client-id', 'quizzes')
+    .inspectRequest()
+    .expectStatus(406)
+    .expectHeaderContains('content-type', 'application/json')
+    .inspectJSON()
+    .expectJSONLength("Errors", 5)
+    .toss();
+
+frisby.create('Test context without contextData')
+    .post(QuizzesApiUrl + '/v1/context', {
+        'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+        'assignees': [
+            {
+                'id': 'student-id-1',
+                'firstName': 'StudentFirstName1',
+                'lastName': 'StudentLastName1',
+                'username': 'student1',
+                'email': 'student1@quizzes.com'
+            },
+            {
+                'id': 'student-id-2',
+                'firstName': 'StudentFirstName2',
+                'lastName': 'StudentLastName2',
+                'username': 'student2',
+                'email': 'student2@quizzes.com'
+            }
+        ],
+        'owner': {
+            'id': 'teacher-id-1',
+            'firstName': 'TeacherFirstName1',
+            'lastName': 'TeacherLastName1',
+            'username': 'teacher1',
+            'email': 'teacher1@quizzes.com'
+        }
+
+    }, {json: true})
+    .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
+    .addHeader('client-id', 'quizzes')
+    .inspectRequest()
+    .expectStatus(406)
+    .expectHeaderContains('content-type', 'application/json')
+    .inspectJSON()
     .expectJSON({"Errors": [
-        "Error in owner\.firstName: Firstname is required",
-        "Error in owner\.id: ID is required",
-        "Error in owner\.lastName: Lastname is required",
-        "Error in owner\.email: Email is required",
-        "Error in owner\.username: Username is required"
-    ]})
+        "Error in contextData: A ContextData is required"
+        ]})
     .toss();
