@@ -3,7 +3,21 @@ const QuizzesCommon = require('./quizzesCommon.js');
 
 var frisby = require('frisby');
 
-QuizzesCommon.startTest("Test context summary for 10 correctly answered questions", function() {
+var verifyGetContextEvents = function (contextId, ownerProfileId, result, afterJsonFunction) {
+    return frisby.create('Get the context Events as an owner')
+        .get(QuizzesApiUrl + '/v1/context/' + contextId + '/events')
+        .addHeader('profile-id', ownerProfileId)
+        .addHeader('lms-id', 'quizzes')
+        .inspectRequest()
+        .expectStatus(200)
+        .inspectJSON()
+        .expectJSON(result)
+        .afterJSON(function () {
+            afterJsonFunction(afterJsonFunction);
+        })
+}
+
+QuizzesCommon.startTest("Test finished context summary for 10 correctly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
             QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
@@ -142,8 +156,7 @@ QuizzesCommon.startTest("Test context summary for 10 correctly answered question
     });
 });
 
-
-QuizzesCommon.startTest("Test context summary for 10 incorrectly answered questions", function() {
+QuizzesCommon.startTest("Test finished context summary for 10 incorrectly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
             QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
@@ -282,7 +295,7 @@ QuizzesCommon.startTest("Test context summary for 10 incorrectly answered questi
     });
 });
 
-QuizzesCommon.startTest("Test context summary for 2 correct and 1 incorrect answered questions, the other 7 skipped", function() {
+QuizzesCommon.startTest("Test finished context summary for 2 correct and 1 incorrect answered questions, the other 7 skipped", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
             QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
@@ -351,7 +364,7 @@ QuizzesCommon.startTest("Test context summary for 2 correct and 1 incorrect answ
     });
 });
 
-QuizzesCommon.startTest("Test context summary spent time calculation for multiple visits of the same question", function() {
+QuizzesCommon.startTest("Test finished context summary spent time calculation for multiple visits of the same question", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
             QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
@@ -406,7 +419,7 @@ QuizzesCommon.startTest("Test context summary spent time calculation for multipl
                                                                 "currentResourceId": collection.resources[2].id,
                                                                 "profileId": assigneeProfile.id,
                                                                 "contextProfileSummary": {
-                                                                    //"totalTimeSpent": 8000,
+                                                                    "totalTimeSpent": 8000,
                                                                     "averageReaction": 3,
                                                                     "averageScore": 20,
                                                                     "totalCorrect": 2,
@@ -432,7 +445,7 @@ QuizzesCommon.startTest("Test context summary spent time calculation for multipl
 
 // this one checks that any skipped question doesn't have an answer data (answer, reaction, time spent, ...)
 // and that every answered question has that info
-QuizzesCommon.startTest("Test context summary with 2 answered questions and 8 skipped", function() {
+QuizzesCommon.startTest("Test finished context summary with 2 answered questions and 8 skipped", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
             QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
@@ -458,7 +471,7 @@ QuizzesCommon.startTest("Test context summary with 2 answered questions and 8 sk
                             }, function () {
                                 QuizzesCommon.finishContext(contextAssigned.id, assigneeProfile.id, function () {
                                     QuizzesCommon.getProfileByExternalId('teacher-id-1', function (ownerProfile) {
-                                        QuizzesCommon.verifyGetContextEvents(contextAssigned.id, ownerProfile.id,
+                                        verifyGetContextEvents(contextAssigned.id, ownerProfile.id,
                                             {
                                                 "collection": {
                                                     "id": collection.id
@@ -474,73 +487,72 @@ QuizzesCommon.startTest("Test context summary with 2 answered questions and 8 sk
                                                             "averageScore": 20,
                                                             "totalCorrect": 2,
                                                             "totalAnswered": 10
-                                                        },
-                                                        "events":
-                                                            [ { "score": 100,
-                                                                "isSkipped": false,
-                                                                "resourceId": '7261c73a-2477-4b43-88ce-da0d0d3eff37',
-                                                                "timeSpent": 1000,
-                                                                "reaction": 3,
-                                                                "answer": [ { value: 'D' } ] },
-                                                                { "score": 100,
-                                                                    "isSkipped": false,
-                                                                    "resourceId": '889de169-3c5f-4e1f-9660-8f3ab2f3fa48',
-                                                                    "timeSpent": 1000,
-                                                                    "reaction": 3,
-                                                                    "answer": [ { value: 'B' } ] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": '1243d019-d9cc-4b8d-8428-7599a2063657',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": 'fd167d42-e8fc-44b7-a0be-288c81cfdd2c',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": '1096cbf3-0176-481f-96f7-28f89d835526',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": 'b0cd1b18-6b61-429b-a1c1-bcef40756bdf',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": '53c70dc1-e44d-41dc-ac87-0b0d2e8231c2',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": '17ee5346-e933-4124-9673-88059f84f4db',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": 'b13b3b01-037a-4de0-8d84-2b000d8fbb8b',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] },
-                                                                { "score": 0,
-                                                                    "isSkipped": true,
-                                                                    "resourceId": 'c28bef6b-92b1-4a84-b432-920d1d731639',
-                                                                    "timeSpent": 0,
-                                                                    "reaction": 0,
-                                                                    "answer": [] } ]
+                                                        }
                                                     }
                                                 ]
                                             }, function () {
                                             }
-                                        );
+                                        ).expectJSON("profileEvents.0.events.?", { "score": 100,
+                                            "isSkipped": false,
+                                            "resourceId": '7261c73a-2477-4b43-88ce-da0d0d3eff37',
+                                            "timeSpent": 1000,
+                                            "reaction": 3,
+                                            "answer": [ { value: 'D' } ] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 100,
+                                            "isSkipped": false,
+                                            "resourceId": '889de169-3c5f-4e1f-9660-8f3ab2f3fa48',
+                                            "timeSpent": 1000,
+                                            "reaction": 3,
+                                            "answer": [ { value: 'B' } ] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": '1243d019-d9cc-4b8d-8428-7599a2063657',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": 'fd167d42-e8fc-44b7-a0be-288c81cfdd2c',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": '1096cbf3-0176-481f-96f7-28f89d835526',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": 'b0cd1b18-6b61-429b-a1c1-bcef40756bdf',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": '53c70dc1-e44d-41dc-ac87-0b0d2e8231c2',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": '17ee5346-e933-4124-9673-88059f84f4db',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": 'b13b3b01-037a-4de0-8d84-2b000d8fbb8b',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .expectJSON("profileEvents.0.events.?", { "score": 0,
+                                            "isSkipped": true,
+                                            "resourceId": 'c28bef6b-92b1-4a84-b432-920d1d731639',
+                                            "timeSpent": 0,
+                                            "reaction": 0,
+                                            "answer": [] })
+                                        .toss();
                                     });
                                 });
                             });
@@ -552,7 +564,7 @@ QuizzesCommon.startTest("Test context summary with 2 answered questions and 8 sk
     });
 });
 
-QuizzesCommon.startTest("Test context summary when a question answer and reaction are changed", function() {
+QuizzesCommon.startTest("Test finished context summary when a question answer and reaction are changed", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
             QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
@@ -598,7 +610,7 @@ QuizzesCommon.startTest("Test context summary when a question answer and reactio
                                                             "currentResourceId": collection.resources[1].id,
                                                             "profileId": assigneeProfile.id,
                                                             "contextProfileSummary": {
-                                                                // "totalTimeSpent": 3000,
+                                                                "totalTimeSpent": 3000,
                                                                 "averageReaction": 4,
                                                                 "averageScore": 10,
                                                                 "totalCorrect": 1,
@@ -609,6 +621,227 @@ QuizzesCommon.startTest("Test context summary when a question answer and reactio
                                                 }, function () {
                                                 }
                                             );
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest("Test an unfinished context summary with 3 questions answered correctly", function() {
+    QuizzesCommon.createContext(function (contextCreated) {
+        QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
+            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+                QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
+                    QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
+                        // First question - correct
+                        QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[1].id, {
+                            "previousResource": {
+                                "answer": [ { value: 'D' } ],
+                                "reaction": 3,
+                                "resourceId": collection.resources[0].id,
+                                "timeSpent": 1000
+                            }
+                        }, function () {
+                            // Second question - correct
+                            QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[2].id, {
+                                "previousResource": {
+                                    "answer": [ { value: 'B' } ],
+                                    "reaction": 3,
+                                    "resourceId": collection.resources[1].id,
+                                    "timeSpent": 1000
+                                }
+                            }, function () {
+                                // Third question - correct
+                                QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[3].id, {
+                                    "previousResource": {
+                                        "answer": [ { value: 'Smaller amounts of water evaporate in the cool morning.' } ],
+                                        "reaction": 3,
+                                        "resourceId": collection.resources[2].id,
+                                        "timeSpent": 1000
+                                    }
+                                }, function () {
+                                    QuizzesCommon.getProfileByExternalId('teacher-id-1', function (ownerProfile) {
+                                        QuizzesCommon.verifyGetContextEvents(contextAssigned.id, ownerProfile.id,
+                                            {
+                                                "collection": {
+                                                    "id": collection.id
+                                                },
+                                                "contextId": contextAssigned.id,
+                                                "profileEvents": [
+                                                    {
+                                                        "currentResourceId": collection.resources[3].id,
+                                                        "profileId": assigneeProfile.id,
+                                                        "contextProfileSummary": {
+                                                            "totalTimeSpent": 3000,
+                                                            "averageReaction": 3,
+                                                            "averageScore": 100,
+                                                            "totalCorrect": 3,
+                                                            "totalAnswered": 3
+                                                        }
+                                                    }
+                                                ]
+                                            }, function () {
+                                            }
+                                        );
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest("Test an unfinished context summary with 3 questions answered incorrectly", function() {
+    QuizzesCommon.createContext(function (contextCreated) {
+        QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
+            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+                QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
+                    QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
+                        // First question - incorrect
+                        QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[1].id, {
+                            "previousResource": {
+                                "answer": [ { value: 'A' } ],
+                                "reaction": 3,
+                                "resourceId": collection.resources[0].id,
+                                "timeSpent": 1000
+                            }
+                        }, function () {
+                            // Second question - incorrect
+                            QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[2].id, {
+                                "previousResource": {
+                                    "answer": [ { value: 'A' } ],
+                                    "reaction": 3,
+                                    "resourceId": collection.resources[1].id,
+                                    "timeSpent": 1000
+                                }
+                            }, function () {
+                                // Third question - incorrect
+                                QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[3].id, {
+                                    "previousResource": {
+                                        "answer": [ { value: 'Incorrect value.' } ],
+                                        "reaction": 3,
+                                        "resourceId": collection.resources[2].id,
+                                        "timeSpent": 1000
+                                    }
+                                }, function () {
+                                    QuizzesCommon.getProfileByExternalId('teacher-id-1', function (ownerProfile) {
+                                        QuizzesCommon.verifyGetContextEvents(contextAssigned.id, ownerProfile.id,
+                                            {
+                                                "collection": {
+                                                    "id": collection.id
+                                                },
+                                                "contextId": contextAssigned.id,
+                                                "profileEvents": [
+                                                    {
+                                                        "currentResourceId": collection.resources[3].id,
+                                                        "profileId": assigneeProfile.id,
+                                                        "contextProfileSummary": {
+                                                            "totalTimeSpent": 3000,
+                                                            "averageReaction": 3,
+                                                            "averageScore": 0,
+                                                            "totalCorrect": 0,
+                                                            "totalAnswered": 3
+                                                        }
+                                                    }
+                                                ]
+                                            }, function () {
+                                            }
+                                        );
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest("Test context summary for 10 correctly answered questions", function() {
+    QuizzesCommon.createContext(function (contextCreated) {
+        QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
+            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+                QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
+                    QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
+                        // First question - correct
+                        QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[1].id, {
+                            "previousResource": {
+                                "answer": [ { value: 'D' } ],
+                                "reaction": 3,
+                                "resourceId": collection.resources[0].id,
+                                "timeSpent": 1000
+                            }
+                        }, function () {
+                            // Second question - correct
+                            QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[2].id, {
+                                "previousResource": {
+                                    "answer": [ { value: 'B' } ],
+                                    "reaction": 3,
+                                    "resourceId": collection.resources[1].id,
+                                    "timeSpent": 1000
+                                }
+                            }, function () {
+                                // Third question - correct
+                                QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[3].id, {
+                                    "previousResource": {
+                                        "answer": [ { value: 'Smaller amounts of water evaporate in the cool morning.' } ],
+                                        "reaction": 3,
+                                        "resourceId": collection.resources[2].id,
+                                        "timeSpent": 1000
+                                    }
+                                }, function () {
+                                    // Fourth question - incorrect
+                                    QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[4].id, {
+                                        "previousResource": {
+                                            "answer": [ { value: 'Incorrect value.' } ],
+                                            "reaction": 3,
+                                            "resourceId": collection.resources[3].id,
+                                            "timeSpent": 1000
+                                        }
+                                    }, function () {
+                                        // Fifth question - incorrect
+                                        QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[5].id, {
+                                            "previousResource": {
+                                                "answer": [ { value: 'Incorrect value.' } ],
+                                                "reaction": 3,
+                                                "resourceId": collection.resources[4].id,
+                                                "timeSpent": 1000
+                                            }
+                                        }, function () {
+                                            QuizzesCommon.getProfileByExternalId('teacher-id-1', function (ownerProfile) {
+                                                QuizzesCommon.verifyGetContextEvents(contextAssigned.id, ownerProfile.id,
+                                                    {
+                                                        "collection": {
+                                                            "id": collection.id
+                                                        },
+                                                        "contextId": contextAssigned.id,
+                                                        "profileEvents": [
+                                                            {
+                                                                "currentResourceId": collection.resources[5].id,
+                                                                "profileId": assigneeProfile.id,
+                                                                "contextProfileSummary": {
+                                                                    "totalTimeSpent": 5000,
+                                                                    "averageReaction": 3,
+                                                                    "averageScore": 60,
+                                                                    "totalCorrect": 3,
+                                                                    "totalAnswered": 5
+                                                                }
+                                                            }
+                                                        ]
+                                                    }, function () {
+                                                    }
+                                                );
+                                            });
                                         });
                                     });
                                 });
