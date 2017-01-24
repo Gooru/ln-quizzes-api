@@ -171,8 +171,16 @@ public class ProfileServiceTest {
 
     @Test
     public void findIdByExternalIdAndClientId() throws Exception {
+        when(profileRepository.findIdByExternalIdAndClientId(externalId, clientId)).thenReturn(profileId);
         UUID result = profileService.findIdByExternalIdAndClientId(externalId, clientId);
         verify(profileRepository, times(1)).findIdByExternalIdAndClientId(eq(externalId), eq(clientId));
+        assertEquals("Wrong profile ID", profileId, result);
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findIdByExternalIdAndClientIdThrowsException() throws Exception {
+        when(profileRepository.findIdByExternalIdAndClientId(externalId, profileId)).thenReturn(null);
+        profileService.findIdByExternalIdAndClientId(externalId, clientId);
     }
 
     @Test
