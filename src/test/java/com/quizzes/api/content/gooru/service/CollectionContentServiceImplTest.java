@@ -3,7 +3,6 @@ package com.quizzes.api.content.gooru.service;
 import com.google.gson.Gson;
 import com.quizzes.api.common.enums.QuestionTypeEnum;
 import com.quizzes.api.common.model.jooq.enums.ContentProvider;
-import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Resource;
@@ -21,7 +20,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
@@ -36,40 +34,39 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({CollectionContentService.class, Gson.class})
+@PrepareForTest({CollectionContentServiceImpl.class, Gson.class})
 public class CollectionContentServiceImplTest {
 
     @InjectMocks
-    private CollectionContentService collectionContentService = Mockito.spy(CollectionContentServiceImpl.class);
+    private CollectionContentService collectionContentService = spy(new CollectionContentServiceImpl());
 
     @Mock
-    CollectionRestClient collectionRestClient;
+    private CollectionRestClient collectionRestClient;
 
     @Mock
-    AuthenticationRestClient authenticationRestClient;
+    private AuthenticationRestClient authenticationRestClient;
 
     @Mock
-    CollectionService collectionService;
+    private CollectionService collectionService;
 
     @Mock
-    ResourceService resourceService;
+    private ResourceService resourceService;
 
     @Mock
-    Gson gson;
+    private Gson gson;
 
     /**
      * Tests {@link CollectionContentServiceImpl#createCollection(String, Profile)} using an original Assessment
+     *
      * @throws Exception
      */
     @Test
@@ -120,6 +117,7 @@ public class CollectionContentServiceImplTest {
 
     /**
      * Tests {@link CollectionContentServiceImpl#createCollection(String, Profile)} using an original Assessment
+     *
      * @throws Exception
      */
     @Test
@@ -199,7 +197,7 @@ public class CollectionContentServiceImplTest {
 
         doReturn(new Resource()).when(resourceService).save(any(Resource.class));
 
-        doReturn("copiedAssessmentID").when(collectionRestClient).copyAssessment(any(String.class),any(String.class));
+        doReturn("copiedAssessmentID").when(collectionRestClient).copyAssessment(any(String.class), any(String.class));
 
         doReturn(assessmentDto).when(collectionRestClient).getAssessment(any(String.class), any(String.class));
 
@@ -207,21 +205,19 @@ public class CollectionContentServiceImplTest {
 
         verify(collectionService, times(1)).save(any(Collection.class));
         verify(resourceService, times(2)).save(any(Resource.class));
-        verify(collectionRestClient, times(1)).copyAssessment(any(String.class),any(String.class));
+        verify(collectionRestClient, times(1)).copyAssessment(any(String.class), any(String.class));
         verify(collectionRestClient, times(1)).getAssessment(any(String.class), any(String.class));
 
     }
 
     @Test
     public void createInteraction() throws Exception {
-        AnswerDto answerTrueFalse1 = new AnswerDto();
-        answerTrueFalse1.setAnswerText("Answer True False 1 text");
-        answerTrueFalse1.setIsCorrect("true");
-        answerTrueFalse1.setSequence(1);
-        AnswerDto answerTrueFalse2 = new AnswerDto();
-        answerTrueFalse2.setAnswerText("Answer True False 1 text");
-        answerTrueFalse2.setIsCorrect("false");
-        answerTrueFalse2.setSequence(2);
+        String answerId1 = UUID.randomUUID().toString();
+        AnswerDto answerTrueFalse1 = createAnswerDto(answerId1, "Answer True False 1 text", "true", 1);
+
+        String answerId2 = UUID.randomUUID().toString();
+        AnswerDto answerTrueFalse2 = createAnswerDto(answerId2, "Answer True False 1 text", "false", 2);
+
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answerTrueFalse1);
         answers.add(answerTrueFalse2);
@@ -232,10 +228,10 @@ public class CollectionContentServiceImplTest {
         assertEquals("Wrong value for interaction shuffle", false, interaction.get("shuffle"));
         assertEquals("Wrong value for interaction maxChoices", 0, interaction.get("maxChoices"));
         assertEquals("Wrong value for interaction prompt", "", interaction.get("prompt"));
-        List<Map<String, Object>> choices =  (List<Map<String, Object>>) interaction.get("choices");
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) interaction.get("choices");
         assertEquals("Wrong number of interaction choices", 2, choices.size());
         assertEquals("Wrong value for choice text", answerTrueFalse1.getAnswerText(), choices.get(0).get("text"));
-        assertEquals("Wrong value for choice value", answerTrueFalse1.getAnswerText(), choices.get(0).get("value"));
+        assertEquals("Wrong value for choice value", answerTrueFalse1.getId(), choices.get(0).get("value"));
         assertEquals("Wrong value for choice sequence", answerTrueFalse1.getSequence(), choices.get(0).get("sequence"));
         assertEquals("Wrong value for choice isFixed", true, choices.get(0).get("isFixed"));
     }
@@ -250,6 +246,10 @@ public class CollectionContentServiceImplTest {
                 GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
         assertEquals("MultipleChoice question type wrongly mapped",
                 QuestionTypeEnum.SingleChoice.getLiteral(), singleChoiceQuestionType);
+        String dragDropQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
+                GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
+        assertEquals("DragAndDrop question type wrongly mapped",
+                QuestionTypeEnum.DragDrop.getLiteral(), dragDropQuestionType);
         String noneQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
                 "unknown");
         assertEquals("None question type wrongly mapped",
@@ -258,14 +258,12 @@ public class CollectionContentServiceImplTest {
 
     @Test
     public void getCorrectAnswers() throws Exception {
-        AnswerDto answerTrueFalse1 = new AnswerDto();
-        answerTrueFalse1.setAnswerText("Answer True False 1 text");
-        answerTrueFalse1.setIsCorrect("true");
-        answerTrueFalse1.setSequence(1);
-        AnswerDto answerTrueFalse2 = new AnswerDto();
-        answerTrueFalse2.setAnswerText("Answer True False 1 text");
-        answerTrueFalse2.setIsCorrect("false");
-        answerTrueFalse2.setSequence(2);
+        String answerId1 = UUID.randomUUID().toString();
+        AnswerDto answerTrueFalse1 = createAnswerDto(answerId1, "Answer True False 1 text", "true", 1);
+
+        String answerId2 = UUID.randomUUID().toString();
+        AnswerDto answerTrueFalse2 = createAnswerDto(answerId2, "Answer True False 1 text", "false", 2);
+
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answerTrueFalse1);
         answers.add(answerTrueFalse2);
@@ -275,10 +273,48 @@ public class CollectionContentServiceImplTest {
 
         assertEquals("Wrong number of correct answers", 1, correctAnswers.size());
         assertEquals("Wrong answer value",
-                answerTrueFalse1.getAnswerText(), correctAnswers.get(0).get("value"));
+                answerTrueFalse1.getId(), correctAnswers.get(0).get("value"));
     }
 
-    private AssessmentDto createTestAssessmentDto(){
+    @Test
+    public void copyQuestions() throws Exception {
+        AssessmentDto assessmentDto = createTestAssessmentDto();
+
+        Collection collection = createTestCollection(assessmentDto);
+        UUID ownerId = UUID.randomUUID();
+
+        doNothing().when(collectionContentService, "generateRandomIds", any(List.class));
+        doReturn(null).when(collectionContentService, "mapQuestionType", any(List.class));
+        doReturn(null).when(collectionContentService, "getCorrectAnswers", any(List.class));
+        doReturn(null).when(collectionContentService, "createInteraction", any(List.class));
+        when(resourceService.save(any(Resource.class))).thenReturn(new Resource());
+
+        WhiteboxImpl.invokeMethod(collectionContentService, "copyQuestions", collection,
+                ownerId, assessmentDto.getQuestions());
+
+        verifyPrivate(collectionContentService, times(2)).invoke("generateRandomIds", any(List.class));
+        verifyPrivate(collectionContentService, times(2)).invoke("mapQuestionType", any(List.class));
+        verifyPrivate(collectionContentService, times(2)).invoke("getCorrectAnswers", any(List.class));
+        verifyPrivate(collectionContentService, times(2)).invoke("createInteraction", any(List.class));
+        verify(resourceService, times(2)).save(any(Resource.class));
+    }
+
+    @Test
+    public void generateRandomIds() throws Exception {
+        AnswerDto answerTrueFalse1 = createAnswerDto(null, "Answer True False 1 text", "true", 1);
+        AnswerDto answerTrueFalse2 = createAnswerDto(null, "Answer True False 1 text", "false", 2);
+
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(answerTrueFalse1);
+        answers.add(answerTrueFalse2);
+
+        WhiteboxImpl.invokeMethod(collectionContentService, "generateRandomIds", answers);
+
+        assertNotNull("AnswerId1 is null", answers.get(0).getId());
+        assertNotNull("AnswerId2 is null", answers.get(1).getId());
+    }
+
+    private AssessmentDto createTestAssessmentDto() {
         AnswerDto answerMultipleChoice1 = new AnswerDto();
         answerMultipleChoice1.setAnswerText("Answer Multiple Choice 1 text");
         answerMultipleChoice1.setIsCorrect("false");
@@ -352,5 +388,14 @@ public class CollectionContentServiceImplTest {
         collection.setCollectionData(new Gson().toJson(collectionDataMap));
 
         return collection;
+    }
+
+    private AnswerDto createAnswerDto(String id, String answerText, String isCorrect, int sequence) {
+        AnswerDto answerDto = new AnswerDto();
+        answerDto.setId(id);
+        answerDto.setAnswerText(answerText);
+        answerDto.setIsCorrect(isCorrect);
+        answerDto.setSequence(sequence);
+        return answerDto;
     }
 }

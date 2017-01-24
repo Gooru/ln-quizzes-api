@@ -55,6 +55,8 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                 QuestionTypeEnum.TrueFalse.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral(),
                 QuestionTypeEnum.SingleChoice.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral(),
+                QuestionTypeEnum.DragDrop.getLiteral());
     }
 
     @Autowired
@@ -152,16 +154,21 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                 resource.setIsResource(false);
                 resource.setSequence((short) questionDto.getSequence());
                 Map<String, Object> resourceDataMap = new HashMap<>();
+
+                generateRandomIds(questionDto.getAnswers());
                 resourceDataMap.put(QUESTION_TITLE, questionDto.getTitle());
                 resourceDataMap.put(QUESTION_TYPE, mapQuestionType(questionDto.getContentSubformat()));
                 resourceDataMap.put(QUESTION_CORRECT_ANSWER, getCorrectAnswers(questionDto.getAnswers()));
                 resourceDataMap.put(QUESTION_BODY, questionDto.getTitle());
                 resourceDataMap.put(QUESTION_INTERACTION, createInteraction(questionDto.getAnswers()));
                 resource.setResourceData(new Gson().toJson(resourceDataMap));
-
                 resourceService.save(resource);
             }
         }
+    }
+
+    private void generateRandomIds(List<AnswerDto> answers) {
+        answers.forEach(answer -> answer.setId(UUID.randomUUID().toString()));
     }
 
     private Map<String, Object> createInteraction(List<AnswerDto> answers) {
@@ -176,7 +183,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                     .map(answer -> {
                         Map<String, Object> choiceDataMap = new HashMap<>();
                         choiceDataMap.put(CHOICE_TEXT, answer.getAnswerText());
-                        choiceDataMap.put(CHOICE_VALUE, answer.getAnswerText());
+                        choiceDataMap.put(CHOICE_VALUE, answer.getId());
                         choiceDataMap.put(CHOICE_SEQUENCE, answer.getSequence());
                         choiceDataMap.put(CHOICE_IS_FIXED, true);
                         return choiceDataMap;
@@ -203,7 +210,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                     .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
                     .map(answer -> {
                         Map<String, String> answerValue = new HashMap<>();
-                        answerValue.put(ANSWER_VALUE, answer.getAnswerText());
+                        answerValue.put(ANSWER_VALUE, answer.getId());
                         return answerValue;
                     })
                     .collect(Collectors.toList());
