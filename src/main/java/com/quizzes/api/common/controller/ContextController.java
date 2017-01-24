@@ -149,9 +149,9 @@ public class ContextController {
             @RequestHeader(value = "profile-id") UUID profileId,
             @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
             @RequestParam(value = "isActive", required = false) Boolean isActive,
-            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "startDate")
+            @ApiParam(value = "Filter the contexts by start date in milliseconds", required = false, name = "startDate")
             @RequestParam(value = "startDate", required = false) Long startDate,
-            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "dueDate")
+            @ApiParam(value = "Filter the contexts by due date in milliseconds", required = false, name = "dueDate")
             @RequestParam(value = "dueDate", required = false) Long dueDate) throws Exception {
         List<ContextAssignedGetResponseDto> contexts = contextService.getAssignedContexts(profileId, isActive, startDate, dueDate);
         return new ResponseEntity<>(contexts, HttpStatus.OK);
