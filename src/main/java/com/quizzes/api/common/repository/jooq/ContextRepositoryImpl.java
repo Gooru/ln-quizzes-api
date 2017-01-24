@@ -3,8 +3,8 @@ package com.quizzes.api.common.repository.jooq;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
-import com.quizzes.api.common.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.common.repository.ContextRepository;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import static com.quizzes.api.common.model.jooq.tables.Context.CONTEXT;
 import static com.quizzes.api.common.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
-import static com.quizzes.api.common.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
 import static com.quizzes.api.common.model.jooq.tables.Group.GROUP;
 import static com.quizzes.api.common.model.jooq.tables.GroupProfile.GROUP_PROFILE;
 
@@ -86,8 +85,32 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .fetchGroups(CONTEXT.ID, ContextAssigneeEntity.class);
     }
 
+    /**
+     * @see ContextRepository#findContextOwnerByAssigneeIdAndFilters(UUID, Boolean, Long, Long)
+     */
     @Override
-    public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId) {
+    public List<ContextOwnerEntity> findContextOwnerByAssigneeIdAndFilters(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
+        Condition condition = null;
+        if (isActive != null) {
+            //if the isActive parameter is present we use that value
+            condition = CONTEXT.IS_ACTIVE.eq(isActive);
+        }
+        else {
+            //if the isActive parameter is NOT present we true as default
+            condition = CONTEXT.IS_ACTIVE.eq(true);
+        }
+        if (startDateMillis != null) {
+            condition = condition
+                    .and("jsonb_typeof(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate') = 'number'")
+                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'startDate' as text)::bigint " +
+                            ">= " + startDateMillis);
+        }
+        if (dueDateMillis != null) {
+            condition = condition
+                    .and("jsonb_typeof(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate') = 'number'")
+                    .and("cast(CONTEXT.CONTEXT_DATA -> 'metadata' -> 'dueDate' as text)::bigint " +
+                            "<= " + dueDateMillis);
+        }
         return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.CREATED_AT,
                 GROUP.OWNER_PROFILE_ID, CONTEXT_PROFILE.ID.as("context_profile_id"))
                 .from(CONTEXT)
@@ -96,7 +119,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                         .and(GROUP_PROFILE.PROFILE_ID.eq(assigneeId)))
                 .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
                         .and(CONTEXT_PROFILE.PROFILE_ID.eq(assigneeId)))
-                .where(CONTEXT.IS_ACTIVE.eq(true))
+                .where(condition)
                 .fetchInto(ContextOwnerEntity.class);
     }
 

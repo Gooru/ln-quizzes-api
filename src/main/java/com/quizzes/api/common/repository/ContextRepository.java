@@ -22,7 +22,20 @@ public interface ContextRepository {
 
     Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByContextIdAndOwnerId(UUID contextId, UUID ownerId);
 
-    List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId);
+    /**
+     * Finds the list of all {@link ContextOwnerEntity} for an assignee based on four criteria.
+     * 1 - assigneeId, mandatory
+     * 2 - isActive flag, optional param, default is true
+     * 3 - startDate, optional, default is null
+     * 4 - dueDate, optional, default is null
+     *
+     * @param assigneeId This is mandatory
+     * @param isActive if null, then the default is true, can't be used with startDate or dueDate
+     * @param startDate if not null the query looks for records with startDate >= than this param, can't be used with isActive
+     * @param dueDate if not null the query looks for records with dueDate <= than this param, can't be used with isActive
+     * @return the list of {@link ContextAssigneeEntity} found
+     */
+    List<ContextOwnerEntity> findContextOwnerByAssigneeIdAndFilters(UUID assigneeId, Boolean isActive, Long startDate, Long dueDate);
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 
