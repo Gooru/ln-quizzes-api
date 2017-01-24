@@ -545,11 +545,11 @@ public class ContextServiceTest {
         List<ContextOwnerEntity> list = new ArrayList<>();
         list.add(contextOwnerEntity);
 
-        when(contextRepository.findContextOwnerByAssigneeId(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class))).thenReturn(list);
+        when(contextRepository.findContextOwnerByAssigneeIdAndFilters(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class))).thenReturn(list);
 
         List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID(), null, null, null);
 
-        verify(contextRepository, times(1)).findContextOwnerByAssigneeId(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class));
+        verify(contextRepository, times(1)).findContextOwnerByAssigneeIdAndFilters(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class));
 
         ContextAssignedGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());

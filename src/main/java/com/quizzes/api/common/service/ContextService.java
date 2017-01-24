@@ -13,7 +13,6 @@ import com.quizzes.api.common.dto.controller.CollectionDto;
 import com.quizzes.api.common.dto.controller.ContextDataDto;
 import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.InvalidAssigneeException;
-import com.quizzes.api.common.exception.InvalidRequestException;
 import com.quizzes.api.common.exception.InvalidOwnerException;
 import com.quizzes.api.common.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.common.model.entities.ContextOwnerEntity;
@@ -294,10 +293,7 @@ public class ContextService {
      */
 
     public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
-        if (isActive != null && (startDateMillis != null || dueDateMillis != null)) {
-            throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
-        }
-        return contextRepository.findContextOwnerByAssigneeId(assigneeId, isActive, startDateMillis, dueDateMillis).stream()
+        return contextRepository.findContextOwnerByAssigneeIdAndFilters(assigneeId, isActive, startDateMillis, dueDateMillis).stream()
                 .map(context -> mapContextOwnerEntityToContextAssignedDto(context))
                 .collect(Collectors.toList());
     }

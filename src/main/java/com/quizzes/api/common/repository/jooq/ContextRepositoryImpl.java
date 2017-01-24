@@ -86,10 +86,10 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     /**
-     * @see ContextRepository#findContextOwnerByAssigneeId(UUID, Boolean, Long, Long)
+     * @see ContextRepository#findContextOwnerByAssigneeIdAndFilters(UUID, Boolean, Long, Long)
      */
     @Override
-    public List<ContextOwnerEntity> findContextOwnerByAssigneeId(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
+    public List<ContextOwnerEntity> findContextOwnerByAssigneeIdAndFilters(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
         Condition condition = null;
         if (isActive != null) {
             //if the isActive parameter is present we use that value
