@@ -55,7 +55,7 @@ public class HandlerExceptionController {
     @ExceptionHandler(value = InvalidCredentialsException.class)
     public ExceptionMessage handleInvalidCredentialsException(InvalidCredentialsException e) {
         logger.error("Invalid credentials", e);
-        return new ExceptionMessage("Invalid credentials", HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        return new ExceptionMessage("Invalid credentials", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
     }
 
     /**
