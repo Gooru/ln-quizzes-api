@@ -8,7 +8,6 @@ import com.quizzes.api.common.service.ConfigurationService;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
@@ -48,6 +47,21 @@ public class SessionRepositoryImpl implements SessionRepository {
                 .orderBy(SESSION.LAST_ACCESS_AT.desc())
                 .limit(1)
                 .fetchOneInto(Session.class);
+    }
+
+    @Override
+    public SessionProfileEntity findLastSessionProfileByClientIdAndExternalId(UUID clientId, String externalId) {
+        double sessionInDays = configurationService.getSessionMinutes() / MINUTES_IN_HOUR / HOURS_IN_DAY;
+
+        return jooq.select(PROFILE.ID.as("ProfileId"), PROFILE.CLIENT_ID, SESSION.ID.as("SessionId"))
+                .from(PROFILE)
+                .leftJoin(SESSION).on(SESSION.PROFILE_ID.eq(PROFILE.ID)
+                            .and(SESSION.LAST_ACCESS_AT.greaterOrEqual(DSL.currentTimestamp().sub(sessionInDays))))
+                .where(PROFILE.EXTERNAL_ID.eq(externalId))
+                .and(PROFILE.CLIENT_ID.eq(clientId))
+                .orderBy(SESSION.LAST_ACCESS_AT.desc())
+                .limit(1)
+                .fetchOneInto(SessionProfileEntity.class);
     }
 
     @Override
