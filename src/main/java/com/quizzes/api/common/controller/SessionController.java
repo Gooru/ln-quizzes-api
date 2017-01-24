@@ -43,6 +43,7 @@ public class SessionController {
                     "The session token generated will correspond only to the user passed in the request body.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns a session token", response = SessionTokenDto.class),
+            @ApiResponse(code = 401, message = "Invalid credentials"),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/v1/session/authorization",
             method = RequestMethod.POST,
