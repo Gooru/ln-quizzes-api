@@ -12,6 +12,9 @@ public enum QuestionTypeEnum {
     @SerializedName("single_choice")
     SingleChoice("single_choice"),
 
+    @SerializedName("drag_drop")
+    DragDrop("drag_drop"),
+
     @SerializedName("multiple_choice")
     MultipleChoice("multiple_choice"),
 

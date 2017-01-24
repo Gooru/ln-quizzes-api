@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class ContextEventService {
@@ -338,6 +339,8 @@ public class ContextEventService {
             case TrueFalse:
             case SingleChoice:
                 return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
+            case DragDrop:
+                return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
             default:
                 return 0;
             //TODO: Implement the logic for the other question types
@@ -353,6 +356,24 @@ public class ContextEventService {
      */
     private int calculateScoreForSimpleOption(String userAnswer, String correctAnswer) {
         return userAnswer.equalsIgnoreCase(correctAnswer) ? 100 : 0;
+    }
+
+    /**
+     * Drag and Drop method
+     *
+     * @param userAnswers    Answers provided by the user
+     * @param correctAnswers Correct answers for the question
+     * @return the score
+     */
+    private int calculateScoreForDragAndDrop(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+        if(userAnswers.size() < correctAnswers.size()){
+            return 0;
+        }
+        boolean isAnswerCorrect =
+                IntStream.range(0, correctAnswers.size()-1)
+                        .allMatch(i -> correctAnswers.get(i).getValue().equals(userAnswers.get(i).getValue()));
+
+        return isAnswerCorrect ? 100 : 0;
     }
 
     private EventSummaryDataDto calculateEventSummary(List<ContextProfileEvent> contextProfileEvents,
