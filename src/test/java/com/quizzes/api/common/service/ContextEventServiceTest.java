@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -718,7 +719,28 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers, correctAnswers);
+       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop",
+               userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleAnswerRightAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForMultipleAnswer",
+                userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleAnswerWrongAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForMultipleAnswer",
+                userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 

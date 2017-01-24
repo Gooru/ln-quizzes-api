@@ -38,7 +38,7 @@ public class ProfileEventResponseDto {
         this.events = events;
     }
 
-    public boolean isComplete() {
+    public boolean getIsComplete() {
         return isComplete;
     }
 
