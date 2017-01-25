@@ -246,10 +246,10 @@ public class CollectionContentServiceImplTest {
                 GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
         assertEquals("MultipleChoice question type wrongly mapped",
                 QuestionTypeEnum.SingleChoice.getLiteral(), singleChoiceQuestionType);
-        String dragDropQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
+        String dragAndDropQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
                 GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
         assertEquals("DragAndDrop question type wrongly mapped",
-                QuestionTypeEnum.DragDrop.getLiteral(), dragDropQuestionType);
+                QuestionTypeEnum.DragAndDrop.getLiteral(), dragAndDropQuestionType);
         String noneQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
                 "unknown");
         assertEquals("None question type wrongly mapped",

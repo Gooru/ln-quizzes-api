@@ -56,7 +56,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         questionTypeMap.put(GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral(),
                 QuestionTypeEnum.SingleChoice.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral(),
-                QuestionTypeEnum.DragDrop.getLiteral());
+                QuestionTypeEnum.DragAndDrop.getLiteral());
     }
 
     @Autowired

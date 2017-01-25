@@ -339,7 +339,7 @@ public class ContextEventService {
             case TrueFalse:
             case SingleChoice:
                 return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
-            case DragDrop:
+            case DragAndDrop:
                 return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
             default:
                 return 0;
