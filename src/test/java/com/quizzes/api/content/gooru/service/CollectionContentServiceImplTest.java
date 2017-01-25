@@ -246,10 +246,10 @@ public class CollectionContentServiceImplTest {
                 GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
         assertEquals("MultipleChoice question type wrongly mapped",
                 QuestionTypeEnum.SingleChoice.getLiteral(), singleChoiceQuestionType);
-        String dragDropQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
+        String dragAndDropQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
                 GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
         assertEquals("DragAndDrop question type wrongly mapped",
-                QuestionTypeEnum.DragDrop.getLiteral(), dragDropQuestionType);
+                QuestionTypeEnum.DragAndDrop.getLiteral(), dragAndDropQuestionType);
         String noneQuestionType = WhiteboxImpl.invokeMethod(collectionContentService, "mapQuestionType",
                 "unknown");
         assertEquals("None question type wrongly mapped",
@@ -283,7 +283,6 @@ public class CollectionContentServiceImplTest {
         Collection collection = createTestCollection(assessmentDto);
         UUID ownerId = UUID.randomUUID();
 
-        doNothing().when(collectionContentService, "generateRandomIds", any(List.class));
         doReturn(null).when(collectionContentService, "mapQuestionType", any(List.class));
         doReturn(null).when(collectionContentService, "getCorrectAnswers", any(List.class));
         doReturn(null).when(collectionContentService, "createInteraction", any(List.class));
@@ -292,26 +291,10 @@ public class CollectionContentServiceImplTest {
         WhiteboxImpl.invokeMethod(collectionContentService, "copyQuestions", collection,
                 ownerId, assessmentDto.getQuestions());
 
-        verifyPrivate(collectionContentService, times(2)).invoke("generateRandomIds", any(List.class));
         verifyPrivate(collectionContentService, times(2)).invoke("mapQuestionType", any(List.class));
         verifyPrivate(collectionContentService, times(2)).invoke("getCorrectAnswers", any(List.class));
         verifyPrivate(collectionContentService, times(2)).invoke("createInteraction", any(List.class));
         verify(resourceService, times(2)).save(any(Resource.class));
-    }
-
-    @Test
-    public void generateRandomIds() throws Exception {
-        AnswerDto answerTrueFalse1 = createAnswerDto(null, "Answer True False 1 text", "true", 1);
-        AnswerDto answerTrueFalse2 = createAnswerDto(null, "Answer True False 1 text", "false", 2);
-
-        List<AnswerDto> answers = new ArrayList<>();
-        answers.add(answerTrueFalse1);
-        answers.add(answerTrueFalse2);
-
-        WhiteboxImpl.invokeMethod(collectionContentService, "generateRandomIds", answers);
-
-        assertNotNull("AnswerId1 is null", answers.get(0).getId());
-        assertNotNull("AnswerId2 is null", answers.get(1).getId());
     }
 
     private AssessmentDto createTestAssessmentDto() {

@@ -88,17 +88,28 @@ public class ContextEventService {
 
     public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
                                        OnResourceEventPostRequestDto body) {
-
-        //this call is to validate that there is a context and the profile is assigned to it
-        contextService.findByIdAndAssigneeId(contextId, profileId);
-
+        Context context = contextService.findByIdAndAssigneeId(contextId, profileId);
+        List<Resource> collectionResources = resourceService.findByCollectionId(context.getCollectionId());
         PostRequestResourceDto resourceDto = body.getPreviousResource();
+
+        Resource currentResource = collectionResources.stream()
+                .filter(resource -> resource.getId().equals(resourceId)).findFirst().orElse(null);
+        if (currentResource == null) {
+            throw new ContentNotFoundException("On Resource ID " + resourceId + " does not belong to the " +
+                    "Collection ID " + context.getCollectionId() + " assigned in the Context ID " + contextId);
+        }
+
+        Resource previousResource = collectionResources.stream()
+                .filter(resource -> resource.getId().equals(resourceDto.getResourceId())).findFirst().orElse(null);
+                resourceService.findById(resourceDto.getResourceId());
+        if (previousResource == null) {
+            throw new ContentNotFoundException("Previous Resource ID " + resourceId + " does not belong to the " +
+                    "Collection ID " + context.getCollectionId() + " assigned in the Context ID " + contextId);
+        }
 
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
-        Resource resource = resourceService.findById(resourceId);
-        Resource previousResource = resourceService.findById(resourceDto.getResourceId());
-
+        ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
         QuestionDataDto previousResourceData =
                 gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
 
@@ -112,21 +123,20 @@ public class ContextEventService {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(currentContextProfile.getContextProfileId());
         ContextProfileEvent contextProfileEvent = contextProfileEvents.stream()
-                .filter(event -> event.getResourceId().equals(previousResource.getId()))
-                .findFirst()
-                .orElse(null);
-
+                .filter(event -> event.getResourceId().equals(previousResource.getId())).findFirst().orElse(null);
         if (contextProfileEvent == null) {
             contextProfileEvent =
                     createContextProfileEvent(currentContextProfile.getContextProfileId(), previousResource.getId());
             contextProfileEvents.add(contextProfileEvent);
+        } else {
+            PostRequestResourceDto currentEventData =
+                    gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
+            resourceDto.setTimeSpent(resourceDto.getTimeSpent() + currentEventData.getTimeSpent());
         }
         contextProfileEvent.setEventData(gson.toJson(resourceDto));
 
-        ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
-
         EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
-        contextProfile.setCurrentResourceId(resource.getId());
+        contextProfile.setCurrentResourceId(currentResource.getId());
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
         doOnResourceEventTransaction(contextProfile, contextProfileEvent);
 
@@ -339,7 +349,7 @@ public class ContextEventService {
             case TrueFalse:
             case SingleChoice:
                 return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
-            case DragDrop:
+            case DragAndDrop:
                 return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
             case MultipleAnswer:
                 return calculateScoreForMultipleAnswer(userAnswers, correctAnswers);

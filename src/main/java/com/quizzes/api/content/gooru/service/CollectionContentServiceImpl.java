@@ -56,7 +56,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         questionTypeMap.put(GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral(),
                 QuestionTypeEnum.SingleChoice.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral(),
-                QuestionTypeEnum.DragDrop.getLiteral());
+                QuestionTypeEnum.DragAndDrop.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.MultipleAnswerQuestion.getLiteral(),
                 QuestionTypeEnum.MultipleAnswer.getLiteral());
     }
@@ -157,7 +157,6 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                 resource.setSequence((short) questionDto.getSequence());
                 Map<String, Object> resourceDataMap = new HashMap<>();
 
-                generateRandomIds(questionDto.getAnswers());
                 resourceDataMap.put(QUESTION_TITLE, questionDto.getTitle());
                 resourceDataMap.put(QUESTION_TYPE, mapQuestionType(questionDto.getContentSubformat()));
                 resourceDataMap.put(QUESTION_CORRECT_ANSWER, getCorrectAnswers(questionDto.getAnswers()));
@@ -167,10 +166,6 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                 resourceService.save(resource);
             }
         }
-    }
-
-    private void generateRandomIds(List<AnswerDto> answers) {
-        answers.forEach(answer -> answer.setId(UUID.randomUUID().toString()));
     }
 
     private Map<String, Object> createInteraction(List<AnswerDto> answers) {
