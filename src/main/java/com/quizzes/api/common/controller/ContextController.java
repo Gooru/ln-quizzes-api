@@ -5,6 +5,7 @@ import com.quizzes.api.common.dto.ContextPostRequestDto;
 import com.quizzes.api.common.dto.ContextPutRequestDto;
 import com.quizzes.api.common.dto.CreatedContextGetResponseDto;
 import com.quizzes.api.common.dto.IdResponseDto;
+import com.quizzes.api.common.exception.InvalidRequestException;
 import com.quizzes.api.common.model.jooq.enums.Lms;
 import com.quizzes.api.common.model.jooq.tables.pojos.Context;
 import com.quizzes.api.common.service.ContextService;
@@ -146,8 +147,18 @@ public class ContextController {
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextAssignedGetResponseDto>> getAssignedContexts(
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-        List<ContextAssignedGetResponseDto> contexts = contextService.getAssignedContexts(profileId);
+            @RequestHeader(value = "profile-id") UUID profileId,
+            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
+            @RequestParam(value = "isActive", required = false) Boolean isActive,
+            @ApiParam(value = "Filter the contexts by start date in milliseconds", required = false, name = "startDate")
+            @RequestParam(value = "startDate", required = false) Long startDate,
+            @ApiParam(value = "Filter the contexts by due date in milliseconds", required = false, name = "dueDate")
+            @RequestParam(value = "dueDate", required = false) Long dueDate) throws Exception {
+
+        if (isActive != null && (startDate != null || dueDate != null)) {
+            throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
+        }
+        List<ContextAssignedGetResponseDto> contexts = contextService.getAssignedContexts(profileId, isActive, startDate, dueDate);
         return new ResponseEntity<>(contexts, HttpStatus.OK);
     }
 
