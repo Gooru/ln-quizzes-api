@@ -1,0 +1,36 @@
+package com.quizzes.api.core.services;
+
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
+import com.quizzes.api.core.repositories.CurrentContextProfileRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
+
+@Service
+public class CurrentContextProfileService {
+
+    @Autowired
+    CurrentContextProfileRepository currentContextProfileRepository;
+
+    public CurrentContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        CurrentContextProfile currentContextProfile =
+                currentContextProfileRepository.findByContextIdAndProfileId(contextId, profileId);
+        if (currentContextProfile == null) {
+            throw new ContentNotFoundException("Current Context Profile not found for Context ID: " + contextId
+                    + " and Profile ID: " + profileId);
+        }
+        return currentContextProfile;
+    }
+
+    public CurrentContextProfile create(CurrentContextProfile currentContextProfile) {
+        return currentContextProfileRepository.create(currentContextProfile);
+    }
+
+    public void delete(CurrentContextProfile currentContextProfile) {
+        currentContextProfileRepository.delete(currentContextProfile);
+    }
+
+}
+

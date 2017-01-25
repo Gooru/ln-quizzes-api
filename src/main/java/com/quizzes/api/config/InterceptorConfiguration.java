@@ -1,10 +1,8 @@
 package com.quizzes.api.config;
 
-import com.quizzes.api.common.interceptor.SessionInterceptor;
+import com.quizzes.api.core.controllers.interceptor.SessionInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
