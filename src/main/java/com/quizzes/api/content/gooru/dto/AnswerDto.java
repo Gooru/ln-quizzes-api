@@ -20,6 +20,7 @@ public class AnswerDto {
     private int sequence;
 
     public AnswerDto() {
+        this.id = String.valueOf(UUID.randomUUID());
     }
 
     public String getAnswerText() {

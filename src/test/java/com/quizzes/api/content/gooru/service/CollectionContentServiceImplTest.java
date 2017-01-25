@@ -283,7 +283,6 @@ public class CollectionContentServiceImplTest {
         Collection collection = createTestCollection(assessmentDto);
         UUID ownerId = UUID.randomUUID();
 
-        doReturn(null).when(collectionContentService, "generateRandomIdsForAnswers", any(List.class));
         doReturn(null).when(collectionContentService, "mapQuestionType", any(List.class));
         doReturn(null).when(collectionContentService, "getCorrectAnswers", any(List.class));
         doReturn(null).when(collectionContentService, "createInteraction", any(List.class));
@@ -292,28 +291,10 @@ public class CollectionContentServiceImplTest {
         WhiteboxImpl.invokeMethod(collectionContentService, "copyQuestions", collection,
                 ownerId, assessmentDto.getQuestions());
 
-        verifyPrivate(collectionContentService, times(2)).invoke("generateRandomIdsForAnswers", any(List.class));
         verifyPrivate(collectionContentService, times(2)).invoke("mapQuestionType", any(List.class));
         verifyPrivate(collectionContentService, times(2)).invoke("getCorrectAnswers", any(List.class));
         verifyPrivate(collectionContentService, times(2)).invoke("createInteraction", any(List.class));
         verify(resourceService, times(2)).save(any(Resource.class));
-    }
-
-    @Test
-    public void generateRandomIdsForAnswers() throws Exception {
-        AnswerDto answerTrueFalse1 = createAnswerDto(null, "Answer True False 1 text", "true", 1);
-        AnswerDto answerTrueFalse2 = createAnswerDto(null, "Answer True False 1 text", "false", 2);
-
-        List<AnswerDto> answers = new ArrayList<>();
-        answers.add(answerTrueFalse1);
-        answers.add(answerTrueFalse2);
-
-        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionContentService, "generateRandomIdsForAnswers",
-                answers);
-
-        assertNotNull("AnswerId1 is null", result.get(0).getId());
-        assertNotNull("AnswerId2 is null", result.get(1).getId());
-
     }
 
     private AssessmentDto createTestAssessmentDto() {
