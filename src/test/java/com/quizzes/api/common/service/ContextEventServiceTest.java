@@ -322,11 +322,14 @@ public class ContextEventServiceTest {
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
         contextProfileEvents.add(contextProfileEvent);
+        List<Resource> collectionResources =  new ArrayList<>();
+        collectionResources.add(resource);
+        collectionResources.add(previousResource);
 
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
-        when(resourceService.findById(resourceId)).thenReturn(resource);
-        when(resourceService.findById(previousResourceId)).thenReturn(previousResource);
+        when(resourceService.findByCollectionId(any(UUID.class))).thenReturn(collectionResources);
         when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
@@ -338,9 +341,9 @@ public class ContextEventServiceTest {
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
+        verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
+        verify(resourceService, times(1)).findByCollectionId(any(UUID.class));
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
-        verify(resourceService, times(1)).findById(resourceId);
-        verify(resourceService, times(1)).findById(previousResourceId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
         verifyPrivate(contextEventService, times(0)).invoke("calculateScoreByQuestionType", any(), any(), any());
@@ -373,10 +376,14 @@ public class ContextEventServiceTest {
 
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
 
+        List<Resource> collectionResources =  new ArrayList<>();
+        collectionResources.add(resource);
+        collectionResources.add(previousResource);
+
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
-        when(resourceService.findById(resourceId)).thenReturn(resource);
-        when(resourceService.findById(previousResourceId)).thenReturn(previousResource);
+        when(resourceService.findByCollectionId(any(UUID.class))).thenReturn(collectionResources);
         when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
@@ -392,9 +399,9 @@ public class ContextEventServiceTest {
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
+        verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
+        verify(resourceService, times(1)).findByCollectionId(any(UUID.class));
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
-        verify(resourceService, times(1)).findById(resourceId);
-        verify(resourceService, times(1)).findById(previousResourceId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
                 eq(questionDataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
