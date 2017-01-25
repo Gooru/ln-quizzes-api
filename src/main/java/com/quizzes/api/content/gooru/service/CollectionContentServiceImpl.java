@@ -167,7 +167,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         }
     }
 
-    private List<AnswerDto> generateRandomIdsForAnswers(List<AnswerDto> answers) {
+    private List<AnswerDto> generateRandomIdsForAnswers(final List<AnswerDto> answers) {
         return answers.stream().map(answer -> {
             answer.setId(UUID.randomUUID().toString());
             return answer;
