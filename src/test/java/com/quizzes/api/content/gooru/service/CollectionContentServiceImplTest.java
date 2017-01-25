@@ -283,7 +283,7 @@ public class CollectionContentServiceImplTest {
         Collection collection = createTestCollection(assessmentDto);
         UUID ownerId = UUID.randomUUID();
 
-        doNothing().when(collectionContentService, "generateRandomIdsForAnswers", any(List.class));
+        doReturn(null).when(collectionContentService, "generateRandomIdsForAnswers", any(List.class));
         doReturn(null).when(collectionContentService, "mapQuestionType", any(List.class));
         doReturn(null).when(collectionContentService, "getCorrectAnswers", any(List.class));
         doReturn(null).when(collectionContentService, "createInteraction", any(List.class));
@@ -308,10 +308,12 @@ public class CollectionContentServiceImplTest {
         answers.add(answerTrueFalse1);
         answers.add(answerTrueFalse2);
 
-        WhiteboxImpl.invokeMethod(collectionContentService, "generateRandomIdsForAnswers", answers);
+        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionContentService, "generateRandomIdsForAnswers",
+                answers);
 
-        assertNotNull("AnswerId1 is null", answers.get(0).getId());
-        assertNotNull("AnswerId2 is null", answers.get(1).getId());
+        assertNotNull("AnswerId1 is null", result.get(0).getId());
+        assertNotNull("AnswerId2 is null", result.get(1).getId());
+
     }
 
     private AssessmentDto createTestAssessmentDto() {

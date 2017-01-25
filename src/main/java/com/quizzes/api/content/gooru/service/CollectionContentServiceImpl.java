@@ -155,20 +155,23 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                 resource.setSequence((short) questionDto.getSequence());
                 Map<String, Object> resourceDataMap = new HashMap<>();
 
-                generateRandomIdsForAnswers(questionDto.getAnswers());
+                List<AnswerDto> answerListWithIds = generateRandomIdsForAnswers(questionDto.getAnswers());
                 resourceDataMap.put(QUESTION_TITLE, questionDto.getTitle());
                 resourceDataMap.put(QUESTION_TYPE, mapQuestionType(questionDto.getContentSubformat()));
-                resourceDataMap.put(QUESTION_CORRECT_ANSWER, getCorrectAnswers(questionDto.getAnswers()));
+                resourceDataMap.put(QUESTION_CORRECT_ANSWER, getCorrectAnswers(answerListWithIds));
                 resourceDataMap.put(QUESTION_BODY, questionDto.getTitle());
-                resourceDataMap.put(QUESTION_INTERACTION, createInteraction(questionDto.getAnswers()));
+                resourceDataMap.put(QUESTION_INTERACTION, createInteraction(answerListWithIds));
                 resource.setResourceData(new Gson().toJson(resourceDataMap));
                 resourceService.save(resource);
             }
         }
     }
 
-    private void generateRandomIdsForAnswers(List<AnswerDto> answers) {
-        answers.forEach(answer -> answer.setId(UUID.randomUUID().toString()));
+    private List<AnswerDto> generateRandomIdsForAnswers(List<AnswerDto> answers) {
+        return answers.stream().map(answer -> {
+            answer.setId(UUID.randomUUID().toString());
+            return answer;
+        }).collect(Collectors.toList());
     }
 
     private Map<String, Object> createInteraction(List<AnswerDto> answers) {
