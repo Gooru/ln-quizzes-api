@@ -155,7 +155,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
                 resource.setSequence((short) questionDto.getSequence());
                 Map<String, Object> resourceDataMap = new HashMap<>();
 
-                generateRandomIds(questionDto.getAnswers());
+                generateRandomIdsForAnswers(questionDto.getAnswers());
                 resourceDataMap.put(QUESTION_TITLE, questionDto.getTitle());
                 resourceDataMap.put(QUESTION_TYPE, mapQuestionType(questionDto.getContentSubformat()));
                 resourceDataMap.put(QUESTION_CORRECT_ANSWER, getCorrectAnswers(questionDto.getAnswers()));
@@ -167,7 +167,7 @@ public class CollectionContentServiceImpl implements CollectionContentService {
         }
     }
 
-    private void generateRandomIds(List<AnswerDto> answers) {
+    private void generateRandomIdsForAnswers(List<AnswerDto> answers) {
         answers.forEach(answer -> answer.setId(UUID.randomUUID().toString()));
     }
 
