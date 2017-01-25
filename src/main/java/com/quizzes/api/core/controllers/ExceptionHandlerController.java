@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @ControllerAdvice
 @RestController
-public class HandlerExceptionController {
+public class ExceptionHandlerController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

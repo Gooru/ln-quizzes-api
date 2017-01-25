@@ -21,10 +21,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class HandlerExceptionControllerTest {
+public class ExceptionHandlerControllerTest {
 
     @InjectMocks
-    private HandlerExceptionController controller = new HandlerExceptionController();
+    private ExceptionHandlerController controller = new ExceptionHandlerController();
 
     @Test
     public void handleInvalidJsonPropertiesException() throws Exception {
