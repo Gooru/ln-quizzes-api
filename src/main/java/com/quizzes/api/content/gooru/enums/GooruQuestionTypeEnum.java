@@ -5,7 +5,9 @@ public enum GooruQuestionTypeEnum {
 
     TrueFalseQuestion("true_false_question"),
 
-    MultipleChoiceQuestion("multiple_choice_question");
+    MultipleChoiceQuestion("multiple_choice_question"),
+
+    HotTextReorderQuestion("hot_text_reorder_question");
 
 
     private final String literal;
