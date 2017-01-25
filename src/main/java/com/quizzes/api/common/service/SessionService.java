@@ -3,8 +3,7 @@ package com.quizzes.api.common.service;
 import com.quizzes.api.common.dto.ExternalUserDto;
 import com.quizzes.api.common.dto.SessionPostRequestDto;
 import com.quizzes.api.common.dto.SessionTokenDto;
-import com.quizzes.api.common.exception.InternalServerException;
-import com.quizzes.api.common.exception.InvalidCredentialsException;
+import com.quizzes.api.common.exception.ContentNotFoundException;
 import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.model.entities.SessionProfileEntity;
 import com.quizzes.api.common.model.jooq.enums.Lms;
@@ -12,8 +11,6 @@ import com.quizzes.api.common.model.jooq.tables.pojos.Client;
 import com.quizzes.api.common.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.common.model.jooq.tables.pojos.Session;
 import com.quizzes.api.common.repository.SessionRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +20,6 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class SessionService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ConfigurationService configurationService;
@@ -39,37 +34,53 @@ public class SessionService {
     ClientService clientService;
 
     public SessionTokenDto generateToken(SessionPostRequestDto sessionData) {
-        Client client = clientService.findByApiKeyAndApiSecret(sessionData.getClientApiKey(), sessionData.getClientApiSecret());
-        if (client == null) {
-            logger.error("Invalid credentials for " + sessionData.getClientApiKey());
-            throw new InvalidCredentialsException("Invalid client credentials.");
-        }
+        Client client =
+                clientService.findByApiKeyAndApiSecret(sessionData.getClientApiKey(), sessionData.getClientApiSecret());
+        ExternalUserDto externalUser = sessionData.getUser();
+        SessionProfileEntity sessionProfile;
+        UUID profileId;
+
         try {
-            Session session = new Session();
-            ExternalUserDto externalUser = sessionData.getUser();
-
-            UUID profileId = profileService
-                    .findIdByExternalIdAndClientId(externalUser.getExternalId(), client.getId());
-
-            if (profileId == null) {
-                //TODO: LmsId is being set with 'gooru' as default, we need to change that.
-                Profile profile = profileService
-                        .saveProfileBasedOnExternalUser(externalUser, Lms.gooru, client.getId());
-                profileId = profile.getId();
-            } else {
-                Session lastSession = sessionRepository.findLastSessionByProfileId(profileId);
-                if (lastSession != null) {
-                    session = updateLastAccess(lastSession.getId());
-                    return getSessionToken(session);
-                }
+            sessionProfile = findLastSessionProfileByClientIdAndExternalId(client.getId(), externalUser.getExternalId());
+            if(sessionProfile.getSessionId() != null){
+                return getSessionToken(updateLastAccess(sessionProfile.getSessionId()));
             }
-
-            session.setProfileId(profileId);
-            return getSessionToken(save(session));
-        } catch (Exception e) {
-            logger.error("We could not generate a token.", e);
-            throw new InternalServerException("We could not generate a token.", e);
+            profileId = sessionProfile.getProfileId();
+        } catch (ContentNotFoundException cne) {
+            profileId = createProfile(externalUser, client.getId()).getId();
         }
+
+        Session session = createSession(profileId);
+        return getSessionToken(session);
+    }
+
+    private SessionProfileEntity findLastSessionProfileByClientIdAndExternalId(UUID clientId, String externalId) {
+        SessionProfileEntity sessionProfile =
+                sessionRepository.findLastSessionProfileByClientIdAndExternalId(clientId, externalId);
+        if(sessionProfile == null){
+            throw new ContentNotFoundException("There is no profile with for client ID: " + clientId +
+            " and external ID: " + externalId);
+        }
+        return sessionProfile;
+    }
+
+    private Session createSession(UUID profileId) {
+        Session session = new Session();
+        session.setProfileId(profileId);
+        return save(session);
+    }
+
+    private Profile createProfile(ExternalUserDto externalUser, UUID clientId) {
+        //TODO: LmsId is being set with 'gooru' as default, we need to change that.
+        return profileService.saveProfileBasedOnExternalUser(externalUser, Lms.gooru, clientId);
+    }
+
+    public Session findLastSessionByProfileId(UUID profileId) {
+        Session session = sessionRepository.findLastSessionByProfileId(profileId);
+        if (session == null) {
+            throw new ContentNotFoundException("Active session not found for profile ID: " + profileId);
+        }
+        return session;
     }
 
     private SessionTokenDto getSessionToken(Session session) {

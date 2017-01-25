@@ -5,6 +5,7 @@ import com.quizzes.api.common.exception.ExceptionMessage;
 import com.quizzes.api.common.exception.InvalidAssigneeException;
 import com.quizzes.api.common.exception.InvalidCredentialsException;
 import com.quizzes.api.common.exception.InvalidOwnerException;
+import com.quizzes.api.common.exception.InvalidRequestException;
 import com.quizzes.api.common.exception.InvalidSessionException;
 import com.quizzes.api.common.exception.MissingJsonPropertiesException;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class HandlerExceptionControllerTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong exception", "Invalid client credentials.", result.getException());
-        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong status code", HttpStatus.UNAUTHORIZED.value(), result.getStatus());
         assertEquals("Wrong message exception", "Invalid credentials", result.getMessage());
     }
 
@@ -105,4 +106,14 @@ public class HandlerExceptionControllerTest {
         assertEquals("Wrong message exception", "Forbidden request", result.getMessage());
     }
 
+    @Test
+    public void handleInvalidRequestException() throws Exception {
+        InvalidRequestException exceptionMock = new InvalidRequestException("Invalid request arguments");
+        ExceptionMessage result = controller.handleInvalidRequestException(exceptionMock);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", "Invalid request arguments", result.getException());
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong message exception", "Invalid request", result.getMessage());
+    }
 }
