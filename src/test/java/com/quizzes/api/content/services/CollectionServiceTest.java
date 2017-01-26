@@ -52,12 +52,6 @@ public class CollectionServiceTest {
     @Mock
     private AuthenticationRestClient authenticationRestClient;
 
-    //@Mock
-    //CollectionService collectionService;
-
-    //@Mock
-    //ResourceService resourceService;
-
     @Mock
     private Gson gson;
 

@@ -1,15 +1,7 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.AnswerDto;
-import com.quizzes.api.core.dtos.ContextEventsResponseDto;
-import com.quizzes.api.core.dtos.EventSummaryDataDto;
-import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
-import com.quizzes.api.core.dtos.PostRequestResourceDto;
-import com.quizzes.api.core.dtos.PostResponseResourceDto;
-import com.quizzes.api.core.dtos.ProfileEventResponseDto;
-import com.quizzes.api.core.dtos.QuestionDataDto;
-import com.quizzes.api.core.dtos.StartContextEventResponseDto;
+import com.quizzes.api.core.dtos.*;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
@@ -17,22 +9,14 @@ import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
-import com.quizzes.api.core.model.jooq.tables.pojos.Context;
-import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
-import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
-import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
-import com.quizzes.api.core.model.jooq.tables.pojos.Resource;
+import com.quizzes.api.core.model.jooq.tables.pojos.*;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -50,15 +34,6 @@ public class ContextEventService {
 
     @Autowired
     ContextRepository contextRepository;
-
-    @Autowired
-    ResourceService resourceService;
-
-    @Autowired
-    ProfileService profileService;
-
-    @Autowired
-    CollectionService collectionService;
 
     @Autowired
     CurrentContextProfileService currentContextProfileService;
@@ -88,6 +63,8 @@ public class ContextEventService {
 
     public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
                                        OnResourceEventPostRequestDto body) {
+        // TODO Replace this logic
+        /*
         Context context = contextService.findByIdAndAssigneeId(contextId, profileId);
         List<Resource> collectionResources = resourceService.findByCollectionId(context.getCollectionId());
         PostRequestResourceDto resourceDto = body.getPreviousResource();
@@ -141,9 +118,12 @@ public class ContextEventService {
         doOnResourceEventTransaction(contextProfile, contextProfileEvent);
 
         sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
+        */
     }
 
     public void processFinishContextEvent(UUID contextId, UUID profileId) {
+        // TODO Replace this logic
+        /*
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
         ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
@@ -175,6 +155,7 @@ public class ContextEventService {
         doFinishContextEventTransaction(contextProfile, currentContextProfile, contextProfileEventsToCreate);
 
         sendFinishContextEventMessage(contextId, profileId, eventSummary);
+        */
     }
 
     public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
@@ -339,7 +320,8 @@ public class ContextEventService {
     }
 
     private Resource findFirstResourceByContextId(UUID contextId) {
-        return resourceService.findFirstByContextIdOrderBySequence(contextId);
+        return null;
+        //return resourceService.findFirstByContextIdOrderBySequence(contextId);
     }
 
     private int calculateScoreByQuestionType(String questionType, List<AnswerDto> userAnswers,

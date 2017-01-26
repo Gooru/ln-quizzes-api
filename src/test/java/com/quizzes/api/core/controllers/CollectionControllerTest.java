@@ -6,9 +6,7 @@ import com.quizzes.api.core.dtos.CollectionGetResponseDto;
 import com.quizzes.api.core.dtos.QuestionDataDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.model.jooq.enums.Lms;
-import com.quizzes.api.core.services.CollectionService;
-import com.quizzes.api.core.services.ResourceService;
+import com.quizzes.api.core.services.content.CollectionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -40,9 +38,6 @@ public class CollectionControllerTest {
 
     @Mock
     private CollectionService collectionService;
-
-    @Mock
-    private ResourceService resourceService;
 
     @Mock
     Gson gson = new Gson();

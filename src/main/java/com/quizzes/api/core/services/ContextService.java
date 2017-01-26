@@ -24,6 +24,7 @@ import com.quizzes.api.core.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.repositories.ContextRepository;
+import com.quizzes.api.core.services.content.CollectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,22 +50,10 @@ public class ContextService {
     ContextProfileEventService contextProfileEventService;
 
     @Autowired
-    ProfileService profileService;
-
-    @Autowired
     ContextService contextService;
 
     @Autowired
     ContextRepository contextRepository;
-
-    @Autowired
-    CollectionService collectionService;
-
-    @Autowired
-    GroupService groupService;
-
-    @Autowired
-    GroupProfileService groupProfileService;
 
     @Autowired
     CollectionService collectionContentService;
@@ -98,6 +87,8 @@ public class ContextService {
      */
     @Transactional
     public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
+        // TODO Replace this logic
+        /*
         Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
         if (owner == null) {
             owner = createProfile(contextPostRequestDto.getOwner(), lms);
@@ -127,6 +118,8 @@ public class ContextService {
         result.setId(context.getId());
 
         return result;
+        */
+        return null;
     }
 
     /**
@@ -137,6 +130,8 @@ public class ContextService {
      */
     @Transactional
     public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
+        // TODO Replace this logic
+        /*
         Context context = findByIdAndOwnerId(contextId, profileId);
 
         List<ProfileDto> profileDtos = contextPutRequestDto.getAssignees();
@@ -188,6 +183,8 @@ public class ContextService {
         contextDataDto.setMetadata(contextPutRequestDto.getContextData().getMetadata());
         context.setContextData(gson.toJson(contextDataDto));
         return contextRepository.save(context);
+        */
+        return null;
     }
 
     public Context findById(UUID contextId) {
@@ -340,46 +337,4 @@ public class ContextService {
         return contextAssigned;
     }
 
-    /**
-     * Creates a new {@link Profile}
-     *
-     * @param profileDto Profile data
-     * @param lmsId      Lms
-     * @return the created Profile
-     */
-    @Transactional
-    private Profile createProfile(ProfileDto profileDto, Lms lmsId) {
-        Profile profile = new Profile();
-        profile.setExternalId(profileDto.getId());
-        profile.setLmsId(lmsId);
-
-        // TODO We need to remove the hardcoded client ID and get it from the owner Profile
-        // This Client ID belongs to Gooru client
-        profile.setClientId(UUID.fromString("8d8068c6-71e3-46f1-a169-2fceb3ed674b"));
-
-        JsonObject jsonObject = removeIdFromProfileDto(profileDto);
-
-        profile.setProfileData(jsonObject.toString());
-        return profileService.save(profile);
-    }
-
-    private void assignProfilesToGroup(UUID groupId, List<ProfileDto> profiles, Lms lmsId) {
-        for (ProfileDto profileDto : profiles) {
-            Profile profile = profileService.findByExternalIdAndLmsId(profileDto.getId(), lmsId);
-            if (profile == null) {
-                profile = createProfile(profileDto, lmsId);
-            }
-            GroupProfile groupProfile = new GroupProfile();
-            groupProfile.setGroupId(groupId);
-            groupProfile.setProfileId(profile.getId());
-            groupProfileService.save(groupProfile);
-        }
-    }
-
-    private JsonObject removeIdFromProfileDto(ProfileDto profileDto) {
-        JsonElement jsonElement = gson.toJsonTree(profileDto);
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        jsonObject.remove("id");
-        return jsonObject;
-    }
 }
