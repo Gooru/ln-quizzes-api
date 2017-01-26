@@ -1,10 +1,10 @@
-package com.quizzes.api.content.rest.clients;
+package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
-import com.quizzes.api.content.dtos.AssessmentDto;
+import com.quizzes.api.core.dtos.content.AssessmentDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

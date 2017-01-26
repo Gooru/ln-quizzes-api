@@ -1,10 +1,9 @@
-package com.quizzes.api.content.rest.clients;
+package com.quizzes.api.core.rest.clients;
 
 import com.quizzes.api.core.exceptions.InternalServerException;
-import com.quizzes.api.content.dtos.TokenResponseDto;
-import com.quizzes.api.content.dtos.UserTokenRequestDto;
-import com.quizzes.api.content.dtos.UserDataTokenDto;
-import com.quizzes.api.content.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.core.dtos.content.TokenResponseDto;
+import com.quizzes.api.core.dtos.content.UserTokenRequestDto;
+import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

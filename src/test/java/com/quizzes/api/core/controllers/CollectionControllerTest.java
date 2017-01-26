@@ -87,7 +87,7 @@ public class CollectionControllerTest {
         when(collectionService.findCollectionById(any(UUID.class))).thenReturn(collectionDto);
 
         ResponseEntity<CollectionGetResponseDto> result =
-                collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
+                collectionController.getCollection(UUID.randomUUID());
 
         verify(collectionService, times(1)).findCollectionById(any(UUID.class));
 
@@ -113,7 +113,7 @@ public class CollectionControllerTest {
     @Test(expected = ContentNotFoundException.class)
     public void getCollectionWhenThrowsContentNotFoundException() throws Exception {
         when(collectionService.findCollectionById(any(UUID.class))).thenThrow(ContentNotFoundException.class);
-        collectionController.getCollection(UUID.randomUUID(), Lms.quizzes.getLiteral(), UUID.randomUUID());
+        collectionController.getCollection(UUID.randomUUID());
     }
 
 }

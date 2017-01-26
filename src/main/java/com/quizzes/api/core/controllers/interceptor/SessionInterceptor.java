@@ -1,7 +1,6 @@
 package com.quizzes.api.core.controllers.interceptor;
 
 import com.quizzes.api.core.exceptions.InvalidSessionException;
-import com.quizzes.api.core.model.entities.SessionProfileEntity;
 import com.quizzes.api.core.services.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,7 +8,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.UUID;
 
 @Component
 public class SessionInterceptor extends HandlerInterceptorAdapter {
@@ -24,19 +22,16 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
         //TODO: temporal solution
         if (authorization != null) {
             String sessionToken = validateTokenFormat(authorization);
-            SessionProfileEntity session = sessionService
-                    .findSessionProfileEntityBySessionId(UUID.fromString(sessionToken));
-
-            boolean isSessionAlive = sessionService
-                    .isSessionAlive(session.getSessionId(), session.getLastAccessAt(), session.getCurrentTimestamp());
+            boolean isSessionAlive = true;
+            //boolean isSessionAlive = sessionService
+            //        .isSessionAlive(session.getSessionId(), session.getLastAccessAt(), session.getCurrentTimestamp());
 
             if(!isSessionAlive){
-                throw new InvalidSessionException("Session ID: " + session.getSessionId() + " expired");
+                //throw new InvalidSessionException("Session ID: " + session.getSessionId() + " expired");
             }
 
-            request.setAttribute("profileId", session.getProfileId());
-            request.setAttribute("clientId", session.getClientId());
-            sessionService.updateLastAccess(session.getSessionId());
+            //request.setAttribute("profileId", session.getProfileId());
+            //request.setAttribute("clientId", session.getClientId());
         }
         return true;
     }

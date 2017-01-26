@@ -1,12 +1,12 @@
-package com.quizzes.api.content.rest.clients;
+package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
-import com.quizzes.api.content.dtos.TokenRequestDto;
-import com.quizzes.api.content.dtos.TokenResponseDto;
-import com.quizzes.api.content.dtos.UserDataTokenDto;
-import com.quizzes.api.content.dtos.UserTokenRequestDto;
+import com.quizzes.api.core.dtos.content.TokenRequestDto;
+import com.quizzes.api.core.dtos.content.TokenResponseDto;
+import com.quizzes.api.core.dtos.content.UserDataTokenDto;
+import com.quizzes.api.core.dtos.content.UserTokenRequestDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

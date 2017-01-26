@@ -1,4 +1,4 @@
-package com.quizzes.api.content.enums;
+package com.quizzes.api.core.enums;
 
 
 public enum GooruQuestionTypeEnum {

@@ -24,7 +24,6 @@ import com.quizzes.api.core.model.jooq.tables.pojos.GroupProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.services.content.CollectionContentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,7 @@ public class ContextService {
     GroupProfileService groupProfileService;
 
     @Autowired
-    CollectionContentService collectionContentService;
+    CollectionService collectionContentService;
 
     @Autowired
     private Gson gson;
@@ -111,7 +110,7 @@ public class ContextService {
             if (collection == null
                     || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))) {
                 // the collection is noll OR the collection has a different owner
-                collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
+                //collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
             }
         }
 

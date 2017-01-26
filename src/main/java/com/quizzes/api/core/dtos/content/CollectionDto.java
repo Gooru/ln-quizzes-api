@@ -1,4 +1,4 @@
-package com.quizzes.api.content.dtos;
+package com.quizzes.api.core.dtos.content;
 
 public class CollectionDto {
 

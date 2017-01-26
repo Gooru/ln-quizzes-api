@@ -1,20 +1,23 @@
-package com.quizzes.api.content.services;
+package com.quizzes.api.core.services.content;
 
 import com.google.gson.Gson;
+import com.quizzes.api.core.dtos.CollectionGetResponseDto;
+import com.quizzes.api.core.dtos.QuestionDataDto;
+import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.jooq.enums.ContentProvider;
 import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.core.model.jooq.tables.pojos.Resource;
 //import com.quizzes.api.core.services.ResourceService;
-import com.quizzes.api.core.services.content.CollectionContentService;
-import com.quizzes.api.content.dtos.AnswerDto;
-import com.quizzes.api.content.dtos.AssessmentDto;
-import com.quizzes.api.content.dtos.QuestionDto;
-import com.quizzes.api.content.dtos.UserDataTokenDto;
-import com.quizzes.api.content.enums.GooruQuestionTypeEnum;
-import com.quizzes.api.content.rest.clients.AuthenticationRestClient;
-import com.quizzes.api.content.rest.clients.CollectionRestClient;
+import com.quizzes.api.core.dtos.content.AnswerDto;
+import com.quizzes.api.core.dtos.content.AssessmentDto;
+import com.quizzes.api.core.dtos.content.QuestionDto;
+import com.quizzes.api.core.dtos.content.UserDataTokenDto;
+import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
+import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +29,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class CollectionService implements CollectionContentService {
+public class CollectionService {
 
     private static final String COLLECTION_TITLE = "title";
     private static final String QUESTION_TITLE = "title";
@@ -73,10 +76,20 @@ public class CollectionService implements CollectionContentService {
     @Autowired
     Gson gson;
 
+
+    public CollectionGetResponseDto findCollectionById(UUID collectionId) throws ContentNotFoundException {
+        return new CollectionGetResponseDto();
+    }
+
+
     /**
-     * @see CollectionContentService#createCollection(String, Profile)
+     * Creates a new {@link Collection} in Quizzes based on the content's provider Assessment
+     * if the assessment belongs to a different owner then the assessment is copied
+     * and the new {@link Collection} is based on that copy
+     * @param externalCollectionId content's provider Assessment ID
+     * @param owner the Quizzes {@link Profile} of the {@link Collection} owner
+     * @return the Quizzes new {@link Collection}
      */
-    @Override
     public Collection createCollection(String externalCollectionId, Profile owner) {
         UserDataTokenDto userDataTokenDto = gson.fromJson(owner.getProfileData(), UserDataTokenDto.class);
         String userToken = authenticationRestClient.generateUserToken(userDataTokenDto);
@@ -160,7 +173,7 @@ public class CollectionService implements CollectionContentService {
                 resourceDataMap.put(QUESTION_BODY, questionDto.getTitle());
                 resourceDataMap.put(QUESTION_INTERACTION, createInteraction(questionDto.getAnswers()));
                 resource.setResourceData(new Gson().toJson(resourceDataMap));
-                resourceService.save(resource);
+                //resourceService.save(resource);
             }
         }
     }

@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/quizzes/api")
+@RequestMapping("/quizzes/api/v1")
 public class CollectionController {
 
     @Autowired
@@ -35,13 +35,10 @@ public class CollectionController {
                     response = CollectionGetResponseDto.class),
             @ApiResponse(code = 404, message = "Not found")
     })
-    @RequestMapping(path = "/v1/collection/{collectionId}",
+    @RequestMapping(path = "/collections/{collectionId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionGetResponseDto> getCollection(@PathVariable UUID collectionId,
-                                                                  @RequestHeader(value = "lms-id",
-                                                                          defaultValue = "quizzes") String lmsId,
-                                                                  @RequestHeader(value = "profile-id") UUID profileId) {
+    public ResponseEntity<CollectionGetResponseDto> getCollection(@PathVariable UUID collectionId) {
         return new ResponseEntity<>(collectionService.findCollectionById(collectionId), HttpStatus.OK);
     }
 

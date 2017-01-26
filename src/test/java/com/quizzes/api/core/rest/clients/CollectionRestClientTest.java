@@ -1,8 +1,6 @@
-package com.quizzes.api.content.rest.clients;
+package com.quizzes.api.core.rest.clients;
 
-import com.quizzes.api.content.dtos.AssessmentDto;
-import com.quizzes.api.content.rest.clients.AuthenticationRestClient;
-import com.quizzes.api.content.rest.clients.CollectionRestClient;
+import com.quizzes.api.core.dtos.content.AssessmentDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
