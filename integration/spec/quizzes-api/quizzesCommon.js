@@ -3,6 +3,19 @@ const frisby = require('frisby');
 
 var quizzesCommon = {
 
+    /**
+     * copied from https://jsfiddle.net/briguy37/2MVFd/
+     */
+    generateUUID: function generateUUID() {
+        var d = new Date().getTime();
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (d + Math.random()*16)%16 | 0;
+            d = Math.floor(d/16);
+            return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+            });
+        return uuid;
+    },
+
     startTest: function (title, functionalTest) {
         console.log("\n ****** Executing Functional Test: " + title + " ****** \n");
         functionalTest();
@@ -42,6 +55,27 @@ var quizzesCommon = {
                     'email': 'teacher1@quizzes.com'
                 }
             }, {json: true})
+            .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
+            .addHeader('client-id', 'quizzes')
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(function (context) {
+                afterJsonFunction(context);
+            })
+            .toss();
+    },
+
+    /**
+     * Creates a context passing the JSON body and the expected response as a parameter
+     * @param body JSON with context information
+     * @param expectedBody JSON with expected result
+     * @param afterJsonFunction function to call on afterJSON
+     */
+    createContextWithParams: function (body, afterJsonFunction) {
+        frisby.create('Test context creation using body ' + body)
+            .post(QuizzesApiUrl + '/v1/context', body , {json: true})
             .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
             .addHeader('client-id', 'quizzes')
             .inspectRequest()

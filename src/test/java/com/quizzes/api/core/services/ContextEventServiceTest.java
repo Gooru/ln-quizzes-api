@@ -701,6 +701,35 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void calculateScoreForDragAndDropRightAnswer() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers,
+                correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateScoreForDragAndDropWrongAnswer() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"), createAnswerDto("B"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers,
+                correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForDragAndDropWrongNumberOfAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
     public void calculateEventSummaryDataSkipTrue() throws Exception {
         List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
 
