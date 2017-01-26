@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/quizzes/rubric/api")
+@RequestMapping("/quizzes/rubric/api/v1")
 public class RubricController {
 
-    @RequestMapping(path = "/v1/unknown", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/unknown", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> unknown() {
         return new ResponseEntity<>(HttpStatus.OK);
     }

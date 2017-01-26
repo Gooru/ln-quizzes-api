@@ -1,7 +1,6 @@
 package com.quizzes.api.core.controllers.interceptor;
 
 import com.quizzes.api.core.exceptions.InvalidSessionException;
-import com.quizzes.api.core.model.entities.SessionProfileEntity;
 import com.quizzes.api.core.services.SessionService;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -62,11 +61,6 @@ public class SessionInterceptorTest {
     public void preHandleAuthorization() throws Exception {
         request.addHeader("Authorization", authorization);
 
-        SessionProfileEntity sessionProfileEntity = Mockito.spy(SessionProfileEntity.class);
-        when(sessionProfileEntity.getSessionId()).thenReturn(sessionId);
-        when(sessionProfileEntity.getLastAccessAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
-        when(sessionProfileEntity.getCurrentTimestamp()).thenReturn(new Timestamp(System.currentTimeMillis()));
-
         //when(sessionService.isSessionAlive(any(), any(), any())).thenReturn(true);
 
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
@@ -80,11 +74,6 @@ public class SessionInterceptorTest {
     @Test(expected = InvalidSessionException.class)
     public void preHandleAuthorizationInvalidSession() throws Exception {
         request.addHeader("Authorization", authorization);
-
-        SessionProfileEntity sessionProfileEntity = Mockito.spy(SessionProfileEntity.class);
-        when(sessionProfileEntity.getSessionId()).thenReturn(sessionId);
-        when(sessionProfileEntity.getLastAccessAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
-        when(sessionProfileEntity.getCurrentTimestamp()).thenReturn(new Timestamp(System.currentTimeMillis()));
 
         //when(sessionService.isSessionAlive(any(), any(), any())).thenReturn(false);
 
