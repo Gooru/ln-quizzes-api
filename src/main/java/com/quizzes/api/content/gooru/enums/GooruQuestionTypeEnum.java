@@ -7,7 +7,9 @@ public enum GooruQuestionTypeEnum {
 
     MultipleChoiceQuestion("multiple_choice_question"),
 
-    HotTextReorderQuestion("hot_text_reorder_question");
+    HotTextReorderQuestion("hot_text_reorder_question"),
+
+    MultipleAnswerQuestion("multiple_answer_question");
 
 
     private final String literal;
