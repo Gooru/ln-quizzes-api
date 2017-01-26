@@ -1,14 +1,10 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.quizzes.api.core.dtos.ContextAssignedGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
-import com.quizzes.api.core.dtos.CreatedContextGetResponseDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
-import com.quizzes.api.core.dtos.ProfileDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
@@ -19,9 +15,6 @@ import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.enums.Lms;
 import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
-import com.quizzes.api.core.model.jooq.tables.pojos.Group;
-import com.quizzes.api.core.model.jooq.tables.pojos.GroupProfile;
-import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.CollectionService;
@@ -35,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -281,10 +273,10 @@ public class ContextService {
      * 3 - startDate, optional, default is null
      * 4 - dueDate, optional, default is null
      *
-     * @param assigneeId This is mandatory
-     * @param isActive if null, then the default is true, can't be used with startDate or dueDate
+     * @param assigneeId      This is mandatory
+     * @param isActive        if null, then the default is true, can't be used with startDate or dueDate
      * @param startDateMillis start date milliseconds, if not null the query looks for records with startDate >= than this param, can't be used with isActive
-     * @param dueDateMillis due date milliseconds, if not null the query looks for records with dueDate <= than this param, can't be used with isActive
+     * @param dueDateMillis   due date milliseconds, if not null the query looks for records with dueDate <= than this param, can't be used with isActive
      * @return the list of {@link ContextAssigneeEntity} found
      */
 
