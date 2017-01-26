@@ -15,6 +15,9 @@ public enum QuestionTypeEnum {
     @SerializedName("drag_and_drop")
     DragAndDrop("drag_and_drop"),
 
+    @SerializedName("multiple_answer")
+    MultipleAnswer("multiple_answer"),
+
     @SerializedName("multiple_choice")
     MultipleChoice("multiple_choice"),
 

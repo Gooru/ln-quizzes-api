@@ -336,6 +336,8 @@ public class ContextEventService {
                 return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
             case DragAndDrop:
                 return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
+            case MultipleAnswer:
+                return calculateScoreForMultipleAnswer(userAnswers, correctAnswers);
             default:
                 return 0;
             //TODO: Implement the logic for the other question types
@@ -369,6 +371,19 @@ public class ContextEventService {
                         .allMatch(i -> correctAnswers.get(i).getValue().equals(userAnswers.get(i).getValue()));
 
         return isAnswerCorrect ? 100 : 0;
+    }
+
+    /**
+     * Multiple Answer method compares the answers with the correct answer ignoring the order
+     *
+     * @param userAnswers    Answers provided by the user
+     * @param correctAnswers Correct answers for the question
+     * @return the score
+     */
+    private int calculateScoreForMultipleAnswer(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+        boolean result = correctAnswers.stream().map(AnswerDto::getValue).collect(Collectors.toList())
+                .containsAll(userAnswers.stream().map(AnswerDto::getValue).collect(Collectors.toList()));
+        return result ? 100 : 0;
     }
 
     private EventSummaryDataDto calculateEventSummary(List<ContextProfileEvent> contextProfileEvents,
