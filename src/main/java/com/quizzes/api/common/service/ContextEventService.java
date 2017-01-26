@@ -89,59 +89,44 @@ public class ContextEventService {
     public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
                                        OnResourceEventPostRequestDto body) {
         Context context = contextService.findByIdAndAssigneeId(contextId, profileId);
-        List<Resource> collectionResources = resourceService.findByCollectionId(context.getCollectionId());
-        PostRequestResourceDto resourceDto = body.getPreviousResource();
-
-        Resource currentResource = collectionResources.stream()
-                .filter(resource -> resource.getId().equals(resourceId)).findFirst().orElse(null);
-        if (currentResource == null) {
-            throw new ContentNotFoundException("On Resource ID " + resourceId + " does not belong to the " +
-                    "Collection ID " + context.getCollectionId() + " assigned in the Context ID " + contextId);
-        }
-
-        Resource previousResource = collectionResources.stream()
-                .filter(resource -> resource.getId().equals(resourceDto.getResourceId())).findFirst().orElse(null);
-                resourceService.findById(resourceDto.getResourceId());
-        if (previousResource == null) {
-            throw new ContentNotFoundException("Previous Resource ID " + resourceId + " does not belong to the " +
-                    "Collection ID " + context.getCollectionId() + " assigned in the Context ID " + contextId);
-        }
-
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
-        ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
-        QuestionDataDto previousResourceData =
-                gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
 
-        // Calculates provided answer score
-        if (!resourceDto.getAnswer().isEmpty()) {
-            resourceDto.setIsSkipped(false);
-            resourceDto.setScore(calculateScoreByQuestionType(previousResourceData.getType(), resourceDto.getAnswer(),
-                    previousResourceData.getCorrectAnswer()));
-        }
+        PostRequestResourceDto resourceDto = body.getPreviousResource();
+        resourceDto.setIsSkipped(resourceDto.getAnswer().isEmpty());
+
+        List<Resource> collectionResources = resourceService.findByCollectionId(context.getCollectionId());
+        Resource currentResource = findResourceInContext(collectionResources, resourceId, contextId);
+        Resource previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(), contextId);
 
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(currentContextProfile.getContextProfileId());
         ContextProfileEvent contextProfileEvent = contextProfileEvents.stream()
                 .filter(event -> event.getResourceId().equals(previousResource.getId())).findFirst().orElse(null);
+        resourceService.findById(resourceDto.getResourceId());
+
         if (contextProfileEvent == null) {
-            contextProfileEvent =
-                    createContextProfileEvent(currentContextProfile.getContextProfileId(), previousResource.getId());
+            contextProfileEvent = createContextProfileEvent(currentContextProfile.getContextProfileId(),
+                    previousResource.getId());
+            if (!resourceDto.getIsSkipped()) {
+                resourceDto.setScore(calculateScore(previousResource, resourceDto.getAnswer()));
+            }
             contextProfileEvents.add(contextProfileEvent);
         } else {
-            PostRequestResourceDto currentEventData =
-                    gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
-            resourceDto.setTimeSpent(resourceDto.getTimeSpent() + currentEventData.getTimeSpent());
+            resourceDto = updateExistingResourceDto(contextProfileEvent, previousResource, resourceDto);
         }
+
         contextProfileEvent.setEventData(gson.toJson(resourceDto));
 
         EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
+        ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
         contextProfile.setCurrentResourceId(currentResource.getId());
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
-        doOnResourceEventTransaction(contextProfile, contextProfileEvent);
 
+        doOnResourceEventTransaction(contextProfile, contextProfileEvent);
         sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
     }
+
 
     public void processFinishContextEvent(UUID contextId, UUID profileId) {
         CurrentContextProfile currentContextProfile =
@@ -376,11 +361,11 @@ public class ContextEventService {
      * @return the score
      */
     private int calculateScoreForDragAndDrop(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
-        if(userAnswers.size() < correctAnswers.size()){
+        if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
         boolean isAnswerCorrect =
-                IntStream.range(0, correctAnswers.size()-1)
+                IntStream.range(0, correctAnswers.size() - 1)
                         .allMatch(i -> correctAnswers.get(i).getValue().equals(userAnswers.get(i).getValue()));
 
         return isAnswerCorrect ? 100 : 0;
@@ -420,6 +405,41 @@ public class ContextEventService {
         result.setTotalAnswered(totalAnswered);
 
         return result;
+    }
+
+    private PostRequestResourceDto updateExistingResourceDto(ContextProfileEvent contextProfileEvent,
+                                                             Resource resourceInfo,
+                                                             PostRequestResourceDto resource) {
+        PostRequestResourceDto oldResource =
+                gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
+
+        resource.setTimeSpent(resource.getTimeSpent() + oldResource.getTimeSpent());
+
+        if (!resource.getIsSkipped()) {
+            resource.setScore(calculateScore(resourceInfo, resource.getAnswer()));
+        } else if (!oldResource.getIsSkipped()) {
+            oldResource.setTimeSpent(resource.getTimeSpent());
+            oldResource.setReaction(resource.getReaction());
+            return oldResource;
+        }
+
+        return resource;
+    }
+
+    private int calculateScore(Resource resourceInfo, List<AnswerDto> answer) {
+        QuestionDataDto question = gson.fromJson(resourceInfo.getResourceData(), QuestionDataDto.class);
+        return calculateScoreByQuestionType(question.getType(), answer,
+                question.getCorrectAnswer());
+    }
+
+    private Resource findResourceInContext(List<Resource> resources, UUID resourceId, UUID contextId) {
+        Resource resourceInList = resources.stream()
+                .filter(r -> r.getId().equals(resourceId)).findFirst().orElse(null);
+        if (resourceInList == null) {
+            throw new ContentNotFoundException("Resource ID: " + resourceId + " is not part of " +
+                    "the Context ID: " + contextId);
+        }
+        return resourceInList;
     }
 
 }
