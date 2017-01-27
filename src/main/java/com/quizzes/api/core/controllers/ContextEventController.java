@@ -4,7 +4,6 @@ import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.services.ContextEventService;
-import com.quizzes.api.core.services.ContextService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -25,14 +24,11 @@ import java.util.UUID;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/quizzes/api")
+@RequestMapping("/quizzes/api/v1")
 public class ContextEventController {
 
     @Autowired
     private ContextEventService contextEventService;
-
-    @Autowired
-    private ContextService contextService;
 
     @ApiOperation(
             value = "Start collection attempt",
@@ -42,7 +38,7 @@ public class ContextEventController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
-    @RequestMapping(path = "/v1/context/{contextId}/event/start",
+    @RequestMapping(path = "/contexts/{contextId}/start",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
@@ -59,7 +55,7 @@ public class ContextEventController {
     @ApiResponses({
             @ApiResponse(code = 204, message = "No Content")
     })
-    @RequestMapping(path = "/v1/context/{contextId}/event/on-resource/{resourceId}",
+    @RequestMapping(path = "/contexts/{contextId}/onResource/{resourceId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> onResourceEvent(@ApiParam(value = "ID of the resource that we are sending data to", required = true, name = "Resource ID")
@@ -81,7 +77,7 @@ public class ContextEventController {
             @ApiResponse(code = 204, message = "Finish the current attempt"),
             @ApiResponse(code = 500, message = "Bad request")
     })
-    @RequestMapping(path = "/v1/context/{contextId}/event/finish", method = RequestMethod.POST,
+    @RequestMapping(path = "/contexts/{contextId}/finish", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> finishContextEvent(
             @ApiParam(value = "ID of the context to have its attempt finished.", required = true, name = "ContextID")
@@ -101,7 +97,7 @@ public class ContextEventController {
             @ApiResponse(code = 403, message = "Invalid owner"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
-    @RequestMapping(path = "/v1/context/{contextId}/events",
+    @RequestMapping(path = "/context/{contextId}/events",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ContextEventsResponseDto> getContextEvents(
