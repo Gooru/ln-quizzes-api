@@ -48,15 +48,15 @@ public class AssessmentService {
     public CollectionDto getAssessment(String assessmentId) {
         String userToken = authenticationRestClient.generateAnonymousToken();
         AssessmentContentDto assessmentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
-        return convertGooruAssessmentToQuizzesFormat(assessmentDto, assessmentId);
+        return convertGooruAssessmentToQuizzesFormat(assessmentDto);
     }
 
-    private CollectionDto convertGooruAssessmentToQuizzesFormat(AssessmentContentDto assessmentDto, String assessmentId) {
+    private CollectionDto convertGooruAssessmentToQuizzesFormat(AssessmentContentDto assessmentDto) {
         AssessmentMetadataDto metadata = new AssessmentMetadataDto();
         metadata.setTitle(assessmentDto.getTitle());
 
         CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(assessmentId);
+        collectionDto.setId(assessmentDto.getId());
         collectionDto.setMetadata(metadata);
         collectionDto.setResources(getResources(assessmentDto.getQuestions()));
 
