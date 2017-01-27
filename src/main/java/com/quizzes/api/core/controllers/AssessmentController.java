@@ -23,7 +23,7 @@ public class AssessmentController {
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CollectionDto> getAssessment(@PathVariable UUID assessmentId) {
-        return new ResponseEntity<>(assessmentService.getAssessment(String.valueOf(assessmentId)),HttpStatus.OK);
+        return new ResponseEntity<>(assessmentService.getAssessment(assessmentId.toString()),HttpStatus.OK);
     }
 
 }

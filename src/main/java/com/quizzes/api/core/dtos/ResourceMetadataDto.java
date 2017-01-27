@@ -1,12 +1,8 @@
 package com.quizzes.api.core.dtos;
 
-import java.util.List;
-
 public class ResourceMetadataDto {
-
     private String title;
     private String type;
-    private List<AnswerDto> correctAnswer;
     private String body;
     private InteractionDto interaction;
 
@@ -27,14 +23,6 @@ public class ResourceMetadataDto {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public List<AnswerDto> getCorrectAnswer() {
-        return correctAnswer;
-    }
-
-    public void setCorrectAnswer(List<AnswerDto> correctAnswer) {
-        this.correctAnswer = correctAnswer;
     }
 
     public String getBody() {

@@ -3,7 +3,7 @@ package com.quizzes.api.core.controllers;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.CollectionGetResponseDto;
-import com.quizzes.api.core.dtos.ResourceMetadataDto;
+import com.quizzes.api.core.dtos.QuestionMetadataDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.services.content.CollectionService;
@@ -49,25 +49,25 @@ public class CollectionControllerTest {
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answer);
 
-        ResourceMetadataDto resourceMetadataDto = new ResourceMetadataDto();
-        resourceMetadataDto.setTitle("question 1");
-        resourceMetadataDto.setType("true_false");
-        resourceMetadataDto.setBody("question 1");
-        resourceMetadataDto.setCorrectAnswer(answers);
+        QuestionMetadataDto questionMetadataDto = new QuestionMetadataDto();
+        questionMetadataDto.setTitle("question 1");
+        questionMetadataDto.setType("true_false");
+        questionMetadataDto.setBody("question 1");
+        questionMetadataDto.setCorrectAnswer(answers);
 
         ResourceDto resource1 = new ResourceDto();
         UUID resourceId1 = UUID.randomUUID();
         resource1.setId(resourceId1);
         resource1.setSequence(1);
         resource1.setIsResource(false);
-        resource1.setQuestionData(resourceMetadataDto);
+        resource1.setQuestionData(questionMetadataDto);
 
         ResourceDto resource2 = new ResourceDto();
         UUID resourceId2 = UUID.randomUUID();
         resource2.setId(resourceId2);
         resource2.setIsResource(false);
         resource2.setSequence(2);
-        resource1.setQuestionData(resourceMetadataDto);
+        resource1.setQuestionData(questionMetadataDto);
 
         List<ResourceDto> resources = new ArrayList<>();
         resources.add(resource1);

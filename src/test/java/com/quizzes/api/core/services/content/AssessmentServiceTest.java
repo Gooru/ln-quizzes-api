@@ -5,8 +5,8 @@ import com.quizzes.api.core.dtos.AssessmentMetadataDto;
 import com.quizzes.api.core.dtos.ChoiceDto;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.InteractionDto;
+import com.quizzes.api.core.dtos.QuestionMetadataDto;
 import com.quizzes.api.core.dtos.ResourceDto;
-import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.QuestionContentDto;
@@ -96,7 +96,7 @@ public class AssessmentServiceTest {
         assertFalse("IsResource is true ", resourceResult.getIsResource());
         assertEquals("Wrong sequence", 1, resourceResult.getSequence());
 
-        ResourceMetadataDto metadataResource = resourceResult.getQuestionData();
+        QuestionMetadataDto metadataResource = resourceResult.getQuestionData();
         assertEquals("Wrong title", resourceTitle, metadataResource.getTitle());
         assertEquals("Wrong body text", resourceTitle, metadataResource.getBody());
         assertEquals("Wrong number of correct answers", 1, metadataResource.getCorrectAnswer().size());
@@ -153,7 +153,7 @@ public class AssessmentServiceTest {
         assertFalse("Wrong isResource is true", resourceResult.getIsResource());
         assertEquals("Wrong sequence", 1, resourceResult.getSequence());
 
-        ResourceMetadataDto metadataResult = resourceResult.getQuestionData();
+        QuestionMetadataDto metadataResult = resourceResult.getQuestionData();
         assertEquals("Wrong title", questionTitle, metadataResult.getTitle());
         assertEquals("Wrong body", questionTitle, metadataResult.getBody());
         assertEquals("Wrong type", trueFalseQuestion, metadataResult.getType());
@@ -257,8 +257,8 @@ public class AssessmentServiceTest {
         return collectionDto;
     }
 
-    private ResourceMetadataDto createResourceMetadataDto() {
-        ResourceMetadataDto metadata = new ResourceMetadataDto();
+    private QuestionMetadataDto createResourceMetadataDto() {
+        QuestionMetadataDto metadata = new QuestionMetadataDto();
         metadata.setTitle(resourceTitle);
         metadata.setType(trueFalseQuestion);
         metadata.setCorrectAnswer(Arrays.asList(new AnswerDto("A")));
@@ -286,7 +286,7 @@ public class AssessmentServiceTest {
         return choiceDto;
     }
 
-    private ResourceDto createResourceDto(UUID id, boolean isResource, int sequence, ResourceMetadataDto metadata) {
+    private ResourceDto createResourceDto(UUID id, boolean isResource, int sequence, QuestionMetadataDto metadata) {
         ResourceDto resourceDto = new ResourceDto();
         resourceDto.setId(id);
         resourceDto.setIsResource(isResource);

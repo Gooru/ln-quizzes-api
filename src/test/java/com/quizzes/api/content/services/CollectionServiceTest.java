@@ -73,7 +73,7 @@ public class CollectionServiceTest {
         when(authenticationRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
 
         assessmentDto.setOwnerId(UUID.randomUUID().toString());
-        when(collectionRestClient.getAssessment(any(String.class), any(String.class))).thenReturn(assessmentDto);
+        when(collectionRestClient.getCollection(any(String.class), any(String.class))).thenReturn(assessmentDto);
 
         // Saves the new collection
         Collection collection = new Collection();
@@ -98,7 +98,7 @@ public class CollectionServiceTest {
         verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
         // copyAssessment is not called, this means the assessment owner is the same user creating the collection
         verify(collectionRestClient, times(0)).copyAssessment(any(String.class), any(String.class));
-        verify(collectionRestClient, times(1)).getAssessment(any(String.class), any(String.class));
+        verify(collectionRestClient, times(1)).getCollection(any(String.class), any(String.class));
         //verify(collectionService, times(1)).save(any(Collection.class));
         //verify(resourceService, times(2)).save(any(Resource.class));
 
@@ -123,7 +123,7 @@ public class CollectionServiceTest {
         when(authenticationRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
 
         assessmentDto.setOwnerId(UUID.randomUUID().toString());
-        when(collectionRestClient.getAssessment(any(String.class), any(String.class))).thenReturn(assessmentDto);
+        when(collectionRestClient.getCollection(any(String.class), any(String.class))).thenReturn(assessmentDto);
 
         // Saves the new collection
         Collection collection = new Collection();
@@ -147,7 +147,7 @@ public class CollectionServiceTest {
         verify(gson, times(1)).fromJson(any(String.class), anyObject());
         verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
         verify(collectionRestClient, times(1)).copyAssessment(any(String.class), any(String.class));
-        verify(collectionRestClient, times(2)).getAssessment(any(String.class), any(String.class));
+        verify(collectionRestClient, times(2)).getCollection(any(String.class), any(String.class));
         //verify(collectionService, times(1)).save(any(Collection.class));
         //verify(resourceService, times(2)).save(any(Resource.class));
 
@@ -188,7 +188,7 @@ public class CollectionServiceTest {
 
         doReturn("copiedAssessmentID").when(collectionRestClient).copyAssessment(any(String.class), any(String.class));
 
-        doReturn(assessmentDto).when(collectionRestClient).getAssessment(any(String.class), any(String.class));
+        doReturn(assessmentDto).when(collectionRestClient).getCollection(any(String.class), any(String.class));
 
         WhiteboxImpl.invokeMethod(collectionService, "createCollectionCopy", "assessmentID", UUID.randomUUID(), "userToken");
 
@@ -198,7 +198,7 @@ public class CollectionServiceTest {
         //verify(collectionService, times(1)).save(any(Collection.class));
         //verify(resourceService, times(2)).save(any(Resource.class));
         verify(collectionRestClient, times(1)).copyAssessment(any(String.class),any(String.class));
-        verify(collectionRestClient, times(1)).getAssessment(any(String.class), any(String.class));
+        verify(collectionRestClient, times(1)).getCollection(any(String.class), any(String.class));
 
     }
 

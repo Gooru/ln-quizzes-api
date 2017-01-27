@@ -93,7 +93,7 @@ public class CollectionService {
     public Collection createCollection(String externalCollectionId, Profile owner) {
         UserDataTokenDto userDataTokenDto = gson.fromJson(owner.getProfileData(), UserDataTokenDto.class);
         String userToken = authenticationRestClient.generateUserToken(userDataTokenDto);
-        AssessmentContentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId, userToken);
+        AssessmentContentDto assessmentDto = collectionRestClient.getCollection(externalCollectionId, userToken);
 
         Collection result = null;
         if (assessmentDto.getOwnerId() != null) {
@@ -120,7 +120,7 @@ public class CollectionService {
 
         String copiedAssessmentId = collectionRestClient.copyAssessment(assessmentId, userToken);
 
-        AssessmentContentDto assessmentDto = collectionRestClient.getAssessment(copiedAssessmentId, userToken);
+        AssessmentContentDto assessmentDto = collectionRestClient.getCollection(copiedAssessmentId, userToken);
 
         return createCollectionFromAssessment(assessmentDto, assessmentId, ownerId);
     }

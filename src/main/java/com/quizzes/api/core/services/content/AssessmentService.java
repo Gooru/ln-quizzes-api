@@ -5,7 +5,7 @@ import com.quizzes.api.core.dtos.AssessmentMetadataDto;
 import com.quizzes.api.core.dtos.ChoiceDto;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.InteractionDto;
-import com.quizzes.api.core.dtos.ResourceMetadataDto;
+import com.quizzes.api.core.dtos.QuestionMetadataDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
@@ -73,7 +73,7 @@ public class AssessmentService {
                 resourceDto.setIsResource(false);
                 resourceDto.setSequence((short) questionContentDto.getSequence());
 
-                ResourceMetadataDto metadata = new ResourceMetadataDto();
+                QuestionMetadataDto metadata = new QuestionMetadataDto();
                 metadata.setTitle(questionContentDto.getTitle());
                 metadata.setType(mapQuestionType(questionContentDto.getContentSubformat()));
                 metadata.setCorrectAnswer(getCorrectAnswers(questionContentDto.getAnswers()));

@@ -41,7 +41,7 @@ public class CollectionRestClient {
     @Autowired
     AuthenticationRestClient authenticationRestClient;
 
-    public AssessmentContentDto getAssessment(String assessmentId, String token) {
+    public AssessmentContentDto getCollection(String assessmentId, String token) {
         String endpointUrl = getContentApiUrl() + ASSESSMENTS_PATH + assessmentId;
 
         if (logger.isDebugEnabled()) {
