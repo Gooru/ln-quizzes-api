@@ -2,7 +2,7 @@ const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
 frisby.create('Test Context create with two assignees')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
         'assignees': [
             {
@@ -51,7 +51,7 @@ frisby.create('Test Context create with two assignees')
             .inspectJSON()
             .afterJSON(function(ownerProfileJson) {
                 frisby.create('Updating the context to add 3 more assignees but 1 is already assigned')
-                    .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+                    .put(QuizzesApiUrl + '/v1/contexts/' + contextJson.id, {
                         'assignees': [
                             {
                                 'id': 'student-id-1',
@@ -93,7 +93,7 @@ frisby.create('Test Context create with two assignees')
                     .afterJSON(function(updatedContextJson) {
                         frisby.create('Verify that the context was updated ' +
                             'with 2 more assignees and data updated')
-                            .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
+                            .get(QuizzesApiUrl + '/v1/contexts/created/' + updatedContextJson.id)
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', ownerProfileJson.id)
                             .inspectRequest()
@@ -126,7 +126,7 @@ frisby.create('Test Context create with two assignees')
 // first we create a context with 2 assignees
 // then we update the context without assignees');
 frisby.create('Test Context create with two assignees')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
         'assignees': [
             {
@@ -175,7 +175,7 @@ frisby.create('Test Context create with two assignees')
             .inspectJSON()
             .afterJSON(function (ownerProfileJson) {
                 frisby.create('Updating the context with NO assignees')
-                    .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+                    .put(QuizzesApiUrl + '/v1/contexts/' + contextJson.id, {
                         'assignees': [],
                         'contextData': {
                             'contextMap': {
@@ -193,7 +193,7 @@ frisby.create('Test Context create with two assignees')
                     .expectStatus(200)
                     .afterJSON(function (updatedContextJson) {
                         frisby.create('Verify that the context data was updated')
-                            .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
+                            .get(QuizzesApiUrl + '/v1/contexts/created/' + updatedContextJson.id)
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', ownerProfileJson.id)
                             .inspectRequest()
@@ -226,7 +226,7 @@ frisby.create('Test Context create with two assignees')
 
 //Testing the update context whem I'm not the owner
 frisby.create('Test Context create with two assignees')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
         'assignees': [
             {
@@ -270,7 +270,7 @@ frisby.create('Test Context create with two assignees')
     .inspectJSON()
     .afterJSON(function (contextJson) {
         frisby.create('Updating the context with NO assignees and RANDOM OWNER')
-            .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+            .put(QuizzesApiUrl + '/v1/contexts/' + contextJson.id, {
                 'assignees': [],
                 'contextData': {
                     'contextMap': {
@@ -297,7 +297,7 @@ frisby.create('Gets an existing owner profileId')
     .inspectJSON()
     .afterJSON(function (ownerProfileJson) {
         frisby.create('Updating a random context that does not exist')
-            .put(QuizzesApiUrl + '/v1/context/9c066b3a-db63-4bb4-a1a7-ff2ee455edba', {
+            .put(QuizzesApiUrl + '/v1/contexts/9c066b3a-db63-4bb4-a1a7-ff2ee455edba', {
                 'assignees': [],
                 'contextData': {
                     'contextMap': {
@@ -319,7 +319,7 @@ frisby.create('Gets an existing owner profileId')
 
 //Testing the update context with valid context data dates
 frisby.create('Test Context create with two assignees')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
         'assignees': [
             {
@@ -368,7 +368,7 @@ frisby.create('Test Context create with two assignees')
             .inspectJSON()
             .afterJSON(function (ownerProfileJson) {
                 frisby.create('Updating the context with NO assignees but context data dates')
-                    .put(QuizzesApiUrl + '/v1/context/' + contextJson.id, {
+                    .put(QuizzesApiUrl + '/v1/contexts/' + contextJson.id, {
                         'assignees': [],
                         'contextData': {
                             'contextMap': {
@@ -388,7 +388,7 @@ frisby.create('Test Context create with two assignees')
                     .expectStatus(200)
                     .afterJSON(function (updatedContextJson) {
                         frisby.create('Verify that the context data was updated')
-                            .get(QuizzesApiUrl + '/v1/context/created/' + updatedContextJson.id)
+                            .get(QuizzesApiUrl + '/v1/contexts/created/' + updatedContextJson.id)
                             .addHeader('lms-id', 'quizzes')
                             .addHeader('profile-id', ownerProfileJson.id)
                             .inspectRequest()

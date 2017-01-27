@@ -63,7 +63,7 @@ QuizzesCommon.startTest("Create a Context with same assignee as owner", function
         ,function (createdContext) {
         QuizzesCommon.getProfileByExternalId('profile-id-111', function (profileInfo) {
             frisby.create('Verifies the profile is assigned to the context')
-                .get(QuizzesApiUrl + '/v1/context/assigned/' + createdContext.id)
+                .get(QuizzesApiUrl + '/v1/contexts/assigned/' + createdContext.id)
                 .addHeader('profile-id', profileInfo.id)
                 .addHeader('client-id', 'quizzes')
                 .inspectRequest()
@@ -72,7 +72,7 @@ QuizzesCommon.startTest("Create a Context with same assignee as owner", function
                 .toss();
 
             frisby.create('Verifies the profile is the owner of the context')
-                .get(QuizzesApiUrl + '/v1/context/created/' + createdContext.id)
+                .get(QuizzesApiUrl + '/v1/contexts/created/' + createdContext.id)
                 .addHeader('profile-id', profileInfo.id)
                 .addHeader('client-id', 'quizzes')
                 .inspectRequest()
@@ -84,7 +84,7 @@ QuizzesCommon.startTest("Create a Context with same assignee as owner", function
 });
 
 frisby.create('Test wrong external collection ID')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'wrong-assessment-id',
         'assignees': [
             {
@@ -125,7 +125,7 @@ frisby.create('Test wrong external collection ID')
     .toss();
 
 frisby.create('Test context without assignees')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
         ],
@@ -164,7 +164,7 @@ frisby.create('Test context without assignee fields')
      "Error in assignees[0].id: ID is required"
      ]
      */
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -222,7 +222,7 @@ frisby.create('Test context without assignee fields')
     .toss();
 
 frisby.create('Test context without owner')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -268,7 +268,7 @@ frisby.create('Test context with owner fields errors')
      "Error in owner.username: Username is required"
      ]
      */
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -315,7 +315,7 @@ frisby.create('Test context with owner fields errors')
  "Error in owner.username: Username is required"
  ]
  */
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -353,7 +353,7 @@ frisby.create('Test context with owner fields errors')
     .toss();
 
 frisby.create('Test context without contextData')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {

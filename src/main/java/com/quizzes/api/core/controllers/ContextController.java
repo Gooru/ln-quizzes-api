@@ -51,7 +51,7 @@ public class ContextController {
                     "a specified context, returning a generated Context ID.")
     @ApiResponses({@ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
-    @RequestMapping(path = "/v1/context",
+    @RequestMapping(path = "/v1/contexts",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's owner, assignees, external collection ID and the context data", required = true)
@@ -86,7 +86,7 @@ public class ContextController {
     })
     @RequestMapping(path = "/v1/contexts/created",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CreatedContextGetResponseDto>> findCreatedContexts(
+    public ResponseEntity<List<CreatedContextGetResponseDto>> getCreatedContexts(
             @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @ApiParam(name = "profile-id", required = true, value = "Context owner Profile ID")
@@ -105,9 +105,9 @@ public class ContextController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = CreatedContextGetResponseDto.class)
     })
-    @RequestMapping(path = "/v1/context/created/{contextId}",
+    @RequestMapping(path = "/v1/contexts/created/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CreatedContextGetResponseDto> findCreatedContextByContextId(
+    public ResponseEntity<CreatedContextGetResponseDto> getCreatedContextByContextId(
             @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of created contexts.")
             @PathVariable UUID contextId,
             @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
@@ -125,7 +125,7 @@ public class ContextController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = ContextAssignedGetResponseDto.class)
     })
-    @RequestMapping(path = "/v1/context/assigned/{contextId}",
+    @RequestMapping(path = "/v1/contexts/assigned/{contextId}",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ContextAssignedGetResponseDto> getAssignedContextByContextId(
             @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of assigned contexts.")
@@ -166,7 +166,7 @@ public class ContextController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
     })
-    @RequestMapping(path = "/v1/context/{contextId}",
+    @RequestMapping(path = "/v1/contexts/{contextId}",
             method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<IdResponseDto> updateContext(
             @PathVariable UUID contextId,

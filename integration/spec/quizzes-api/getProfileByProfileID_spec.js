@@ -2,7 +2,7 @@ const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
 frisby.create('Test Context creation for one assignee and owner')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': '927ec170-f7b3-46c3-ace3-24fd61dda0c0',
         'owner': {
             'id': 'teacher-id-1',

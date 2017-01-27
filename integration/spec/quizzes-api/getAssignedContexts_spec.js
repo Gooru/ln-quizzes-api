@@ -3,7 +3,7 @@ const QuizzesCommon = require('./quizzesCommon.js');
 var frisby = require('frisby');
 
 frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'owner': {
             'id': 'teacher-id-1',
@@ -71,7 +71,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
 
 frisby.create('Creates a Context and assigns it to an Assignee, then tries to retrieve the assigned Context using ' +
     'the Owner Profile ID')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -129,7 +129,7 @@ frisby.create('Creates a Context and assigns it to an Assignee, then tries to re
 
 //Tests for filter parameters combinations "isActive", "startDate" and "dueDate"
 frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'owner': {
             'id': 'teacher-id-1',
@@ -261,7 +261,7 @@ var randomAssigneeID = "student_id_" + QuizzesCommon.generateUUID();
 
 //Tests for filter parameters combinations "isActive", "startDate" and "dueDate"
 frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'owner': {
             'id': 'teacher-id-1',
@@ -297,7 +297,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
     .inspectJSON()
     .afterJSON(function () {
         frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
-            .post(QuizzesApiUrl + '/v1/context', {
+            .post(QuizzesApiUrl + '/v1/contexts', {
                 'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
                 'owner': {
                     'id': 'teacher-id-1',
@@ -333,7 +333,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
             .inspectJSON()
             .afterJSON(function () {
                 frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
-                    .post(QuizzesApiUrl + '/v1/context', {
+                    .post(QuizzesApiUrl + '/v1/contexts', {
                         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
                         'owner': {
                             'id': 'teacher-id-1',
