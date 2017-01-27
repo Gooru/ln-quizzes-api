@@ -15,10 +15,13 @@ import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -133,4 +136,5 @@ public class AssessmentService {
         byte[] message = answer.getBytes(StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(message);
     }
+
 }

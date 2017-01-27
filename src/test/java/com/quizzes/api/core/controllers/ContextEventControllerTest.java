@@ -70,7 +70,7 @@ public class ContextEventControllerTest {
         collection.setId(String.valueOf(collectionId));
 
         //Setting Answers
-        AnswerDto answerDto = new AnswerDto(Base64.getEncoder().encode(answer.getId().getBytes()));
+        AnswerDto answerDto = new AnswerDto();
         answerDto.setValue("A");
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answerDto);
@@ -164,7 +164,7 @@ public class ContextEventControllerTest {
         collectionDto.setId(collectionId.toString());
 
         //Setting Answers
-        AnswerDto answerDto = new AnswerDto(Base64.getEncoder().encode(answer.getId().getBytes()));
+        AnswerDto answerDto = new AnswerDto();
         answerDto.setValue("A");
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answerDto);
@@ -234,7 +234,7 @@ public class ContextEventControllerTest {
         collectionDto.setId(collectionId.toString());
 
         //Setting Answers
-        AnswerDto answerDto = new AnswerDto(Base64.getEncoder().encode(answer.getId().getBytes()));
+        AnswerDto answerDto = new AnswerDto();
         List<AnswerDto> answers = new ArrayList<>();
 
         //Setting Events

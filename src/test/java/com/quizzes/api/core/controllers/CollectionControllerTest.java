@@ -45,7 +45,7 @@ public class CollectionControllerTest {
 
     @Test
     public void getCollectionWhenIdExists() throws Exception {
-        AnswerDto answer = new AnswerDto(Base64.getEncoder().encode(answer.getId().getBytes()));
+        AnswerDto answer = new AnswerDto();
         answer.setValue("A");
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answer);

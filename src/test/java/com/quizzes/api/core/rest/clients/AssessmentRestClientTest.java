@@ -1,7 +1,7 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.services.content.ConfigurationService;
+import com.quizzes.api.core.services.ConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -45,8 +45,8 @@ public class AssessmentRestClientTest {
         AssessmentContentDto assessmentDto = new AssessmentContentDto();
         assessmentDto.setId(UUID.randomUUID().toString());
 
-        String url = "/api/nucleus/v1/assessments/" + assessmentDto.getId();
-        doReturn(url).when(configurationService).getAssessmentByIdPath(assessmentDto.getId());
+        String url = "http://www.gooru.org";
+        doReturn(url).when(configurationService).getContentApiUrl();
 
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
@@ -54,8 +54,8 @@ public class AssessmentRestClientTest {
         assessmentRestClient.getAssessment(assessmentDto.getId(), "user-token");
 
         verify(restTemplate, times(1))
-                .exchange(eq(url), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
-        verify(configurationService, times(1)).getAssessmentByIdPath(eq(assessmentDto.getId()));
+                .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
+        verify(configurationService, times(1)).getContentApiUrl();
     }
 
 }

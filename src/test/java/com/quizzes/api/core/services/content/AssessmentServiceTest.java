@@ -30,6 +30,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -180,7 +181,7 @@ public class AssessmentServiceTest {
         assertEquals("Wrong number of choices", 2, result.getChoices().size());
 
         ChoiceDto choiceResult = result.getChoices().get(0);
-        assertEquals("Wrong choice Id", "1", choiceResult.getValue());
+        assertNotNull("Choice Id is null", choiceResult.getValue());
         assertEquals("Wrong sequence", 1, choiceResult.getSequence());
         assertEquals("Wrong text", "text", choiceResult.getText());
         assertTrue("Shuffle is false", choiceResult.getIsFixed());
@@ -197,7 +198,7 @@ public class AssessmentServiceTest {
         assertEquals("Wrong number of answers", 1, result.size());
 
         AnswerDto answerResult = result.get(0);
-        assertEquals("Wrong choice Id", "1", answerResult.getValue());
+        assertNotNull("Wrong choice Id", answerResult.getValue());
     }
 
     @Test

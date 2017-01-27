@@ -855,7 +855,7 @@ public class ContextEventServiceTest {
     }
 
     private AnswerDto createAnswerDto(String answer) {
-        AnswerDto answerDto = new AnswerDto(Base64.getEncoder().encode(answer.getId().getBytes()));
+        AnswerDto answerDto = new AnswerDto(answer);
         answerDto.setValue(answer);
         return answerDto;
     }
