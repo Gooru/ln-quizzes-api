@@ -2,20 +2,17 @@ package com.quizzes.api.core.services.content;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionGetResponseDto;
-import com.quizzes.api.core.dtos.QuestionDataDto;
-import com.quizzes.api.core.dtos.ResourceDto;
+import com.quizzes.api.core.dtos.content.AnswerContentDto;
+import com.quizzes.api.core.dtos.content.AssessmentContentDto;
+import com.quizzes.api.core.dtos.content.QuestionContentDto;
+import com.quizzes.api.core.dtos.content.UserDataTokenDto;
+import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.jooq.enums.ContentProvider;
 import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.core.model.jooq.tables.pojos.Resource;
-//import com.quizzes.api.core.services.ResourceService;
-import com.quizzes.api.core.dtos.content.AnswerDto;
-import com.quizzes.api.core.dtos.content.AssessmentDto;
-import com.quizzes.api.core.dtos.content.QuestionDto;
-import com.quizzes.api.core.dtos.content.UserDataTokenDto;
-import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+//import com.quizzes.api.core.services.ResourceService;
 
 @Service
 public class CollectionService {
@@ -86,14 +85,15 @@ public class CollectionService {
      * Creates a new {@link Collection} in Quizzes based on the content's provider Assessment
      * if the assessment belongs to a different owner then the assessment is copied
      * and the new {@link Collection} is based on that copy
+     *
      * @param externalCollectionId content's provider Assessment ID
-     * @param owner the Quizzes {@link Profile} of the {@link Collection} owner
+     * @param owner                the Quizzes {@link Profile} of the {@link Collection} owner
      * @return the Quizzes new {@link Collection}
      */
     public Collection createCollection(String externalCollectionId, Profile owner) {
         UserDataTokenDto userDataTokenDto = gson.fromJson(owner.getProfileData(), UserDataTokenDto.class);
         String userToken = authenticationRestClient.generateUserToken(userDataTokenDto);
-        AssessmentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId, userToken);
+        AssessmentContentDto assessmentDto = collectionRestClient.getAssessment(externalCollectionId, userToken);
 
         Collection result = null;
         if (assessmentDto.getOwnerId() != null) {
@@ -110,32 +110,34 @@ public class CollectionService {
     /**
      * Copies an Assessment in the content provider and creates a new {@link Collection} in Quizzes
      * based on that copied Assessment
+     *
      * @param assessmentId ID of the Assessment in the content provider
-     * @param ownerId ID of the owner of the {@link Collection} in Quizzes
-     * @param userToken the content provider's authorization token
+     * @param ownerId      ID of the owner of the {@link Collection} in Quizzes
+     * @param userToken    the content provider's authorization token
      * @return the new {@link Collection} in Quizzes
      */
     private Collection createCollectionCopy(String assessmentId, UUID ownerId, String userToken) {
 
         String copiedAssessmentId = collectionRestClient.copyAssessment(assessmentId, userToken);
 
-        AssessmentDto assessmentDto = collectionRestClient.getAssessment(copiedAssessmentId, userToken);
+        AssessmentContentDto assessmentDto = collectionRestClient.getAssessment(copiedAssessmentId, userToken);
 
         return createCollectionFromAssessment(assessmentDto, assessmentId, ownerId);
     }
 
     /**
-     * Creates a new {@link Collection} in Quizzes based on the content's provider {@link AssessmentDto}
+     * Creates a new {@link Collection} in Quizzes based on the content's provider {@link AssessmentContentDto}
      * In the content provider the Assessments can be a copy of another user's Assessment
      * or an original Assessment created by it's owner.
      * If the parent assessment ID is the same as the assessment ID then this is an original assessment,
      * but if the IDs are different then this is a copy of an existing assessment in the content provider
-     * @param assessmentDto content's provider Assessment information
+     *
+     * @param assessmentDto      content's provider Assessment information
      * @param parentAssessmentId ID of the parent Assessment in the content provider
-     * @param ownerId ID of the Quizzes owner
+     * @param ownerId            ID of the Quizzes owner
      * @return The Quizzes {@link Collection}
      */
-    private Collection createCollectionFromAssessment(AssessmentDto assessmentDto, String parentAssessmentId, UUID ownerId){
+    private Collection createCollectionFromAssessment(AssessmentContentDto assessmentDto, String parentAssessmentId, UUID ownerId) {
         Collection collection = new Collection();
         // TODO: The logic to obtain the correct external_id and external_parent_id must be implemented
         collection.setExternalId(assessmentDto.getId());
@@ -155,9 +157,9 @@ public class CollectionService {
         return collection;
     }
 
-    private void copyQuestions(Collection collection, UUID ownerId, List<QuestionDto> questions) {
+    private void copyQuestions(Collection collection, UUID ownerId, List<QuestionContentDto> questions) {
         if (questions != null) {
-            for (QuestionDto questionDto : questions) {
+            for (QuestionContentDto questionDto : questions) {
                 Resource resource = new Resource();
                 resource.setExternalId(questionDto.getId());
                 resource.setContentProvider(ContentProvider.gooru);
@@ -178,7 +180,7 @@ public class CollectionService {
         }
     }
 
-    private Map<String, Object> createInteraction(List<AnswerDto> answers) {
+    private Map<String, Object> createInteraction(List<AnswerContentDto> answers) {
         Map<String, Object> interactionDataMap = new HashMap<>();
         interactionDataMap.put(INTERACTION_SHUFFLE, false);
         interactionDataMap.put(INTERACTION_MAX_CHOICES, 0);
@@ -210,7 +212,7 @@ public class CollectionService {
         return mappedType;
     }
 
-    private List<Map<String, String>> getCorrectAnswers(List<AnswerDto> answers) {
+    private List<Map<String, String>> getCorrectAnswers(List<AnswerContentDto> answers) {
         List<Map<String, String>> correctAnswers = new ArrayList<>();
         if (answers != null) {
             correctAnswers = answers.stream()

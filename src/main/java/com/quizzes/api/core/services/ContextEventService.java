@@ -87,8 +87,8 @@ public class ContextEventService {
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
         ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
-        QuestionDataDto previousResourceData =
-                gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
+        ResourceMetadataDto previousResourceData =
+                gson.fromJson(previousResource.getResourceData(), ResourceMetadataDto.class);
 
         // Calculates provided answer score
         if (!resourceDto.getAnswer().isEmpty()) {

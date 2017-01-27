@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
-public class AnswerDto {
+public class AnswerContentDto {
 
     @SerializedName("answer_text")
     private String answerText;
@@ -19,7 +19,7 @@ public class AnswerDto {
 
     private int sequence;
 
-    public AnswerDto() {
+    public AnswerContentDto() {
         this.id = String.valueOf(UUID.randomUUID());
     }
 

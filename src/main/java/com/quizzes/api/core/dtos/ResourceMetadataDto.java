@@ -2,7 +2,7 @@ package com.quizzes.api.core.dtos;
 
 import java.util.List;
 
-public class QuestionDataDto {
+public class ResourceMetadataDto {
 
     private String title;
     private String type;
@@ -10,7 +10,7 @@ public class QuestionDataDto {
     private String body;
     private InteractionDto interaction;
 
-    public QuestionDataDto() {
+    public ResourceMetadataDto() {
     }
 
     public String getTitle() {

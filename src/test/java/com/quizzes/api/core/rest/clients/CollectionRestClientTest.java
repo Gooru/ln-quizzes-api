@@ -1,6 +1,6 @@
 package com.quizzes.api.core.rest.clients;
 
-import com.quizzes.api.core.dtos.content.AssessmentDto;
+import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -42,23 +42,23 @@ public class CollectionRestClientTest {
 
     @Test
     public void getAssessment() throws Exception {
-        AssessmentDto assessmentDto = new AssessmentDto();
+        AssessmentContentDto assessmentDto = new AssessmentContentDto();
         assessmentDto.setId(UUID.randomUUID().toString());
 
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
-                .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentDto.class));
+                .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
 
         collectionRestClient.getAssessment(assessmentDto.getId(), "user-token");
 
         verify(restTemplate, times(1))
                 .exchange(eq(contentApiUrl + "/api/nucleus/v1/assessments/" + assessmentDto.getId()),
-                        eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentDto.class));
+                        eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
     }
 
     @Test
     public void copyAssessment() throws Exception {
         String anonymousToken = UUID.randomUUID().toString();
-        AssessmentDto assessmentDto = new AssessmentDto();
+        AssessmentContentDto assessmentDto = new AssessmentContentDto();
         assessmentDto.setId(UUID.randomUUID().toString());
 
         doReturn(new URI(UUID.randomUUID().toString())).when(restTemplate)

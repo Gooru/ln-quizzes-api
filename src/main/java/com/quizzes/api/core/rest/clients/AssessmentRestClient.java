@@ -1,7 +1,6 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
@@ -18,11 +17,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.util.Arrays;
 
 @Component
-public class CollectionRestClient {
+public class AssessmentRestClient {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String API_URL = "/api/nucleus/v1/";
@@ -70,34 +68,6 @@ public class CollectionRestClient {
         }
     }
 
-    public String copyAssessment(String assessmentId, String token) {
-        String endpointUrl = getContentApiUrl() + ASSESSMENTS_COPIER_PATH;
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("POST Request to: " + endpointUrl);
-        }
-
-        try {
-            HttpHeaders headers = getHttpHeaders(token);
-            HttpEntity<JsonObject> entity = new HttpEntity<>(new JsonObject(), headers);
-
-            URI location = restTemplate.postForLocation(endpointUrl, entity, assessmentId);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Response from: " + endpointUrl);
-                logger.debug("Copy Assessment Location: " + location);
-            }
-
-            return location.toString();
-        } catch (RestClientException rce) {
-            logger.error("Gooru Assessment '" + assessmentId + "' could not be copied.", rce);
-            throw new ContentProviderException("Assessment " + assessmentId + " could not be copied.", rce);
-        } catch (Exception e) {
-            logger.error("Gooru Assessment copy '" + assessmentId + "' could not be processed.", e);
-            throw new InternalServerException("Assessment copy " + assessmentId + " could not be processed.", e);
-        }
-    }
-
     private HttpHeaders getHttpHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
@@ -114,3 +84,4 @@ public class CollectionRestClient {
         return contentApiUrl;
     }
 }
+

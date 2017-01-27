@@ -1,13 +1,13 @@
 package com.quizzes.api.core.dtos.content;
 
-public class CollectionDto {
+public class CollectionContentDto {
 
     private String id;
 
     private String title;
 
 
-    public CollectionDto() {
+    public CollectionContentDto() {
     }
 
     public String getId() {
