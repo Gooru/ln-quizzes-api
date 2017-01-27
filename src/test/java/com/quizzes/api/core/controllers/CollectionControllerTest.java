@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,7 +45,7 @@ public class CollectionControllerTest {
 
     @Test
     public void getCollectionWhenIdExists() throws Exception {
-        AnswerDto answer = new AnswerDto();
+        AnswerDto answer = new AnswerDto(Base64.getEncoder().encode(answer.getId().getBytes()));
         answer.setValue("A");
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answer);

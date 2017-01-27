@@ -2,8 +2,6 @@ package com.quizzes.api.core.dtos.content;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.UUID;
-
 public class AnswerContentDto {
 
     @SerializedName("answer_text")
@@ -20,7 +18,6 @@ public class AnswerContentDto {
     private int sequence;
 
     public AnswerContentDto() {
-        this.id = String.valueOf(UUID.randomUUID());
     }
 
     public String getAnswerText() {

@@ -17,7 +17,9 @@ import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +104,7 @@ public class AssessmentService {
         if (answers != null) {
             correctAnswers = answers.stream()
                     .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
-                    .map(answer -> new AnswerDto(answer.getId()))
+                    .map(answer -> new AnswerDto(encodeAnswer(answer.getAnswerText())))
                     .collect(Collectors.toList());
         }
         return correctAnswers;
@@ -113,7 +115,7 @@ public class AssessmentService {
             ChoiceDto choiceDto = new ChoiceDto();
             choiceDto.setFixed(true);
             choiceDto.setText(answer.getAnswerText());
-            choiceDto.setValue(answer.getId());
+            choiceDto.setValue(encodeAnswer(answer.getAnswerText()));
             choiceDto.setSequence(answer.getSequence());
             return choiceDto;
         }).collect(Collectors.toList());
@@ -125,5 +127,10 @@ public class AssessmentService {
         interactionDto.setChoices(choices);
 
         return interactionDto;
+    }
+
+    private String encodeAnswer(String answer) {
+        byte[] message = answer.getBytes(StandardCharsets.UTF_8);
+        return Base64.getEncoder().encodeToString(message);
     }
 }
