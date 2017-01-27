@@ -8,7 +8,7 @@ import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileEventResponseDto;
-import com.quizzes.api.core.dtos.QuestionDataDto;
+import com.quizzes.api.core.dtos.QuestionMetadataDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
@@ -36,6 +36,7 @@ import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -304,8 +305,8 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
-        previousResource.setResourceData(gson.toJson(questionDataDto));
+        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        previousResource.setResourceData(gson.toJson(questionMetadataDto));
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
@@ -358,11 +359,11 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
-        previousResource.setResourceData(gson.toJson(questionDataDto));
+        previousResource.setResourceData(gson.toJson(questionMetadataDto));
 
         OnResourceEventPostRequestDto body = createOnResourceEventPostRequestDto();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
@@ -381,7 +382,7 @@ public class ContextEventServiceTest {
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
         doReturn(100).when(contextEventService, "calculateScoreByQuestionType",
-                eq(questionDataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
                 .when(contextEventService, "createContextProfileEvent", contextProfileId, previousResourceId);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
@@ -396,7 +397,7 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
-                eq(questionDataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent",
                 contextProfileId, previousResourceId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
@@ -854,7 +855,7 @@ public class ContextEventServiceTest {
     }
 
     private AnswerDto createAnswerDto(String answer) {
-        AnswerDto answerDto = new AnswerDto();
+        AnswerDto answerDto = new AnswerDto(answer);
         answerDto.setValue(answer);
         return answerDto;
     }
@@ -891,11 +892,11 @@ public class ContextEventServiceTest {
         return body;
     }
 
-    private QuestionDataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
-        QuestionDataDto questionDataDto = new QuestionDataDto();
-        questionDataDto.setCorrectAnswer(answers);
-        questionDataDto.setType(questionType);
-        return questionDataDto;
+    private QuestionMetadataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
+        QuestionMetadataDto questionMetadataDto = new QuestionMetadataDto();
+        questionMetadataDto.setCorrectAnswer(answers);
+        questionMetadataDto.setType(questionType);
+        return questionMetadataDto;
     }
 
 }
