@@ -184,6 +184,25 @@ var quizzesCommon = {
                 afterJsonFunction(afterJsonFunction);
             })
             .toss()
+    },
+
+    verifyContentNotFound: function(url, headerProfileId, title, lms){
+        frisby.create(title + ' throws ContentNotFoundException')
+            .get(QuizzesApiUrl + url)
+            .addHeader('profile-id', headerProfileId)
+            .addHeader('lms-id', lms)
+            .inspectRequest()
+            .expectStatus(404)
+            .inspectJSON()
+            .expectJSON({
+                "status": 404
+            })
+            .expectJSONTypes({
+                message: String,
+                status: Number,
+                exception: String
+            })
+            .toss();
     }
 };
 
