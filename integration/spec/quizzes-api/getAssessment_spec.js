@@ -5,8 +5,6 @@ var frisby = require('frisby');
 QuizzesCommon.startTest("Get Assessment Endpoint", function () {
     frisby.create('Call Get Assessment Endpoint')
         .get(QuizzesApiUrl + '/v1/assessments/84e1c431-eb14-49f1-bba2-bba21bdd8c77')
-        .addHeader('profile-id', QuizzesCommon.generateUUID())
-        .addHeader('client-id', 'quizzes')
         .inspectRequest()
 
         .expectStatus(200)
@@ -302,6 +300,5 @@ QuizzesCommon.startTest("Get Assessment Endpoint", function () {
 });
 
 QuizzesCommon.startTest("Get Assessment Endpoint", function () {
-    QuizzesCommon.verifyContentNotFound('/v1/assessments/' + QuizzesCommon.generateUUID(),
-        QuizzesCommon.generateUUID(), "Call Get Assessment Endpoint", "quizzes");
+    QuizzesCommon.verifyContentNotFound('/v1/assessments/' + QuizzesCommon.generateUUID(), "Call Get Assessment Endpoint");
 });

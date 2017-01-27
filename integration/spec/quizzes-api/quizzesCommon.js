@@ -186,11 +186,9 @@ var quizzesCommon = {
             .toss()
     },
 
-    verifyContentNotFound: function(url, headerProfileId, title, lms){
+    verifyContentNotFound: function(url, title){
         frisby.create(title + ' throws ContentNotFoundException')
             .get(QuizzesApiUrl + url)
-            .addHeader('profile-id', headerProfileId)
-            .addHeader('lms-id', lms)
             .inspectRequest()
             .expectStatus(404)
             .inspectJSON()
