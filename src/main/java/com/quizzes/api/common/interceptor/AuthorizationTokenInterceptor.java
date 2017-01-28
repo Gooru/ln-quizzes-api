@@ -1,6 +1,9 @@
 package com.quizzes.api.common.interceptor;
 
+import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
+import com.quizzes.api.core.exceptions.InvalidCredentialsException;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,16 +12,14 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @Component
 public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    AuthenticationRestClient authenticationRestClient;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -27,9 +28,13 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
         if (authorization != null) {
             String token = getToken(authorization);
 
-            Map<String,String> decodedToken = decodeToken(token);
-            request.setAttribute("profileId", decodedToken.get("profile-id"));
-            request.setAttribute("clientId", decodedToken.get("client-id"));
+            AccessTokenResponseDto accessTokenResponseDto = authenticationRestClient.verifyUserToken(token) ;
+
+            request.setAttribute("profileId", accessTokenResponseDto.getUserId());
+            request.setAttribute("clientId", accessTokenResponseDto.getClientId());
+            if (accessTokenResponseDto.getUserId().equals("anonymous")) {
+                throw new InvalidCredentialsException("anonymous user is not supported");
+            }
         }
         return true;
     }
@@ -44,24 +49,5 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
             throw new InvalidSessionException("Wrong Authorization value, it must contain: Token <token>");
         }
         return sessionToken[1];
-    }
-
-    private Map<String, String> decodeToken(String token) throws InvalidSessionException {
-        Map<String,String> result = new HashMap<>();
-        try {
-            byte[] decodedToken = Base64.getDecoder().decode(token);
-            String utf8Token = new String(decodedToken, "utf-8");
-            String[] splittedToken = utf8Token.split(":");
-            result.put("timestamp", splittedToken[0]);
-            result.put("profile-id", splittedToken[1]);
-            result.put("client-id", splittedToken[2]);
-        }
-        catch (UnsupportedEncodingException uee) {
-            throw new InvalidSessionException("Wrong Authorization Token " + token);
-        }
-        catch (IllegalArgumentException iae) {
-            throw new InvalidSessionException("Wrong Authorization Token " + token);
-        }
-        return result;
     }
 }

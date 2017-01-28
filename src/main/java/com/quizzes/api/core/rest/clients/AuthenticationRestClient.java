@@ -1,19 +1,30 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
+import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.dtos.content.TokenRequestDto;
 import com.quizzes.api.core.dtos.content.TokenResponseDto;
 import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.dtos.content.UserTokenRequestDto;
+import com.quizzes.api.core.exceptions.InvalidSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Arrays;
 
 @Component
 public class AuthenticationRestClient {
@@ -71,6 +82,41 @@ public class AuthenticationRestClient {
         }
     }
 
+    public AccessTokenResponseDto verifyUserToken(String token) {
+        String endpointUrl = getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
+
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("GET Request to: " + endpointUrl);
+            logger.debug("Header: Authorization Token " + token);
+        }
+
+        try {
+            HttpHeaders headers = getHttpHeaders(token);
+            HttpEntity entity = new HttpEntity(headers);
+            ResponseEntity<AccessTokenResponseDto> responseEntity =
+                    restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AccessTokenResponseDto.class);
+            AccessTokenResponseDto accessTokenResponseDto = responseEntity.getBody();
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Response from: " + endpointUrl);
+                logger.debug("Body: " + gsonPretty.toJson(accessTokenResponseDto));
+            }
+
+            return accessTokenResponseDto;
+        } catch (RestClientException rce) {
+            if (rce instanceof HttpClientErrorException &&
+                    ((HttpClientErrorException) rce).getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+                throw new InvalidSessionException("Unauthorized Token " + token + "", rce);
+            }
+            logger.error("Gooru Token '" + token + "' is not valid.", rce);
+            throw new ContentProviderException("Gooru Token " + token + " is not valid.", rce);
+        } catch (Exception e) {
+            logger.error("Gooru Token validation '" + token + "' could not be processed.", e);
+            throw new InternalServerException("Gooru Token validation " + token + " could not be processed.", e);
+        }
+    }
+
     public String generateAnonymousToken() {
         String endpointUrl = getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
         TokenRequestDto tokenRequest = new TokenRequestDto();
@@ -100,6 +146,18 @@ public class AuthenticationRestClient {
             logger.error("Anonymous token could not be generated.", e);
             throw new InternalServerException("Anonymous token could not be generated.", e);
         }
+    }
+
+    private HttpHeaders getHttpHeaders(String token){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        headers.set("Authorization", "Token " + token);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Headers: " + gsonPretty.toJson(headers));
+        }
+
+        return headers;
     }
 
     public String getContentApiUrl() {
