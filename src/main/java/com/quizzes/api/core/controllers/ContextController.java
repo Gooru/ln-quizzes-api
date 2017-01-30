@@ -6,7 +6,6 @@ import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.CreatedContextGetResponseDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
-import com.quizzes.api.core.model.jooq.enums.Lms;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.services.ContextService;
 import io.swagger.annotations.ApiOperation;
@@ -74,7 +73,7 @@ public class ContextController {
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, Lms.valueOf(lmsId));
+        IdResponseDto result = contextService.createContext(contextPostRequestDto);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -176,7 +175,7 @@ public class ContextController {
             @ApiParam(name = "profile-id", required = true, value = "Context's owner profile ID")
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-        Context context = contextService.update(contextId, profileId, contextPutRequestDto, Lms.valueOf(lmsId));
+        Context context = contextService.update(contextId, profileId, contextPutRequestDto);
 
         if (context == null || context.getId() == null) {
             throw new IllegalArgumentException("Error trying to get the updated context");

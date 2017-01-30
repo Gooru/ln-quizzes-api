@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.routines;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class _UpdateUpdatedAt extends org.jooq.impl.AbstractRoutine<java.lang.Object> {
 
-	private static final long serialVersionUID = 605388606;
+	private static final long serialVersionUID = -57064618;
 
 	/**
 	 * The parameter <code>public._update_updated_at.RETURN_VALUE</code>.

@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile extends org.jooq.impl.TableImpl<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord> {
 
-	private static final long serialVersionUID = -491154631;
+	private static final long serialVersionUID = 1286774685;
 
 	/**
 	 * The singleton instance of <code>public.context_profile</code>
@@ -40,14 +40,19 @@ public class ContextProfile extends org.jooq.impl.TableImpl<com.quizzes.api.core
 	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.util.UUID> PROFILE_ID = createField("profile_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
 
 	/**
-	 * The column <code>public.context_profile.current_resource_id</code>.
+	 * The column <code>public.context_profile.current_content_id</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.util.UUID> CURRENT_RESOURCE_ID = createField("current_resource_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
+	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.util.UUID> CURRENT_CONTENT_ID = createField("current_content_id", org.jooq.impl.SQLDataType.UUID, this, "");
 
 	/**
 	 * The column <code>public.context_profile.is_complete</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.lang.Boolean> IS_COMPLETE = createField("is_complete", org.jooq.impl.SQLDataType.BOOLEAN.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>public.context_profile.event_summary_data</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.lang.String> EVENT_SUMMARY_DATA = createField("event_summary_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.core.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.context_profile.created_at</code>.
@@ -58,11 +63,6 @@ public class ContextProfile extends org.jooq.impl.TableImpl<com.quizzes.api.core
 	 * The column <code>public.context_profile.updated_at</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.sql.Timestamp> UPDATED_AT = createField("updated_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
-
-	/**
-	 * The column <code>public.context_profile.event_summary_data</code>.
-	 */
-	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.lang.String> EVENT_SUMMARY_DATA = createField("event_summary_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.core.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * Create a <code>public.context_profile</code> table reference

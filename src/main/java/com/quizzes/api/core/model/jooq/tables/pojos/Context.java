@@ -9,37 +9,46 @@ package com.quizzes.api.core.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1421382508;
+	private static final long serialVersionUID = 490423466;
 
 	private java.util.UUID     id;
-	private java.util.UUID     groupId;
 	private java.util.UUID     collectionId;
+	private java.util.UUID     profileId;
+	private java.util.UUID     classId;
 	private java.lang.String   contextData;
+	private java.lang.Boolean  isActive;
+	private java.sql.Timestamp startDate;
+	private java.sql.Timestamp dueDate;
 	private java.lang.Boolean  isDeleted;
 	private java.sql.Timestamp createdAt;
 	private java.sql.Timestamp updatedAt;
-	private java.lang.Boolean  isActive;
 
 	public Context() {}
 
 	public Context(
 		java.util.UUID     id,
-		java.util.UUID     groupId,
 		java.util.UUID     collectionId,
+		java.util.UUID     profileId,
+		java.util.UUID     classId,
 		java.lang.String   contextData,
+		java.lang.Boolean  isActive,
+		java.sql.Timestamp startDate,
+		java.sql.Timestamp dueDate,
 		java.lang.Boolean  isDeleted,
 		java.sql.Timestamp createdAt,
-		java.sql.Timestamp updatedAt,
-		java.lang.Boolean  isActive
+		java.sql.Timestamp updatedAt
 	) {
 		this.id = id;
-		this.groupId = groupId;
 		this.collectionId = collectionId;
+		this.profileId = profileId;
+		this.classId = classId;
 		this.contextData = contextData;
+		this.isActive = isActive;
+		this.startDate = startDate;
+		this.dueDate = dueDate;
 		this.isDeleted = isDeleted;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
-		this.isActive = isActive;
 	}
 
 	public java.util.UUID getId() {
@@ -50,14 +59,6 @@ public class Context implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public java.util.UUID getGroupId() {
-		return this.groupId;
-	}
-
-	public void setGroupId(java.util.UUID groupId) {
-		this.groupId = groupId;
-	}
-
 	public java.util.UUID getCollectionId() {
 		return this.collectionId;
 	}
@@ -66,12 +67,52 @@ public class Context implements java.io.Serializable {
 		this.collectionId = collectionId;
 	}
 
+	public java.util.UUID getProfileId() {
+		return this.profileId;
+	}
+
+	public void setProfileId(java.util.UUID profileId) {
+		this.profileId = profileId;
+	}
+
+	public java.util.UUID getClassId() {
+		return this.classId;
+	}
+
+	public void setClassId(java.util.UUID classId) {
+		this.classId = classId;
+	}
+
 	public java.lang.String getContextData() {
 		return this.contextData;
 	}
 
 	public void setContextData(java.lang.String contextData) {
 		this.contextData = contextData;
+	}
+
+	public java.lang.Boolean getIsActive() {
+		return this.isActive;
+	}
+
+	public void setIsActive(java.lang.Boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public java.sql.Timestamp getStartDate() {
+		return this.startDate;
+	}
+
+	public void setStartDate(java.sql.Timestamp startDate) {
+		this.startDate = startDate;
+	}
+
+	public java.sql.Timestamp getDueDate() {
+		return this.dueDate;
+	}
+
+	public void setDueDate(java.sql.Timestamp dueDate) {
+		this.dueDate = dueDate;
 	}
 
 	public java.lang.Boolean getIsDeleted() {
@@ -96,13 +137,5 @@ public class Context implements java.io.Serializable {
 
 	public void setUpdatedAt(java.sql.Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
-	}
-
-	public java.lang.Boolean getIsActive() {
-		return this.isActive;
-	}
-
-	public void setIsActive(java.lang.Boolean isActive) {
-		this.isActive = isActive;
 	}
 }
