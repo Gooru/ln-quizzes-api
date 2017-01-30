@@ -30,7 +30,7 @@ This project follows the project structure suggested by Gradle and required by S
 
 ## Prerequisites
 Some prerequisites to start up the RESTful API server are:
-* Install ActiveMQ server. 
+* Install ActiveMQ server.
 * `[activemq_install_dir]/bin/activemq console` to start up ActiveMQ server.
 * Install and start up PostgreSQL server.
 * `psql -U postgres -c 'CREATE DATABASE quizzes;'` to create Quizzes database.
@@ -59,3 +59,13 @@ To start up the server there are several options:
 
 ## RESTful API Documentation with Swagger
 * To see the RESTful API documentation you can access this url `http://localhost:8080/swagger-ui.html`
+
+## Docker and Docker-Compose
+Docker and Docker-Compose can be use to run the application without installing its dependencies (PostgreSQL and ActiveMQ).
+
+### Prerequisites
+
+- Docker ([Linux](https://docs.docker.com/engine/installation/linux/ubuntulinux/), [Mac](https://docs.docker.com/docker-for-mac/))
+- [Docker-Compose](https://docs.docker.com/compose/install/)
+
+`docker-compose up`
