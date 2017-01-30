@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileEvent extends org.jooq.impl.TableImpl<com.quizzes.api.core.model.jooq.tables.records.ContextProfileEventRecord> {
 
-	private static final long serialVersionUID = 1141050279;
+	private static final long serialVersionUID = 879057306;
 
 	/**
 	 * The singleton instance of <code>public.context_profile_event</code>
@@ -35,9 +35,9 @@ public class ContextProfileEvent extends org.jooq.impl.TableImpl<com.quizzes.api
 	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileEventRecord, java.util.UUID> CONTEXT_PROFILE_ID = createField("context_profile_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
 
 	/**
-	 * The column <code>public.context_profile_event.resource_id</code>.
+	 * The column <code>public.context_profile_event.content_id</code>.
 	 */
-	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileEventRecord, java.util.UUID> RESOURCE_ID = createField("resource_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
+	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileEventRecord, java.util.UUID> CONTENT_ID = createField("content_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
 
 	/**
 	 * The column <code>public.context_profile_event.event_data</code>.

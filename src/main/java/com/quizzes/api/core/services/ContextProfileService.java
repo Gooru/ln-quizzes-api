@@ -36,10 +36,6 @@ public class ContextProfileService {
         return contextProfileRepository.findContextProfileIdsByContextId(contextId);
     }
 
-    public void delete(UUID id) {
-        contextProfileRepository.delete(id);
-    }
-
     public ContextProfile save(ContextProfile contextProfile) {
         return contextProfileRepository.save(contextProfile);
     }

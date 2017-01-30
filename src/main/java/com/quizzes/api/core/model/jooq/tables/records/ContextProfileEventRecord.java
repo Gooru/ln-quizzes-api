@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileEventRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.core.model.jooq.tables.records.ContextProfileEventRecord> implements org.jooq.Record5<java.util.UUID, java.util.UUID, java.util.UUID, java.lang.String, java.sql.Timestamp> {
 
-	private static final long serialVersionUID = 1779640709;
+	private static final long serialVersionUID = -724353288;
 
 	/**
 	 * Setter for <code>public.context_profile_event.id</code>.
@@ -40,16 +40,16 @@ public class ContextProfileEventRecord extends org.jooq.impl.TableRecordImpl<com
 	}
 
 	/**
-	 * Setter for <code>public.context_profile_event.resource_id</code>.
+	 * Setter for <code>public.context_profile_event.content_id</code>.
 	 */
-	public void setResourceId(java.util.UUID value) {
+	public void setContentId(java.util.UUID value) {
 		setValue(2, value);
 	}
 
 	/**
-	 * Getter for <code>public.context_profile_event.resource_id</code>.
+	 * Getter for <code>public.context_profile_event.content_id</code>.
 	 */
-	public java.util.UUID getResourceId() {
+	public java.util.UUID getContentId() {
 		return (java.util.UUID) getValue(2);
 	}
 
@@ -122,7 +122,7 @@ public class ContextProfileEventRecord extends org.jooq.impl.TableRecordImpl<com
 	 */
 	@Override
 	public org.jooq.Field<java.util.UUID> field3() {
-		return com.quizzes.api.core.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT.RESOURCE_ID;
+		return com.quizzes.api.core.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT.CONTENT_ID;
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class ContextProfileEventRecord extends org.jooq.impl.TableRecordImpl<com
 	 */
 	@Override
 	public java.util.UUID value3() {
-		return getResourceId();
+		return getContentId();
 	}
 
 	/**
@@ -204,7 +204,7 @@ public class ContextProfileEventRecord extends org.jooq.impl.TableRecordImpl<com
 	 */
 	@Override
 	public ContextProfileEventRecord value3(java.util.UUID value) {
-		setResourceId(value);
+		setContentId(value);
 		return this;
 	}
 
@@ -248,12 +248,12 @@ public class ContextProfileEventRecord extends org.jooq.impl.TableRecordImpl<com
 	/**
 	 * Create a detached, initialised ContextProfileEventRecord
 	 */
-	public ContextProfileEventRecord(java.util.UUID id, java.util.UUID contextProfileId, java.util.UUID resourceId, java.lang.String eventData, java.sql.Timestamp createdAt) {
+	public ContextProfileEventRecord(java.util.UUID id, java.util.UUID contextProfileId, java.util.UUID contentId, java.lang.String eventData, java.sql.Timestamp createdAt) {
 		super(com.quizzes.api.core.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT);
 
 		setValue(0, id);
 		setValue(1, contextProfileId);
-		setValue(2, resourceId);
+		setValue(2, contentId);
 		setValue(3, eventData);
 		setValue(4, createdAt);
 	}

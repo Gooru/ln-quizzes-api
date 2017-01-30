@@ -14,12 +14,7 @@ import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.jooq.enums.Lms;
-import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
-import com.quizzes.api.core.model.jooq.tables.pojos.Group;
-import com.quizzes.api.core.model.jooq.tables.pojos.GroupProfile;
-import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.junit.Before;
@@ -117,23 +112,9 @@ public class ContextServiceTest {
         assignees.add(profile2);
         contextPostRequestDto.setAssignees(assignees);
 
-        Lms lms = Lms.its_learning;
-
-        Profile profileResponse = new Profile();
-        UUID profileResponseId = UUID.randomUUID();
-        profileResponse.setId(profileResponseId);
-
-        Collection collectionResult = new Collection();
-        collectionResult.setId(UUID.randomUUID());
-        collectionResult.setOwnerProfileId(UUID.randomUUID());
-
-        Group groupResult = new Group();
-        groupResult.setId(UUID.randomUUID());
-
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
-        contextResult.setCollectionId(collectionResult.getId());
-        contextResult.setGroupId(groupResult.getId());
+        contextResult.setCollectionId(UUID.randomUUID());
         contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
         contextResult.setIsDeleted(false);
         contextResult.setIsActive(true);
@@ -143,7 +124,7 @@ public class ContextServiceTest {
         //when(collectionContentService.createCollection(any(String.class), any(Profile.class)))
         //        .thenReturn(collectionResult);
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto);
 
         verify(contextRepository, times(1)).save(any(Context.class));
         //verify(collectionContentService, times(1)).createCollection(any(String.class), any(Profile.class));
@@ -179,34 +160,16 @@ public class ContextServiceTest {
         assignees.add(profile2);
         contextPostRequestDto.setAssignees(assignees);
 
-        Lms lms = Lms.its_learning;
-
-        //This means that the collection exists
-        Collection collectionResult = new Collection();
-        collectionResult.setId(UUID.randomUUID());
-        UUID ownerProfileID = UUID.randomUUID();
-        collectionResult.setOwnerProfileId(ownerProfileID);
-
-        //We create a new group for this new context
-        Group groupResult = new Group();
-        groupResult.setId(UUID.randomUUID());
-
-        //We assume all the profiles exists
-        //it doesn't matter if the profiles exists in this test or should be created
-        Profile profileResponse = new Profile();
-        profileResponse.setId(ownerProfileID);
-
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
-        contextResult.setCollectionId(collectionResult.getId());
-        contextResult.setGroupId(groupResult.getId());
+        contextResult.setCollectionId(UUID.randomUUID());
         contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
         contextResult.setIsDeleted(false);
         contextResult.setIsActive(true);
 
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto);
 
         //Creates the new group
         //Adds the 2 Assignees to the new roup
@@ -243,34 +206,17 @@ public class ContextServiceTest {
         assignees.add(profile2);
         contextPostRequestDto.setAssignees(assignees);
 
-        Lms lms = Lms.its_learning;
-
-        //This means that the collection exists
-        Collection parentCollectionResult = new Collection();
-        parentCollectionResult.setId(UUID.randomUUID());
-        UUID ownerProfileID = UUID.randomUUID();
-        parentCollectionResult.setOwnerProfileId(ownerProfileID);
-
-        //We create a new group for this new context
-        Group groupResult = new Group();
-        groupResult.setId(UUID.randomUUID());
-
-        //We assume all the profiles exists
-        //it doesn't matter if the profiles exists in this test or should be created
-        Profile profileResponse = new Profile();
-        profileResponse.setId(ownerProfileID);
 
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
-        contextResult.setCollectionId(parentCollectionResult.getId());
-        contextResult.setGroupId(groupResult.getId());
+        contextResult.setCollectionId(UUID.randomUUID());
         contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
         contextResult.setIsDeleted(false);
         contextResult.setIsActive(true);
 
         when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto);
 
         //Creates the new group
         //Adds the 2 Assignees to the new roup
@@ -302,23 +248,9 @@ public class ContextServiceTest {
         assignees.add(profile1);
         contextPostRequestDto.setAssignees(assignees);
 
-        Lms lms = Lms.its_learning;
-
-        Profile profileResponse = new Profile();
-        UUID profileResponseId = UUID.randomUUID();
-        profileResponse.setId(profileResponseId);
-
-        Collection collectionResult = new Collection();
-        collectionResult.setId(UUID.randomUUID());
-        collectionResult.setOwnerProfileId(UUID.randomUUID());
-
-        Group groupResult = new Group();
-        groupResult.setId(UUID.randomUUID());
-
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
-        contextResult.setCollectionId(collectionResult.getId());
-        contextResult.setGroupId(groupResult.getId());
+        contextResult.setCollectionId(UUID.randomUUID());
         contextResult.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
         contextResult.setIsDeleted(false);
         contextResult.setIsActive(true);
@@ -334,7 +266,7 @@ public class ContextServiceTest {
         anyProfile.setLastName("Borges");
         anyProfile.setUsername("cborges");
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, lms);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto);
 
         verify(contextRepository, times(1)).save(any(Context.class));
         //verify(collectionContentService, times(1)).createCollection(any(String.class), any(Profile.class));
@@ -347,7 +279,6 @@ public class ContextServiceTest {
     public void findById() {
         Context contextResult = new Context();
         contextResult.setId(contextId);
-        contextResult.setGroupId(groupId);
         contextResult.setCollectionId(collectionId);
         contextResult.setContextData("{\"context\":\"value\"}");
         contextResult.setIsDeleted(false);
@@ -359,7 +290,6 @@ public class ContextServiceTest {
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextId, result.getId());
         assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
-        assertEquals("Wrong id for group", groupId, result.getGroupId());
     }
 
     @Test(expected = ContentNotFoundException.class)
@@ -380,7 +310,6 @@ public class ContextServiceTest {
         assertNotNull("Context is null", context);
         assertEquals("Wrong id for context", contextOwnerEntityMock.getId(), context.getId());
         assertEquals("Wrong id for collection", contextOwnerEntityMock.getCollectionId(), context.getCollectionId());
-        assertEquals("Wrong id for group", contextOwnerEntityMock.getGroupId(), context.getGroupId());
     }
 
     @Test(expected = ContentNotFoundException.class)
@@ -443,17 +372,6 @@ public class ContextServiceTest {
 
         when(contextRepository.save(any(Context.class))).thenReturn(context);
 
-        List<GroupProfile> assignedGroupProfiles = new ArrayList<>();
-        GroupProfile groupProfile1 = new GroupProfile();
-        groupProfile1.setGroupId(groupId);
-        groupProfile1.setId(UUID.randomUUID());
-        groupProfile1.setProfileId(UUID.randomUUID());
-        GroupProfile groupProfile2 = new GroupProfile();
-        groupProfile2.setGroupId(groupId);
-        groupProfile2.setId(UUID.randomUUID());
-        groupProfile2.setProfileId(UUID.randomUUID());
-        assignedGroupProfiles.add(groupProfile1);
-        assignedGroupProfiles.add(groupProfile2);
 
         ProfileDto profileDto = new ProfileDto();
         profileDto.setId(UUID.randomUUID().toString());
@@ -461,8 +379,7 @@ public class ContextServiceTest {
         profileDto.setLastName("Navas");
         profileDto.setUsername("knavas");
 
-        Context updatedContext = contextService.update(UUID.randomUUID(), UUID.randomUUID(), contextDataMock,
-                Lms.its_learning);
+        Context updatedContext = contextService.update(UUID.randomUUID(), UUID.randomUUID(), contextDataMock);
         context.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
 
         verify(contextRepository, times(1)).save(any(Context.class));
@@ -471,7 +388,6 @@ public class ContextServiceTest {
         assertEquals("Wrong id for context", context.getId(), updatedContext.getId());
         assertEquals("Wrong id for collection", context.getCollectionId(),
                 updatedContext.getCollectionId());
-        assertEquals("Wrong id for group", context.getGroupId(), updatedContext.getGroupId());
         assertEquals("Wrong context data", context.getContextData(), updatedContext.getContextData());
     }
 
@@ -480,7 +396,7 @@ public class ContextServiceTest {
     public void updateThrowsContentNotFoundException() {
         doThrow(ContentNotFoundException.class)
                 .when(contextService).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
-        contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
+        contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto());
     }
 
     @Ignore
@@ -488,7 +404,7 @@ public class ContextServiceTest {
     public void updateThrowsInvalidOwnerException() {
         doThrow(InvalidOwnerException.class)
                 .when(contextService).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
-        contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto(), Lms.its_learning);
+        contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto());
     }
 
     @Test
@@ -708,7 +624,6 @@ public class ContextServiceTest {
                 "}";
         context.setId(contextId);
         context.setCollectionId(collectionId);
-        context.setGroupId(groupId);
         context.setContextData(contextData);
         context.setCreatedAt(createdAt);
         return context;
