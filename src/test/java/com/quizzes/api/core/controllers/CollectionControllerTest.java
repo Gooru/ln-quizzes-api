@@ -2,23 +2,25 @@ package com.quizzes.api.core.controllers;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.CollectionGetResponseDto;
-import com.quizzes.api.core.dtos.QuestionMetadataDto;
+import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.services.content.AssessmentService;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,6 +43,9 @@ public class CollectionControllerTest {
     private CollectionService collectionService;
 
     @Mock
+    private AssessmentService assessmentService;
+
+    @Mock
     Gson gson = new Gson();
 
     @Test
@@ -50,25 +55,25 @@ public class CollectionControllerTest {
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(answer);
 
-        QuestionMetadataDto questionMetadataDto = new QuestionMetadataDto();
-        questionMetadataDto.setTitle("question 1");
-        questionMetadataDto.setType("true_false");
-        questionMetadataDto.setBody("question 1");
-        questionMetadataDto.setCorrectAnswer(answers);
+        ResourceMetadataDto resourceMetadataDto = new ResourceMetadataDto();
+        resourceMetadataDto.setTitle("question 1");
+        resourceMetadataDto.setType("true_false");
+        resourceMetadataDto.setBody("question 1");
+        resourceMetadataDto.setCorrectAnswer(answers);
 
         ResourceDto resource1 = new ResourceDto();
         UUID resourceId1 = UUID.randomUUID();
         resource1.setId(resourceId1);
         resource1.setSequence(1);
         resource1.setIsResource(false);
-        resource1.setQuestionData(questionMetadataDto);
+        resource1.setMetadata(resourceMetadataDto);
 
         ResourceDto resource2 = new ResourceDto();
         UUID resourceId2 = UUID.randomUUID();
         resource2.setId(resourceId2);
         resource2.setIsResource(false);
         resource2.setSequence(2);
-        resource1.setQuestionData(questionMetadataDto);
+        resource1.setMetadata(resourceMetadataDto);
 
         List<ResourceDto> resources = new ArrayList<>();
         resources.add(resource1);
@@ -94,15 +99,15 @@ public class CollectionControllerTest {
         assertNotNull("Response Body is Null", response);
         assertFalse("IsCollection is true", response.getIsCollection());
         assertEquals("Wrong size in resources", 2, response.getResources().size());
-        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getQuestionData().getType());
-        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getQuestionData().getTitle());
+        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getMetadata().getType());
+        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getMetadata().getTitle());
 
         ResourceDto responseResource = response.getResources().get(1);
         assertEquals("Wrong size in resources", 2, responseResource.getSequence());
         assertEquals("Wrong id for resource 2", resourceId2, responseResource.getId());
         assertFalse("Wrong id for resource 2", responseResource.getIsResource());
-        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getQuestionData().getType());
-        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getQuestionData().getTitle());
+        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getMetadata().getType());
+        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getMetadata().getTitle());
         assertSame(result.getBody().getClass(), CollectionGetResponseDto.class);
     }
 
@@ -110,6 +115,21 @@ public class CollectionControllerTest {
     public void getCollectionWhenThrowsContentNotFoundException() throws Exception {
         when(collectionService.findCollectionById(any(UUID.class))).thenThrow(ContentNotFoundException.class);
         collectionController.getCollection(UUID.randomUUID());
+    }
+
+    @Test
+    public void getCollection() throws Exception {
+        String collectionId = String.valueOf(UUID.randomUUID());
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId);
+
+        PowerMockito.when(assessmentService.getCollection(collectionId)).thenReturn(collectionDto);
+
+        ResponseEntity<CollectionDto> result = collectionController.getAssessment(UUID.fromString(collectionId));
+
+        verify(assessmentService, times(1)).getCollection(collectionId);
+        assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Wrong collection ID", collectionId, result.getBody().getId());
     }
 
 }

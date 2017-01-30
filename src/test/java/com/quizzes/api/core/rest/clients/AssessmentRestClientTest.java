@@ -2,6 +2,8 @@ package com.quizzes.api.core.rest.clients;
 
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.services.ConfigurationService;
+import com.quizzes.api.core.services.content.helpers.GooruHelper;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -10,6 +12,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +34,23 @@ public class AssessmentRestClientTest {
     private AssessmentRestClient assessmentRestClient = PowerMockito.spy(new AssessmentRestClient());
 
     @Mock
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Mock
-    AuthenticationRestClient authenticationRestClient;
+    private AuthenticationRestClient authenticationRestClient;
 
     @Mock
-    ConfigurationService configurationService;
+    private ConfigurationService configurationService;
+
+    @Mock
+    private GooruHelper gooruHelper;
+
+    private String userToken;
+
+    @Before
+    public void before() throws Exception {
+        userToken = "user-token";
+    }
 
 
     @Test
@@ -47,15 +60,17 @@ public class AssessmentRestClientTest {
 
         String url = "http://www.gooru.org";
         doReturn(url).when(configurationService).getContentApiUrl();
+        doReturn(new HttpHeaders()).when(gooruHelper).setHttpHeaders(userToken);
 
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
 
-        assessmentRestClient.getAssessment(assessmentDto.getId(), "user-token");
+        assessmentRestClient.getAssessment(assessmentDto.getId(), userToken);
 
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
         verify(configurationService, times(1)).getContentApiUrl();
+        verify(gooruHelper, times(1)).setHttpHeaders(userToken);
     }
 
 }

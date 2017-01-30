@@ -10,7 +10,7 @@ public class ResourceDto {
 
     private int sequence;
 
-    private QuestionMetadataDto metadata;
+    private ResourceMetadataDto metadata;
 
     public ResourceDto() {
     }
@@ -28,7 +28,7 @@ public class ResourceDto {
     }
 
     public void setIsResource(boolean isResource) {
-        isResource = isResource;
+        this.isResource = isResource;
     }
 
     public int getSequence() {
@@ -39,11 +39,12 @@ public class ResourceDto {
         this.sequence = sequence;
     }
 
-    public QuestionMetadataDto getQuestionData() {
+    public ResourceMetadataDto getMetadata() {
         return metadata;
     }
 
-    public void setQuestionData(QuestionMetadataDto metadata) {
+    public void setMetadata(ResourceMetadataDto metadata) {
         this.metadata = metadata;
     }
+
 }

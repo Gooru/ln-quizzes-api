@@ -8,7 +8,7 @@ import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileEventResponseDto;
-import com.quizzes.api.core.dtos.QuestionMetadataDto;
+import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
@@ -36,7 +36,6 @@ import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -305,8 +304,8 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
-        previousResource.setResourceData(gson.toJson(questionMetadataDto));
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        previousResource.setResourceData(gson.toJson(resourceMetadataDto));
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
@@ -359,11 +358,11 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
-        previousResource.setResourceData(gson.toJson(questionMetadataDto));
+        previousResource.setResourceData(gson.toJson(resourceMetadataDto));
 
         OnResourceEventPostRequestDto body = createOnResourceEventPostRequestDto();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
@@ -382,7 +381,7 @@ public class ContextEventServiceTest {
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
         doReturn(100).when(contextEventService, "calculateScoreByQuestionType",
-                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+                eq(resourceMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
                 .when(contextEventService, "createContextProfileEvent", contextProfileId, previousResourceId);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
@@ -397,7 +396,7 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
-                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+                eq(resourceMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent",
                 contextProfileId, previousResourceId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
@@ -892,11 +891,11 @@ public class ContextEventServiceTest {
         return body;
     }
 
-    private QuestionMetadataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
-        QuestionMetadataDto questionMetadataDto = new QuestionMetadataDto();
-        questionMetadataDto.setCorrectAnswer(answers);
-        questionMetadataDto.setType(questionType);
-        return questionMetadataDto;
+    private ResourceMetadataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
+        ResourceMetadataDto resourceMetadataDto = new ResourceMetadataDto();
+        resourceMetadataDto.setCorrectAnswer(answers);
+        resourceMetadataDto.setType(questionType);
+        return resourceMetadataDto;
     }
 
 }

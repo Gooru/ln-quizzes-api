@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionGetResponseDto;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.dtos.content.QuestionContentDto;
+import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-//import com.quizzes.api.core.services.ResourceService;
 
 @Service
 public class CollectionService {
@@ -66,12 +65,6 @@ public class CollectionService {
     @Autowired
     AuthenticationRestClient authenticationRestClient;
 
-    //@Autowired
-    //CollectionService collectionService;
-
-    //@Autowired
-    //ResourceService resourceService;
-
     @Autowired
     Gson gson;
 
@@ -93,7 +86,8 @@ public class CollectionService {
     public Collection createCollection(String externalCollectionId, Profile owner) {
         UserDataTokenDto userDataTokenDto = gson.fromJson(owner.getProfileData(), UserDataTokenDto.class);
         String userToken = authenticationRestClient.generateUserToken(userDataTokenDto);
-        AssessmentContentDto assessmentDto = collectionRestClient.getCollection(externalCollectionId, userToken);
+//        AssessmentContentDto assessmentDto = collectionRestClient.getCollection(externalCollectionId, userToken);
+        AssessmentContentDto assessmentDto = new AssessmentContentDto();
 
         Collection result = null;
         if (assessmentDto.getOwnerId() != null) {
@@ -120,7 +114,8 @@ public class CollectionService {
 
         String copiedAssessmentId = collectionRestClient.copyAssessment(assessmentId, userToken);
 
-        AssessmentContentDto assessmentDto = collectionRestClient.getCollection(copiedAssessmentId, userToken);
+//        AssessmentContentDto assessmentDto = collectionRestClient.getCollection(copiedAssessmentId, userToken);
+        AssessmentContentDto assessmentDto = new AssessmentContentDto();
 
         return createCollectionFromAssessment(assessmentDto, assessmentId, ownerId);
     }
@@ -157,9 +152,9 @@ public class CollectionService {
         return collection;
     }
 
-    private void copyQuestions(Collection collection, UUID ownerId, List<QuestionContentDto> questions) {
+    private void copyQuestions(Collection collection, UUID ownerId, List<ResourceContentDto> questions) {
         if (questions != null) {
-            for (QuestionContentDto questionDto : questions) {
+            for (ResourceContentDto questionDto : questions) {
                 Resource resource = new Resource();
                 resource.setExternalId(questionDto.getId());
                 resource.setContentProvider(ContentProvider.gooru);

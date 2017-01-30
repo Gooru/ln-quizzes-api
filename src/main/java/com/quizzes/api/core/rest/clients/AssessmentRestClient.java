@@ -6,6 +6,7 @@ import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
+import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,9 @@ public class AssessmentRestClient {
     private Gson gsonPretty;
 
     @Autowired
+    GooruHelper gooruHelper;
+
+    @Autowired
     AuthenticationRestClient authenticationRestClient;
 
     public AssessmentContentDto getAssessment(String assessmentId, String token) {
@@ -50,7 +54,7 @@ public class AssessmentRestClient {
         }
 
         try {
-            HttpHeaders headers = setHttpHeaders(token);
+            HttpHeaders headers = gooruHelper.setHttpHeaders(token);
             HttpEntity entity = new HttpEntity(headers);
             ResponseEntity<AssessmentContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AssessmentContentDto.class);
@@ -72,18 +76,6 @@ public class AssessmentRestClient {
             logger.error("Gooru Assessment '" + assessmentId + "' could not be processed.", e);
             throw new InternalServerException("Assessment " + assessmentId + " could not be processed.", e);
         }
-    }
-
-    public HttpHeaders setHttpHeaders(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Token " + token);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Headers: " + gsonPretty.toJson(headers));
-        }
-
-        return headers;
     }
 }
 

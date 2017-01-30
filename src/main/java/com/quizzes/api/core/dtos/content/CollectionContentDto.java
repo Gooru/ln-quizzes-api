@@ -1,11 +1,14 @@
 package com.quizzes.api.core.dtos.content;
 
+import java.util.List;
+
 public class CollectionContentDto {
 
     private String id;
 
     private String title;
 
+    private List<ResourceContentDto> content;
 
     public CollectionContentDto() {
     }
@@ -26,4 +29,11 @@ public class CollectionContentDto {
         this.title = title;
     }
 
+    public List<ResourceContentDto> getContent() {
+        return content;
+    }
+
+    public void setContent(List<ResourceContentDto> content) {
+        this.content = content;
+    }
 }
