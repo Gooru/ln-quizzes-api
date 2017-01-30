@@ -12,16 +12,6 @@ package com.quizzes.api.core.model.jooq;
 public class Tables {
 
 	/**
-	 * The table public.client
-	 */
-	public static final com.quizzes.api.core.model.jooq.tables.Client CLIENT = com.quizzes.api.core.model.jooq.tables.Client.CLIENT;
-
-	/**
-	 * The table public.collection
-	 */
-	public static final com.quizzes.api.core.model.jooq.tables.Collection COLLECTION = com.quizzes.api.core.model.jooq.tables.Collection.COLLECTION;
-
-	/**
 	 * The table public.context
 	 */
 	public static final com.quizzes.api.core.model.jooq.tables.Context CONTEXT = com.quizzes.api.core.model.jooq.tables.Context.CONTEXT;
@@ -40,29 +30,4 @@ public class Tables {
 	 * The table public.current_context_profile
 	 */
 	public static final com.quizzes.api.core.model.jooq.tables.CurrentContextProfile CURRENT_CONTEXT_PROFILE = com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
-
-	/**
-	 * The table public.group
-	 */
-	public static final com.quizzes.api.core.model.jooq.tables.Group GROUP = com.quizzes.api.core.model.jooq.tables.Group.GROUP;
-
-	/**
-	 * The table public.group_profile
-	 */
-	public static final com.quizzes.api.core.model.jooq.tables.GroupProfile GROUP_PROFILE = com.quizzes.api.core.model.jooq.tables.GroupProfile.GROUP_PROFILE;
-
-	/**
-	 * The table public.profile
-	 */
-	public static final com.quizzes.api.core.model.jooq.tables.Profile PROFILE = com.quizzes.api.core.model.jooq.tables.Profile.PROFILE;
-
-	/**
-	 * The table public.resource
-	 */
-	public static final com.quizzes.api.core.model.jooq.tables.Resource RESOURCE = com.quizzes.api.core.model.jooq.tables.Resource.RESOURCE;
-
-	/**
-	 * The table public.session
-	 */
-	public static final com.quizzes.api.core.model.jooq.tables.Session SESSION = com.quizzes.api.core.model.jooq.tables.Session.SESSION;
 }

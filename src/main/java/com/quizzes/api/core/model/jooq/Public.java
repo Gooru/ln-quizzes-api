@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Public extends org.jooq.impl.SchemaImpl {
 
-	private static final long serialVersionUID = 351568750;
+	private static final long serialVersionUID = 325959230;
 
 	/**
 	 * The singleton instance of <code>public</code>
@@ -32,16 +32,9 @@ public class Public extends org.jooq.impl.SchemaImpl {
 
 	private final java.util.List<org.jooq.Table<?>> getTables0() {
 		return java.util.Arrays.<org.jooq.Table<?>>asList(
-			com.quizzes.api.core.model.jooq.tables.Client.CLIENT,
-			com.quizzes.api.core.model.jooq.tables.Collection.COLLECTION,
 			com.quizzes.api.core.model.jooq.tables.Context.CONTEXT,
 			com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE,
 			com.quizzes.api.core.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT,
-			com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE,
-			com.quizzes.api.core.model.jooq.tables.Group.GROUP,
-			com.quizzes.api.core.model.jooq.tables.GroupProfile.GROUP_PROFILE,
-			com.quizzes.api.core.model.jooq.tables.Profile.PROFILE,
-			com.quizzes.api.core.model.jooq.tables.Resource.RESOURCE,
-			com.quizzes.api.core.model.jooq.tables.Session.SESSION);
+			com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE);
 	}
 }

@@ -9,7 +9,6 @@ public class EntityMapper {
         Context context = new Context();
         context.setId(contextEntity.getId());
         context.setCollectionId(contextEntity.getCollectionId());
-        context.setGroupId(contextEntity.getGroupId());
         context.setContextData(contextEntity.getContextData());
         context.setIsActive(contextEntity.getIsActive());
         return context;

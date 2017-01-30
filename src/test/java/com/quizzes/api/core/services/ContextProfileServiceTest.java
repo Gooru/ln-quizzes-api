@@ -49,12 +49,6 @@ public class ContextProfileServiceTest {
     }
 
     @Test
-    public void delete() throws Exception {
-        contextProfileService.delete(any(UUID.class));
-        verify(contextProfileRepository, times(1)).delete(any(UUID.class));
-    }
-
-    @Test
     public void save() throws Exception {
         contextProfileService.save(any(ContextProfile.class));
         verify(contextProfileRepository, times(1)).save(any(ContextProfile.class));

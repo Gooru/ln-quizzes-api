@@ -13,8 +13,6 @@ import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.jooq.enums.Lms;
-import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.repositories.ContextRepository;
@@ -79,7 +77,7 @@ public class ContextService {
      * @return The only value in the result is the context ID
      */
     @Transactional
-    public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto, Lms lms) {
+    public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto) {
         // TODO Replace this logic
         /*
         Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
@@ -122,7 +120,7 @@ public class ContextService {
      * @return the updated Context
      */
     @Transactional
-    public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto, Lms lms) {
+    public Context update(UUID contextId, UUID profileId, ContextPutRequestDto contextPutRequestDto) {
         // TODO Replace this logic
         /*
         Context context = findByIdAndOwnerId(contextId, profileId);
@@ -314,7 +312,6 @@ public class ContextService {
         result.setId(contextAssigneeEntity.getId());
         result.setCollectionId(contextAssigneeEntity.getCollectionId());
         result.setContextData(contextAssigneeEntity.getContextData());
-        result.setGroupId(contextAssigneeEntity.getGroupId());
         return result;
     }
 
