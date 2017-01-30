@@ -11,7 +11,7 @@ public class InteractionDto {
     public InteractionDto() {
     }
 
-    public boolean isShuffle() {
+    public boolean getIsShuffle() {
         return shuffle;
     }
 

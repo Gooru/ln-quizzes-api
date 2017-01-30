@@ -1,7 +1,15 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.*;
+import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.ContextEventsResponseDto;
+import com.quizzes.api.core.dtos.EventSummaryDataDto;
+import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.PostRequestResourceDto;
+import com.quizzes.api.core.dtos.PostResponseResourceDto;
+import com.quizzes.api.core.dtos.ProfileEventResponseDto;
+import com.quizzes.api.core.dtos.QuestionMetadataDto;
+import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
@@ -25,17 +33,25 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.boot.json.JsonParser;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.spy;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
@@ -295,6 +311,8 @@ public class ContextEventServiceTest {
         answers.add(createAnswerDto("A"));
         QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
         //previousResource.setResourceData(gson.toJson(questionDataDto));
+        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        previousResource.setResourceData(gson.toJson(questionMetadataDto));
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
@@ -347,7 +365,7 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
@@ -372,6 +390,8 @@ public class ContextEventServiceTest {
         doReturn(100).when(contextEventService, "calculateScoreByQuestionType",
                 eq(questionDataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
+                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+        doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
                 .when(contextEventService, "createContextProfileEvent", contextProfileId, previousResourceId);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
         doNothing().when(contextEventService, "doOnResourceEventTransaction",
@@ -385,7 +405,7 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
-                eq(questionDataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent",
                 contextProfileId, previousResourceId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
@@ -837,7 +857,7 @@ public class ContextEventServiceTest {
     }
 
     private AnswerDto createAnswerDto(String answer) {
-        AnswerDto answerDto = new AnswerDto();
+        AnswerDto answerDto = new AnswerDto(answer);
         answerDto.setValue(answer);
         return answerDto;
     }
@@ -874,11 +894,11 @@ public class ContextEventServiceTest {
         return body;
     }
 
-    private QuestionDataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
-        QuestionDataDto questionDataDto = new QuestionDataDto();
-        questionDataDto.setCorrectAnswer(answers);
-        questionDataDto.setType(questionType);
-        return questionDataDto;
+    private QuestionMetadataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
+        QuestionMetadataDto questionMetadataDto = new QuestionMetadataDto();
+        questionMetadataDto.setCorrectAnswer(answers);
+        questionMetadataDto.setType(questionType);
+        return questionMetadataDto;
     }
 
 }

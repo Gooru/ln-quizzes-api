@@ -1,9 +1,14 @@
 package com.quizzes.api.content.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.content.AnswerDto;
-import com.quizzes.api.core.dtos.content.AssessmentDto;
-import com.quizzes.api.core.dtos.content.QuestionDto;
+import com.quizzes.api.core.dtos.content.AssessmentContentDto;
+import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.model.jooq.enums.ContentProvider;
+import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
+import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
+import com.quizzes.api.core.model.jooq.tables.pojos.Resource;
+import com.quizzes.api.core.dtos.content.AnswerContentDto;
+import com.quizzes.api.core.dtos.content.QuestionContentDto;
 import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
@@ -29,7 +34,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CollectionService.class, Gson.class})
@@ -54,7 +62,7 @@ public class CollectionServiceTest {
     @Ignore
     @Test
     public void createCollectionFromOriginalAssessment() throws Exception {
-        AssessmentDto assessmentDto = createTestAssessmentDto();
+        AssessmentContentDto assessmentDto = createTestAssessmentDto();
 
         UserDataTokenDto userDataTokenDto = new UserDataTokenDto();
         userDataTokenDto.setFirstName("Bryan");
@@ -66,13 +74,13 @@ public class CollectionServiceTest {
         when(authenticationRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
 
         assessmentDto.setOwnerId(UUID.randomUUID().toString());
-        when(collectionRestClient.getAssessment(any(String.class), any(String.class))).thenReturn(assessmentDto);
+        when(collectionRestClient.getCollection(any(String.class), any(String.class))).thenReturn(assessmentDto);
 
         verify(gson, times(1)).fromJson(any(String.class), anyObject());
         verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
         // copyAssessment is not called, this means the assessment owner is the same user creating the collection
         verify(collectionRestClient, times(0)).copyAssessment(any(String.class), any(String.class));
-        verify(collectionRestClient, times(1)).getAssessment(any(String.class), any(String.class));
+        verify(collectionRestClient, times(1)).getCollection(any(String.class), any(String.class));
         //verify(collectionService, times(1)).save(any(Collection.class));
         //verify(resourceService, times(2)).save(any(Resource.class));
 
@@ -86,7 +94,7 @@ public class CollectionServiceTest {
     @Ignore
     @Test
     public void createCollectionFromCopiedAssessment() throws Exception {
-        AssessmentDto assessmentDto = createTestAssessmentDto();
+        AssessmentContentDto assessmentDto = createTestAssessmentDto();
 
         UserDataTokenDto userDataTokenDto = new UserDataTokenDto();
         userDataTokenDto.setFirstName("Bryan");
@@ -98,7 +106,7 @@ public class CollectionServiceTest {
         when(authenticationRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
 
         assessmentDto.setOwnerId(UUID.randomUUID().toString());
-        when(collectionRestClient.getAssessment(any(String.class), any(String.class))).thenReturn(assessmentDto);
+        when(collectionRestClient.getCollection(any(String.class), any(String.class))).thenReturn(assessmentDto);
 
 
         String externalCollectionId = UUID.randomUUID().toString();
@@ -108,7 +116,7 @@ public class CollectionServiceTest {
         verify(gson, times(1)).fromJson(any(String.class), anyObject());
         verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
         verify(collectionRestClient, times(1)).copyAssessment(any(String.class), any(String.class));
-        verify(collectionRestClient, times(2)).getAssessment(any(String.class), any(String.class));
+        verify(collectionRestClient, times(2)).getCollection(any(String.class), any(String.class));
         //verify(collectionService, times(1)).save(any(Collection.class));
         //verify(resourceService, times(2)).save(any(Resource.class));
 
@@ -116,12 +124,12 @@ public class CollectionServiceTest {
     }
 
     /**
-     * Tests private method {@link CollectionService#createCollectionFromAssessment(AssessmentDto, String, UUID)}
+     * Tests private method {@link CollectionService#createCollectionFromAssessment(AssessmentContentDto, String, UUID)}
      */
     @Ignore
     @Test
     public void createCollectionFromAssessment() throws Exception {
-        AssessmentDto assessmentDto = createTestAssessmentDto();
+        AssessmentContentDto assessmentDto = createTestAssessmentDto();
 
         //Collection collection = createTestCollection(assessmentDto);
 
@@ -141,7 +149,7 @@ public class CollectionServiceTest {
     @Ignore
     @Test
     public void createCollectionCopy() throws Exception {
-        AssessmentDto assessmentDto = createTestAssessmentDto();
+        AssessmentContentDto assessmentDto = createTestAssessmentDto();
 
         //Collection collection = createTestCollection(assessmentDto);
 
@@ -151,7 +159,7 @@ public class CollectionServiceTest {
 
         doReturn("copiedAssessmentID").when(collectionRestClient).copyAssessment(any(String.class), any(String.class));
 
-        doReturn(assessmentDto).when(collectionRestClient).getAssessment(any(String.class), any(String.class));
+        doReturn(assessmentDto).when(collectionRestClient).getCollection(any(String.class), any(String.class));
 
         WhiteboxImpl.invokeMethod(collectionService, "createCollectionCopy", "assessmentID", UUID.randomUUID(), "userToken");
 
@@ -161,19 +169,19 @@ public class CollectionServiceTest {
         //verify(collectionService, times(1)).save(any(Collection.class));
         //verify(resourceService, times(2)).save(any(Resource.class));
         verify(collectionRestClient, times(1)).copyAssessment(any(String.class),any(String.class));
-        verify(collectionRestClient, times(1)).getAssessment(any(String.class), any(String.class));
+        verify(collectionRestClient, times(1)).getCollection(any(String.class), any(String.class));
 
     }
 
     @Test
     public void createInteraction() throws Exception {
         String answerId1 = UUID.randomUUID().toString();
-        AnswerDto answerTrueFalse1 = createAnswerDto(answerId1, "Answer True False 1 text", "true", 1);
+        AnswerContentDto answerTrueFalse1 = createAnswerDto(answerId1, "Answer True False 1 text", "true", 1);
 
         String answerId2 = UUID.randomUUID().toString();
-        AnswerDto answerTrueFalse2 = createAnswerDto(answerId2, "Answer True False 1 text", "false", 2);
+        AnswerContentDto answerTrueFalse2 = createAnswerDto(answerId2, "Answer True False 1 text", "false", 2);
 
-        List<AnswerDto> answers = new ArrayList<>();
+        List<AnswerContentDto> answers = new ArrayList<>();
         answers.add(answerTrueFalse1);
         answers.add(answerTrueFalse2);
 
@@ -214,12 +222,12 @@ public class CollectionServiceTest {
     @Test
     public void getCorrectAnswers() throws Exception {
         String answerId1 = UUID.randomUUID().toString();
-        AnswerDto answerTrueFalse1 = createAnswerDto(answerId1, "Answer True False 1 text", "true", 1);
+        AnswerContentDto answerTrueFalse1 = createAnswerDto(answerId1, "Answer True False 1 text", "true", 1);
 
         String answerId2 = UUID.randomUUID().toString();
-        AnswerDto answerTrueFalse2 = createAnswerDto(answerId2, "Answer True False 1 text", "false", 2);
+        AnswerContentDto answerTrueFalse2 = createAnswerDto(answerId2, "Answer True False 1 text", "false", 2);
 
-        List<AnswerDto> answers = new ArrayList<>();
+        List<AnswerContentDto> answers = new ArrayList<>();
         answers.add(answerTrueFalse1);
         answers.add(answerTrueFalse2);
 
@@ -234,7 +242,7 @@ public class CollectionServiceTest {
     @Ignore
     @Test
     public void copyQuestions() throws Exception {
-        AssessmentDto assessmentDto = createTestAssessmentDto();
+        AssessmentContentDto assessmentDto = createTestAssessmentDto();
 
         //Collection collection = createTestCollection(assessmentDto);
         UUID ownerId = UUID.randomUUID();
@@ -253,60 +261,60 @@ public class CollectionServiceTest {
         //verify(resourceService, times(2)).save(any(Resource.class));
     }
 
-    private AssessmentDto createTestAssessmentDto() {
-        AnswerDto answerMultipleChoice1 = new AnswerDto();
+    private AssessmentContentDto createTestAssessmentDto() {
+        AnswerContentDto answerMultipleChoice1 = new AnswerContentDto();
         answerMultipleChoice1.setAnswerText("Answer Multiple Choice 1 text");
         answerMultipleChoice1.setIsCorrect("false");
         answerMultipleChoice1.setSequence(1);
 
-        AnswerDto answerMultipleChoice2 = new AnswerDto();
+        AnswerContentDto answerMultipleChoice2 = new AnswerContentDto();
         answerMultipleChoice2.setAnswerText("Answer Multiple Choice 2 text");
         answerMultipleChoice2.setIsCorrect("true");
         answerMultipleChoice2.setSequence(2);
 
-        AnswerDto answerMultipleChoice3 = new AnswerDto();
+        AnswerContentDto answerMultipleChoice3 = new AnswerContentDto();
         answerMultipleChoice3.setAnswerText("Answer Multiple Choice 3 text");
         answerMultipleChoice3.setIsCorrect("true");
         answerMultipleChoice3.setSequence(2);
 
-        List<AnswerDto> answerMultipleChoiceList = new ArrayList<>();
+        List<AnswerContentDto> answerMultipleChoiceList = new ArrayList<>();
         answerMultipleChoiceList.add(answerMultipleChoice1);
         answerMultipleChoiceList.add(answerMultipleChoice2);
         answerMultipleChoiceList.add(answerMultipleChoice3);
 
-        QuestionDto questionMultipleChoice = new QuestionDto();
+        QuestionContentDto questionMultipleChoice = new QuestionContentDto();
         questionMultipleChoice.setId(UUID.randomUUID().toString());
         questionMultipleChoice.setTitle("Question 1 Title");
         questionMultipleChoice.setSequence(1);
         questionMultipleChoice.setContentSubformat(GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
         questionMultipleChoice.setAnswers(answerMultipleChoiceList);
 
-        AnswerDto answerTrueFalse1 = new AnswerDto();
+        AnswerContentDto answerTrueFalse1 = new AnswerContentDto();
         answerTrueFalse1.setAnswerText("Answer True False 1 text");
         answerTrueFalse1.setIsCorrect("true");
         answerTrueFalse1.setSequence(1);
 
-        AnswerDto answerTrueFalse2 = new AnswerDto();
+        AnswerContentDto answerTrueFalse2 = new AnswerContentDto();
         answerTrueFalse2.setAnswerText("Answer True False 2 text");
         answerTrueFalse2.setIsCorrect("false");
         answerTrueFalse2.setSequence(2);
 
-        List<AnswerDto> answerTrueFalseList = new ArrayList<>();
+        List<AnswerContentDto> answerTrueFalseList = new ArrayList<>();
         answerTrueFalseList.add(answerTrueFalse1);
         answerTrueFalseList.add(answerTrueFalse2);
 
-        QuestionDto questionTrueFalse = new QuestionDto();
+        QuestionContentDto questionTrueFalse = new QuestionContentDto();
         questionTrueFalse.setId(UUID.randomUUID().toString());
         questionTrueFalse.setTitle("Question 2 Title");
         questionTrueFalse.setSequence(2);
         questionTrueFalse.setContentSubformat(GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral());
         questionTrueFalse.setAnswers(answerTrueFalseList);
 
-        List<QuestionDto> questionList = new ArrayList<>();
+        List<QuestionContentDto> questionList = new ArrayList<>();
         questionList.add(questionMultipleChoice);
         questionList.add(questionTrueFalse);
 
-        AssessmentDto assessmentDto = new AssessmentDto();
+        AssessmentContentDto assessmentDto = new AssessmentContentDto();
         assessmentDto.setId(UUID.randomUUID().toString());
         assessmentDto.setTitle("Assessment Title");
         assessmentDto.setQuestions(questionList);
@@ -321,5 +329,27 @@ public class CollectionServiceTest {
         answerDto.setIsCorrect(isCorrect);
         answerDto.setSequence(sequence);
         return answerDto;
+    private Collection createTestCollection(AssessmentContentDto assessmentDto) {
+        Collection collection = new Collection();
+        collection.setExternalId(assessmentDto.getId());
+        collection.setExternalParentId(assessmentDto.getId());
+        collection.setContentProvider(ContentProvider.gooru);
+        collection.setOwnerProfileId(UUID.randomUUID());
+        collection.setIsCollection(false);
+        collection.setIsLocked(false);
+        Map<String, Object> collectionDataMap = new HashMap<>();
+        collectionDataMap.put("Title", assessmentDto.getTitle());
+        collection.setCollectionData(new Gson().toJson(collectionDataMap));
+
+        return collection;
+    }
+
+    private AnswerContentDto createAnswerDto(String id, String answerText, String isCorrect, int sequence) {
+        AnswerContentDto answerContentDto = new AnswerContentDto();
+        answerContentDto.setId(id);
+        answerContentDto.setAnswerText(answerText);
+        answerContentDto.setIsCorrect(isCorrect);
+        answerContentDto.setSequence(sequence);
+        return answerContentDto;
     }
 }

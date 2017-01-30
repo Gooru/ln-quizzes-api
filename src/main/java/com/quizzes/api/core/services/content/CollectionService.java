@@ -6,12 +6,27 @@ import com.quizzes.api.core.dtos.content.AnswerDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.dtos.content.AnswerContentDto;
+import com.quizzes.api.core.dtos.content.AssessmentContentDto;
+import com.quizzes.api.core.dtos.content.QuestionContentDto;
+import com.quizzes.api.core.dtos.content.UserDataTokenDto;
+import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
+import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.model.jooq.enums.ContentProvider;
+import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
+import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
+import com.quizzes.api.core.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,7 +108,7 @@ public class CollectionService {
         return mappedType;
     }
 
-    private List<Map<String, String>> getCorrectAnswers(List<AnswerDto> answers) {
+    private List<Map<String, String>> getCorrectAnswers(List<AnswerContentDto> answers) {
         List<Map<String, String>> correctAnswers = new ArrayList<>();
         if (answers != null) {
             correctAnswers = answers.stream()
