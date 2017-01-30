@@ -1,12 +1,6 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.dtos.ContextAssignedGetResponseDto;
-import com.quizzes.api.core.dtos.ContextPostRequestDto;
-import com.quizzes.api.core.dtos.ContextPutRequestDto;
-import com.quizzes.api.core.dtos.CreatedContextGetResponseDto;
-import com.quizzes.api.core.dtos.IdResponseDto;
-import com.quizzes.api.core.dtos.MetadataDto;
-import com.quizzes.api.core.dtos.ProfileDto;
+import com.quizzes.api.core.dtos.*;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.model.jooq.enums.Lms;
@@ -336,13 +330,13 @@ public class ContextControllerTest {
 
         contextsCreatedByOwner.add(context);
 
-        List<CreatedContextGetResponseDto> createdContextGetResponseDtos = new ArrayList<>();
-        CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
-        createdContextGetResponseDto.setId(UUID.randomUUID());
+        List<ContextGetResponseDto> contextGetResponseDtos = new ArrayList<>();
+        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
+        contextGetResponseDto.setId(UUID.randomUUID());
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(UUID.randomUUID().toString());
-        createdContextGetResponseDto.setCollection(collectionDto);
-        createdContextGetResponseDto.setId(UUID.randomUUID());
+        contextGetResponseDto.setCollection(collectionDto);
+        contextGetResponseDto.setId(UUID.randomUUID());
 
         //Setting assignees
         List<IdResponseDto> assignees = new ArrayList<>();
@@ -352,7 +346,7 @@ public class ContextControllerTest {
         IdResponseDto asignee2 = new IdResponseDto();
         asignee2.setId(UUID.randomUUID());
         assignees.add(asignee2);
-        createdContextGetResponseDto.setAssignees(assignees);
+        contextGetResponseDto.setAssignees(assignees);
 
         //Setting contextData
         ContextDataDto contextDataDto = new ContextDataDto();
@@ -367,21 +361,21 @@ public class ContextControllerTest {
         metadata.setStartDate(324234);
         contextDataDto.setMetadata(metadata);
 
-        createdContextGetResponseDto.setContextData(contextDataDto);
-        createdContextGetResponseDtos.add(createdContextGetResponseDto);
+        contextGetResponseDto.setContextData(contextDataDto);
+        contextGetResponseDtos.add(contextGetResponseDto);
 
-        when(contextService.findCreatedContexts(any(UUID.class))).thenReturn(createdContextGetResponseDtos);
+        when(contextService.findCreatedContexts(any(UUID.class))).thenReturn(contextGetResponseDtos);
 
         Map<String, String> filter = new HashMap<>();
         filter.put("classId", UUID.randomUUID().toString());
-        ResponseEntity<List<CreatedContextGetResponseDto>> response =
-                controller.findCreatedContexts(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
+        ResponseEntity<List<ContextGetResponseDto>> response =
+                controller.getContexts(Lms.its_learning.getLiteral(), UUID.randomUUID(), "created", null, null, null, null, filter);
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, response.getBody().size());
 
-        CreatedContextGetResponseDto result = response.getBody().get(0);
+        ContextGetResponseDto result = response.getBody().get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 
@@ -399,8 +393,8 @@ public class ContextControllerTest {
 
     @Test
     public void getAssignedContexts() throws Exception {
-        List<ContextAssignedGetResponseDto> contexts = new ArrayList<>();
-        ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
+        List<ContextGetResponseDto> contexts = new ArrayList<>();
+        ContextGetResponseDto contextAssigned = new ContextGetResponseDto();
 
         //Setting collection
         contextAssigned.setId(UUID.randomUUID());
@@ -428,16 +422,16 @@ public class ContextControllerTest {
 
         when(contextService.getAssignedContexts(any(UUID.class),any(Boolean.class), any(Long.class), any(Long.class))).thenReturn(contexts);
 
-        ResponseEntity<List<ContextAssignedGetResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID(), null, null, null);
+        ResponseEntity<List<ContextGetResponseDto>> response = controller.getContexts("its_learning", UUID.randomUUID(), null, "assigned", null, null, null, null);
 
         verify(contextService, times(1)).getAssignedContexts(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class));
 
-        List<ContextAssignedGetResponseDto> list = response.getBody();
+        List<ContextGetResponseDto> list = response.getBody();
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Wrong list size for assignments", 1, list.size());
 
-        ContextAssignedGetResponseDto result = list.get(0);
+        ContextGetResponseDto result = list.get(0);
         assertNotNull("Body is null", result);
         assertNotNull("Context id is null", result.getId());
 

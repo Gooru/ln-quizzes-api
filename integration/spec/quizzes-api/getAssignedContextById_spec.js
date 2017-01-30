@@ -50,7 +50,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
             .inspectJSON()
             .afterJSON(function (assigneeProfile) {
                 frisby.create('Verifies Context was correctly assigned and that it has not started')
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -111,7 +111,7 @@ frisby.create('Creates a Context and assigns it to an Assignee, then tries to re
             .inspectJSON()
             .afterJSON(function (ownerProfile) {
                 frisby.create('Tries to retrieve an assigned Context using Owner ID')
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', ownerProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -177,7 +177,7 @@ frisby.create('Creates a Context and assigns it to an Assignee, then tries to re
             .afterJSON(function (assigneeProfile) {
                 frisby.create('Tries to retrieve an assigned Context that does not exist')
                     // Using a Context ID that does not exist
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/' + '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
+                    .get(QuizzesApiUrl + '/v1/contexts/' + '1fd8b1bc-65de-41ee-849c-9b6f339349c9' + '/assigned')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()

@@ -63,7 +63,7 @@ QuizzesCommon.startTest("Create a Context with same assignee as owner", function
         ,function (createdContext) {
         QuizzesCommon.getProfileByExternalId('profile-id-111', function (profileInfo) {
             frisby.create('Verifies the profile is assigned to the context')
-                .get(QuizzesApiUrl + '/v1/contexts/assigned/' + createdContext.id)
+                .get(QuizzesApiUrl + '/v1/contexts/' + createdContext.id + '/assigned')
                 .addHeader('profile-id', profileInfo.id)
                 .addHeader('client-id', 'quizzes')
                 .inspectRequest()
@@ -72,7 +72,7 @@ QuizzesCommon.startTest("Create a Context with same assignee as owner", function
                 .toss();
 
             frisby.create('Verifies the profile is the owner of the context')
-                .get(QuizzesApiUrl + '/v1/contexts/created/' + createdContext.id)
+                .get(QuizzesApiUrl + '/v1/contexts/' + createdContext.id + "/created")
                 .addHeader('profile-id', profileInfo.id)
                 .addHeader('client-id', 'quizzes')
                 .inspectRequest()

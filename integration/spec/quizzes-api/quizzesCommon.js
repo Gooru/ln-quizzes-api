@@ -104,7 +104,7 @@ var quizzesCommon = {
 
     getAssignedContextByContextId: function (contextId, assigneeProfileId, afterJsonFunction) {
         frisby.create('Get assigned context information')
-            .get(QuizzesApiUrl + '/v1/contexts/assigned/' + contextId)
+            .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/assigned')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
             .inspectRequest()

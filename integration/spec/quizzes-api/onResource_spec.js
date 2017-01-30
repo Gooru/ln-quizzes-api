@@ -49,7 +49,7 @@ frisby.create('Test context creation for two assignees and one owner for answeri
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -151,7 +151,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -253,7 +253,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -371,7 +371,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/contexts/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
