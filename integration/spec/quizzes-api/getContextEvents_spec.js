@@ -66,7 +66,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
                             .inspectJSON()
                             .afterJSON(function (collection) {
                                 frisby.create('Start Context and verify the data')
-                                    .post(QuizzesApiUrl + '/v1/context/' + contextAssigned.id + '/event/start')
+                                    .post(QuizzesApiUrl + '/v1/contexts/' + contextAssigned.id + '/start')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -74,8 +74,8 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                     .inspectJSON()
                                     .afterJSON(function (startResponse) {
                                         frisby.create('Answer the first and current question')
-                                            .post(QuizzesApiUrl + '/v1/context/' + contextAssigned.id
-                                                + '/event/on-resource/' + collection.resources[1].id, {
+                                            .post(QuizzesApiUrl + '/v1/contexts/' + contextAssigned.id
+                                                + '/onResource/' + collection.resources[1].id, {
                                                 "previousResource": {
                                                     "answer": [
                                                         {
@@ -325,7 +325,7 @@ frisby.create('Test context events for one assignee and owner for started contex
                             .afterJSON(function (collection) {
 
                                 frisby.create('Start Context and verify the data')
-                                    .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
+                                    .post(QuizzesApiUrl + '/v1/contexts/' + context.id + '/start')
                                     .addHeader('profile-id', profile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
