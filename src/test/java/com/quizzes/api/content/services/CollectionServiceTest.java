@@ -1,13 +1,8 @@
 package com.quizzes.api.content.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.enums.QuestionTypeEnum;
-import com.quizzes.api.core.model.jooq.enums.ContentProvider;
-import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
-import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
-import com.quizzes.api.core.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
+import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.QuestionContentDto;
 import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
@@ -34,10 +29,10 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 import static org.powermock.api.mockito.PowerMockito.when;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CollectionService.class, Gson.class})
@@ -320,28 +315,6 @@ public class CollectionServiceTest {
         assessmentDto.setQuestions(questionList);
 
         return assessmentDto;
-    }
-
-    private AnswerDto createAnswerDto(String id, String answerText, String isCorrect, int sequence) {
-        AnswerDto answerDto = new AnswerDto();
-        answerDto.setId(id);
-        answerDto.setAnswerText(answerText);
-        answerDto.setIsCorrect(isCorrect);
-        answerDto.setSequence(sequence);
-        return answerDto;
-    private Collection createTestCollection(AssessmentContentDto assessmentDto) {
-        Collection collection = new Collection();
-        collection.setExternalId(assessmentDto.getId());
-        collection.setExternalParentId(assessmentDto.getId());
-        collection.setContentProvider(ContentProvider.gooru);
-        collection.setOwnerProfileId(UUID.randomUUID());
-        collection.setIsCollection(false);
-        collection.setIsLocked(false);
-        Map<String, Object> collectionDataMap = new HashMap<>();
-        collectionDataMap.put("Title", assessmentDto.getTitle());
-        collection.setCollectionData(new Gson().toJson(collectionDataMap));
-
-        return collection;
     }
 
     private AnswerContentDto createAnswerDto(String id, String answerText, String isCorrect, int sequence) {

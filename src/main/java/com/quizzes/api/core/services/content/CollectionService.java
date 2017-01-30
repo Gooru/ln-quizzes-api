@@ -2,21 +2,10 @@ package com.quizzes.api.core.services.content;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionGetResponseDto;
-import com.quizzes.api.core.dtos.content.AnswerDto;
-import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
-import com.quizzes.api.core.enums.QuestionTypeEnum;
-import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
-import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.dtos.content.QuestionContentDto;
-import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.model.jooq.enums.ContentProvider;
-import com.quizzes.api.core.model.jooq.tables.pojos.Collection;
-import com.quizzes.api.core.model.jooq.tables.pojos.Profile;
-import com.quizzes.api.core.model.jooq.tables.pojos.Resource;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +65,7 @@ public class CollectionService {
         return new CollectionGetResponseDto();
     }
 
-    private Map<String, Object> createInteraction(List<AnswerDto> answers) {
+    private Map<String, Object> createInteraction(List<AnswerContentDto> answers) {
         Map<String, Object> interactionDataMap = new HashMap<>();
         interactionDataMap.put(INTERACTION_SHUFFLE, false);
         interactionDataMap.put(INTERACTION_MAX_CHOICES, 0);

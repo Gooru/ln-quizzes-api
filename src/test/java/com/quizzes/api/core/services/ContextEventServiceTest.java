@@ -309,10 +309,8 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
-        //previousResource.setResourceData(gson.toJson(questionDataDto));
         QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
-        previousResource.setResourceData(gson.toJson(questionMetadataDto));
+        //previousResource.setResourceData(gson.toJson(questionMetadataDto));
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
@@ -388,10 +386,10 @@ public class ContextEventServiceTest {
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
         doReturn(100).when(contextEventService, "calculateScoreByQuestionType",
-                eq(questionDataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
-        doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
                 eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
-        doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
+        //doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
+        //        eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+        doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
                 .when(contextEventService, "createContextProfileEvent", contextProfileId, previousResourceId);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
         doNothing().when(contextEventService, "doOnResourceEventTransaction",
