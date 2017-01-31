@@ -1,6 +1,16 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 const frisby = require('frisby');
 
+var testUsers = {};
+    testUsers["teacherqa01"] = {"firstname": "teacherqa01", "lastname": "teacherqa01", "identityId": "teacherqa01@edify.cr"};
+    testUsers["teacherqa02"] = {"firstname": "teacherqa02", "lastname": "teacherqa02", "identityId": "teacherqa02@edify.cr"};
+    testUsers["teacherqa03"] = {"firstname": "teacherqa03", "lastname": "teacherqa03", "identityId": "teacherqa03@edify.cr"};
+    testUsers["studentqa01"] = {"firstname": "studentqa01", "lastname": "studentqa01", "identityId": "studentqa01@edify.cr"};
+    testUsers["studentqa02"] = {"firstname": "studentqa02", "lastname": "studentqa02", "identityId": "studentqa02@edify.cr"};
+    testUsers["studentqa03"] = {"firstname": "studentqa03", "lastname": "studentqa03", "identityId": "studentqa03@edify.cr"};
+    testUsers["studentqa04"] = {"firstname": "studentqa04", "lastname": "studentqa04", "identityId": "studentqa04@edify.cr"};
+    testUsers["studentqa05"] = {"firstname": "studentqa05", "lastname": "studentqa05", "identityId": "studentqa05@edify.cr"};
+
 var quizzesCommon = {
 
     /**
@@ -14,6 +24,35 @@ var quizzesCommon = {
             return (c=='x' ? r : (r&0x3|0x8)).toString(16);
             });
         return uuid;
+    },
+
+    getTestUser: function (userId) {
+        return testUsers[userId];
+    },
+
+    getAuthorizationToken : function(userId, afterJsonFunction) {
+        var authorizationUser = this.getTestUser(userId);
+        console.log("Autorization user " + authorizationUser.identityId);
+        frisby.create('Gets the authorization token for ' + userId)
+            .post('http://www.gooru.org/api/nucleus-auth/v1/authorize', {
+                "client_key": "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==",
+                "client_id": "ba956a97-ae15-11e5-a302-f8a963065976",
+                "grant_type": "google",
+                "return_url": "http://www.gooru.org",
+                "user": {
+                    "firstname": authorizationUser.firstname,
+                    "lastname": authorizationUser.lastname,
+                    "identity_id": authorizationUser.identityId
+                }
+            }, {json: true})
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(function (authorizationResponse) {
+                afterJsonFunction(authorizationResponse);
+            })
+            .toss();
     },
 
     startTest: function (title, functionalTest) {

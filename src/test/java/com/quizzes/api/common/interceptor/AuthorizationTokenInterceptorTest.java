@@ -1,10 +1,13 @@
 package com.quizzes.api.common.interceptor;
 
+import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -14,7 +17,9 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
@@ -22,6 +27,9 @@ public class AuthorizationTokenInterceptorTest {
 
     @InjectMocks
     private AuthorizationTokenInterceptor sessionInterceptor;
+
+    @Mock
+    private AuthenticationRestClient authenticationRestClient;
 
     private String authorization;
     private String token;
@@ -45,7 +53,15 @@ public class AuthorizationTokenInterceptorTest {
     public void preHandleAuthorization() throws Exception {
         request.addHeader("Authorization", authorization);
 
+        AccessTokenResponseDto accessTokenResponseDto = new AccessTokenResponseDto();
+        accessTokenResponseDto.setClientId(UUID.randomUUID().toString());
+        accessTokenResponseDto.setUserId(UUID.randomUUID().toString());
+
+        when(authenticationRestClient.verifyUserToken(any(String.class))).thenReturn(accessTokenResponseDto);
+
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
+
+        verify(authenticationRestClient, times(1)).verifyUserToken(any(String.class));
 
         assertTrue("Result is false", result);
     }
