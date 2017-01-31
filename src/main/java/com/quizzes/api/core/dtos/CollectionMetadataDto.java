@@ -1,10 +1,12 @@
 package com.quizzes.api.core.dtos;
 
-public class AssessmentMetadataDto {
+public class CollectionMetadataDto {
 
     private String title;
 
-    public AssessmentMetadataDto() {}
+    public CollectionMetadataDto(String title) {
+        this.title = title;
+    }
 
     public String getTitle() {
         return title;

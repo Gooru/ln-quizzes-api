@@ -5,10 +5,9 @@ import java.util.List;
 public class CollectionDto {
 
     private String id;
-
+    private CollectionMetadataDto metadata;
     private List<ResourceDto> resources;
 
-    private AssessmentMetadataDto metadata;
 
     public CollectionDto() {
     }
@@ -21,6 +20,14 @@ public class CollectionDto {
         this.id = id;
     }
 
+    public CollectionMetadataDto getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(CollectionMetadataDto metadata) {
+        this.metadata = metadata;
+    }
+
     public List<ResourceDto> getResources() {
         return resources;
     }
@@ -29,11 +36,4 @@ public class CollectionDto {
         this.resources = resources;
     }
 
-    public AssessmentMetadataDto getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(AssessmentMetadataDto metadata) {
-        this.metadata = metadata;
-    }
 }

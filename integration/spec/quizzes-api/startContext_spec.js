@@ -2,7 +2,7 @@ const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
 frisby.create('Test context creation for one assignee and owner for start context ')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -68,7 +68,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
                     })
                     .afterJSON(function () {
                         frisby.create('Get context assigned information')
-                            .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
+                            .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                             .addHeader('profile-id', profile.id)
                             .addHeader('client-id', 'quizzes')
                             .inspectRequest()
@@ -103,7 +103,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
                                             })
                                             .afterJSON(function () {
                                                 frisby.create('Verify context started')
-                                                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
+                                                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                                                     .addHeader('profile-id', profile.id)
                                                     .addHeader('client-id', 'quizzes')
                                                     .inspectRequest()
