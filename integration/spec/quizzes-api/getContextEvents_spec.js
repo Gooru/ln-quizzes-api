@@ -50,7 +50,7 @@ frisby.create('Test context creation for one assignee and owner for start contex
             .inspectJSON()
             .afterJSON(function (assigneeProfile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/assigned/' + contextCreated.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + contextCreated.id + '/assigned')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -220,7 +220,7 @@ frisby.create('Test context events for one assignee and owner for a not started 
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/created/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + "/created")
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -308,7 +308,7 @@ frisby.create('Test context events for one assignee and owner for started contex
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()

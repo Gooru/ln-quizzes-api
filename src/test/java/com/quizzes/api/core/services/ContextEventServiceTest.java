@@ -8,7 +8,7 @@ import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileEventResponseDto;
-import com.quizzes.api.core.dtos.QuestionMetadataDto;
+import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
@@ -235,7 +235,7 @@ public class ContextEventServiceTest {
     @Test
     public void findFirstResourceByContextId() throws Exception {
         //Resource result =
-                WhiteboxImpl.invokeMethod(contextEventService, "findFirstResourceByContextId", contextId);
+        WhiteboxImpl.invokeMethod(contextEventService, "findFirstResourceByContextId", contextId);
 
         //assertEquals("Wrong resourceId", resourceId, result.getId());
     }
@@ -308,7 +308,8 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
         //previousResource.setResourceData(gson.toJson(questionMetadataDto));
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
@@ -362,7 +363,7 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        QuestionMetadataDto questionMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
@@ -385,9 +386,12 @@ public class ContextEventServiceTest {
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
         doReturn(100).when(contextEventService, "calculateScoreByQuestionType",
-                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+                eq(resourceMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+//        doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
+//                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         //doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
         //        eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+
         doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
                 .when(contextEventService, "createContextProfileEvent", contextProfileId, previousResourceId);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
@@ -402,7 +406,7 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
-                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
+                eq(resourceMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent",
                 contextProfileId, previousResourceId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
@@ -723,7 +727,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers, correctAnswers);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -891,11 +895,11 @@ public class ContextEventServiceTest {
         return body;
     }
 
-    private QuestionMetadataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
-        QuestionMetadataDto questionMetadataDto = new QuestionMetadataDto();
-        questionMetadataDto.setCorrectAnswer(answers);
-        questionMetadataDto.setType(questionType);
-        return questionMetadataDto;
+    private ResourceMetadataDto createQuestionDataDto(List<AnswerDto> answers, String questionType) {
+        ResourceMetadataDto resourceMetadataDto = new ResourceMetadataDto();
+        resourceMetadataDto.setCorrectAnswer(answers);
+        resourceMetadataDto.setType(questionType);
+        return resourceMetadataDto;
     }
 
 }

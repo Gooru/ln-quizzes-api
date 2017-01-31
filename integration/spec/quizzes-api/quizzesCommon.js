@@ -62,7 +62,7 @@ var quizzesCommon = {
 
     createContext: function (afterJsonFunction) {
         frisby.create('Test context creation for one assignee and owner for start context')
-            .post(QuizzesApiUrl + '/v1/context', {
+            .post(QuizzesApiUrl + '/v1/contexts', {
                 'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
                 'assignees': [
                     {
@@ -114,7 +114,7 @@ var quizzesCommon = {
      */
     createContextWithParams: function (body, afterJsonFunction) {
         frisby.create('Test context creation using body ' + body)
-            .post(QuizzesApiUrl + '/v1/context', body , {json: true})
+            .post(QuizzesApiUrl + '/v1/contexts', body , {json: true})
             .addHeader('profile-id', '1fd8b1bc-65de-41ee-849c-9b6f339349c9')
             .addHeader('client-id', 'quizzes')
             .inspectRequest()
@@ -143,7 +143,7 @@ var quizzesCommon = {
 
     getAssignedContextByContextId: function (contextId, assigneeProfileId, afterJsonFunction) {
         frisby.create('Get assigned context information')
-            .get(QuizzesApiUrl + '/v1/context/assigned/' + contextId)
+            .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/assigned')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
             .inspectRequest()

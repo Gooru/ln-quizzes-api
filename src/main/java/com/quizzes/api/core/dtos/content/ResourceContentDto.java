@@ -4,14 +4,19 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class QuestionContentDto {
+public class ResourceContentDto {
 
     private String id;
 
     private String title;
 
+    @SerializedName("content_format")
+    private String contentFormat;
+
     @SerializedName("content_subformat")
     private String contentSubformat;
+
+    private String url;
 
     @SerializedName("sequence_id")
     private int sequence;
@@ -20,7 +25,7 @@ public class QuestionContentDto {
     private List<AnswerContentDto> answers;
 
 
-    public QuestionContentDto() {
+    public ResourceContentDto() {
     }
 
     public String getId() {
@@ -63,4 +68,19 @@ public class QuestionContentDto {
         this.answers = answers;
     }
 
+    public String getContentFormat() {
+        return contentFormat;
+    }
+
+    public void setContentFormat(String contentFormat) {
+        this.contentFormat = contentFormat;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

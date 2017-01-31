@@ -50,7 +50,7 @@ frisby.create('Test getCollectionByID endpoint')
             .inspectJSON()
             .afterJSON(function(profileJson) {
                 frisby.create('Verify that the context exists as expected')
-                    .get(QuizzesApiUrl + '/v1/context/created/' + contextJson.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + contextJson.id + "/created")
                     .addHeader('lms-id', 'quizzes')
                     .addHeader('profile-id', profileJson.id)
                     .inspectRequest()

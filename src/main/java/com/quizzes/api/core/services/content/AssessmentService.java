@@ -1,27 +1,26 @@
 package com.quizzes.api.core.services.content;
 
 import com.quizzes.api.core.dtos.AnswerDto;
-import com.quizzes.api.core.dtos.AssessmentMetadataDto;
 import com.quizzes.api.core.dtos.ChoiceDto;
 import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.dtos.CollectionMetadataDto;
 import com.quizzes.api.core.dtos.InteractionDto;
-import com.quizzes.api.core.dtos.QuestionMetadataDto;
 import com.quizzes.api.core.dtos.ResourceDto;
+import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.dtos.content.QuestionContentDto;
+import com.quizzes.api.core.dtos.content.CollectionContentDto;
+import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class AssessmentService {
+
+    //TODO: This class needs to be renamed to CollectionService and we should implement
+    // all the old in methods in the current CollectionService and the delete the old file
 
     private static final Map<String, String> questionTypeMap;
 
@@ -50,48 +52,87 @@ public class AssessmentService {
     @Autowired
     AssessmentRestClient assessmentRestClient;
 
+    @Autowired
+    CollectionRestClient collectionRestClient;
+
     public CollectionDto getAssessment(String assessmentId) {
         String userToken = authenticationRestClient.generateAnonymousToken();
-        AssessmentContentDto assessmentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
-        return convertGooruAssessmentToQuizzesFormat(assessmentDto);
+        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
+        return convertGooruAssessmentToQuizzesFormat(assessmentContentDto);
+    }
+
+    public CollectionDto getCollection(String collectionId) {
+        String userToken = authenticationRestClient.generateAnonymousToken();
+        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, userToken);
+        return convertGooruCollectionToQuizzesFormat(collectionContentDto);
     }
 
     private CollectionDto convertGooruAssessmentToQuizzesFormat(AssessmentContentDto assessmentDto) {
-        AssessmentMetadataDto metadata = new AssessmentMetadataDto();
-        metadata.setTitle(assessmentDto.getTitle());
-
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(assessmentDto.getId());
-        collectionDto.setMetadata(metadata);
+        CollectionDto collectionDto = createCollectionDto(assessmentDto.getId(), assessmentDto.getTitle());
         collectionDto.setResources(getResources(assessmentDto.getQuestions()));
 
         return collectionDto;
     }
 
-    private List<ResourceDto> getResources(List<QuestionContentDto> questions) {
-        List<ResourceDto> resources = new ArrayList<>();
+    private CollectionDto convertGooruCollectionToQuizzesFormat(CollectionContentDto collectionContentDto) {
+        CollectionDto collectionDto = createCollectionDto(collectionContentDto.getId(), collectionContentDto.getTitle());
+        collectionDto.setResources(getResources(collectionContentDto.getContent()));
 
-        if (questions != null) {
-            resources = questions.stream().map(questionContentDto -> {
+        return collectionDto;
+    }
+
+    private CollectionDto createCollectionDto(String id, String title) {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(id);
+        collectionDto.setMetadata(new CollectionMetadataDto(title));
+        return collectionDto;
+    }
+
+    private List<ResourceDto> getResources(List<ResourceContentDto> resourceContentDtos) {
+        List<ResourceDto> resourceDtos = new ArrayList<>();
+
+        if (resourceContentDtos != null) {
+            resourceDtos = resourceContentDtos.stream().map(resourceContentDto -> {
                 ResourceDto resourceDto = new ResourceDto();
-                resourceDto.setId(UUID.fromString(questionContentDto.getId()));
-                resourceDto.setIsResource(false);
-                resourceDto.setSequence((short) questionContentDto.getSequence());
+                resourceDto.setId(UUID.fromString(resourceContentDto.getId()));
+                resourceDto.setSequence((short) resourceContentDto.getSequence());
 
-                QuestionMetadataDto metadata = new QuestionMetadataDto();
-                metadata.setTitle(questionContentDto.getTitle());
-                metadata.setType(mapQuestionType(questionContentDto.getContentSubformat()));
-                metadata.setCorrectAnswer(getCorrectAnswers(questionContentDto.getAnswers()));
-                metadata.setInteraction(createInteraction(questionContentDto.getAnswers()));
-                metadata.setBody(questionContentDto.getTitle());
+                ResourceMetadataDto metadata;
+                boolean isResource = false;
+                if (resourceContentDto.getContentFormat() == null ||
+                        !resourceContentDto.getContentFormat().equals("resource")) {
+                    metadata = mapQuestionResource(resourceContentDto);
+                } else {
+                    metadata = mapResource(resourceContentDto);
+                    isResource = true;
+                }
 
-                resourceDto.setQuestionData(metadata);
+                resourceDto.setIsResource(isResource);
+                resourceDto.setMetadata(metadata);
 
                 return resourceDto;
             }).collect(Collectors.toList());
         }
 
-        return resources;
+        return resourceDtos;
+    }
+
+    private ResourceMetadataDto mapResource(ResourceContentDto resourceContentDto) {
+        ResourceMetadataDto metadata = new ResourceMetadataDto();
+        metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setType(resourceContentDto.getContentSubformat());
+        metadata.setUrl(resourceContentDto.getUrl());
+        return metadata;
+    }
+
+    private ResourceMetadataDto mapQuestionResource(ResourceContentDto resourceContentDto) {
+        ResourceMetadataDto metadata = new ResourceMetadataDto();
+        metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setType(mapQuestionType(resourceContentDto.getContentSubformat()));
+        metadata.setCorrectAnswer(getCorrectAnswers(resourceContentDto.getAnswers()));
+        metadata.setInteraction(createInteraction(resourceContentDto.getAnswers()));
+        metadata.setBody(resourceContentDto.getTitle());
+        return metadata;
     }
 
     private String mapQuestionType(String gooruQuestionType) {

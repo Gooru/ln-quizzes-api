@@ -7,7 +7,7 @@ import java.util.List;
 public class AssessmentContentDto extends CollectionContentDto {
 
     @SerializedName("question")
-    private List<QuestionContentDto> questions;
+    private List<ResourceContentDto> questions;
 
     @SerializedName("owner_id")
     private String ownerId;
@@ -15,11 +15,11 @@ public class AssessmentContentDto extends CollectionContentDto {
     public AssessmentContentDto() {
     }
 
-    public List<QuestionContentDto> getQuestions() {
+    public List<ResourceContentDto> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<QuestionContentDto> questions) {
+    public void setQuestions(List<ResourceContentDto> questions) {
         this.questions = questions;
     }
 
