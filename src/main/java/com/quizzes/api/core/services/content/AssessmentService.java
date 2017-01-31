@@ -1,12 +1,12 @@
 package com.quizzes.api.core.services.content;
 
 import com.quizzes.api.core.dtos.AnswerDto;
-import com.quizzes.api.core.dtos.CollectionMetadataDto;
 import com.quizzes.api.core.dtos.ChoiceDto;
 import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.dtos.CollectionMetadataDto;
 import com.quizzes.api.core.dtos.InteractionDto;
-import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.ResourceDto;
+import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
@@ -81,7 +81,7 @@ public class AssessmentService {
         return collectionDto;
     }
 
-    private CollectionDto createCollectionDto(String id, String title){
+    private CollectionDto createCollectionDto(String id, String title) {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(id);
         collectionDto.setMetadata(new CollectionMetadataDto(title));
@@ -99,10 +99,10 @@ public class AssessmentService {
 
                 ResourceMetadataDto metadata;
                 boolean isResource = false;
-                if(resourceContentDto.getContentFormat() == null ||
-                        !resourceContentDto.getContentFormat().equals("resource")){
+                if (resourceContentDto.getContentFormat() == null ||
+                        !resourceContentDto.getContentFormat().equals("resource")) {
                     metadata = mapQuestionResource(resourceContentDto);
-                }else{
+                } else {
                     metadata = mapResource(resourceContentDto);
                     isResource = true;
                 }

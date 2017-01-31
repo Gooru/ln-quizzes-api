@@ -42,7 +42,7 @@ public class CollectionController {
     @RequestMapping(path = "/collections/old/{collectionId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionGetResponseDto> getCollection(@PathVariable UUID collectionId) {
+    public ResponseEntity<CollectionGetResponseDto> getCollectionOld(@PathVariable UUID collectionId) {
         return new ResponseEntity<>(collectionService.findCollectionById(collectionId), HttpStatus.OK);
     }
 
@@ -50,7 +50,7 @@ public class CollectionController {
             path = "/collections/{collectionId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionDto> getAssessment(@PathVariable UUID collectionId) {
+    public ResponseEntity<CollectionDto> getCollection(@PathVariable UUID collectionId) {
         return new ResponseEntity<>(assessmentService.getCollection(collectionId.toString()),HttpStatus.OK);
     }
 

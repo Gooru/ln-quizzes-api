@@ -49,75 +49,6 @@ public class CollectionControllerTest {
     Gson gson = new Gson();
 
     @Test
-    public void getCollectionWhenIdExists() throws Exception {
-        AnswerDto answer = new AnswerDto();
-        answer.setValue("A");
-        List<AnswerDto> answers = new ArrayList<>();
-        answers.add(answer);
-
-        ResourceMetadataDto resourceMetadataDto = new ResourceMetadataDto();
-        resourceMetadataDto.setTitle("question 1");
-        resourceMetadataDto.setType("true_false");
-        resourceMetadataDto.setBody("question 1");
-        resourceMetadataDto.setCorrectAnswer(answers);
-
-        ResourceDto resource1 = new ResourceDto();
-        UUID resourceId1 = UUID.randomUUID();
-        resource1.setId(resourceId1);
-        resource1.setSequence(1);
-        resource1.setIsResource(false);
-        resource1.setMetadata(resourceMetadataDto);
-
-        ResourceDto resource2 = new ResourceDto();
-        UUID resourceId2 = UUID.randomUUID();
-        resource2.setId(resourceId2);
-        resource2.setIsResource(false);
-        resource2.setSequence(2);
-        resource1.setMetadata(resourceMetadataDto);
-
-        List<ResourceDto> resources = new ArrayList<>();
-        resources.add(resource1);
-        resources.add(resource2);
-
-        CollectionGetResponseDto collectionDto = new CollectionGetResponseDto();
-        UUID collectionId = UUID.randomUUID();
-        collectionDto.setId(collectionId);
-        collectionDto.setIsCollection(false);
-        collectionDto.setResources(resources);
-
-        when(collectionService.findCollectionById(any(UUID.class))).thenReturn(collectionDto);
-
-        ResponseEntity<CollectionGetResponseDto> result =
-                collectionController.getCollection(UUID.randomUUID());
-
-        verify(collectionService, times(1)).findCollectionById(any(UUID.class));
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-
-        CollectionGetResponseDto response = result.getBody();
-        assertNotNull("Response Body is Null", response);
-        assertFalse("IsCollection is true", response.getIsCollection());
-        assertEquals("Wrong size in resources", 2, response.getResources().size());
-        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getMetadata().getType());
-        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getMetadata().getTitle());
-
-        ResourceDto responseResource = response.getResources().get(1);
-        assertEquals("Wrong size in resources", 2, responseResource.getSequence());
-        assertEquals("Wrong id for resource 2", resourceId2, responseResource.getId());
-        assertFalse("Wrong id for resource 2", responseResource.getIsResource());
-        assertEquals("Wrong type in question", "true_false", response.getResources().get(0).getMetadata().getType());
-        assertEquals("Wrong title in question", "question 1", response.getResources().get(0).getMetadata().getTitle());
-        assertSame(result.getBody().getClass(), CollectionGetResponseDto.class);
-    }
-
-    @Test(expected = ContentNotFoundException.class)
-    public void getCollectionWhenThrowsContentNotFoundException() throws Exception {
-        when(collectionService.findCollectionById(any(UUID.class))).thenThrow(ContentNotFoundException.class);
-        collectionController.getCollection(UUID.randomUUID());
-    }
-
-    @Test
     public void getCollection() throws Exception {
         String collectionId = String.valueOf(UUID.randomUUID());
         CollectionDto collectionDto = new CollectionDto();
@@ -125,7 +56,7 @@ public class CollectionControllerTest {
 
         PowerMockito.when(assessmentService.getCollection(collectionId)).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDto> result = collectionController.getAssessment(UUID.fromString(collectionId));
+        ResponseEntity<CollectionDto> result = collectionController.getCollection(UUID.fromString(collectionId));
 
         verify(assessmentService, times(1)).getCollection(collectionId);
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
