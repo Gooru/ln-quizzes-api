@@ -105,11 +105,10 @@ public class AuthenticationRestClient {
             }
 
             return accessTokenResponseDto;
+        } catch (HttpClientErrorException hcee) {
+            logger.error("Gooru Token '" + token + "' is not valid.", hcee);
+            throw new InvalidSessionException("Unauthorized Token " + token, hcee);
         } catch (RestClientException rce) {
-            if (rce instanceof HttpClientErrorException &&
-                    ((HttpClientErrorException) rce).getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
-                throw new InvalidSessionException("Unauthorized Token " + token + "", rce);
-            }
             logger.error("Gooru Token '" + token + "' is not valid.", rce);
             throw new ContentProviderException("Gooru Token " + token + " is not valid.", rce);
         } catch (Exception e) {

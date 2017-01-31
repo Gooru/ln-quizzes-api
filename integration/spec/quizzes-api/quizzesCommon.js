@@ -1,4 +1,5 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
+const NileApiUrl = require('./quizzesTestConfiguration.js').nileApiUrl;
 const frisby = require('frisby');
 
 var testUsers = {};
@@ -34,7 +35,7 @@ var quizzesCommon = {
         var authorizationUser = this.getTestUser(userId);
         console.log("Autorization user " + authorizationUser.identityId);
         frisby.create('Gets the authorization token for ' + userId)
-            .post('http://www.gooru.org/api/nucleus-auth/v1/authorize', {
+            .post(NileApiUrl + '/v1/authorize', {
                 "client_key": "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==",
                 "client_id": "ba956a97-ae15-11e5-a302-f8a963065976",
                 "grant_type": "google",
