@@ -18,7 +18,7 @@ public class GooruHelper {
     @Autowired
     private Gson gsonPretty;
 
-    public HttpHeaders setHttpHeaders(String token) {
+    public HttpHeaders setupHttpHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         headers.set("Authorization", "Token " + token);

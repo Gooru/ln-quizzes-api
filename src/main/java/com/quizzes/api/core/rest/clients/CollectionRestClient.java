@@ -2,7 +2,6 @@ package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
@@ -17,7 +16,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -25,7 +23,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.Arrays;
 
 @Component
 public class CollectionRestClient {
@@ -61,7 +58,7 @@ public class CollectionRestClient {
         }
 
         try {
-            HttpHeaders headers = gooruHelper.setHttpHeaders(token);
+            HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
             HttpEntity entity = new HttpEntity(headers);
             ResponseEntity<CollectionContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, CollectionContentDto.class);
@@ -93,7 +90,7 @@ public class CollectionRestClient {
         }
 
         try {
-            HttpHeaders headers = gooruHelper.setHttpHeaders(token);
+            HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
             HttpEntity<JsonObject> entity = new HttpEntity<>(new JsonObject(), headers);
 
             URI location = restTemplate.postForLocation(endpointUrl, entity, collectionId);

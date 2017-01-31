@@ -1,6 +1,5 @@
 package com.quizzes.api.core.rest.clients;
 
-import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpEntity;
@@ -63,14 +61,14 @@ public class CollectionRestClientTest {
 
         doReturn(new ResponseEntity<>(collectionContentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
-        doReturn(new HttpHeaders()).when(gooruHelper).setHttpHeaders(userToken);
+        doReturn(new HttpHeaders()).when(gooruHelper).setupHttpHeaders(userToken);
         doReturn(url).when(configurationService).getContentApiUrl();
 
         collectionRestClient.getCollection(collectionContentDto.getId(), userToken);
 
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
-        verify(gooruHelper, times(1)).setHttpHeaders(userToken);
+        verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
         verify(configurationService, times(1)).getContentApiUrl();
     }
 }

@@ -14,13 +14,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
 
 @Component
 public class AssessmentRestClient {
@@ -54,7 +51,7 @@ public class AssessmentRestClient {
         }
 
         try {
-            HttpHeaders headers = gooruHelper.setHttpHeaders(token);
+            HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
             HttpEntity entity = new HttpEntity(headers);
             ResponseEntity<AssessmentContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AssessmentContentDto.class);

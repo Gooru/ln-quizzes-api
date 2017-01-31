@@ -60,7 +60,7 @@ public class AssessmentRestClientTest {
 
         String url = "http://www.gooru.org";
         doReturn(url).when(configurationService).getContentApiUrl();
-        doReturn(new HttpHeaders()).when(gooruHelper).setHttpHeaders(userToken);
+        doReturn(new HttpHeaders()).when(gooruHelper).setupHttpHeaders(userToken);
 
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
@@ -70,7 +70,7 @@ public class AssessmentRestClientTest {
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
         verify(configurationService, times(1)).getContentApiUrl();
-        verify(gooruHelper, times(1)).setHttpHeaders(userToken);
+        verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
     }
 
 }
