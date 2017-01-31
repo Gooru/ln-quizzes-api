@@ -1,6 +1,8 @@
 package com.quizzes.api.core.controllers;
 
+import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.CollectionGetResponseDto;
+import com.quizzes.api.core.services.content.AssessmentService;
 import com.quizzes.api.core.services.content.CollectionService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -26,6 +28,9 @@ public class CollectionController {
     @Autowired
     private CollectionService collectionService;
 
+    @Autowired
+    AssessmentService assessmentService;
+
 
     @ApiOperation(value = "Get a collection by its collection ID",
             notes = "Gets Collection data, including Resources and Answers (in case of Question).")
@@ -34,11 +39,19 @@ public class CollectionController {
                     response = CollectionGetResponseDto.class),
             @ApiResponse(code = 404, message = "Not found")
     })
-    @RequestMapping(path = "/collections/{collectionId}",
+    @RequestMapping(path = "/collections/old/{collectionId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CollectionGetResponseDto> getCollection(@PathVariable UUID collectionId) {
+    public ResponseEntity<CollectionGetResponseDto> getCollectionOld(@PathVariable UUID collectionId) {
         return new ResponseEntity<>(collectionService.findCollectionById(collectionId), HttpStatus.OK);
+    }
+
+    @RequestMapping(
+            path = "/collections/{collectionId}",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CollectionDto> getCollection(@PathVariable UUID collectionId) {
+        return new ResponseEntity<>(assessmentService.getCollection(collectionId.toString()),HttpStatus.OK);
     }
 
 

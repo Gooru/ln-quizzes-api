@@ -21,12 +21,6 @@ import java.util.stream.Collectors;
 @Service
 public class CollectionService {
 
-    private static final String COLLECTION_TITLE = "title";
-    private static final String QUESTION_TITLE = "title";
-    private static final String QUESTION_TYPE = "type";
-    private static final String QUESTION_CORRECT_ANSWER = "correctAnswer";
-    private static final String QUESTION_BODY = "body";
-    private static final String QUESTION_INTERACTION = "interaction";
     private static final String INTERACTION_SHUFFLE = "shuffle";
     private static final String INTERACTION_MAX_CHOICES = "maxChoices";
     private static final String INTERACTION_PROMPT = "prompt";
