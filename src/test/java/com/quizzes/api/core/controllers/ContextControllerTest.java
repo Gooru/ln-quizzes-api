@@ -369,7 +369,7 @@ public class ContextControllerTest {
         Map<String, String> filter = new HashMap<>();
         filter.put("classId", UUID.randomUUID().toString());
         ResponseEntity<List<ContextGetResponseDto>> response =
-                controller.getContexts(Lms.its_learning.getLiteral(), UUID.randomUUID(), "created", null, null, null, null, filter);
+                controller.getCreatedContexts(Lms.its_learning.getLiteral(), UUID.randomUUID(), filter);
 
         assertNotNull("Response is Null", response);
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
@@ -422,7 +422,7 @@ public class ContextControllerTest {
 
         when(contextService.getAssignedContexts(any(UUID.class),any(Boolean.class), any(Long.class), any(Long.class))).thenReturn(contexts);
 
-        ResponseEntity<List<ContextGetResponseDto>> response = controller.getContexts("its_learning", UUID.randomUUID(), null, "assigned", null, null, null, null);
+        ResponseEntity<List<ContextGetResponseDto>> response = controller.getAssignedContexts("its_learning", UUID.randomUUID(), null, null, null);
 
         verify(contextService, times(1)).getAssignedContexts(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class));
 

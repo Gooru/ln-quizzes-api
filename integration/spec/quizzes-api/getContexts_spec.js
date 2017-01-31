@@ -2,8 +2,6 @@ const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 const QuizzesCommon = require('./quizzesCommon.js');
 var frisby = require('frisby');
 
-// TODO: Add cases to test GET /v1/contexts with created and assigned presents at the same time, and with none of them
-
 frisby.create('Creates a Context and assigns it to two Assignees and verifies it was correctly assigned')
     .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
@@ -53,7 +51,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
             .inspectJSON()
             .afterJSON(function (assigneeProfile) {
                 frisby.create('Verifies Context was correctly assigned and that it has not started')
-                    .get(QuizzesApiUrl + '/v1/contexts?assigned')
+                    .get(QuizzesApiUrl + '/v1/contexts/assigned')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -115,7 +113,7 @@ frisby.create('Creates a Context and assigns it to an Assignee, then tries to re
             .inspectJSON()
             .afterJSON(function (ownerProfile) {
                 frisby.create('Tries to retrieve an assigned Context using Owner ID')
-                    .get(QuizzesApiUrl + '/v1/contexts?assigned')
+                    .get(QuizzesApiUrl + '/v1/contexts/assigned')
                     .addHeader('profile-id', ownerProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -184,7 +182,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                 frisby.create('Verifies error when combination isActive + startDate + dueDate')
                     // startDate = Sunday, January 1, 2017 12:00:00 PM GMT
                     // dueDate = Tuesday, January 31, 2017 12:00:00 PM GMT
-                    .get(QuizzesApiUrl + '/v1/contexts?assigned&isActive=true&startDate=1483272000000&dueDate=1485864000000')
+                    .get(QuizzesApiUrl + '/v1/contexts/assigned?isActive=true&startDate=1483272000000&dueDate=1485864000000')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -202,7 +200,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
 
                 frisby.create('Verifies error when combination isActive + startDate')
                 // startDate = Sunday, January 1, 2017 12:00:00 PM GMT
-                    .get(QuizzesApiUrl + '/v1/contexts?assigned&isActive=true&startDate=1483272000000')
+                    .get(QuizzesApiUrl + '/v1/contexts/assigned?isActive=true&startDate=1483272000000')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -220,7 +218,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
 
                 frisby.create('Verifies error when combination isActive + dueDate')
                 // dueDate = Tuesday, January 31, 2017 12:00:00 PM GMT
-                    .get(QuizzesApiUrl + '/v1/contexts?assigned&isActive=false&dueDate=1485864000000')
+                    .get(QuizzesApiUrl + '/v1/contexts/assigned?isActive=false&dueDate=1485864000000')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -237,7 +235,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                     ).toss();
 
                 frisby.create('Verifies that isActive parameter with no value is valid')
-                    .get(QuizzesApiUrl + '/v1/contexts?assigned&isActive')
+                    .get(QuizzesApiUrl + '/v1/contexts/assigned?isActive')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -247,7 +245,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                     .toss();
 
                 frisby.create('Verifies that isActive parameter with value is valid')
-                    .get(QuizzesApiUrl + '/v1/contexts?assigned&isActive=false')
+                    .get(QuizzesApiUrl + '/v1/contexts/assigned?isActive=false')
                     .addHeader('profile-id', assigneeProfile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -379,7 +377,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                             .inspectJSON()
                             .afterJSON(function (assigneeProfile) {
                                 frisby.create('Verifies isActive=true')
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&isActive=true')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?isActive=true')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -390,7 +388,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                                     .toss();
 
                                 frisby.create('Verifies isActive=false')
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&isActive=false')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?isActive=false')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -402,7 +400,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
 
                                 frisby.create('Verifies startDate with a date in the range')
                                 //startDate = Tue, 03 Jan 2017 12:00:00 GMT
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&startDate=1483444800000')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?startDate=1483444800000')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -414,7 +412,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
 
                                 frisby.create('Verifies startDate with a date out of the range')
                                 //startDte = Sat, 07 Jan 2017 12:00:00 GMT
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&startDate=1483790400000')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?startDate=1483790400000')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -426,7 +424,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
 
                                 frisby.create('Verifies dueDate with a date in the range')
                                 //dueDate = Sun, 29 Jan 2017 12:00:00 GMT
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&dueDate=1485691200000')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?dueDate=1485691200000')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -438,7 +436,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
 
                                 frisby.create('Verifies dueDate with a date out of the range')
                                 //dueDate = Wed, 25 Jan 2017 12:00:00 GMT
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&dueDate=1485345600000')
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?dueDate=1485345600000')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -451,7 +449,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                                 frisby.create('Verifies startDate and dueDate with a date in the range')
                                 //startDate = Tue, 03 Jan 2017 12:00:00 GMT
                                 //dueDate = Sun, 29 Jan 2017 12:00:00 GMT
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&' +
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?' +
                                         'startDate=1483444800000&dueDate=1485691200000')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
@@ -465,7 +463,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                                 frisby.create('Verifies startDate and dueDate with a date in the range')
                                 //startDate = Tue, 03 Jan 2017 12:00:00 GMT
                                 //dueDate = Fri, 27 Jan 2017 12:00:00 GMT
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&' +
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?' +
                                         'startDate=1483444800000&dueDate=1485518400000')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')
@@ -479,7 +477,7 @@ frisby.create('Creates a Context and assigns it to two Assignees and verifies it
                                 frisby.create('Verifies startDate and dueDate with a date out of the range')
                                 //startDate = Sat, 07 Jan 2017 12:00:00 GMT - this is out
                                 //dueDate = Fri, 27 Jan 2017 12:00:00 GMT - this is in
-                                    .get(QuizzesApiUrl + '/v1/contexts?assigned&' +
+                                    .get(QuizzesApiUrl + '/v1/contexts/assigned?' +
                                         'startDate=1483790400000&dueDate=1485518400000')
                                     .addHeader('profile-id', assigneeProfile.id)
                                     .addHeader('client-id', 'quizzes')

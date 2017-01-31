@@ -75,63 +75,52 @@ public class ContextController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get contexts",
-            notes = "Get all the contexts created by the Owner Profile, or all the ‘active’ contexts assigned to the assignee profile, based on the presence of the created or assigned query params.\n\nWhen the created param is present the fields `owner` and `hasStarted` are no present, and when the assigned param is present the `assignees` and `modifiedDate` are not present")
+    @ApiOperation(value = "Get created contexts",
+            notes = "Get all the contexts created by the Owner Profile.\n\nThe fields `owner` and `hasStarted` won't be present on requests to this end point")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", responseContainer = "List",
                     response = ContextGetResponseDto.class)
     })
-    @RequestMapping(path = "/contexts",
+    @RequestMapping(path = "/contexts/created",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ContextGetResponseDto>> getContexts(
+    public ResponseEntity<List<ContextGetResponseDto>> getCreatedContexts(
             @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @ApiParam(name = "profile-id", required = true, value = "Context owner Profile ID")
             @RequestHeader(value = "profile-id") UUID profileId,
-            @ApiParam(value = "Filter the contexts by its owner profile", required = false, name = "created")
-            @RequestParam(value = "created", required = false) String created,
-            @ApiParam(value = "Filter all the ‘active’ contexts assigned to the assignee profile.", required = false, name = "assigned")
-            @RequestParam(value = "assigned", required = false) String assigned,
-            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
-            @RequestParam(value = "isActive", required = false) Boolean isActive,
-            @ApiParam(value = "Filter the contexts by start date in milliseconds", required = false, name = "startDate")
-            @RequestParam(value = "startDate", required = false) Long startDate,
-            @ApiParam(value = "Filter the contexts by due date in milliseconds", required = false, name = "dueDate")
-            @RequestParam(value = "dueDate", required = false) Long dueDate,
             @ApiParam(value = "optional query params", required = true, name = "filterMap")
             @RequestParam Map<String, String> filterMap) throws Exception {
 
-        if (created == null && assigned == null) {
-            throw new InvalidRequestException("One of created or assigned parameters must be present");
-        }
-
-        if (created != null && assigned != null) {
-            throw new InvalidRequestException("Parameters created and assigned can't be combined");
-        }
-
-        if (created != null) {
-            return getCreatedContexts(profileId);
-        }
-
-        return getAssignedContexts(profileId, isActive, startDate, dueDate);
-    }
-
-    // Get all the contexts created by the Owner Profile
-    private ResponseEntity<List<ContextGetResponseDto>> getCreatedContexts(UUID profileId) throws Exception {
         List<ContextGetResponseDto> list = contextService.findCreatedContexts(profileId);
-
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
-    // Get all the ‘active’ contexts assigned to the assignee profile.
-    private ResponseEntity<List<ContextGetResponseDto>> getAssignedContexts(UUID profileId, Boolean isActive, Long startDate, Long dueDate)
-            throws Exception {
+    @ApiOperation(value = "Get assigned contexts",
+          notes = "Get all the ‘active’ contexts assigned to the assignee profile.\n\nThe fields `assignees` and `modifiedDate` won't be present on requests to this end point")
+    @ApiResponses({
+          @ApiResponse(code = 200, message = "Body", responseContainer = "List",
+                  response = ContextGetResponseDto.class)
+    })
+    @RequestMapping(path = "/contexts/assigned",
+          method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ContextGetResponseDto>> getAssignedContexts(
+          @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
+          @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+          @ApiParam(name = "profile-id", required = true, value = "Assignee Profile ID")
+          @RequestHeader(value = "profile-id") UUID profileId,
+          @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
+          @RequestParam(value = "isActive", required = false) Boolean isActive,
+          @ApiParam(value = "Filter the contexts by start date in milliseconds", required = false, name = "startDate")
+          @RequestParam(value = "startDate", required = false) Long startDate,
+          @ApiParam(value = "Filter the contexts by due date in milliseconds", required = false, name = "dueDate")
+          @RequestParam(value = "dueDate", required = false) Long dueDate) throws Exception {
 
-      if (isActive != null && (startDate != null || dueDate != null)) {
-        throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
-      }
-      List<ContextGetResponseDto> contexts = contextService.getAssignedContexts(profileId, isActive, startDate, dueDate);
-      return new ResponseEntity<>(contexts, HttpStatus.OK);
+        if (isActive != null && (startDate != null || dueDate != null)) {
+            throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
+        }
+
+        List<ContextGetResponseDto> contexts = contextService.getAssignedContexts(profileId, isActive, startDate, dueDate);
+        return new ResponseEntity<>(contexts, HttpStatus.OK);
     }
 
     @ApiOperation(
@@ -150,7 +139,7 @@ public class ContextController {
             @ApiParam(name = "profile-id", required = true, value = "Context owner Profile ID")
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
 
-      ContextGetResponseDto result = contextService.findCreatedContextByContextIdAndOwnerId(contextId, profileId);
+        ContextGetResponseDto result = contextService.findCreatedContextByContextIdAndOwnerId(contextId, profileId);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -167,7 +156,7 @@ public class ContextController {
             @PathVariable UUID contextId,
             @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
             @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-      ContextGetResponseDto response =
+        ContextGetResponseDto response =
                 contextService.getAssignedContextByContextIdAndAssigneeId(contextId, profileId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
