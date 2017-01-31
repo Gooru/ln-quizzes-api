@@ -87,8 +87,8 @@ public class ContextEventService {
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
         ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
-        QuestionDataDto previousResourceData =
-                gson.fromJson(previousResource.getResourceData(), QuestionDataDto.class);
+        QuestionMetadataDto previousResourceData =
+                gson.fromJson(previousResource.getResourceData(), QuestionMetadataDto.class);
 
         // Calculates provided answer score
         if (!resourceDto.getAnswer().isEmpty()) {
@@ -241,6 +241,7 @@ public class ContextEventService {
         return currentContextProfile;
     }
 
+    /*
     private List<ContextProfileEvent> createSkippedContextProfileEvents(UUID contextProfileId,
                                                                         List<Resource> resources) {
         return resources.stream()
@@ -252,6 +253,7 @@ public class ContextEventService {
                     return contextProfileEvent;
                 }).collect(Collectors.toList());
     }
+    */
 
     private PostResponseResourceDto createSkippedEventData(UUID resourceId) {
         PostResponseResourceDto evenData = new PostResponseResourceDto();
@@ -269,7 +271,7 @@ public class ContextEventService {
                                                                           List<ContextProfileEvent> contextProfileEvents) {
         StartContextEventResponseDto response = new StartContextEventResponseDto();
         response.setId(context.getId());
-        response.setCurrentResourceId(contextProfile.getCurrentResourceId());
+        //response.setCurrentResourceId(contextProfile.getCurrentResourceId());
         response.setCollection(new CollectionDto(context.getCollectionId().toString()));
         response.setEvents(contextProfileEvents.stream()
                 .map(event -> gson.fromJson(event.getEventData(), PostResponseResourceDto.class))
@@ -280,11 +282,12 @@ public class ContextEventService {
     private void sendStartEventMessage(ContextProfile contextProfile, boolean isNewAttempt) {
         StartContextEventMessageDto startEventMessage = new StartContextEventMessageDto();
         startEventMessage.setIsNewAttempt(isNewAttempt);
-        startEventMessage.setCurrentResourceId(contextProfile.getCurrentResourceId());
+        //startEventMessage.setCurrentResourceId(contextProfile.getCurrentResourceId());
         activeMQClientService.sendStartContextEventMessage(contextProfile.getContextId(),
                 contextProfile.getProfileId(), startEventMessage);
     }
 
+    /*
     private void sendOnResourceEventMessage(ContextProfile contextProfile,
                                             PostRequestResourceDto previousResource,
                                             EventSummaryDataDto eventSummary) {
@@ -295,6 +298,7 @@ public class ContextEventService {
         activeMQClientService.sendOnResourceEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(),
                 onResourceEventMessage);
     }
+    */
 
     private void sendFinishContextEventMessage(UUID contextId, UUID profileId, EventSummaryDataDto eventSummary) {
         FinishContextEventMessageDto finishContextEventMessage = new FinishContextEventMessageDto();
@@ -303,26 +307,30 @@ public class ContextEventService {
     }
 
     private ContextProfile createContextProfile(UUID contextId, UUID profileId) {
-        Resource firstResource = findFirstResourceByContextId(contextId);
+        //Resource firstResource = findFirstResourceByContextId(contextId);
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
-        contextProfile.setCurrentResourceId(firstResource.getId());
+        //contextProfile.setCurrentResourceId(firstResource.getId());
         contextProfile.setEventSummaryData(gson.toJson(calculateEventSummary(Collections.EMPTY_LIST, false)));
         return contextProfile;
     }
 
+    /*
     private ContextProfileEvent createContextProfileEvent(UUID contextProfileId, UUID resourceId) {
         ContextProfileEvent event = new ContextProfileEvent();
         event.setContextProfileId(contextProfileId);
         event.setResourceId(resourceId);
         return event;
     }
+    */
 
+    /*
     private Resource findFirstResourceByContextId(UUID contextId) {
         return null;
         //return resourceService.findFirstByContextIdOrderBySequence(contextId);
     }
+    */
 
     private int calculateScoreByQuestionType(String questionType, List<AnswerDto> userAnswers,
                                              List<AnswerDto> correctAnswers) {

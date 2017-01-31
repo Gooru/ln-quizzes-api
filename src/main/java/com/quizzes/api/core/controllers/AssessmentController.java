@@ -1,5 +1,8 @@
 package com.quizzes.api.core.controllers;
 
+import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.services.content.AssessmentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +15,15 @@ import java.util.UUID;
 @RequestMapping("/quizzes/api/v1")
 public class AssessmentController {
 
+    @Autowired
+    AssessmentService assessmentService;
 
     @RequestMapping(
             path = "/assessments/{assessmentId}",
             method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> getAssessment(@PathVariable UUID assessmentId) {
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<CollectionDto> getAssessment(@PathVariable UUID assessmentId) {
+        return new ResponseEntity<>(assessmentService.getAssessment(assessmentId.toString()),HttpStatus.OK);
     }
 
 }

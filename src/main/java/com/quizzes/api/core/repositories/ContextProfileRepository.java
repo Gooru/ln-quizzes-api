@@ -11,10 +11,9 @@ public interface ContextProfileRepository {
 
     List<UUID> findContextProfileIdsByContextId(UUID contextId);
 
-    void delete(UUID id);
-
     ContextProfile save(ContextProfile contextProfile);
 
     ContextProfile findById(UUID contextProfileId);
+
 }
 

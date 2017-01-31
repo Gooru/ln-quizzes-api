@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CurrentContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.core.model.jooq.tables.records.CurrentContextProfileRecord> implements org.jooq.Record4<java.util.UUID, java.util.UUID, java.util.UUID, java.sql.Timestamp> {
 
-	private static final long serialVersionUID = -1660606041;
+	private static final long serialVersionUID = -921788289;
 
 	/**
 	 * Setter for <code>public.current_context_profile.context_id</code>.

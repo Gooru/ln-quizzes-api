@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
 
-public class QuestionDto {
+public class QuestionContentDto {
 
     private String id;
 
@@ -17,10 +17,10 @@ public class QuestionDto {
     private int sequence;
 
     @SerializedName("answer")
-    private List<AnswerDto> answers;
+    private List<AnswerContentDto> answers;
 
 
-    public QuestionDto() {
+    public QuestionContentDto() {
     }
 
     public String getId() {
@@ -55,11 +55,11 @@ public class QuestionDto {
         this.sequence = sequence;
     }
 
-    public List<AnswerDto> getAnswers() {
+    public List<AnswerContentDto> getAnswers() {
         return answers;
     }
 
-    public void setAnswers(List<AnswerDto> answers) {
+    public void setAnswers(List<AnswerContentDto> answers) {
         this.answers = answers;
     }
 

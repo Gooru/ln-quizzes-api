@@ -32,7 +32,7 @@ backend default {
 
 # Happens before we check if we have this in cache already.
 sub vcl_recv {
-    if (req.url ~ "(/v1/collection/|/v1/assessments/)") {
+    if (req.url ~ "(/v1/collections/|/v1/assessments/)") {
         return (hash);
     }
     return (pass);

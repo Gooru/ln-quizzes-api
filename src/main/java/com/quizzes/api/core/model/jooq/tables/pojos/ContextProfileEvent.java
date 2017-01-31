@@ -9,11 +9,11 @@ package com.quizzes.api.core.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileEvent implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1239300335;
+	private static final long serialVersionUID = -1463237351;
 
 	private java.util.UUID     id;
 	private java.util.UUID     contextProfileId;
-	private java.util.UUID     resourceId;
+	private java.util.UUID     contentId;
 	private java.lang.String   eventData;
 	private java.sql.Timestamp createdAt;
 
@@ -22,13 +22,13 @@ public class ContextProfileEvent implements java.io.Serializable {
 	public ContextProfileEvent(
 		java.util.UUID     id,
 		java.util.UUID     contextProfileId,
-		java.util.UUID     resourceId,
+		java.util.UUID     contentId,
 		java.lang.String   eventData,
 		java.sql.Timestamp createdAt
 	) {
 		this.id = id;
 		this.contextProfileId = contextProfileId;
-		this.resourceId = resourceId;
+		this.contentId = contentId;
 		this.eventData = eventData;
 		this.createdAt = createdAt;
 	}
@@ -49,12 +49,12 @@ public class ContextProfileEvent implements java.io.Serializable {
 		this.contextProfileId = contextProfileId;
 	}
 
-	public java.util.UUID getResourceId() {
-		return this.resourceId;
+	public java.util.UUID getContentId() {
+		return this.contentId;
 	}
 
-	public void setResourceId(java.util.UUID resourceId) {
-		this.resourceId = resourceId;
+	public void setContentId(java.util.UUID contentId) {
+		this.contentId = contentId;
 	}
 
 	public java.lang.String getEventData() {

@@ -171,7 +171,7 @@ var quizzesCommon = {
 
     startContext: function (contextId, assigneeProfileId, afterJsonFunction) {
         frisby.create('Start Context')
-            .post(QuizzesApiUrl + '/v1/context/' + contextId + '/event/start')
+            .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/start')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
             .inspectRequest()
@@ -185,7 +185,7 @@ var quizzesCommon = {
 
     onResourceEvent: function (contextId, assigneeProfileId, resourceId, previousResource, afterJsonFunction) {
         frisby.create('On Resource Event')
-            .post(QuizzesApiUrl + '/v1/context/' + contextId + '/event/on-resource/' +
+            .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/onResource/' +
                 resourceId, previousResource, {json: true})
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('lms-id', 'quizzes')
@@ -199,7 +199,7 @@ var quizzesCommon = {
 
     finishContext: function (contextId, assigneeProfileId, afterJsonFunction) {
         frisby.create('Finish Context')
-            .post(QuizzesApiUrl + '/v1/context/' + contextId + '/event/finish')
+            .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/finish')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
             .inspectRequest()
@@ -223,6 +223,23 @@ var quizzesCommon = {
                 afterJsonFunction(afterJsonFunction);
             })
             .toss()
+    },
+
+    verifyContentNotFound: function(url, title){
+        frisby.create(title + ' throws ContentNotFoundException')
+            .get(QuizzesApiUrl + url)
+            .inspectRequest()
+            .expectStatus(404)
+            .inspectJSON()
+            .expectJSON({
+                "status": 404
+            })
+            .expectJSONTypes({
+                message: String,
+                status: Number,
+                exception: String
+            })
+            .toss();
     }
 };
 
