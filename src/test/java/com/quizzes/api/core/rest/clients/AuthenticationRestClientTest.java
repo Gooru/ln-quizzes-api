@@ -4,6 +4,7 @@ import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.dtos.content.TokenResponseDto;
 import com.quizzes.api.core.dtos.content.UserTokenRequestDto;
 import com.quizzes.api.core.dtos.content.UserDataTokenDto;
+import com.quizzes.api.core.services.ConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -31,8 +32,8 @@ public class AuthenticationRestClientTest {
     @Mock
     RestTemplate restTemplate;
 
-    @Value("${content.api.url}")
-    private String contentApiUrl;
+    @Mock
+    ConfigurationService configurationService;
 
     @Test
     public void generateUserToken() throws Exception {
@@ -48,6 +49,9 @@ public class AuthenticationRestClientTest {
         doReturn(token).when(restTemplate)
                 .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
 
+        doReturn("http://www.gooru.org").when(configurationService).getContentApiUrl();
+
+
         String result = authenticationRestClient.generateUserToken(user);
         assertNotNull("Result is null", result);
         assertEquals("Wrong token", userToken, result);
@@ -59,6 +63,8 @@ public class AuthenticationRestClientTest {
         //Token is null, it will throw an InternalServerException
         doReturn(null).when(restTemplate)
                 .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
+
+        doReturn("http://www.gooru.org").when(configurationService).getContentApiUrl();
 
         String result = authenticationRestClient.generateUserToken(new UserDataTokenDto());
     }

@@ -5,7 +5,7 @@ var frisby = require('frisby');
 QuizzesCommon.startTest("Create a Context using valid authorization token", function () {
     QuizzesCommon.getAuthorizationToken("teacherqa01", function (authorizationResponse) {
         frisby.create('Testing Create Context with Authorization token')
-            .post(QuizzesApiUrl + '/v1/context', {
+            .post(QuizzesApiUrl + '/v1/contexts', {
                 "externalCollectionId": "b7af52ce-7afc-4301-959c-4342a6f941cb",
                 "owner":	{
                     "id":"1c2f6635-cefd-4e24-822c-6384377984e3",
@@ -40,9 +40,9 @@ QuizzesCommon.startTest("Create a Context using valid authorization token", func
     });
 });
 
-QuizzesCommon.startTest("Create a Context using an unvalid authorization token", function () {
+QuizzesCommon.startTest("Create a Context using an invalid authorization token", function () {
     frisby.create('Testing Create Context with Authorization token')
-        .post(QuizzesApiUrl + '/v1/context', {
+        .post(QuizzesApiUrl + '/v1/contexts', {
             "externalCollectionId": "b7af52ce-7afc-4301-959c-4342a6f941cb",
             "owner":	{
                 "id":"1c2f6635-cefd-4e24-822c-6384377984e3",

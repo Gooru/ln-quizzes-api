@@ -9,6 +9,7 @@ import com.quizzes.api.core.dtos.content.TokenResponseDto;
 import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.dtos.content.UserTokenRequestDto;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.services.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,17 +40,17 @@ public class AuthenticationRestClient {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${content.api.url}")
-    private String contentApiUrl;
-
     @Autowired
     private RestTemplate restTemplate;
 
     @Autowired
     private Gson gsonPretty;
 
+    @Autowired
+    private ConfigurationService configurationService;
+
     public String generateUserToken(UserDataTokenDto user) {
-        String endpointUrl = getContentApiUrl() + USER_AUTH_API_URL;
+        String endpointUrl = configurationService.getContentApiUrl() + USER_AUTH_API_URL;
 
         UserTokenRequestDto tokenUserRequest = new UserTokenRequestDto();
         tokenUserRequest.setClientKey(CLIENT_KEY);
@@ -83,7 +84,7 @@ public class AuthenticationRestClient {
     }
 
     public AccessTokenResponseDto verifyUserToken(String token) {
-        String endpointUrl = getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
+        String endpointUrl = configurationService.getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
 
 
         if (logger.isDebugEnabled()) {
@@ -118,7 +119,7 @@ public class AuthenticationRestClient {
     }
 
     public String generateAnonymousToken() {
-        String endpointUrl = getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
+        String endpointUrl = configurationService.getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
         TokenRequestDto tokenRequest = new TokenRequestDto();
         tokenRequest.setClientId(CLIENT_ID);
         tokenRequest.setClientKey(CLIENT_KEY);
@@ -158,9 +159,5 @@ public class AuthenticationRestClient {
         }
 
         return headers;
-    }
-
-    public String getContentApiUrl() {
-        return contentApiUrl;
     }
 }
