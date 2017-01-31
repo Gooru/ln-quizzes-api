@@ -1,11 +1,7 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.ContextAssignedGetResponseDto;
-import com.quizzes.api.core.dtos.ContextPostRequestDto;
-import com.quizzes.api.core.dtos.ContextPutRequestDto;
-import com.quizzes.api.core.dtos.CreatedContextGetResponseDto;
-import com.quizzes.api.core.dtos.IdResponseDto;
+import com.quizzes.api.core.dtos.*;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
@@ -197,33 +193,33 @@ public class ContextService {
         return EntityMapper.mapContextEntityToContext(contextOwner);
     }
 
-    public List<CreatedContextGetResponseDto> findCreatedContexts(UUID ownerId) {
-        List<CreatedContextGetResponseDto> result = new ArrayList<>();
+    public List<ContextGetResponseDto> findCreatedContexts(UUID ownerId) {
+        List<ContextGetResponseDto> result = new ArrayList<>();
         Map<UUID, List<ContextAssigneeEntity>> contextByOwnerList =
                 contextRepository.findContextAssigneeByOwnerId(ownerId);
 
         if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
             contextByOwnerList.forEach(
                     (key, value) -> {
-                        CreatedContextGetResponseDto createdContextGetResponseDto = new CreatedContextGetResponseDto();
-                        createdContextGetResponseDto.setId(key);
+                        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
+                        contextGetResponseDto.setId(key);
                         if (!value.isEmpty()) {
                             ContextAssigneeEntity firstEntryValue = value.get(0);
-                            createdContextGetResponseDto.setContextData(gson.fromJson(firstEntryValue.getContextData(),
+                            contextGetResponseDto.setContextData(gson.fromJson(firstEntryValue.getContextData(),
                                     ContextDataDto.class));
                             CollectionDto collectionDto = new CollectionDto(firstEntryValue.getCollectionId().toString());
-                            createdContextGetResponseDto.setCollection(collectionDto);
+                            contextGetResponseDto.setCollection(collectionDto);
                             List<IdResponseDto> assignees = value.stream().map(profile -> {
                                 IdResponseDto assignee = new IdResponseDto();
                                 assignee.setId(profile.getAssigneeProfileId());
                                 return assignee;
                             }).collect(Collectors.toList());
-                            createdContextGetResponseDto.setAssignees(assignees);
-                            createdContextGetResponseDto.setCreatedDate(firstEntryValue.getCreatedAt().getTime());
-                            createdContextGetResponseDto.setModifiedDate(firstEntryValue.getCreatedAt().getTime());
+                            contextGetResponseDto.setAssignees(assignees);
+                            contextGetResponseDto.setCreatedDate(firstEntryValue.getCreatedAt().getTime());
+                            contextGetResponseDto.setModifiedDate(firstEntryValue.getCreatedAt().getTime());
                             //@TODO Change this value to getModifiedAt when it is available from the DB
                         }
-                        result.add(createdContextGetResponseDto);
+                        result.add(contextGetResponseDto);
 
                     }
             );
@@ -231,14 +227,14 @@ public class ContextService {
         return result;
     }
 
-    public CreatedContextGetResponseDto findCreatedContextByContextIdAndOwnerId(UUID contextId, UUID ownerId) {
+    public ContextGetResponseDto findCreatedContextByContextIdAndOwnerId(UUID contextId, UUID ownerId) {
         Map<UUID, List<ContextAssigneeEntity>> result =
                 contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId);
 
-        CreatedContextGetResponseDto response = null;
+        ContextGetResponseDto response = null;
 
         if (!result.isEmpty() && result.containsKey(contextId)) {
-            response = new CreatedContextGetResponseDto();
+            response = new ContextGetResponseDto();
 
             List<ContextAssigneeEntity> assigneeEntities = result.get(contextId);
             response.setId(contextId);
@@ -279,13 +275,13 @@ public class ContextService {
      * @return the list of {@link ContextAssigneeEntity} found
      */
 
-    public List<ContextAssignedGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
+    public List<ContextGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
         return contextRepository.findContextOwnerByAssigneeIdAndFilters(assigneeId, isActive, startDateMillis, dueDateMillis).stream()
                 .map(context -> mapContextOwnerEntityToContextAssignedDto(context))
                 .collect(Collectors.toList());
     }
 
-    public ContextAssignedGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId)
+    public ContextGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId)
             throws ContentNotFoundException {
         ContextOwnerEntity context = contextRepository.findContextOwnerByContextIdAndAssigneeId(contextId, assigneeId);
         if (context == null) {
@@ -315,8 +311,8 @@ public class ContextService {
         return result;
     }
 
-    private ContextAssignedGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {
-        ContextAssignedGetResponseDto contextAssigned = new ContextAssignedGetResponseDto();
+    private ContextGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {
+        ContextGetResponseDto contextAssigned = new ContextGetResponseDto();
         contextAssigned.setId(contextOwner.getId());
         contextAssigned.setCollection(new CollectionDto(contextOwner.getCollectionId().toString()));
         contextAssigned.setCreatedDate(contextOwner.getCreatedAt().getTime());
