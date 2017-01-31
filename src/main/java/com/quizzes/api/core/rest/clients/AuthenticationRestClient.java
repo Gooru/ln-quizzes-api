@@ -10,6 +10,7 @@ import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.dtos.content.UserTokenRequestDto;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.services.ConfigurationService;
+import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,9 @@ public class AuthenticationRestClient {
 
     @Autowired
     private ConfigurationService configurationService;
+
+    @Autowired
+    private GooruHelper gooruHelper;
 
     public String generateUserToken(UserDataTokenDto user) {
         String endpointUrl = configurationService.getContentApiUrl() + USER_AUTH_API_URL;
@@ -93,7 +97,7 @@ public class AuthenticationRestClient {
         }
 
         try {
-            HttpHeaders headers = getHttpHeaders(token);
+            HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
             HttpEntity entity = new HttpEntity(headers);
             ResponseEntity<AccessTokenResponseDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AccessTokenResponseDto.class);
@@ -147,17 +151,5 @@ public class AuthenticationRestClient {
             logger.error("Anonymous token could not be generated.", e);
             throw new InternalServerException("Anonymous token could not be generated.", e);
         }
-    }
-
-    private HttpHeaders getHttpHeaders(String token){
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Token " + token);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Headers: " + gsonPretty.toJson(headers));
-        }
-
-        return headers;
     }
 }
