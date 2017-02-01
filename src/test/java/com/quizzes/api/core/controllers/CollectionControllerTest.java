@@ -40,7 +40,7 @@ public class CollectionControllerTest {
     }
 
     @Test
-    public void getCollectionGoToCollection() throws Exception {
+    public void getCollectionWithTypeCollection() throws Exception {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId);
 
@@ -55,7 +55,7 @@ public class CollectionControllerTest {
     }
 
     @Test
-    public void getCollectionGoToAssessment() throws Exception {
+    public void getCollectionWithTypeAssessment() throws Exception {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId);
 

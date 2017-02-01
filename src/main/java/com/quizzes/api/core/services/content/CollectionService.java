@@ -68,14 +68,14 @@ public class CollectionService {
 
     private CollectionDto convertGooruAssessmentToQuizzesFormat(AssessmentContentDto assessmentDto) {
         CollectionDto collectionDto = createCollectionDto(assessmentDto.getId(), assessmentDto.getTitle());
-        collectionDto.setResources(getResources(assessmentDto.getQuestions()));
+        collectionDto.setResources(mapResources(assessmentDto.getQuestions()));
 
         return collectionDto;
     }
 
     private CollectionDto convertGooruCollectionToQuizzesFormat(CollectionContentDto collectionContentDto) {
         CollectionDto collectionDto = createCollectionDto(collectionContentDto.getId(), collectionContentDto.getTitle());
-        collectionDto.setResources(getResources(collectionContentDto.getContent()));
+        collectionDto.setResources(mapResources(collectionContentDto.getContent()));
 
         return collectionDto;
     }
@@ -87,7 +87,7 @@ public class CollectionService {
         return collectionDto;
     }
 
-    private List<ResourceDto> getResources(List<ResourceContentDto> resourceContentDtos) {
+    private List<ResourceDto> mapResources(List<ResourceContentDto> resourceContentDtos) {
         List<ResourceDto> resourceDtos = new ArrayList<>();
 
         if (resourceContentDtos != null) {

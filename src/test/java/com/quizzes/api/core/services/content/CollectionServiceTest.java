@@ -165,14 +165,14 @@ public class CollectionServiceTest {
         assessmentContentDto.setQuestions(Arrays.asList(createQuestionContentDto()));
 
         doReturn(Arrays.asList(createResourceDto(resourceId, false, 1, createResourceMetadataDtoForQuestion())))
-                .when(collectionService, "getResources", assessmentContentDto.getQuestions());
+                .when(collectionService, "mapResources", assessmentContentDto.getQuestions());
         doReturn(createCollectionDtoForAssessment())
                 .when(collectionService, "createCollectionDto", assessmentId, collectionTitle);
 
         CollectionDto result = WhiteboxImpl.invokeMethod(collectionService, "convertGooruAssessmentToQuizzesFormat",
                 assessmentContentDto);
 
-        verifyPrivate(collectionService, times(1)).invoke("getResources", assessmentContentDto.getQuestions());
+        verifyPrivate(collectionService, times(1)).invoke("mapResources", assessmentContentDto.getQuestions());
         verifyPrivate(collectionService, times(1)).invoke("createCollectionDto", assessmentId, collectionTitle);
 
         assertEquals("Wrong assessment ID", assessmentId, result.getId());
@@ -206,14 +206,14 @@ public class CollectionServiceTest {
         collectionContentDto.setContent(Arrays.asList(createResourceContentDto()));
 
         doReturn(Arrays.asList(createResourceDto(resourceId, false, 1, createResourceMetadataDtoForResource())))
-                .when(collectionService, "getResources", collectionContentDto.getContent());
+                .when(collectionService, "mapResources", collectionContentDto.getContent());
         doReturn(createCollectionDtoForCollection())
                 .when(collectionService, "createCollectionDto", collectionId, collectionTitle);
 
         CollectionDto result = WhiteboxImpl.invokeMethod(collectionService, "convertGooruCollectionToQuizzesFormat",
                 collectionContentDto);
 
-        verifyPrivate(collectionService, times(1)).invoke("getResources", collectionContentDto.getContent());
+        verifyPrivate(collectionService, times(1)).invoke("mapResources", collectionContentDto.getContent());
         verifyPrivate(collectionService, times(1)).invoke("createCollectionDto", collectionId, collectionTitle);
 
         assertEquals("Wrong assessment ID", collectionId, result.getId());
@@ -235,7 +235,7 @@ public class CollectionServiceTest {
     }
 
     @Test
-    public void getResourcesTypeResource() throws Exception {
+    public void mapResourcesTypeResource() throws Exception {
         List<ResourceContentDto> questions = Arrays.asList(createResourceContentDto());
 
         doReturn(createResourceMetadataDtoForResource()).when(collectionService, "mapResource",
@@ -243,7 +243,7 @@ public class CollectionServiceTest {
         doReturn(null).when(collectionService, "mapQuestionResource",
                 any(ResourceContentDto.class));
 
-        List<ResourceDto> result = WhiteboxImpl.invokeMethod(collectionService, "getResources", questions);
+        List<ResourceDto> result = WhiteboxImpl.invokeMethod(collectionService, "mapResources", questions);
 
         verifyPrivate(collectionService, times(1)).invoke("mapResource", any(ResourceContentDto.class));
         verifyPrivate(collectionService, times(0)).invoke("mapQuestionResource", any(ResourceContentDto.class));
@@ -265,7 +265,7 @@ public class CollectionServiceTest {
     }
 
     @Test
-    public void getResourcesTypeQuestion() throws Exception {
+    public void mapResourcesTypeQuestion() throws Exception {
         List<ResourceContentDto> questions = Arrays.asList(createQuestionContentDto());
 
         doReturn(null).when(collectionService, "mapResource",
@@ -273,7 +273,7 @@ public class CollectionServiceTest {
         doReturn(createResourceMetadataDtoForQuestion()).when(collectionService, "mapQuestionResource",
                 any(ResourceContentDto.class));
 
-        List<ResourceDto> result = WhiteboxImpl.invokeMethod(collectionService, "getResources", questions);
+        List<ResourceDto> result = WhiteboxImpl.invokeMethod(collectionService, "mapResources", questions);
 
         verifyPrivate(collectionService, times(0)).invoke("mapResource", any(ResourceContentDto.class));
         verifyPrivate(collectionService, times(1)).invoke("mapQuestionResource", any(ResourceContentDto.class));
