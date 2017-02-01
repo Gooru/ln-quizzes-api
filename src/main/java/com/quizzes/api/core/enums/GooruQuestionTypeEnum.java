@@ -9,8 +9,9 @@ public enum GooruQuestionTypeEnum {
 
     HotTextReorderQuestion("hot_text_reorder_question"),
 
-    MultipleAnswerQuestion("multiple_answer_question");
+    MultipleAnswerQuestion("multiple_answer_question"),
 
+    HotSpotImageQuestion("hot_spot_image_question");
 
     private final String literal;
 

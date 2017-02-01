@@ -98,6 +98,9 @@ public class ContextEventServiceTest {
     private CurrentContextProfile currentContextProfile;
     private String trueFalseQuestion = "true_false";
     private String singleChoiceQuestion = "single_choice";
+    private String dragAndDrop = "drag_and_drop";
+    private String multipleChoice = "multiple_choice";
+    private String multipleChoiceImage = "multiple_choice_image";
 
     @Before
     public void beforeEachTest() {
@@ -909,52 +912,92 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void calculateScoreForDragAndDropRightAnswer() throws Exception {
+    public void calculateScoreByQuestionTypeDragAndDropRightAnswer() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
 
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers,
-                correctAnswers);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", dragAndDrop,
+                userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
     @Test
-    public void calculateScoreForDragAndDropWrongAnswer() throws Exception {
+    public void calculateScoreByQuestionTypeDragAndDropWrongAnswer() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"), createAnswerDto("B"));
 
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers,
-                correctAnswers);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", dragAndDrop,
+                userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
     @Test
-    public void calculateScoreForDragAndDropWrongNumberOfAnswers() throws Exception {
+    public void calculateScoreByQuestionTypeDragAndDropWrongNumberOfAnswers() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop",
+       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", dragAndDrop,
                userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
     @Test
-    public void calculateScoreForMultipleAnswerRightAnswers() throws Exception {
+    public void calculateScoreForMultipleChoiceRightAnswers() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForMultipleAnswer",
-                userAnswers, correctAnswers);
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                multipleChoice, userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
     @Test
-    public void calculateScoreForMultipleAnswerWrongAnswers() throws Exception {
+    public void calculateScoreForMultipleChoiceWrongAnswers() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
 
-        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForMultipleAnswer",
-                userAnswers, correctAnswers);
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                multipleChoice, userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleChoiceImageWrongNumberOfAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                multipleChoiceImage, userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleChoiceImageRightAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                multipleChoiceImage, userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleChoiceImageWrongAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                multipleChoiceImage, userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleChoiceWrongNumberOfAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                multipleChoice, userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
