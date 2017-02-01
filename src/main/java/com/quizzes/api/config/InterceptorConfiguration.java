@@ -1,23 +1,22 @@
 package com.quizzes.api.config;
 
-import com.quizzes.api.core.controllers.interceptor.SessionInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import com.quizzes.api.common.interceptor.AuthorizationTokenInterceptor;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 @Configuration
-//@EnableWebMvc
 public class InterceptorConfiguration extends WebMvcConfigurerAdapter {
 
     @Bean
-    SessionInterceptor quizzesInterceptor() {
-        return new SessionInterceptor();
+    AuthorizationTokenInterceptor quizzesInterceptor() {
+        return new AuthorizationTokenInterceptor();
     }
 
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(quizzesInterceptor())
-//                .addPathPatterns("/**")
-//                .excludePathPatterns("/**/session/authorization");
-//    }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(quizzesInterceptor())
+                .addPathPatterns("/quizzes/api/**");
+    }
 }
