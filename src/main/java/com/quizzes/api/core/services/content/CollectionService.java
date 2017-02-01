@@ -41,6 +41,8 @@ public class CollectionService {
                 QuestionTypeEnum.SingleChoice.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral(),
                 QuestionTypeEnum.DragAndDrop.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.MultipleAnswerQuestion.getLiteral(),
+                QuestionTypeEnum.MultipleChoice.getLiteral());
     }
 
     @Autowired
