@@ -12,7 +12,6 @@ import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.services.content.CollectionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +40,6 @@ public class ContextService {
 
     @Autowired
     ContextRepository contextRepository;
-
-    @Autowired
-    CollectionService collectionContentService;
 
     @Autowired
     private Gson gson;
