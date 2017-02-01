@@ -55,26 +55,20 @@ public class ValidatorsTest {
 
         Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations =
                 validator.validate(assignment);
-        assertEquals(4, constraintViolations.size());
+        assertEquals(2, constraintViolations.size());
     }
 
     @Test
     public void testContext() {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
-        ProfileDto owner = new ProfileDto();
-        assignment.setOwner(owner);
-        ProfileDto assignee = new ProfileDto();
-        List<ProfileDto> assignees = new ArrayList<>();
-        assignees.add(assignee);
-        assignment.setAssignees(assignees);
-        assignment.setExternalCollectionId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID().toString());
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
         Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations =
                 validator.validate(assignment);
-        assertEquals(10, constraintViolations.size());
+        assertEquals(0, constraintViolations.size());
     }
 
 
