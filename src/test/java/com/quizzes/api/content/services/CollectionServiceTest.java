@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.content.AnswerContentDto;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.ResourceContentDto;
-import com.quizzes.api.core.dtos.content.UserDataTokenDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
-import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.junit.Ignore;
@@ -26,13 +24,11 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({CollectionService.class, Gson.class})
@@ -43,105 +39,6 @@ public class CollectionServiceTest {
 
     @Mock
     private CollectionRestClient collectionRestClient;
-
-    @Mock
-    private AuthenticationRestClient authenticationRestClient;
-
-    @Mock
-    private Gson gson;
-
-    /**
-     * Tests {@link CollectionService#createCollection(String, Profile)} using an original Assessment
-     *
-     * @throws Exception
-     */
-    @Ignore
-    @Test
-    public void createCollectionFromOriginalAssessment() throws Exception {
-        AssessmentContentDto assessmentDto = createTestAssessmentDto();
-
-        UserDataTokenDto userDataTokenDto = new UserDataTokenDto();
-        userDataTokenDto.setFirstName("Bryan");
-        userDataTokenDto.setLastName("Oviedo");
-        userDataTokenDto.setEmail("boviedo@gooru.org");
-
-        when(gson.fromJson(any(String.class), anyObject())).thenReturn(userDataTokenDto);
-
-        when(authenticationRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
-
-        assessmentDto.setOwnerId(UUID.randomUUID().toString());
-        when(collectionRestClient.getCollection(any(String.class), any(String.class))).thenReturn(assessmentDto);
-
-        verify(gson, times(1)).fromJson(any(String.class), anyObject());
-        verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
-        // copyAssessment is not called, this means the assessment owner is the same user creating the collection
-        verify(collectionRestClient, times(0)).copyAssessment(any(String.class), any(String.class));
-        verify(collectionRestClient, times(1)).getCollection(any(String.class), any(String.class));
-        //verify(collectionService, times(1)).save(any(Collection.class));
-        //verify(resourceService, times(2)).save(any(Resource.class));
-
-        //assertNotNull("The new collection is null", newCollection);
-    }
-
-    /**
-     * Tests {@link CollectionService#createCollection(String, Profile)} using an original Assessment
-     *
-     * @throws Exception
-     */
-    @Ignore
-    @Test
-    public void createCollectionFromCopiedAssessment() throws Exception {
-        AssessmentContentDto assessmentDto = createTestAssessmentDto();
-
-        UserDataTokenDto userDataTokenDto = new UserDataTokenDto();
-        userDataTokenDto.setFirstName("Bryan");
-        userDataTokenDto.setLastName("Oviedo");
-        userDataTokenDto.setEmail("boviedo@gooru.org");
-
-        when(gson.fromJson(any(String.class), anyObject())).thenReturn(userDataTokenDto);
-
-        when(authenticationRestClient.generateUserToken(any(UserDataTokenDto.class))).thenReturn("user-token");
-
-        assessmentDto.setOwnerId(UUID.randomUUID().toString());
-        when(collectionRestClient.getCollection(any(String.class), any(String.class))).thenReturn(assessmentDto);
-
-
-        String externalCollectionId = UUID.randomUUID().toString();
-
-        //Collection newCollection = collectionService.createCollection(externalCollectionId, owner);
-
-        verify(gson, times(1)).fromJson(any(String.class), anyObject());
-        verify(authenticationRestClient, times(1)).generateUserToken(any(UserDataTokenDto.class));
-        verify(collectionRestClient, times(1)).copyAssessment(any(String.class), any(String.class));
-        verify(collectionRestClient, times(2)).getCollection(any(String.class), any(String.class));
-        //verify(collectionService, times(1)).save(any(Collection.class));
-        //verify(resourceService, times(2)).save(any(Resource.class));
-
-        //assertNotNull("The new collection is null", newCollection);
-    }
-
-    /**
-     * Tests private method {@link CollectionService#createCollectionFromAssessment(AssessmentContentDto, String, UUID)}
-     */
-    @Ignore
-    @Test
-    public void createCollectionFromAssessment() throws Exception {
-        AssessmentContentDto assessmentDto = createTestAssessmentDto();
-
-        //Collection collection = createTestCollection(assessmentDto);
-
-        //when(collectionService.save(any(Collection.class))).thenReturn(collection);
-
-        //when(resourceService.save(any(Resource.class))).thenReturn(null);
-
-        WhiteboxImpl.invokeMethod(collectionService, "createCollectionFromAssessment", assessmentDto, UUID.randomUUID().toString(), UUID.randomUUID());
-
-        //saves the new Collection
-        //verify(collectionService, times(1)).save(any(Collection.class));
-
-        //saves the two Questions
-        //verify(resourceService, times(2)).save(any(Resource.class));
-    }
 
     @Ignore
     @Test
