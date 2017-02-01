@@ -341,7 +341,8 @@ public class ContextEventService {
                 return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
             case MultipleChoice:
             case MultipleChoiceImage:
-                return calculateScoreForMultipleAnswer(userAnswers, correctAnswers);
+            case MultipleChoiceText:
+                return calculateScoreForMultipleChoice(userAnswers, correctAnswers);
             default:
                 return 0;
             //TODO: Implement the logic for the other question types
@@ -379,13 +380,13 @@ public class ContextEventService {
 
     /**
      * Multiple Answer method compares the answers with the correct answer ignoring the order
-     * Works for multiple_choice and multiple_choice_image
+     * Works for multiple_choice, multiple_choice_image and multiple_choice_text
      *
      * @param userAnswers    Answers provided by the user
      * @param correctAnswers Correct answers for the question
      * @return the score
      */
-    private int calculateScoreForMultipleAnswer(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+    private int calculateScoreForMultipleChoice(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
         if (userAnswers.size() != correctAnswers.size()) {
             return 0;
         }

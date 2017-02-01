@@ -21,6 +21,9 @@ public enum QuestionTypeEnum {
     @SerializedName("multiple_choice_image")
     MultipleChoiceImage("multiple_choice_image"),
 
+    @SerializedName("multiple_choice_text")
+    MultipleChoiceText("multiple_choice_text"),
+
     @SerializedName("match")
     Match("match"),
 

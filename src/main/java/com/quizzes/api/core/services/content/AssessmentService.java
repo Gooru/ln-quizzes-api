@@ -48,6 +48,8 @@ public class AssessmentService {
                 QuestionTypeEnum.MultipleChoice.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.HotSpotImageQuestion.getLiteral(),
                 QuestionTypeEnum.MultipleChoiceImage.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.HotSpotTextQuestion.getLiteral(),
+                QuestionTypeEnum.MultipleChoiceText.getLiteral());
     }
 
     @Autowired

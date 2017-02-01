@@ -11,7 +11,9 @@ public enum GooruQuestionTypeEnum {
 
     MultipleAnswerQuestion("multiple_answer_question"),
 
-    HotSpotImageQuestion("hot_spot_image_question");
+    HotSpotImageQuestion("hot_spot_image_question"),
+
+    HotSpotTextQuestion("hot_spot_text_question");
 
     private final String literal;
 
