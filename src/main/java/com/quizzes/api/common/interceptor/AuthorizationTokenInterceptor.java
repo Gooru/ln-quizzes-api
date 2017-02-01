@@ -1,7 +1,6 @@
 package com.quizzes.api.common.interceptor;
 
 import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
-import com.quizzes.api.core.exceptions.InvalidCredentialsException;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +27,6 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
             request.setAttribute("profileId", accessTokenResponseDto.getUserId());
             request.setAttribute("clientId", accessTokenResponseDto.getClientId());
-            if (accessTokenResponseDto.getUserId().equals("anonymous")) {
-                throw new InvalidCredentialsException("anonymous user is not supported");
-            }
         }
         return true;
     }
