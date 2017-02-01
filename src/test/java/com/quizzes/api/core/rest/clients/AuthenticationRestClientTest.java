@@ -1,25 +1,26 @@
 package com.quizzes.api.core.rest.clients;
 
-import com.quizzes.api.core.exceptions.InternalServerException;
-import com.quizzes.api.core.dtos.content.TokenResponseDto;
-import com.quizzes.api.core.dtos.content.UserTokenRequestDto;
-import com.quizzes.api.core.dtos.content.UserDataTokenDto;
+import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.services.ConfigurationService;
+import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.UUID;
-
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -34,38 +35,28 @@ public class AuthenticationRestClientTest {
     @Mock
     ConfigurationService configurationService;
 
+    @Mock
+    GooruHelper gooruHelper;
+
     @Test
-    public void generateUserToken() throws Exception {
-        UserDataTokenDto user = new UserDataTokenDto();
-        user.setFirstName("Gooru");
-        user.setLastName("My");
-        user.setEmail("mygooru@quizzes.com");
+    public void verifyUserToken() throws Exception {
+        doReturn("http://nile-dev.gooru.org").when(configurationService).getContentApiUrl();
 
-        String userToken = UUID.randomUUID().toString();
-        TokenResponseDto token = new TokenResponseDto();
-        token.setToken(userToken);
+        HttpHeaders headers = new HttpHeaders();
+        doReturn(headers).when(gooruHelper).setupHttpHeaders(any(String.class));
 
-        doReturn(token).when(restTemplate)
-                .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
+        AccessTokenResponseDto response = new AccessTokenResponseDto();
 
-        doReturn("http://www.gooru.org").when(configurationService).getContentApiUrl();
+        doReturn(new ResponseEntity<>(response, HttpStatus.OK)).when(restTemplate)
+                .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AccessTokenResponseDto.class));
 
+        authenticationRestClient.verifyUserToken("ANY_TOKEN");
 
-        String result = authenticationRestClient.generateUserToken(user);
-        assertNotNull("Result is null", result);
-        assertEquals("Wrong token", userToken, result);
-    }
+        verify(configurationService, times(1)).getContentApiUrl();
 
-    @Test(expected = InternalServerException.class)
-    public void generateUserTokenMustThrowAnException() throws Exception {
+        verify(gooruHelper, times(1)).setupHttpHeaders(any(String.class));
 
-        //Token is null, it will throw an InternalServerException
-        doReturn(null).when(restTemplate)
-                .postForObject(any(String.class), any(UserTokenRequestDto.class), eq(TokenResponseDto.class));
-
-        doReturn("http://www.gooru.org").when(configurationService).getContentApiUrl();
-
-        String result = authenticationRestClient.generateUserToken(new UserDataTokenDto());
+        verify(restTemplate, times(1)).exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AccessTokenResponseDto.class));
     }
 
 }
