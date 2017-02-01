@@ -44,11 +44,11 @@ import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(AssessmentService.class)
-public class AssessmentServiceTest {
+@PrepareForTest(CollectionService.class)
+public class CollectionServiceTest {
 
     @InjectMocks
-    private AssessmentService assessmentService = spy(new AssessmentService());
+    private CollectionService collectionService = spy(new CollectionService());
 
     @Mock
     private AssessmentRestClient assessmentRestClient;
@@ -93,13 +93,13 @@ public class AssessmentServiceTest {
 
         when(authenticationRestClient.generateAnonymousToken()).thenReturn(token);
         when(assessmentRestClient.getAssessment(assessmentId, token)).thenReturn(assessmentContentDto);
-        doReturn(collectionDto).when(assessmentService, "convertGooruAssessmentToQuizzesFormat", assessmentContentDto);
+        doReturn(collectionDto).when(collectionService, "convertGooruAssessmentToQuizzesFormat", assessmentContentDto);
 
-        CollectionDto result = assessmentService.getAssessment(assessmentId);
+        CollectionDto result = collectionService.getAssessment(assessmentId);
 
         verify(authenticationRestClient, times(1)).generateAnonymousToken();
         verify(assessmentRestClient, times(1)).getAssessment(assessmentId, token);
-        verifyPrivate(assessmentService, times(1)).invoke("convertGooruAssessmentToQuizzesFormat", assessmentContentDto);
+        verifyPrivate(collectionService, times(1)).invoke("convertGooruAssessmentToQuizzesFormat", assessmentContentDto);
 
         assertEquals("Wrong assessment ID", assessmentId, result.getId());
         assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
@@ -131,13 +131,13 @@ public class AssessmentServiceTest {
 
         when(authenticationRestClient.generateAnonymousToken()).thenReturn(token);
         when(collectionRestClient.getCollection(collectionId, token)).thenReturn(collectionContentDto);
-        doReturn(collectionDto).when(assessmentService, "convertGooruCollectionToQuizzesFormat", collectionContentDto);
+        doReturn(collectionDto).when(collectionService, "convertGooruCollectionToQuizzesFormat", collectionContentDto);
 
-        CollectionDto result = assessmentService.getCollection(collectionId);
+        CollectionDto result = collectionService.getCollection(collectionId);
 
         verify(authenticationRestClient, times(1)).generateAnonymousToken();
         verify(collectionRestClient, times(1)).getCollection(collectionId, token);
-        verifyPrivate(assessmentService, times(1)).invoke("convertGooruCollectionToQuizzesFormat", collectionContentDto);
+        verifyPrivate(collectionService, times(1)).invoke("convertGooruCollectionToQuizzesFormat", collectionContentDto);
 
         assertEquals("Wrong assessment ID", collectionId, result.getId());
         assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
@@ -165,15 +165,15 @@ public class AssessmentServiceTest {
         assessmentContentDto.setQuestions(Arrays.asList(createQuestionContentDto()));
 
         doReturn(Arrays.asList(createResourceDto(resourceId, false, 1, createResourceMetadataDtoForQuestion())))
-                .when(assessmentService, "getResources", assessmentContentDto.getQuestions());
+                .when(collectionService, "getResources", assessmentContentDto.getQuestions());
         doReturn(createCollectionDtoForAssessment())
-                .when(assessmentService, "createCollectionDto", assessmentId, collectionTitle);
+                .when(collectionService, "createCollectionDto", assessmentId, collectionTitle);
 
-        CollectionDto result = WhiteboxImpl.invokeMethod(assessmentService, "convertGooruAssessmentToQuizzesFormat",
+        CollectionDto result = WhiteboxImpl.invokeMethod(collectionService, "convertGooruAssessmentToQuizzesFormat",
                 assessmentContentDto);
 
-        verifyPrivate(assessmentService, times(1)).invoke("getResources", assessmentContentDto.getQuestions());
-        verifyPrivate(assessmentService, times(1)).invoke("createCollectionDto", assessmentId, collectionTitle);
+        verifyPrivate(collectionService, times(1)).invoke("getResources", assessmentContentDto.getQuestions());
+        verifyPrivate(collectionService, times(1)).invoke("createCollectionDto", assessmentId, collectionTitle);
 
         assertEquals("Wrong assessment ID", assessmentId, result.getId());
         assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
@@ -206,15 +206,15 @@ public class AssessmentServiceTest {
         collectionContentDto.setContent(Arrays.asList(createResourceContentDto()));
 
         doReturn(Arrays.asList(createResourceDto(resourceId, false, 1, createResourceMetadataDtoForResource())))
-                .when(assessmentService, "getResources", collectionContentDto.getContent());
+                .when(collectionService, "getResources", collectionContentDto.getContent());
         doReturn(createCollectionDtoForCollection())
-                .when(assessmentService, "createCollectionDto", collectionId, collectionTitle);
+                .when(collectionService, "createCollectionDto", collectionId, collectionTitle);
 
-        CollectionDto result = WhiteboxImpl.invokeMethod(assessmentService, "convertGooruCollectionToQuizzesFormat",
+        CollectionDto result = WhiteboxImpl.invokeMethod(collectionService, "convertGooruCollectionToQuizzesFormat",
                 collectionContentDto);
 
-        verifyPrivate(assessmentService, times(1)).invoke("getResources", collectionContentDto.getContent());
-        verifyPrivate(assessmentService, times(1)).invoke("createCollectionDto", collectionId, collectionTitle);
+        verifyPrivate(collectionService, times(1)).invoke("getResources", collectionContentDto.getContent());
+        verifyPrivate(collectionService, times(1)).invoke("createCollectionDto", collectionId, collectionTitle);
 
         assertEquals("Wrong assessment ID", collectionId, result.getId());
         assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
@@ -238,15 +238,15 @@ public class AssessmentServiceTest {
     public void getResourcesTypeResource() throws Exception {
         List<ResourceContentDto> questions = Arrays.asList(createResourceContentDto());
 
-        doReturn(createResourceMetadataDtoForResource()).when(assessmentService, "mapResource",
+        doReturn(createResourceMetadataDtoForResource()).when(collectionService, "mapResource",
                 any(ResourceContentDto.class));
-        doReturn(null).when(assessmentService, "mapQuestionResource",
+        doReturn(null).when(collectionService, "mapQuestionResource",
                 any(ResourceContentDto.class));
 
-        List<ResourceDto> result = WhiteboxImpl.invokeMethod(assessmentService, "getResources", questions);
+        List<ResourceDto> result = WhiteboxImpl.invokeMethod(collectionService, "getResources", questions);
 
-        verifyPrivate(assessmentService, times(1)).invoke("mapResource", any(ResourceContentDto.class));
-        verifyPrivate(assessmentService, times(0)).invoke("mapQuestionResource", any(ResourceContentDto.class));
+        verifyPrivate(collectionService, times(1)).invoke("mapResource", any(ResourceContentDto.class));
+        verifyPrivate(collectionService, times(0)).invoke("mapQuestionResource", any(ResourceContentDto.class));
 
         assertEquals("Wrong number of resources", 1, result.size());
 
@@ -268,15 +268,15 @@ public class AssessmentServiceTest {
     public void getResourcesTypeQuestion() throws Exception {
         List<ResourceContentDto> questions = Arrays.asList(createQuestionContentDto());
 
-        doReturn(null).when(assessmentService, "mapResource",
+        doReturn(null).when(collectionService, "mapResource",
                 any(ResourceContentDto.class));
-        doReturn(createResourceMetadataDtoForQuestion()).when(assessmentService, "mapQuestionResource",
+        doReturn(createResourceMetadataDtoForQuestion()).when(collectionService, "mapQuestionResource",
                 any(ResourceContentDto.class));
 
-        List<ResourceDto> result = WhiteboxImpl.invokeMethod(assessmentService, "getResources", questions);
+        List<ResourceDto> result = WhiteboxImpl.invokeMethod(collectionService, "getResources", questions);
 
-        verifyPrivate(assessmentService, times(0)).invoke("mapResource", any(ResourceContentDto.class));
-        verifyPrivate(assessmentService, times(1)).invoke("mapQuestionResource", any(ResourceContentDto.class));
+        verifyPrivate(collectionService, times(0)).invoke("mapResource", any(ResourceContentDto.class));
+        verifyPrivate(collectionService, times(1)).invoke("mapQuestionResource", any(ResourceContentDto.class));
 
         assertEquals("Wrong number of resources", 1, result.size());
 
@@ -304,7 +304,7 @@ public class AssessmentServiceTest {
         ResourceContentDto resourceContentDto = createResourceContentDto();
 
         ResourceMetadataDto result =
-                WhiteboxImpl.invokeMethod(assessmentService, "mapResource", resourceContentDto);
+                WhiteboxImpl.invokeMethod(collectionService, "mapResource", resourceContentDto);
 
         assertEquals("Wrong title", resourceTitle, result.getTitle());
         assertEquals("Wrong resource type", imageResource, result.getType());
@@ -318,18 +318,18 @@ public class AssessmentServiceTest {
     public void mapQuestionResource() throws Exception {
         ResourceContentDto resourceContentDto = createQuestionContentDto();
 
-        doReturn(trueFalseQuestion).when(assessmentService, "mapQuestionType", trueFalseQuestion);
-        doReturn(Arrays.asList(new AnswerDto("A"))).when(assessmentService, "getCorrectAnswers",
+        doReturn(trueFalseQuestion).when(collectionService, "mapQuestionType", trueFalseQuestion);
+        doReturn(Arrays.asList(new AnswerDto("A"))).when(collectionService, "getCorrectAnswers",
                 resourceContentDto.getAnswers());
-        doReturn(createInteractionDto()).when(assessmentService, "createInteraction",
+        doReturn(createInteractionDto()).when(collectionService, "createInteraction",
                 resourceContentDto.getAnswers());
 
         ResourceMetadataDto result =
-                WhiteboxImpl.invokeMethod(assessmentService, "mapQuestionResource", resourceContentDto);
+                WhiteboxImpl.invokeMethod(collectionService, "mapQuestionResource", resourceContentDto);
 
-        verifyPrivate(assessmentService, times(1)).invoke("mapQuestionType", trueFalseQuestion);
-        verifyPrivate(assessmentService, times(1)).invoke("getCorrectAnswers", resourceContentDto.getAnswers());
-        verifyPrivate(assessmentService, times(1)).invoke("createInteraction", resourceContentDto.getAnswers());
+        verifyPrivate(collectionService, times(1)).invoke("mapQuestionType", trueFalseQuestion);
+        verifyPrivate(collectionService, times(1)).invoke("getCorrectAnswers", resourceContentDto.getAnswers());
+        verifyPrivate(collectionService, times(1)).invoke("createInteraction", resourceContentDto.getAnswers());
 
         assertEquals("Wrong title", questionTitle, result.getTitle());
         assertEquals("Wrong body", questionTitle, result.getBody());
@@ -350,7 +350,7 @@ public class AssessmentServiceTest {
         AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "text");
         List<AnswerContentDto> answers = Arrays.asList(answer1, answer2);
 
-        InteractionDto result = WhiteboxImpl.invokeMethod(assessmentService, "createInteraction", answers);
+        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", answers);
 
         assertEquals("Wrong number of maxChoices", 0, result.getMaxChoices());
         assertEquals("Wrong prompt value", "", result.getPrompt());
@@ -367,7 +367,7 @@ public class AssessmentServiceTest {
     @Test
     public void createCollectionDto() throws Exception {
         CollectionDto result =
-                WhiteboxImpl.invokeMethod(assessmentService, "createCollectionDto", collectionId, collectionTitle);
+                WhiteboxImpl.invokeMethod(collectionService, "createCollectionDto", collectionId, collectionTitle);
 
         assertEquals("Wrong id", collectionId, result.getId());
         assertEquals("Wrong title", collectionTitle, result.getMetadata().getTitle());
@@ -379,7 +379,7 @@ public class AssessmentServiceTest {
         AnswerContentDto answer2 = createAnswerContentDto("2", "false", 2, "text");
         List<AnswerContentDto> answers = Arrays.asList(answer1, answer2);
 
-        List<AnswerDto> result = WhiteboxImpl.invokeMethod(assessmentService, "getCorrectAnswers", answers);
+        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", answers);
 
         assertEquals("Wrong number of answers", 1, result.size());
 
@@ -389,19 +389,19 @@ public class AssessmentServiceTest {
 
     @Test
     public void mapQuestionType() throws Exception {
-        String trueFalseQuestionType = WhiteboxImpl.invokeMethod(assessmentService, "mapQuestionType",
+        String trueFalseQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
                 GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral());
         assertEquals("True/False question type wrongly mapped",
                 QuestionTypeEnum.TrueFalse.getLiteral(), trueFalseQuestionType);
-        String singleChoiceQuestionType = WhiteboxImpl.invokeMethod(assessmentService, "mapQuestionType",
+        String singleChoiceQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
                 GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
         assertEquals("MultipleChoice question type wrongly mapped",
                 QuestionTypeEnum.SingleChoice.getLiteral(), singleChoiceQuestionType);
-        String dragAndDropQuestionType = WhiteboxImpl.invokeMethod(assessmentService, "mapQuestionType",
+        String dragAndDropQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
                 GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
         assertEquals("DragAndDrop question type wrongly mapped",
                 QuestionTypeEnum.DragAndDrop.getLiteral(), dragAndDropQuestionType);
-        String noneQuestionType = WhiteboxImpl.invokeMethod(assessmentService, "mapQuestionType",
+        String noneQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
                 "unknown");
         assertEquals("None question type wrongly mapped",
                 QuestionTypeEnum.None.getLiteral(), noneQuestionType);

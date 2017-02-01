@@ -201,6 +201,40 @@ var quizzesCommon = {
                 exception: String
             })
             .toss();
+    },
+
+    verifyInvalidRequest: function(url, title){
+        frisby.create(title + ' throws InvalidRequestException')
+            .get(QuizzesApiUrl + url)
+            .inspectRequest()
+            .expectStatus(400)
+            .inspectJSON()
+            .expectJSON({
+                "status": 400
+            })
+            .expectJSONTypes({
+                message: String,
+                status: Number,
+                exception: String
+            })
+            .toss();
+    },
+
+    verifyInternalServerError: function(url, title){
+        frisby.create(title + ' throws Internal Server Error')
+            .get(QuizzesApiUrl + url)
+            .inspectRequest()
+            .expectStatus(500)
+            .inspectJSON()
+            .expectJSON({
+                "status": 500
+            })
+            .expectJSONTypes({
+                message: String,
+                status: Number,
+                exception: String
+            })
+            .toss();
     }
 };
 
