@@ -10,7 +10,6 @@ import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.services.content.CollectionService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -55,9 +54,6 @@ public class ContextServiceTest {
 
     @Mock
     private ContextProfileService contextProfileService;
-
-    @Mock
-    private CollectionService collectionContentService;
 
     @Mock
     private Gson gson = new Gson();
