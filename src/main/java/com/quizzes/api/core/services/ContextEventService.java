@@ -1,15 +1,24 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.*;
+import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.ContextEventsResponseDto;
+import com.quizzes.api.core.dtos.EventSummaryDataDto;
+import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.PostRequestResourceDto;
+import com.quizzes.api.core.dtos.PostResponseResourceDto;
+import com.quizzes.api.core.dtos.ProfileEventResponseDto;
+import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
-import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
-import com.quizzes.api.core.model.jooq.tables.pojos.*;
+import com.quizzes.api.core.model.jooq.tables.pojos.Context;
+import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
+import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -416,6 +425,7 @@ public class ContextEventService {
         return result;
     }
 
+    /*
     private PostRequestResourceDto updateExistingResourceDto(ContextProfileEvent contextProfileEvent,
                                                              Resource resourceInfo,
                                                              PostRequestResourceDto resource) {
@@ -450,5 +460,6 @@ public class ContextEventService {
         }
         return resourceInList;
     }
+    */
 
 }
