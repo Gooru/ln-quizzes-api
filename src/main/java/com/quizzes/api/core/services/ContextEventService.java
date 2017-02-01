@@ -341,7 +341,7 @@ public class ContextEventService {
                 return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
             case MultipleChoice:
             case MultipleChoiceImage:
-                return calculateScoreForMultipleAnswer(userAnswers, correctAnswers);
+                return calculateScoreForMultipleChoice(userAnswers, correctAnswers);
             default:
                 return 0;
             //TODO: Implement the logic for the other question types
@@ -385,7 +385,7 @@ public class ContextEventService {
      * @param correctAnswers Correct answers for the question
      * @return the score
      */
-    private int calculateScoreForMultipleAnswer(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+    private int calculateScoreForMultipleChoice(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
         if (userAnswers.size() != correctAnswers.size()) {
             return 0;
         }

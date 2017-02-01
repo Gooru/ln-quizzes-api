@@ -13,6 +13,7 @@ import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
+import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
@@ -96,11 +97,6 @@ public class ContextEventServiceTest {
     private UUID ownerId;
     private UUID profileId;
     private CurrentContextProfile currentContextProfile;
-    private String trueFalseQuestion = "true_false";
-    private String singleChoiceQuestion = "single_choice";
-    private String dragAndDrop = "drag_and_drop";
-    private String multipleChoice = "multiple_choice";
-    private String multipleChoiceImage = "multiple_choice_image";
 
     @Before
     public void beforeEachTest() {
@@ -312,7 +308,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
 
-        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, QuestionTypeEnum.TrueFalse.getLiteral());
         //previousResource.setResourceData(gson.toJson(questionMetadataDto));
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
@@ -375,9 +371,9 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        //QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        //QuestionDataDto questionDataDto = createQuestionDataDto(answers, QuestionTypeEnum.TrueFalse.getLiteral());
         //previousResource.setResourceData(gson.toJson(questionDataDto));
-        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, QuestionTypeEnum.TrueFalse.getLiteral());
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
@@ -454,7 +450,7 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
-        //QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        //QuestionDataDto questionDataDto = createQuestionDataDto(answers, QuestionTypeEnum.TrueFalse.getLiteral());
         //previousResource.setResourceData(gson.toJson(questionDataDto));
 
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
@@ -850,7 +846,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(answer);
 
         int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                trueFalseQuestion, userAnswers, correctAnswers);
+                QuestionTypeEnum.TrueFalse.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
@@ -863,7 +859,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(correctAnswer);
 
         int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                trueFalseQuestion, userAnswers, correctAnswers);
+                QuestionTypeEnum.TrueFalse.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -873,8 +869,8 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(answer);
         List<AnswerDto> correctAnswers = Arrays.asList(answer);
 
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", singleChoiceQuestion,
-                userAnswers, correctAnswers);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.SingleChoice.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
@@ -887,7 +883,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(userAnswer);
 
         int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                singleChoiceQuestion, userAnswers, correctAnswers);
+                QuestionTypeEnum.SingleChoice.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -916,8 +912,8 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
 
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", dragAndDrop,
-                userAnswers, correctAnswers);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.DragAndDrop.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
@@ -926,8 +922,8 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"), createAnswerDto("B"));
 
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", dragAndDrop,
-                userAnswers, correctAnswers);
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.DragAndDrop.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -936,8 +932,8 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType", dragAndDrop,
-               userAnswers, correctAnswers);
+       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+               QuestionTypeEnum.DragAndDrop.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -947,7 +943,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                multipleChoice, userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
@@ -957,7 +953,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                multipleChoice, userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -967,7 +963,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                multipleChoiceImage, userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -977,7 +973,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                multipleChoiceImage, userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
 
@@ -987,7 +983,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                multipleChoiceImage, userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -997,7 +993,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                multipleChoice, userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
