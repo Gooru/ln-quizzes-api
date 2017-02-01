@@ -9,10 +9,11 @@ package com.quizzes.api.core.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context implements java.io.Serializable {
 
-	private static final long serialVersionUID = 490423466;
+	private static final long serialVersionUID = -471798544;
 
 	private java.util.UUID     id;
 	private java.util.UUID     collectionId;
+	private java.lang.Boolean  isCollection;
 	private java.util.UUID     profileId;
 	private java.util.UUID     classId;
 	private java.lang.String   contextData;
@@ -28,6 +29,7 @@ public class Context implements java.io.Serializable {
 	public Context(
 		java.util.UUID     id,
 		java.util.UUID     collectionId,
+		java.lang.Boolean  isCollection,
 		java.util.UUID     profileId,
 		java.util.UUID     classId,
 		java.lang.String   contextData,
@@ -40,6 +42,7 @@ public class Context implements java.io.Serializable {
 	) {
 		this.id = id;
 		this.collectionId = collectionId;
+		this.isCollection = isCollection;
 		this.profileId = profileId;
 		this.classId = classId;
 		this.contextData = contextData;
@@ -65,6 +68,14 @@ public class Context implements java.io.Serializable {
 
 	public void setCollectionId(java.util.UUID collectionId) {
 		this.collectionId = collectionId;
+	}
+
+	public java.lang.Boolean getIsCollection() {
+		return this.isCollection;
+	}
+
+	public void setIsCollection(java.lang.Boolean isCollection) {
+		this.isCollection = isCollection;
 	}
 
 	public java.util.UUID getProfileId() {

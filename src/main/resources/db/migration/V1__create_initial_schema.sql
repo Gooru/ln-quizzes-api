@@ -12,6 +12,7 @@ CREATE TABLE context
 (
     id                  UUID        PRIMARY KEY,
     collection_id       UUID        NOT NULL,
+    is_collection       BOOLEAN     NOT NULL DEFAULT TRUE,
     profile_id          UUID        NOT NULL,
     class_id            UUID,
     context_data        JSONB,

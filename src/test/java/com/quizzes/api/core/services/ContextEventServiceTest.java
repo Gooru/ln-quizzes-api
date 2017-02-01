@@ -321,6 +321,9 @@ public class ContextEventServiceTest {
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        //List<Resource> collectionResources =  new ArrayList<>();
+        //collectionResources.add(resource);
+        //collectionResources.add(previousResource);
         contextProfileEvents.add(contextProfileEvent);
         //List<Resource> collectionResources =  new ArrayList<>();
         //collectionResources.add(resource);
@@ -333,6 +336,8 @@ public class ContextEventServiceTest {
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
+        doReturn(contextProfileEvent).when(contextEventService, "createContextProfileEvent",
+                currentContextProfile.getContextProfileId(), previousResourceId);
         doNothing().when(contextEventService, "doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
@@ -344,8 +349,12 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
-        verifyPrivate(contextEventService, times(0)).invoke("calculateScoreByQuestionType", any(), any(), any());
-        verifyPrivate(contextEventService, times(0)).invoke("createContextProfileEvent", any(), any());
+
+        //verifyPrivate(contextEventService, times(0))
+        //        .invoke("calculateScore", previousResource, body.getPreviousResource().getAnswer());
+        verifyPrivate(contextEventService, times(0)).invoke("updateExistingResourceDto", any(), any(), any());
+        verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent",
+                currentContextProfile.getContextProfileId(), previousResourceId);
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
@@ -363,17 +372,25 @@ public class ContextEventServiceTest {
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
+        //QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        //previousResource.setResourceData(gson.toJson(questionDataDto));
         ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, trueFalseQuestion);
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
         //previousResource.setResourceData(gson.toJson(questionDataDto));
 
-        OnResourceEventPostRequestDto body = createOnResourceEventPostRequestDto();
+        //EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
+
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
         ContextProfile contextProfile = createContextProfile();
+        OnResourceEventPostRequestDto body = createOnResourceEventPostRequestDto();
 
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        //List<Resource> collectionResources =  new ArrayList<>();
+        //collectionResources.add(resource);
+        //collectionResources.add(previousResource);
 
         //List<Resource> collectionResources =  new ArrayList<>();
         //collectionResources.add(resource);
@@ -395,6 +412,10 @@ public class ContextEventServiceTest {
         doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
                 .when(contextEventService, "createContextProfileEvent", contextProfileId, previousResourceId);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
+        //doReturn(100).when(contextEventService, "calculateScore",
+        //        previousResource, body.getPreviousResource().getAnswer());
+        doReturn(contextProfileEvent).when(contextEventService, "createContextProfileEvent",
+                currentContextProfile.getContextProfileId(), previousResourceId);
         doNothing().when(contextEventService, "doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
@@ -405,10 +426,76 @@ public class ContextEventServiceTest {
         verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
+        verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
+
+        //verifyPrivate(contextEventService, times(1))
+        //        .invoke("calculateScore", previousResource, body.getPreviousResource().getAnswer());
+        verifyPrivate(contextEventService, times(0)).invoke("updateExistingResourceDto", any(), any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
                 eq(resourceMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent",
-                contextProfileId, previousResourceId);
+                currentContextProfile.getContextProfileId(), previousResourceId);
+        verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
+        verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
+                eq(contextProfile), any(ContextProfileEvent.class));
+        verifyPrivate(contextEventService, times(1)).invoke("sendOnResourceEventMessage",
+                contextProfile, body.getPreviousResource(), eventSummaryDataDto);
+    }
+
+    @Ignore
+    @Test
+    public void processOnResourceEventExistingEventWithAnswer() throws Exception {
+        //Resource resource = createResource();
+        //Resource previousResource = createResource();
+        //previousResource.setId(previousResourceId);
+
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(createAnswerDto("A"));
+        //QuestionDataDto questionDataDto = createQuestionDataDto(answers, trueFalseQuestion);
+        //previousResource.setResourceData(gson.toJson(questionDataDto));
+
+        CurrentContextProfile currentContextProfile = createCurrentContextProfile();
+        ContextProfile contextProfile = createContextProfile();
+        OnResourceEventPostRequestDto body = createOnResourceEventPostRequestDto();
+
+        EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
+
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        contextProfileEvents.add(contextProfileEvent);
+        //List<Resource> collectionResources =  new ArrayList<>();
+        //collectionResources.add(resource);
+        //collectionResources.add(previousResource);
+
+        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
+        //when(resourceService.findByCollectionId(any(UUID.class))).thenReturn(collectionResources);
+        when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
+        when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
+
+        doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
+        //doReturn(body.getPreviousResource()).when(contextEventService, "updateExistingResourceDto", contextProfileEvent,
+        //        previousResource, body.getPreviousResource());
+        doReturn(contextProfileEvent).when(contextEventService, "createContextProfileEvent",
+                currentContextProfile.getContextProfileId(), previousResourceId);
+        doNothing().when(contextEventService, "doOnResourceEventTransaction",
+                eq(contextProfile), any(ContextProfileEvent.class));
+        doNothing().when(contextEventService, "sendOnResourceEventMessage",
+                eq(contextProfile), eq(body.getPreviousResource()), any(EventSummaryDataDto.class));
+
+        //contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+
+        verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
+        //verify(resourceService, times(1)).findByCollectionId(any(UUID.class));
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(contextProfileService, times(1)).findById(contextProfileId);
+        verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
+
+        verifyPrivate(contextEventService, times(0)).invoke("calculateScore", any(), any());
+        //verifyPrivate(contextEventService, times(1)).invoke("updateExistingResourceDto", contextProfileEvent,
+        //        previousResource, body.getPreviousResource());
+        verifyPrivate(contextEventService, times(0)).invoke("createContextProfileEvent", any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
@@ -424,6 +511,125 @@ public class ContextEventServiceTest {
 
         assertEquals("Wrong contextProfileId", contextProfileId, result.getContextProfileId());
         assertEquals("Wrong profileId", contentId, result.getContentId());
+    }
+
+    @Ignore
+    @Test
+    public void calculateScore() throws Exception {
+        List<AnswerDto> answerDtos = new ArrayList<>();
+        answerDtos.add(createAnswerDto("A"));
+
+        //QuestionDataDto questionDataDto = new QuestionDataDto();
+        //questionDataDto.setCorrectAnswer(answerDtos);
+        //questionDataDto.setType("true_false");
+
+        //Resource resource = createResource();
+        //resource.setResourceData(gson.toJson(questionDataDto));
+
+        //doReturn(100).when(contextEventService, "calculateScoreByQuestionType", eq(questionDataDto.getType()),
+        //        eq(answerDtos), any(List.class));
+
+        //int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScore", resource, answerDtos);
+
+        //verifyPrivate(contextEventService, times(1)).invoke("calculateScoreByQuestionType",
+        //        eq(questionDataDto.getType()), eq(answerDtos), any(List.class));
+
+        //assertEquals("Wrong score", 100, result);
+    }
+
+    @Ignore
+    @Test
+    public void updateExistingResourceDtoSkipTrueAndOldResourceSkipTrue() throws Exception {
+        PostRequestResourceDto eventData = createPostRequestResourceDto();
+        eventData.setIsSkipped(true);
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId,
+                gson.toJson(eventData));
+
+        PostRequestResourceDto resource = createPostRequestResourceDto();
+        resource.setIsSkipped(true);
+        //Resource resourceInfo = createResource();
+
+        //PostRequestResourceDto result = WhiteboxImpl.invokeMethod(contextEventService, "updateExistingResourceDto",
+        //        contextProfileEvent, resourceInfo, resource);
+
+        //verifyPrivate(contextEventService, times(0)).invoke("calculateScore", resourceInfo, resource.getAnswer());
+
+        //assertEquals("Wrong time spent", 2000, result.getTimeSpent());
+        //assertEquals("Wrong resourceId", resourceId, result.getResourceId());
+        //assertEquals("Wrong score", 100, result.getScore());
+        //assertEquals("Wrong reaction", 5, result.getReaction());
+    }
+
+    @Ignore
+    @Test
+    public void updateExistingResourceDtoSkipTrue() throws Exception {
+        PostRequestResourceDto eventData = createPostRequestResourceDto();
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId,
+                gson.toJson(eventData));
+
+        PostRequestResourceDto resource = createPostRequestResourceDto();
+        resource.setIsSkipped(true);
+        resource.setReaction(1);
+        //Resource resourceInfo = createResource();
+
+        //PostRequestResourceDto result = WhiteboxImpl.invokeMethod(contextEventService, "updateExistingResourceDto",
+        //        contextProfileEvent, resourceInfo, resource);
+
+        //verifyPrivate(contextEventService, times(0)).invoke("calculateScore", resourceInfo, resource.getAnswer());
+
+        //assertEquals("Wrong time spent", 2000, result.getTimeSpent());
+        //assertEquals("Wrong resourceId", resourceId, result.getResourceId());
+        //assertEquals("Wrong score", 100, result.getScore());
+        //assertEquals("Wrong reaction", 1, result.getReaction());
+    }
+
+    @Ignore
+    @Test
+    public void updateExistingResourceDtoSkipFalse() throws Exception {
+        PostRequestResourceDto eventData = createPostRequestResourceDto();
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId,
+                gson.toJson(eventData));
+
+        PostRequestResourceDto resource = createPostRequestResourceDto();
+        //Resource resourceInfo = createResource();
+
+        //doReturn(0).when(contextEventService, "calculateScore", resourceInfo, resource.getAnswer());
+
+        //PostRequestResourceDto result = WhiteboxImpl.invokeMethod(contextEventService, "updateExistingResourceDto",
+        //        contextProfileEvent, resourceInfo, resource);
+
+        //verifyPrivate(contextEventService, times(1)).invoke("calculateScore", resourceInfo, resource.getAnswer());
+
+        //assertEquals("Wrong time spent", 2000, result.getTimeSpent());
+        //assertEquals("Wrong resourceId", resourceId, result.getResourceId());
+        //assertEquals("Wrong score", 0, result.getScore());
+        //assertEquals("Wrong reaction", 5, result.getReaction());
+    }
+
+    @Ignore
+    @Test
+    public void findResourceInContext() throws Exception {
+        //Resource resource = createResource();
+
+        //List<Resource> collectionResources =  new ArrayList<>();
+        //collectionResources.add(resource);
+
+        //Resource result = WhiteboxImpl.invokeMethod(contextEventService, "findResourceInContext",
+        //        collectionResources, resourceId, contextId);
+
+        //assertEquals("Wrong resource ID", resourceId, result.getId());
+    }
+
+    @Ignore
+    @Test(expected = ContentNotFoundException.class)
+    public void findResourceInContextThrowException() throws Exception {
+        //Resource resource = createResource();
+
+        //List<Resource> collectionResources =  new ArrayList<>();
+        //collectionResources.add(resource);
+
+        //WhiteboxImpl.invokeMethod(contextEventService, "findResourceInContext",
+        //        collectionResources, previousResourceId, contextId);
     }
 
     @Test
@@ -727,7 +933,28 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop", userAnswers, correctAnswers);
+       int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForDragAndDrop",
+               userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleAnswerRightAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForMultipleAnswer",
+                userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleAnswerWrongAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreForMultipleAnswer",
+                userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 

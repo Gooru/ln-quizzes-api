@@ -2,13 +2,7 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.quizzes.api.core.dtos.ContextAssignedGetResponseDto;
-import com.quizzes.api.core.dtos.ContextPostRequestDto;
-import com.quizzes.api.core.dtos.ContextPutRequestDto;
-import com.quizzes.api.core.dtos.CreatedContextGetResponseDto;
-import com.quizzes.api.core.dtos.IdResponseDto;
-import com.quizzes.api.core.dtos.MetadataDto;
-import com.quizzes.api.core.dtos.ProfileDto;
+import com.quizzes.api.core.dtos.*;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
@@ -410,11 +404,11 @@ public class ContextServiceTest {
 
         when(contextRepository.findContextOwnerByAssigneeIdAndFilters(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class))).thenReturn(list);
 
-        List<ContextAssignedGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID(), null, null, null);
+        List<ContextGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID(), null, null, null);
 
         verify(contextRepository, times(1)).findContextOwnerByAssigneeIdAndFilters(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class));
 
-        ContextAssignedGetResponseDto resultEntity = result.get(0);
+        ContextGetResponseDto resultEntity = result.get(0);
         assertEquals("Wrong size", 1, result.size());
 
         assertEquals("Wrong context id", contextId, resultEntity.getId());
@@ -438,7 +432,7 @@ public class ContextServiceTest {
         when(contextRepository.findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextOwnerEntity);
 
-        ContextAssignedGetResponseDto resultEntity =
+        ContextGetResponseDto resultEntity =
                 contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
 
         verify(contextRepository, times(1)).findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class));
@@ -509,7 +503,7 @@ public class ContextServiceTest {
 
         when(contextRepository.findContextAssigneeByOwnerId(any(UUID.class))).thenReturn(contextsMap);
 
-        List<CreatedContextGetResponseDto> result = contextService.findCreatedContexts(UUID.randomUUID());
+        List<ContextGetResponseDto> result = contextService.findCreatedContexts(UUID.randomUUID());
         verify(contextRepository, times(1)).findContextAssigneeByOwnerId(any(UUID.class));
 
         assertNotNull("Created contexts list in null", result);
@@ -542,7 +536,7 @@ public class ContextServiceTest {
         when(contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId))
                 .thenReturn(contextsMap);
 
-        CreatedContextGetResponseDto result =
+        ContextGetResponseDto result =
                 contextService.findCreatedContextByContextIdAndOwnerId(contextId, ownerId);
         verify(contextRepository, times(1)).findContextAssigneeByContextIdAndOwnerId(contextId, ownerId);
 
@@ -591,7 +585,7 @@ public class ContextServiceTest {
     @Test
     public void mapContextOwnerEntityToContextAssignedDto() throws Exception {
         ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
-        ContextAssignedGetResponseDto contextAssignedDto =
+        ContextGetResponseDto contextAssignedDto =
                 WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
                         contextOwnerEntity);
         assertEquals("Wrong context id", contextId, contextAssignedDto.getId());

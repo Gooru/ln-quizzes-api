@@ -3,3 +3,5 @@ build/
 *.jar
 *.tar.gz
 s3.artifact
+newman/
+node_modules/
