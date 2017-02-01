@@ -1,22 +1,35 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.*;
+import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.ContextEventsResponseDto;
+import com.quizzes.api.core.dtos.EventSummaryDataDto;
+import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.PostRequestResourceDto;
+import com.quizzes.api.core.dtos.PostResponseResourceDto;
+import com.quizzes.api.core.dtos.ProfileEventResponseDto;
+import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
-import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
-import com.quizzes.api.core.model.jooq.tables.pojos.*;
+import com.quizzes.api.core.model.jooq.tables.pojos.Context;
+import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
+import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
+import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -66,60 +79,45 @@ public class ContextEventService {
         // TODO Replace this logic
         /*
         Context context = contextService.findByIdAndAssigneeId(contextId, profileId);
-        List<Resource> collectionResources = resourceService.findByCollectionId(context.getCollectionId());
-        PostRequestResourceDto resourceDto = body.getPreviousResource();
-
-        Resource currentResource = collectionResources.stream()
-                .filter(resource -> resource.getId().equals(resourceId)).findFirst().orElse(null);
-        if (currentResource == null) {
-            throw new ContentNotFoundException("On Resource ID " + resourceId + " does not belong to the " +
-                    "Collection ID " + context.getCollectionId() + " assigned in the Context ID " + contextId);
-        }
-
-        Resource previousResource = collectionResources.stream()
-                .filter(resource -> resource.getId().equals(resourceDto.getResourceId())).findFirst().orElse(null);
-                resourceService.findById(resourceDto.getResourceId());
-        if (previousResource == null) {
-            throw new ContentNotFoundException("Previous Resource ID " + resourceId + " does not belong to the " +
-                    "Collection ID " + context.getCollectionId() + " assigned in the Context ID " + contextId);
-        }
-
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
-        ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
-        ResourceMetadataDto previousResourceData =
-                gson.fromJson(previousResource.getResourceData(), ResourceMetadataDto.class);
 
-        // Calculates provided answer score
-        if (!resourceDto.getAnswer().isEmpty()) {
-            resourceDto.setIsSkipped(false);
-            resourceDto.setScore(calculateScoreByQuestionType(previousResourceData.getType(), resourceDto.getAnswer(),
-                    previousResourceData.getCorrectAnswer()));
-        }
+        PostRequestResourceDto resourceDto = body.getPreviousResource();
+        resourceDto.setIsSkipped(resourceDto.getAnswer().isEmpty());
+
+        List<Resource> collectionResources = resourceService.findByCollectionId(context.getCollectionId());
+        Resource currentResource = findResourceInContext(collectionResources, resourceId, contextId);
+        Resource previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(), contextId);
 
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(currentContextProfile.getContextProfileId());
         ContextProfileEvent contextProfileEvent = contextProfileEvents.stream()
                 .filter(event -> event.getResourceId().equals(previousResource.getId())).findFirst().orElse(null);
+        resourceService.findById(resourceDto.getResourceId());
+
         if (contextProfileEvent == null) {
-            contextProfileEvent =
-                    createContextProfileEvent(currentContextProfile.getContextProfileId(), previousResource.getId());
+            contextProfileEvent = createContextProfileEvent(currentContextProfile.getContextProfileId(),
+                    previousResource.getId());
+            if (!resourceDto.getIsSkipped()) {
+                resourceDto.setScore(calculateScore(previousResource, resourceDto.getAnswer()));
+            }
             contextProfileEvents.add(contextProfileEvent);
         } else {
-            PostRequestResourceDto currentEventData =
-                    gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
-            resourceDto.setTimeSpent(resourceDto.getTimeSpent() + currentEventData.getTimeSpent());
+            resourceDto = updateExistingResourceDto(contextProfileEvent, previousResource, resourceDto);
         }
+
         contextProfileEvent.setEventData(gson.toJson(resourceDto));
 
         EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
+        ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
         contextProfile.setCurrentResourceId(currentResource.getId());
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
-        doOnResourceEventTransaction(contextProfile, contextProfileEvent);
 
+        doOnResourceEventTransaction(contextProfile, contextProfileEvent);
         sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
         */
     }
+
 
     public void processFinishContextEvent(UUID contextId, UUID profileId) {
         // TODO Replace this logic
@@ -341,6 +339,8 @@ public class ContextEventService {
                 return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
             case DragAndDrop:
                 return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
+            case MultipleAnswer:
+                return calculateScoreForMultipleAnswer(userAnswers, correctAnswers);
             default:
                 return 0;
             //TODO: Implement the logic for the other question types
@@ -366,14 +366,27 @@ public class ContextEventService {
      * @return the score
      */
     private int calculateScoreForDragAndDrop(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
-        if(userAnswers.size() < correctAnswers.size()){
+        if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
         boolean isAnswerCorrect =
-                IntStream.range(0, correctAnswers.size()-1)
+                IntStream.range(0, correctAnswers.size() - 1)
                         .allMatch(i -> correctAnswers.get(i).getValue().equals(userAnswers.get(i).getValue()));
 
         return isAnswerCorrect ? 100 : 0;
+    }
+
+    /**
+     * Multiple Answer method compares the answers with the correct answer ignoring the order
+     *
+     * @param userAnswers    Answers provided by the user
+     * @param correctAnswers Correct answers for the question
+     * @return the score
+     */
+    private int calculateScoreForMultipleAnswer(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+        boolean result = correctAnswers.stream().map(AnswerDto::getValue).collect(Collectors.toList())
+                .containsAll(userAnswers.stream().map(AnswerDto::getValue).collect(Collectors.toList()));
+        return result ? 100 : 0;
     }
 
     private EventSummaryDataDto calculateEventSummary(List<ContextProfileEvent> contextProfileEvents,
@@ -411,5 +424,42 @@ public class ContextEventService {
 
         return result;
     }
+
+    /*
+    private PostRequestResourceDto updateExistingResourceDto(ContextProfileEvent contextProfileEvent,
+                                                             Resource resourceInfo,
+                                                             PostRequestResourceDto resource) {
+        PostRequestResourceDto oldResource =
+                gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
+
+        resource.setTimeSpent(resource.getTimeSpent() + oldResource.getTimeSpent());
+
+        if (!resource.getIsSkipped()) {
+            resource.setScore(calculateScore(resourceInfo, resource.getAnswer()));
+        } else if (!oldResource.getIsSkipped()) {
+            oldResource.setTimeSpent(resource.getTimeSpent());
+            oldResource.setReaction(resource.getReaction());
+            return oldResource;
+        }
+
+        return resource;
+    }
+
+    private int calculateScore(Resource resourceInfo, List<AnswerDto> answer) {
+        QuestionDataDto question = gson.fromJson(resourceInfo.getResourceData(), QuestionDataDto.class);
+        return calculateScoreByQuestionType(question.getType(), answer,
+                question.getCorrectAnswer());
+    }
+
+    private Resource findResourceInContext(List<Resource> resources, UUID resourceId, UUID contextId) {
+        Resource resourceInList = resources.stream()
+                .filter(r -> r.getId().equals(resourceId)).findFirst().orElse(null);
+        if (resourceInList == null) {
+            throw new ContentNotFoundException("Resource ID: " + resourceId + " is not part of " +
+                    "the Context ID: " + contextId);
+        }
+        return resourceInList;
+    }
+    */
 
 }

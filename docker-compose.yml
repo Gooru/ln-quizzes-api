@@ -1,0 +1,22 @@
+version: '2'
+services:
+  web:
+    image: openjdk:8-alpine
+    command: /app/docker-run
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+      - activemq
+  postgres:
+    image: postgres:9.5-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=quizzes
+  activemq:
+    image: edify-dkr.jfrog.io/activemq:5.13.3
+

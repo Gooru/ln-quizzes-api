@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.core.model.jooq.tables.records.ContextRecord> {
 
-	private static final long serialVersionUID = 1741921261;
+	private static final long serialVersionUID = 1922370854;
 
 	/**
 	 * The singleton instance of <code>public.context</code>
@@ -33,6 +33,11 @@ public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.core.model.
 	 * The column <code>public.context.collection_id</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextRecord, java.util.UUID> COLLECTION_ID = createField("collection_id", org.jooq.impl.SQLDataType.UUID.nullable(false), this, "");
+
+	/**
+	 * The column <code>public.context.is_collection</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextRecord, java.lang.Boolean> IS_COLLECTION = createField("is_collection", org.jooq.impl.SQLDataType.BOOLEAN.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * The column <code>public.context.profile_id</code>.
