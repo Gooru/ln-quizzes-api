@@ -27,6 +27,7 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
             request.setAttribute("profileId", accessTokenResponseDto.getUserId());
             request.setAttribute("clientId", accessTokenResponseDto.getClientId());
+            request.setAttribute("token", token);
         }
         return true;
     }

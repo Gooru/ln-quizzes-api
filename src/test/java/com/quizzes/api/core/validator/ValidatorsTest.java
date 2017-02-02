@@ -62,7 +62,7 @@ public class ValidatorsTest {
     public void testContext() {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
-        assignment.setCollectionId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID());
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 

@@ -1,7 +1,13 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.*;
+import com.quizzes.api.core.dtos.ClassMemberContentDto;
+import com.quizzes.api.core.dtos.ContextGetResponseDto;
+import com.quizzes.api.core.dtos.ContextPostRequestDto;
+import com.quizzes.api.core.dtos.ContextPutRequestDto;
+import com.quizzes.api.core.dtos.EventSummaryDataDto;
+import com.quizzes.api.core.dtos.IdResponseDto;
+import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
@@ -10,10 +16,12 @@ import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
+import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.repositories.ContextRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
+import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +34,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class ContextService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ContextProfileService contextProfileService;
@@ -42,73 +48,69 @@ public class ContextService {
     ContextRepository contextRepository;
 
     @Autowired
+    CollectionRestClient collectionRestClient;
+
+    @Autowired
+    ClassMemberRestClient ClassMemberRestClient;
+
+    @Autowired
+    AuthenticationRestClient authenticationRestClient;
+    @Autowired
     private Gson gson;
 
-    /**
-     * A {@link Collection} is the Quizzes representation of an Assessment in a Content Provider
-     * and in the Content Provider there are original Assessments (an Assessment that it's create from scratch)
-     * and copied Assessments (copied from another Assessment)
-     * In an Original Assessment the Assessment ID is the same as the field Assessment parent ID, this means that
-     * the Assessment has no parent or is not copied from other Assessment.
-     * A copied Assessment has it's own unique ID and in the field parent ID has the ID of the Assessment it is being copied from
-     * In Quizzes each {@link Collection} has it's owner, and that owner matches or represents a Content Provider owner.
-     * A Quizzes owner can use an Assessment he owns in the Content Provider or a "Public" Assessment from a different owner
-     * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.
-     * Some Examples are:
-     * ++Collection ID = c1 with external ID (Assessment ID) = a1 external parent ID (parent Assessment ID) = a1 and owner ID = o1
-     * this is a Collection from an original Assessment, not copied
-     * ++Collection ID = c2 with external ID (Assessment ID) = a2 external parent ID (parent Assessment ID) = a1 and owner ID = o2
-     * this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
-     * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o3
-     * this is an owner's o3 copy of Assessment ID = a2
-     * ++Collection ID = c5 with external ID (Assessment ID) = a5 external parent ID (parent Assessment ID) = a5 and owner ID = o4
-     * this is an owner's o4 own Assessment ID = a5
-     *
-     * @param contextPostRequestDto information to create the new {@link Context}
-     * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
-     * @return The only value in the result is the context ID
-     */
     @Transactional
-    public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto) {
-        // TODO Replace this logic
-        /*
-        Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
-        if (owner == null) {
-            owner = createProfile(contextPostRequestDto.getOwner(), lms);
-        }
+    public IdResponseDto createContext(ContextPostRequestDto contextDto, String profileId, String token) {
+        //TODO: Validate collection, class if exist, profile (could be anonymous)
+        validateCollectionOwner(contextDto.getCollectionId().toString(), UUID.fromString(profileId), token);
 
-        Collection collection = collectionService.findByOwnerProfileIdAndExternalParentId(owner.getId(), contextPostRequestDto.getExternalCollectionId());
-
-        if (collection == null) {
-            collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
-            if (collection == null
-                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))) {
-                // the collection is noll OR the collection has a different owner
-                //collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
-            }
-        }
-
-        Group group = groupService.createGroup(owner.getId());
-        assignProfilesToGroup(group.getId(), contextPostRequestDto.getAssignees(), lms);
-
-        Context context = new Context();
-        context.setCollectionId(collection.getId());
-        context.setGroupId(group.getId());
-        context.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
-
+        Context context = createContextObject(contextDto, UUID.fromString(profileId));
         context = contextRepository.save(context);
-        IdResponseDto result = new IdResponseDto();
-        result.setId(context.getId());
 
-        return result;
-        */
-        return null;
+        if (contextDto.getClassId() != null) {
+            ClassMemberContentDto classMember =
+                    ClassMemberRestClient.getClassMembers(contextDto.getClassId().toString(), token);
+            createContextProfiles(classMember.getMemberIds(), context.getId());
+        }
+
+        return new IdResponseDto(context.getId());
+    }
+
+    private Context createContextObject(ContextPostRequestDto contextDto, UUID profileId){
+        Context context = new Context();
+        context.setProfileId(profileId);
+        context.setClassId(contextDto.getClassId());
+        context.setCollectionId(contextDto.getCollectionId());
+        context.setContextData(gson.toJson(contextDto.getContextData()));
+        context.setIsCollection(contextDto.getIsCollection());
+        return context;
+    }
+
+    private void validateCollectionOwner(String collectionId, UUID profileId, String token) {
+        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, token);
+        if (!collectionContentDto.getOwnerId().equals(profileId)) {
+            throw new InvalidOwnerException("Wrong owner");
+        }
+    }
+
+    private void createContextProfiles(List<UUID> memberIds, UUID contextId) {
+        if (memberIds != null && !memberIds.isEmpty()) {
+            memberIds.stream()
+                    .map(memberId -> contextProfileService.save(createContextProfile(contextId, memberId)));
+        }
+    }
+
+    private ContextProfile createContextProfile(UUID contextId, UUID profileId) {
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setContextId(contextId);
+        contextProfile.setProfileId(profileId);
+        contextProfile.setIsComplete(false);
+        contextProfile.setEventSummaryData(gson.toJson(new EventSummaryDataDto()));
+        return contextProfile;
     }
 
     /**
      * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
-     * @param lms                  the LMS id
      * @return the updated Context
      */
     @Transactional

@@ -82,7 +82,7 @@ public class CollectionRestClient {
         }
     }
 
-    public String copyAssessment(String collectionId, String token) {
+    public String copyCollection(String collectionId, String token) {
         String endpointUrl = configurationService.getContentApiUrl() + COLLECTIONS_COPIER_PATH;
 
         if (logger.isDebugEnabled()) {

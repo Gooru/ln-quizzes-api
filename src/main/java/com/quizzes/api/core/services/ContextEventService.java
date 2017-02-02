@@ -305,11 +305,10 @@ public class ContextEventService {
     }
 
     private ContextProfile createContextProfile(UUID contextId, UUID profileId) {
-        //Resource firstResource = findFirstResourceByContextId(contextId);
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
-        //contextProfile.setCurrentResourceId(firstResource.getId());
+        contextProfile.setIsComplete(false);
         contextProfile.setEventSummaryData(gson.toJson(calculateEventSummary(Collections.EMPTY_LIST, false)));
         return contextProfile;
     }

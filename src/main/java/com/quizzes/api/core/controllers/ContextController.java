@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -54,10 +55,11 @@ public class ContextController {
     public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's collection ID, " +
             "class ID (optional) and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
-                                           @RequestAttribute(value = "profileId") String profileId) {
+                                           @RequestAttribute(value = "profileId") String profileId,
+                                           @RequestAttribute(value = "token") String token) {
 
         List<String> constraintErrors = new ArrayList<>();
-        if (profileId == null || profileId.isEmpty()) {
+        if (profileId == null) {
             constraintErrors.add("Error in profileId: profileId is required");
         }
 
@@ -77,7 +79,7 @@ public class ContextController {
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
 
         }
-        IdResponseDto result = contextService.createContext(contextPostRequestDto);
+        IdResponseDto result = contextService.createContext(contextPostRequestDto, profileId, token);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
