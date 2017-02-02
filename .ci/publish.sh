@@ -6,23 +6,9 @@ source .ci/common.sh
 
 ./gradlew clean build -x test
 
-#if [ -z "$ARTIFACTORY_USERNAME" ] || [ -z "$ARTIFACTORY_PASSWORD" ]; then
-#  error "No Artifactory credentials provided."
-#  exit 1
-#fi
-
 VERSION=$(cat gradle.properties | grep version | cut -d "=" -f2)
 GIT_COMMIT_HASH=$(git rev-parse HEAD)
 GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's/\//-/')
-
-#info "Publishing version $VERSION to artifactory..."
-
-#STATUS_CODE=$(curl -o /dev/null -s -w "%{http_code}\\n" -u$ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD -T build/libs/quizzes-api-${VERSION}.jar "https://edify.jfrog.io/edify/gooruweb-releases-local/quizzes-api/quizzes-api-${VERSION}.jar")
-
-#if [ "$STATUS_CODE" != "201" ]; then
-#  error "Fail to publish to artifactory status code $STATUS_CODE."
-#  exit 1
-#fi
 
 if [ -z "$S3_BUCKET" ]; then
   error "No S3 bucket specified."
