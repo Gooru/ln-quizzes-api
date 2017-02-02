@@ -341,6 +341,7 @@ public class ContextEventService {
                 return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
             case MultipleChoice:
             case MultipleChoiceImage:
+            case MultipleChoiceText:
                 return calculateScoreForMultipleChoice(userAnswers, correctAnswers);
             default:
                 return 0;
@@ -379,7 +380,7 @@ public class ContextEventService {
 
     /**
      * Multiple Answer method compares the answers with the correct answer ignoring the order
-     * Works for multiple_choice and multiple_choice_image
+     * Works for multiple_choice, multiple_choice_image and multiple_choice_text
      *
      * @param userAnswers    Answers provided by the user
      * @param correctAnswers Correct answers for the question

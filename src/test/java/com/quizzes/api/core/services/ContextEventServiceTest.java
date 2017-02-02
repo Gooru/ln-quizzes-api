@@ -958,12 +958,12 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void calculateScoreForMultipleChoiceImageWrongNumberOfAnswers() throws Exception {
+    public void calculateScoreForMultipleChoiceWrongNumberOfAnswers() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
@@ -988,12 +988,42 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void calculateScoreForMultipleChoiceWrongNumberOfAnswers() throws Exception {
+    public void calculateScoreForMultipleChoiceImageWrongNumberOfAnswers() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
         int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
+                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleChoiceTextRightAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.MultipleChoiceText.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleChoiceTextWrongAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.MultipleChoiceText.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
+    public void calculateScoreForMultipleChoiceTextWrongNumberOfAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.MultipleChoiceText.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
 
