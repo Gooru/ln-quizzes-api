@@ -79,7 +79,7 @@ public class ContextServiceTest {
     @Test
     public void createContextFindProfile() throws Exception {
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
-        contextPostRequestDto.setCollectionId(UUID.randomUUID().toString());
+        contextPostRequestDto.setCollectionId(UUID.randomUUID());
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
@@ -111,7 +111,7 @@ public class ContextServiceTest {
     @Ignore
     @Test
     public void createContextWithExistingCollection() throws Exception {
-        String externalCollectionId = UUID.randomUUID().toString();
+        UUID externalCollectionId = UUID.randomUUID();
 
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
         contextPostRequestDto.setCollectionId(externalCollectionId);
@@ -144,7 +144,7 @@ public class ContextServiceTest {
     @Ignore
     @Test
     public void createContextWithExistingCollectionByOwnerAndExternalParentID() throws Exception {
-        String externalCollectionId = UUID.randomUUID().toString();
+        UUID externalCollectionId = UUID.randomUUID();
 
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
         contextPostRequestDto.setCollectionId(externalCollectionId);
@@ -178,7 +178,7 @@ public class ContextServiceTest {
     @Test
     public void createContextCreateProfile() throws Exception {
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
-        contextPostRequestDto.setCollectionId(UUID.randomUUID().toString());
+        contextPostRequestDto.setCollectionId(UUID.randomUUID());
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();

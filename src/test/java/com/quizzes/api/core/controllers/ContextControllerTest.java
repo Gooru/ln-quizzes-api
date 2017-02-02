@@ -48,8 +48,8 @@ public class ContextControllerTest {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
 
-        assignment.setCollectionId(UUID.randomUUID().toString());
-        assignment.setClassId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID());
+        assignment.setClassId(UUID.randomUUID());
 
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
@@ -85,12 +85,12 @@ public class ContextControllerTest {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
 
-        assignment.setCollectionId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID());
 
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
-        //Testing no owner
+        //Testing with no owner
         ResponseEntity<?> result = controller.assignContext(assignment, null);
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
@@ -121,17 +121,11 @@ public class ContextControllerTest {
         ResponseEntity<?> result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in context")));
+        assertThat(result.getBody().toString(), not(containsString("Error in contextData")));
         assertThat(result.getBody().toString(), containsString("Error in collectionId"));
-        assertThat(result.getBody().toString(), containsString("{Errors=[Error in collectionId: A Collection ID is required]}"));
+        assertThat(result.getBody().toString(), containsString("A Collection ID is required"));
 
-        //testing empty collection
-        result = controller.assignContext(assignment, UUID.randomUUID().toString());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("{Errors=[Error in collectionId: A Collection ID is required]}"));
-
-        assignment.setCollectionId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID());
 
         result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
@@ -140,7 +134,7 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void assignContextContextValidation() throws Exception {
+    public void assignContextContextDataValidation() throws Exception {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
@@ -148,14 +142,12 @@ public class ContextControllerTest {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
 
-        assignment.setCollectionId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID());
 
         //Testing no context
         ResponseEntity<?> result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in assignees")));
-        assertThat(result.getBody().toString(), not(containsString("Error in owners")));
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
         assertThat(result.getBody().toString(), containsString("Error in context"));
         assertThat(result.getBody().toString(), containsString("A ContextData is required"));
