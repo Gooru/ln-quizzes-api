@@ -55,6 +55,7 @@ public class ContextService {
 
     @Autowired
     AuthenticationRestClient authenticationRestClient;
+
     @Autowired
     private Gson gson;
 
@@ -75,7 +76,7 @@ public class ContextService {
         return new IdResponseDto(context.getId());
     }
 
-    private Context createContextObject(ContextPostRequestDto contextDto, UUID profileId){
+    private Context createContextObject(ContextPostRequestDto contextDto, UUID profileId) {
         Context context = new Context();
         context.setProfileId(profileId);
         context.setClassId(contextDto.getClassId());
@@ -94,8 +95,10 @@ public class ContextService {
 
     private void createContextProfiles(List<UUID> memberIds, UUID contextId) {
         if (memberIds != null && !memberIds.isEmpty()) {
-            memberIds.stream()
-                    .map(memberId -> contextProfileService.save(createContextProfile(contextId, memberId)));
+            memberIds.forEach(memberId -> {
+                ContextProfile contextProfile = createContextProfile(contextId, memberId);
+                contextProfileService.save(contextProfile);
+            });
         }
     }
 

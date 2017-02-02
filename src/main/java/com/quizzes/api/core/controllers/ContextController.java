@@ -1,6 +1,9 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.dtos.*;
+import com.quizzes.api.core.dtos.ContextGetResponseDto;
+import com.quizzes.api.core.dtos.ContextPostRequestDto;
+import com.quizzes.api.core.dtos.ContextPutRequestDto;
+import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.services.ContextService;
