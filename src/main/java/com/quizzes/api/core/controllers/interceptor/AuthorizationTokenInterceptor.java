@@ -1,4 +1,4 @@
-package com.quizzes.api.common.interceptor;
+package com.quizzes.api.core.controllers.interceptor;
 
 import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
@@ -27,6 +27,7 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
             request.setAttribute("profileId", accessTokenResponseDto.getUserId());
             request.setAttribute("clientId", accessTokenResponseDto.getClientId());
+            request.setAttribute("token", token);
         }
         return true;
     }
