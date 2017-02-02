@@ -79,26 +79,13 @@ public class ContextServiceTest {
     @Test
     public void createContextFindProfile() throws Exception {
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
-        contextPostRequestDto.setExternalCollectionId(UUID.randomUUID().toString());
-
-        ProfileDto ownerDTO = new ProfileDto();
-        ownerDTO.setId("external-id");
-        contextPostRequestDto.setOwner(ownerDTO);
+        contextPostRequestDto.setCollectionId(UUID.randomUUID());
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
         contextPostRequestDto.setContextData(contextDataMock);
-
-        List<ProfileDto> assignees = new ArrayList<>();
-        ProfileDto profile1 = new ProfileDto();
-        profile1.setId("1");
-        ProfileDto profile2 = new ProfileDto();
-        profile1.setId("2");
-        assignees.add(profile1);
-        assignees.add(profile2);
-        contextPostRequestDto.setAssignees(assignees);
 
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
@@ -124,29 +111,16 @@ public class ContextServiceTest {
     @Ignore
     @Test
     public void createContextWithExistingCollection() throws Exception {
-        String externalCollectionId = UUID.randomUUID().toString();
+        UUID externalCollectionId = UUID.randomUUID();
 
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
-        contextPostRequestDto.setExternalCollectionId(externalCollectionId);
-
-        ProfileDto ownerDto = new ProfileDto();
-        ownerDto.setId("external-id1");
-        contextPostRequestDto.setOwner(ownerDto);
+        contextPostRequestDto.setCollectionId(externalCollectionId);
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
         contextPostRequestDto.setContextData(contextDataMock);
-
-        List<ProfileDto> assignees = new ArrayList<>();
-        ProfileDto profile1 = new ProfileDto();
-        profile1.setId("1");
-        ProfileDto profile2 = new ProfileDto();
-        profile1.setId("2");
-        assignees.add(profile1);
-        assignees.add(profile2);
-        contextPostRequestDto.setAssignees(assignees);
 
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
@@ -170,30 +144,16 @@ public class ContextServiceTest {
     @Ignore
     @Test
     public void createContextWithExistingCollectionByOwnerAndExternalParentID() throws Exception {
-        String externalCollectionId = UUID.randomUUID().toString();
+        UUID externalCollectionId = UUID.randomUUID();
 
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
-        contextPostRequestDto.setExternalCollectionId(externalCollectionId);
-
-        ProfileDto ownerDto = new ProfileDto();
-        ownerDto.setId("external-id1");
-        contextPostRequestDto.setOwner(ownerDto);
+        contextPostRequestDto.setCollectionId(externalCollectionId);
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
         contextPostRequestDto.setContextData(contextDataMock);
-
-        List<ProfileDto> assignees = new ArrayList<>();
-        ProfileDto profile1 = new ProfileDto();
-        profile1.setId("1");
-        ProfileDto profile2 = new ProfileDto();
-        profile1.setId("2");
-        assignees.add(profile1);
-        assignees.add(profile2);
-        contextPostRequestDto.setAssignees(assignees);
-
 
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());
@@ -218,23 +178,13 @@ public class ContextServiceTest {
     @Test
     public void createContextCreateProfile() throws Exception {
         ContextPostRequestDto contextPostRequestDto = new ContextPostRequestDto();
-        contextPostRequestDto.setExternalCollectionId(UUID.randomUUID().toString());
-
-        ProfileDto ownerDTO = new ProfileDto();
-        ownerDTO.setId("external-id");
-        contextPostRequestDto.setOwner(ownerDTO);
+        contextPostRequestDto.setCollectionId(UUID.randomUUID());
 
         ContextDataDto contextDataMock = new ContextDataDto();
         Map<String, String> contextMapMock = new HashMap<>();
         contextMapMock.put("classId", "classId");
         contextDataMock.setContextMap(contextMapMock);
         contextPostRequestDto.setContextData(contextDataMock);
-
-        List<ProfileDto> assignees = new ArrayList<>();
-        ProfileDto profile1 = new ProfileDto();
-        profile1.setId("1");
-        assignees.add(profile1);
-        contextPostRequestDto.setAssignees(assignees);
 
         Context contextResult = new Context();
         contextResult.setId(UUID.randomUUID());

@@ -4,26 +4,18 @@ import com.quizzes.api.core.dtos.controller.ContextDataDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.List;
+import java.util.UUID;
 
 /**
  * This class is used to get the specific body context (json) in the endpoints
  */
 public class ContextPostRequestDto {
 
-    @NotNull(message = "{assignment.external.collection.id.not_null}")
+    @NotNull(message = "{assignment.collectionId.not_null}")
     @Valid
-    private String externalCollectionId;
+    private UUID collectionId;
 
-    @NotNull(message = "{assignment.owner.not_null}")
-    @Valid
-    private ProfileDto owner;
-
-    @NotNull(message = "{assignment.assignees.not_null}")
-    @Size(min = 1, message = "{assignment.assignees.size}")
-    @Valid
-    private List<ProfileDto> assignees;
+    private UUID classId;
 
     @NotNull(message = "{assignment.context_data.not_null}")
     private ContextDataDto contextData;
@@ -31,28 +23,20 @@ public class ContextPostRequestDto {
     public ContextPostRequestDto() {
     }
 
-    public String getExternalCollectionId() {
-        return externalCollectionId;
+    public UUID getCollectionId() {
+        return collectionId;
     }
 
-    public void setExternalCollectionId(String externalCollectionId) {
-        this.externalCollectionId = externalCollectionId;
+    public void setCollectionId(UUID collectionId) {
+        this.collectionId = collectionId;
     }
 
-    public ProfileDto getOwner() {
-        return owner;
+    public UUID getClassId() {
+        return classId;
     }
 
-    public void setOwner(ProfileDto owner) {
-        this.owner = owner;
-    }
-
-    public List<ProfileDto> getAssignees() {
-        return assignees;
-    }
-
-    public void setAssignees(List<ProfileDto> assignees) {
-        this.assignees = assignees;
+    public void setClassId(UUID classId) {
+        this.classId = classId;
     }
 
     public ContextDataDto getContextData() {

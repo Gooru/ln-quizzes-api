@@ -48,29 +48,13 @@ public class ContextControllerTest {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
 
-        ProfileDto owner = new ProfileDto();
-        owner.setId("1");
-        owner.setFirstName("firstName");
-        owner.setLastName("lastname");
-        owner.setUsername("username");
-        owner.setEmail("first@name.com");
-        assignment.setOwner(owner);
-
-        ProfileDto assignee = new ProfileDto();
-        assignee.setId("12345");
-        assignee.setFirstName("firstname01");
-        assignee.setLastName("lastname01");
-        assignee.setUsername("firstname01");
-        assignee.setEmail("first1@name.com");
-        List<ProfileDto> assignees = new ArrayList<>();
-        assignees.add(assignee);
-        assignment.setAssignees(assignees);
-        assignment.setExternalCollectionId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID());
+        assignment.setClassId(UUID.randomUUID());
 
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
-        ResponseEntity<?> result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
+        ResponseEntity<?> result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         Object resultBody = result.getBody();
@@ -85,131 +69,11 @@ public class ContextControllerTest {
         idResponseDto.setId(contextId);
         when(contextService.createContext(any(ContextPostRequestDto.class))).thenReturn(idResponseDto);
 
-        ResponseEntity<?> result = controller.assignContext(new ContextPostRequestDto(), "nothing", UUID.randomUUID());
+        ResponseEntity<?> result = controller.assignContext(new ContextPostRequestDto(), UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("Error in externalCollectionId"));
-        assertThat(result.getBody().toString(), containsString("Error in owner"));
-        assertThat(result.getBody().toString(), containsString("Error in context"));
-        assertThat(result.getBody().toString(), containsString("Error in assignees"));
-    }
-
-    @Test
-    public void assignContextStudentValidation() throws Exception {
-        IdResponseDto idResponseDto = new IdResponseDto();
-        UUID contextId = UUID.randomUUID();
-        idResponseDto.setId(contextId);
-        when(contextService.createContext(any(ContextPostRequestDto.class))).thenReturn(idResponseDto);
-
-        ContextPostRequestDto assignment = new ContextPostRequestDto();
-        ProfileDto owner = new ProfileDto();
-        owner.setId("1");
-        owner.setFirstName("firstName");
-        owner.setLastName("lastname");
-        owner.setUsername("username");
-        owner.setEmail("first@name.com");
-        assignment.setOwner(owner);
-        assignment.setExternalCollectionId(UUID.randomUUID().toString());
-
-        ContextDataDto contextData = new ContextDataDto();
-        assignment.setContextData(contextData);
-
-        //Testing no assignees
-        ResponseEntity<?> result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in collection")));
-        assertThat(result.getBody().toString(), not(containsString("Error in owner")));
-        assertThat(result.getBody().toString(), not(containsString("Error in context")));
-        assertThat(result.getBody().toString(), containsString("Error in assignees"));
-        assertThat(result.getBody().toString(), containsString("At least one assignee is required"));
-
-        ProfileDto assignee = new ProfileDto();
-        List<ProfileDto> assignees = new ArrayList<>();
-        assignees.add(assignee);
-        assignment.setAssignees(assignees);
-
-        //testing empty assignee
-        result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("Error in assignees"));
-        assertThat(result.getBody().toString(), containsString("ID is required"));
-        assertThat(result.getBody().toString(), containsString("Firstname is required"));
-        assertThat(result.getBody().toString(), containsString("Lastname is required"));
-        assertThat(result.getBody().toString(), containsString("Username is required"));
-        assertThat(result.getBody().toString(), containsString("Email is required"));
-
-        assignee.setId("12345");
-        assignee.setFirstName("firstname01");
-        assignee.setLastName("lastname01");
-        assignee.setUsername("firstname01");
-        assignee.setEmail("first@name.com");
-
-        result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
-        assertNotNull("Response body is null", result.getBody().toString());
-    }
-
-    @Test
-    public void assignContextTeacherValidation() throws Exception {
-        IdResponseDto idResponseDto = new IdResponseDto();
-        UUID contextId = UUID.randomUUID();
-        idResponseDto.setId(contextId);
-        when(contextService.createContext(any(ContextPostRequestDto.class))).thenReturn(idResponseDto);
-
-        ContextPostRequestDto assignment = new ContextPostRequestDto();
-
-        ProfileDto assignee = new ProfileDto();
-        assignee.setId("12345");
-        assignee.setFirstName("firstname01");
-        assignee.setLastName("lastname01");
-        assignee.setUsername("firstname01");
-        assignee.setEmail("first@name.com");
-        List<ProfileDto> assignees = new ArrayList<>();
-        assignees.add(assignee);
-        assignment.setAssignees(assignees);
-
-        assignment.setExternalCollectionId(UUID.randomUUID().toString());
-
-        ContextDataDto contextData = new ContextDataDto();
-        assignment.setContextData(contextData);
-
-        //Testing no owner
-        ResponseEntity<?> result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in collection")));
-        assertThat(result.getBody().toString(), not(containsString("Error in owners")));
-        assertThat(result.getBody().toString(), not(containsString("Error in context")));
-        assertThat(result.getBody().toString(), containsString("Error in owner"));
-        assertThat(result.getBody().toString(), containsString("A Owner is required"));
-
-        ProfileDto owner = new ProfileDto();
-        assignment.setOwner(owner);
-
-        //testing empty owner
-        result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("Error in owner"));
-        assertThat(result.getBody().toString(), containsString("ID is required"));
-        assertThat(result.getBody().toString(), containsString("Firstname is required"));
-        assertThat(result.getBody().toString(), containsString("Lastname is required"));
-        assertThat(result.getBody().toString(), containsString("Username is required"));
-        assertThat(result.getBody().toString(), containsString("Email is required"));
-
-        owner.setId("12345");
-        owner.setFirstName("firstname01");
-        owner.setLastName("lastname01");
-        owner.setUsername("firstname01");
-        owner.setEmail("first@name.com");
-
-        result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
-        assertNotNull("Response body is null", result.getBody().toString());
+        assertThat(result.getBody().toString(), containsString("Error in collectionId"));
+        assertThat(result.getBody().toString(), containsString("Error in contextData"));
     }
 
     @Test
@@ -221,54 +85,27 @@ public class ContextControllerTest {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
 
-        ProfileDto assignee = new ProfileDto();
-        assignee.setId("12345");
-        assignee.setFirstName("firstname01");
-        assignee.setLastName("lastname01");
-        assignee.setUsername("firstname01");
-        assignee.setEmail("first@name.com");
-        List<ProfileDto> assignees = new ArrayList<>();
-        assignees.add(assignee);
-        assignment.setAssignees(assignees);
-
-        ProfileDto owner = new ProfileDto();
-        owner.setId("12345");
-        owner.setFirstName("firstname01");
-        owner.setLastName("lastname01");
-        owner.setUsername("firstname01");
-        owner.setEmail("first@name.com");
-        assignment.setOwner(owner);
-
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
         //Testing no collection
-        ResponseEntity<?> result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
+        ResponseEntity<?> result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in assignees")));
-        assertThat(result.getBody().toString(), not(containsString("Error in owners")));
-        assertThat(result.getBody().toString(), not(containsString("Error in context")));
-        assertThat(result.getBody().toString(), containsString("Error in externalCollectionId"));
-        assertThat(result.getBody().toString(), containsString("{Errors=[Error in externalCollectionId: An External Collection ID is required]}"));
+        assertThat(result.getBody().toString(), not(containsString("Error in contextData")));
+        assertThat(result.getBody().toString(), containsString("Error in collectionId"));
+        assertThat(result.getBody().toString(), containsString("A Collection ID is required"));
 
-        //testing empty collection
-        result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("{Errors=[Error in externalCollectionId: An External Collection ID is required]}"));
-        assertThat(result.getBody().toString(), containsString("ID is required"));
+        assignment.setCollectionId(UUID.randomUUID());
 
-        assignment.setExternalCollectionId(UUID.randomUUID().toString());
-
-        result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
+        result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         assertNotNull("Response body is null", result.getBody().toString());
     }
 
     @Test
-    public void assignContextContextValidation() throws Exception {
+    public void assignContextContextDataValidation() throws Exception {
         IdResponseDto idResponseDto = new IdResponseDto();
         UUID contextId = UUID.randomUUID();
         idResponseDto.setId(contextId);
@@ -276,32 +113,12 @@ public class ContextControllerTest {
 
         ContextPostRequestDto assignment = new ContextPostRequestDto();
 
-        ProfileDto assignee = new ProfileDto();
-        assignee.setId("12345");
-        assignee.setFirstName("firstname01");
-        assignee.setLastName("lastname01");
-        assignee.setUsername("firstname01");
-        assignee.setEmail("first@name.com");
-        List<ProfileDto> assignees = new ArrayList<>();
-        assignees.add(assignee);
-        assignment.setAssignees(assignees);
-
-        ProfileDto owner = new ProfileDto();
-        owner.setId("12345");
-        owner.setFirstName("firstname01");
-        owner.setLastName("lastname01");
-        owner.setUsername("firstname01");
-        owner.setEmail("first@name.com");
-        assignment.setOwner(owner);
-
-        assignment.setExternalCollectionId(UUID.randomUUID().toString());
+        assignment.setCollectionId(UUID.randomUUID());
 
         //Testing no context
-        ResponseEntity<?> result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
+        ResponseEntity<?> result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in assignees")));
-        assertThat(result.getBody().toString(), not(containsString("Error in owners")));
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
         assertThat(result.getBody().toString(), containsString("Error in context"));
         assertThat(result.getBody().toString(), containsString("A ContextData is required"));
@@ -309,7 +126,7 @@ public class ContextControllerTest {
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
-        result = controller.assignContext(assignment, "nothing", UUID.randomUUID());
+        result = controller.assignContext(assignment, UUID.randomUUID().toString());
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK.value(), result.getStatusCode().value());
         assertNotNull("Response body is null", result.getBody().toString());

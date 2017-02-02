@@ -1,103 +1,96 @@
 package com.quizzes.api.core.controllers.interceptor;
 
+import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
-import com.quizzes.api.core.services.SessionService;
+import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import java.sql.Timestamp;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
-public class SessionInterceptorTest {
+public class AuthorizationTokenInterceptorTest {
 
     @InjectMocks
-    private SessionInterceptor sessionInterceptor;
+    private AuthorizationTokenInterceptor sessionInterceptor;
 
     @Mock
-    private SessionService sessionService;
+    private AuthenticationRestClient authenticationRestClient;
 
-    private UUID sessionId;
     private String authorization;
+    private String token;
     private MockHttpServletRequest request;
 
 
     @Before
     public void beforeEachTest() {
-        sessionId = UUID.randomUUID();
-        authorization = "Token " + sessionId;
+        token = "MTQ4NTUzMzM2MDA1Nzphbm9ueW1vdXM6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
+        authorization = "Token " + token;
         request = new MockHttpServletRequest();
     }
 
-    @Ignore
     @Test
     public void preHandle() throws Exception {
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
-
-        //verify(sessionService, times(0)).isSessionAlive(any(), any(), any());
-
-       // assertTrue("Result is false", result);
+        assertTrue("Result is false", result);
     }
 
-
-    @Ignore
     @Test
     public void preHandleAuthorization() throws Exception {
         request.addHeader("Authorization", authorization);
 
-        //when(sessionService.isSessionAlive(any(), any(), any())).thenReturn(true);
+        AccessTokenResponseDto accessTokenResponseDto = new AccessTokenResponseDto();
+        accessTokenResponseDto.setClientId(UUID.randomUUID().toString());
+        accessTokenResponseDto.setUserId(UUID.randomUUID().toString());
+
+        when(authenticationRestClient.verifyUserToken(any(String.class))).thenReturn(accessTokenResponseDto);
 
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
 
-        //verify(sessionService, times(1)).isSessionAlive(any(), any(), any());
+        verify(authenticationRestClient, times(1)).verifyUserToken(any(String.class));
 
         assertTrue("Result is false", result);
     }
 
-    @Ignore
     @Test(expected = InvalidSessionException.class)
     public void preHandleAuthorizationInvalidSession() throws Exception {
-        request.addHeader("Authorization", authorization);
-
-        //when(sessionService.isSessionAlive(any(), any(), any())).thenReturn(false);
+        request.addHeader("Authorization", token);
 
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
     }
 
     @Test
-    public void validateTokenFormat() throws Exception {
+    public void getToken() throws Exception {
         String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "validateTokenFormat", authorization);
+                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", authorization);
 
-        assertEquals("Wrong session value", sessionId.toString(), result);
+        assertEquals("Wrong session value", token, result);
     }
 
     @Test(expected = InvalidSessionException.class)
-    public void validateTokenFormatExceptionWhenNull() throws Exception {
+    public void getTokenExceptionWhenNull() throws Exception {
         String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "validateTokenFormat", "");
+                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", "");
     }
 
     @Test(expected = InvalidSessionException.class)
-    public void validateTokenFormatExceptionWhenWrongData() throws Exception {
+    public void getTokenExceptionWhenWrongData() throws Exception {
         String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "validateTokenFormat", sessionId.toString());
+                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", UUID.randomUUID().toString());
     }
 
 }

@@ -1,6 +1,9 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.dtos.*;
+import com.quizzes.api.core.dtos.ContextGetResponseDto;
+import com.quizzes.api.core.dtos.ContextPostRequestDto;
+import com.quizzes.api.core.dtos.ContextPutRequestDto;
+import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.services.ContextService;
@@ -14,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +29,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,19 +47,17 @@ public class ContextController {
 
     @ApiOperation(
             value = "Creates an assignment",
-            notes = "Creates an assignment of a collection (assessment) to a group of people (students) in " +
-                    "a specified context, returning a generated Context ID.")
+            notes = "Creates an assignment of a collection or an assessment to specified context," +
+                    " returning a generated Context ID.")
     @ApiResponses({@ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
     @RequestMapping(path = "/contexts",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's owner, assignees, external collection ID and the context data", required = true)
+    public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's collection ID, " +
+            "class ID (optional) and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
-                                           @ApiParam(name = "lms-id", value = "Client LMS ID", required = true)
-                                           @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                           @ApiParam(name = "lms-id", value = "Context's owner Profile ID", required = true)
-                                           @RequestHeader(value = "profile-id") UUID profileId) {
+                                           @RequestAttribute(value = "profileId") String profileId) {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();

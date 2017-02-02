@@ -2,7 +2,7 @@ package com.quizzes.api.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.quizzes.api.common.interceptor.AuthorizationTokenInterceptor;
+import com.quizzes.api.core.controllers.interceptor.AuthorizationTokenInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
