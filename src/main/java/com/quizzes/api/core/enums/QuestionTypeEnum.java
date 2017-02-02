@@ -15,14 +15,14 @@ public enum QuestionTypeEnum {
     @SerializedName("drag_and_drop")
     DragAndDrop("drag_and_drop"),
 
-    @SerializedName("multiple_answer")
-    MultipleAnswer("multiple_answer"),
-
     @SerializedName("multiple_choice")
     MultipleChoice("multiple_choice"),
 
-    @SerializedName("multiple_image")
-    MultipleImage("multiple_image"),
+    @SerializedName("multiple_choice_image")
+    MultipleChoiceImage("multiple_choice_image"),
+
+    @SerializedName("multiple_choice_text")
+    MultipleChoiceText("multiple_choice_text"),
 
     @SerializedName("match")
     Match("match"),
