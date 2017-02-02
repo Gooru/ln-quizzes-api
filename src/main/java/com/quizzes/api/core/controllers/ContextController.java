@@ -25,12 +25,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,24 +96,24 @@ public class ContextController {
     }
 
     @ApiOperation(value = "Get assigned contexts",
-          notes = "Get all the ‘active’ contexts assigned to the assignee profile.\n\nThe fields `assignees` and `modifiedDate` won't be present on requests to this end point")
+            notes = "Get all the ‘active’ contexts assigned to the assignee profile.\n\nThe fields `assignees` and `modifiedDate` won't be present on requests to this end point")
     @ApiResponses({
-          @ApiResponse(code = 200, message = "Body", responseContainer = "List",
-                  response = ContextGetResponseDto.class)
+            @ApiResponse(code = 200, message = "Body", responseContainer = "List",
+                    response = ContextGetResponseDto.class)
     })
     @RequestMapping(path = "/contexts/assigned",
-          method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextGetResponseDto>> getAssignedContexts(
-          @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
-          @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-          @ApiParam(name = "profile-id", required = true, value = "Assignee Profile ID")
-          @RequestHeader(value = "profile-id") UUID profileId,
-          @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
-          @RequestParam(value = "isActive", required = false) Boolean isActive,
-          @ApiParam(value = "Filter the contexts by start date in milliseconds", required = false, name = "startDate")
-          @RequestParam(value = "startDate", required = false) Long startDate,
-          @ApiParam(value = "Filter the contexts by due date in milliseconds", required = false, name = "dueDate")
-          @RequestParam(value = "dueDate", required = false) Long dueDate) throws Exception {
+            @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
+            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
+            @ApiParam(name = "profile-id", required = true, value = "Assignee Profile ID")
+            @RequestHeader(value = "profile-id") UUID profileId,
+            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
+            @RequestParam(value = "isActive", required = false) Boolean isActive,
+            @ApiParam(value = "Filter the contexts by start date in milliseconds", required = false, name = "startDate")
+            @RequestParam(value = "startDate", required = false) Long startDate,
+            @ApiParam(value = "Filter the contexts by due date in milliseconds", required = false, name = "dueDate")
+            @RequestParam(value = "dueDate", required = false) Long dueDate) throws Exception {
 
         if (isActive != null && (startDate != null || dueDate != null)) {
             throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");

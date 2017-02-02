@@ -170,6 +170,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .set(CONTEXT.PROFILE_ID, context.getProfileId())
                 .set(CONTEXT.CLASS_ID, context.getClassId())
                 .set(CONTEXT.CONTEXT_DATA, context.getContextData())
+                .set(CONTEXT.IS_COLLECTION, context.getIsCollection())
                 .returning()
                 .fetchOne()
                 .into(Context.class);
