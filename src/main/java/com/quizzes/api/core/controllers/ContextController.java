@@ -60,27 +60,17 @@ public class ContextController {
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
                                            @RequestAttribute(value = "profileId") String profileId,
                                            @RequestAttribute(value = "token") String token) {
-
-        List<String> constraintErrors = new ArrayList<>();
-        if (profileId == null) {
-            constraintErrors.add("Error in profileId: profileId is required");
-        }
-
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations = validator.validate(contextPostRequestDto);
 
         if (!constraintViolations.isEmpty()) {
-            constraintErrors.addAll(constraintViolations
+            List<String> constraintErrors = constraintViolations
                     .stream().map(violation -> String.format("Error in %s: %s", violation.getPropertyPath(),
-                            violation.getMessage())).collect(Collectors.toList()));
-        }
-
-        if (!constraintErrors.isEmpty()) {
+                            violation.getMessage())).collect(Collectors.toList());
             Map<String, Object> errors = new HashMap<>();
             errors.put("Errors", constraintErrors);
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
-
         }
         IdResponseDto result = contextService.createContext(contextPostRequestDto, profileId, token);
 
