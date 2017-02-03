@@ -294,7 +294,7 @@ public class ContextServiceTest {
                 WhiteboxImpl.invokeMethod(contextService, "createContextProfile", contextId, profileId);
 
         assertNull("contextId is not null", result.getId());
-        assertNull("Current resource is not null", result.getCurrentContentId());
+        assertNull("Current resource is not null", result.getCurrentResourceId());
         assertEquals("Wrong profileId", profileId, result.getProfileId());
         assertEquals("Wrong classId", contextId, result.getContextId());
         assertFalse("isComplete is true", result.getIsComplete());
