@@ -9,12 +9,12 @@ package com.quizzes.api.core.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile implements java.io.Serializable {
 
-	private static final long serialVersionUID = -1968216973;
+	private static final long serialVersionUID = 1126484461;
 
 	private java.util.UUID     id;
 	private java.util.UUID     contextId;
 	private java.util.UUID     profileId;
-	private java.util.UUID     currentContentId;
+	private java.util.UUID     currentResourceId;
 	private java.lang.Boolean  isComplete;
 	private java.lang.String   eventSummaryData;
 	private java.sql.Timestamp createdAt;
@@ -26,7 +26,7 @@ public class ContextProfile implements java.io.Serializable {
 		java.util.UUID     id,
 		java.util.UUID     contextId,
 		java.util.UUID     profileId,
-		java.util.UUID     currentContentId,
+		java.util.UUID     currentResourceId,
 		java.lang.Boolean  isComplete,
 		java.lang.String   eventSummaryData,
 		java.sql.Timestamp createdAt,
@@ -35,7 +35,7 @@ public class ContextProfile implements java.io.Serializable {
 		this.id = id;
 		this.contextId = contextId;
 		this.profileId = profileId;
-		this.currentContentId = currentContentId;
+		this.currentResourceId = currentResourceId;
 		this.isComplete = isComplete;
 		this.eventSummaryData = eventSummaryData;
 		this.createdAt = createdAt;
@@ -66,12 +66,12 @@ public class ContextProfile implements java.io.Serializable {
 		this.profileId = profileId;
 	}
 
-	public java.util.UUID getCurrentContentId() {
-		return this.currentContentId;
+	public java.util.UUID getCurrentResourceId() {
+		return this.currentResourceId;
 	}
 
-	public void setCurrentContentId(java.util.UUID currentContentId) {
-		this.currentContentId = currentContentId;
+	public void setCurrentResourceId(java.util.UUID currentResourceId) {
+		this.currentResourceId = currentResourceId;
 	}
 
 	public java.lang.Boolean getIsComplete() {
