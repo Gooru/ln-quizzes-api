@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord> implements org.jooq.Record8<java.util.UUID, java.util.UUID, java.util.UUID, java.util.UUID, java.lang.Boolean, java.lang.String, java.sql.Timestamp, java.sql.Timestamp> {
 
-	private static final long serialVersionUID = 1775844640;
+	private static final long serialVersionUID = 1188067797;
 
 	/**
 	 * Setter for <code>public.context_profile.id</code>.
@@ -54,16 +54,16 @@ public class ContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quiz
 	}
 
 	/**
-	 * Setter for <code>public.context_profile.current_content_id</code>.
+	 * Setter for <code>public.context_profile.current_resource_id</code>.
 	 */
-	public void setCurrentContentId(java.util.UUID value) {
+	public void setCurrentResourceId(java.util.UUID value) {
 		setValue(3, value);
 	}
 
 	/**
-	 * Getter for <code>public.context_profile.current_content_id</code>.
+	 * Getter for <code>public.context_profile.current_resource_id</code>.
 	 */
-	public java.util.UUID getCurrentContentId() {
+	public java.util.UUID getCurrentResourceId() {
 		return (java.util.UUID) getValue(3);
 	}
 
@@ -172,7 +172,7 @@ public class ContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quiz
 	 */
 	@Override
 	public org.jooq.Field<java.util.UUID> field4() {
-		return com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE.CURRENT_CONTENT_ID;
+		return com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE.CURRENT_RESOURCE_ID;
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class ContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quiz
 	 */
 	@Override
 	public java.util.UUID value4() {
-		return getCurrentContentId();
+		return getCurrentResourceId();
 	}
 
 	/**
@@ -303,7 +303,7 @@ public class ContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quiz
 	 */
 	@Override
 	public ContextProfileRecord value4(java.util.UUID value) {
-		setCurrentContentId(value);
+		setCurrentResourceId(value);
 		return this;
 	}
 
@@ -365,13 +365,13 @@ public class ContextProfileRecord extends org.jooq.impl.TableRecordImpl<com.quiz
 	/**
 	 * Create a detached, initialised ContextProfileRecord
 	 */
-	public ContextProfileRecord(java.util.UUID id, java.util.UUID contextId, java.util.UUID profileId, java.util.UUID currentContentId, java.lang.Boolean isComplete, java.lang.String eventSummaryData, java.sql.Timestamp createdAt, java.sql.Timestamp updatedAt) {
+	public ContextProfileRecord(java.util.UUID id, java.util.UUID contextId, java.util.UUID profileId, java.util.UUID currentResourceId, java.lang.Boolean isComplete, java.lang.String eventSummaryData, java.sql.Timestamp createdAt, java.sql.Timestamp updatedAt) {
 		super(com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE);
 
 		setValue(0, id);
 		setValue(1, contextId);
 		setValue(2, profileId);
-		setValue(3, currentContentId);
+		setValue(3, currentResourceId);
 		setValue(4, isComplete);
 		setValue(5, eventSummaryData);
 		setValue(6, createdAt);
