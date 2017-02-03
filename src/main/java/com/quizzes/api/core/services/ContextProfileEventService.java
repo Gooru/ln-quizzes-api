@@ -32,6 +32,10 @@ public class ContextProfileEventService {
         return contextProfileEventRepository.findByContextIdGroupByProfileId(contextId);
     }
 
+    List<AssigneeEventEntity> findByContextIdAndProfileId(UUID contextId, UUID assigneeProfileId){
+        return contextProfileEventRepository.findByContextIdAndProfileId(contextId, assigneeProfileId);
+    }
+
     void deleteByContextProfileId(UUID contextProfileId) {
         contextProfileEventRepository.deleteByContextProfileId(contextProfileId);
     }

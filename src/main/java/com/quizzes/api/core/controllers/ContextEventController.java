@@ -3,6 +3,7 @@ package com.quizzes.api.core.controllers;
 import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.services.ContextEventService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -111,5 +113,27 @@ public class ContextEventController {
         return new ResponseEntity<>(contextEvents, HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Get the Student Events by Context ID",
+            notes = "Returns the list of student events in the provided Context ID.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class),
+            @ApiResponse(code = 404, message = "Provided contextId does not exist"),
+            @ApiResponse(code = 403, message = "Invalid owner"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
+    })
+    @RequestMapping(path = "/context/{contextId}/events/assigned",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ContextEventsResponseDto> getContextEvents(
+            @ApiParam(value = "Context ID", required = true, name = "contextId")
+            @PathVariable UUID contextId,
+            @RequestAttribute(value = "profileId") String profileId) {
+
+        if (profileId.equals("anonymous")) {
+            throw new InvalidAssigneeException("anonymous users not allowed");
+        }
+        ContextEventsResponseDto contextEvents = contextEventService.getContextEventsAssigned(contextId, UUID.fromString(profileId));
+        return new ResponseEntity<>(contextEvents, HttpStatus.OK);
+    }
 }
 

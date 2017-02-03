@@ -194,6 +194,44 @@ public class ContextEventService {
         return response;
     }
 
+    public ContextEventsResponseDto getContextEventsAssigned(UUID contextId, UUID assigneeProfileId) {
+        Context context = contextService.findById(contextId);
+        List<AssigneeEventEntity> assigneeEvents =
+                contextProfileEventService.findByContextIdAndProfileId(contextId, assigneeProfileId);
+        ContextEventsResponseDto response = new ContextEventsResponseDto();
+        response.setContextId(contextId);
+
+        CollectionDto collection = new CollectionDto();
+        collection.setId(context.getCollectionId().toString());
+        response.setCollection(collection);
+/*
+        List<ProfileEventResponseDto> profileEvents = assigneeEvents.stream().map(entity -> {
+            List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
+            ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
+            profileEvent.setProfileId(entity.getKey());
+
+            AssigneeEventEntity anyAssigneeEventEntity = assigneeEventEntityList.get(0);
+            if (!assigneeEventEntityList.isEmpty()) {
+                profileEvent.setCurrentResourceId(anyAssigneeEventEntity.getCurrentResourceId());
+                profileEvent.setIsComplete(anyAssigneeEventEntity.getIsComplete());
+            }
+
+            profileEvent.setEvents(assigneeEventEntityList.stream()
+                    .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
+                    .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
+                            PostResponseResourceDto.class)).collect(Collectors.toList()));
+
+            EventSummaryDataDto eventSummaryDataDto =
+                    gson.fromJson(anyAssigneeEventEntity.getEventsSummary(), EventSummaryDataDto.class);
+            profileEvent.setContextProfileSummary(eventSummaryDataDto);
+
+            return profileEvent;
+
+        }).collect(Collectors.toList());
+        response.setProfileEvents(profileEvents);*/
+        return response;
+    }
+
     @Transactional
     public void doCreateStartContextEventTransaction(final ContextProfile contextProfile) {
         ContextProfile savedContextProfile = contextProfileService.save(contextProfile);
