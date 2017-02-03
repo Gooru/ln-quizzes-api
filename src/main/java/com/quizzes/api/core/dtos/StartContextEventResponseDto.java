@@ -7,9 +7,9 @@ import java.util.UUID;
 
 public class StartContextEventResponseDto {
 
-    private UUID id;
+    private UUID contextId;
 
-    private CollectionDto collection;
+    private UUID collectionId;
 
     private UUID currentResourceId;
 
@@ -18,20 +18,20 @@ public class StartContextEventResponseDto {
     public StartContextEventResponseDto() {
     }
 
-    public UUID getId() {
-        return id;
+    public UUID getContextId() {
+        return contextId;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setContextId(UUID contextId) {
+        this.contextId = contextId;
     }
 
-    public CollectionDto getCollection() {
-        return collection;
+    public UUID getCollectionId() {
+        return collectionId;
     }
 
-    public void setCollection(CollectionDto collection) {
-        this.collection = collection;
+    public void setCollectionId(UUID collectionId) {
+        this.collectionId = collectionId;
     }
 
     public UUID getCurrentResourceId() {

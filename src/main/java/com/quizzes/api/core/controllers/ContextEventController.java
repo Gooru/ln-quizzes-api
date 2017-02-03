@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,14 +39,12 @@ public class ContextEventController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
-    @RequestMapping(path = "/contexts/{contextId}/start",
-            method = RequestMethod.POST,
+    @RequestMapping(path = "/contexts/{contextId}/start", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
             @ApiParam(value = "Id of the context that will be started", required = true, name = "ContextID")
             @PathVariable UUID contextId,
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) {
+            @RequestAttribute(value = "profileId") UUID profileId) {
         return new ResponseEntity<>(contextEventService.processStartContextEvent(contextId, profileId), HttpStatus.OK);
     }
 

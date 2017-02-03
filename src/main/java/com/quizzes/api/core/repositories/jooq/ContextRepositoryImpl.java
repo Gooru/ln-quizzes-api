@@ -2,6 +2,7 @@ package com.quizzes.api.core.repositories.jooq;
 
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
+import com.quizzes.api.core.model.entities.ContextProfileContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
 import org.jooq.DSLContext;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.quizzes.api.core.model.jooq.tables.Context.CONTEXT;
+import static com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
 
 @Repository
 public class ContextRepositoryImpl implements ContextRepository {
@@ -141,17 +143,17 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public List<ContextAssigneeEntity> findContextAssigneeByContextId(UUID contextId) {
-        return null;
-        // TODO Re-implement this query
-        /*
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.GROUP_ID,
-                GROUP_PROFILE.PROFILE_ID.as("assignee_profile_id"))
+    public ContextProfileContextEntity findContextProfileContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        return jooq.select(CONTEXT.ID.as("ContextId"), CONTEXT.COLLECTION_ID, CONTEXT_PROFILE.PROFILE_ID,
+                CONTEXT_PROFILE.ID.as("ContextProfileId"), CONTEXT_PROFILE.IS_COMPLETE)
                 .from(CONTEXT)
-                .leftJoin(GROUP_PROFILE).on(GROUP_PROFILE.GROUP_ID.eq(CONTEXT.GROUP_ID))
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
                 .where(CONTEXT.ID.eq(contextId))
-                .fetchInto(ContextAssigneeEntity.class);
-        */
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .orderBy(CONTEXT_PROFILE.CREATED_AT.desc())
+                .limit(1)
+                .fetchOneInto(ContextProfileContextEntity.class);
     }
 
     @Override
