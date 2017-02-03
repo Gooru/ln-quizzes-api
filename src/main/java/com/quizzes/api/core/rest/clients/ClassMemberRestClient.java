@@ -62,14 +62,14 @@ public class ClassMemberRestClient {
 
             return classMemberContentDto;
         } catch (HttpClientErrorException hcee) {
-            logger.error("Gooru class '" + classId + "' could not be retrieved.", hcee);
+            logger.error("Gooru class member for class ID: '" + classId + "' could not be retrieved.", hcee);
             if (hcee.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                throw new ContentNotFoundException("Class " + classId + " could not be found.");
+                throw new ContentNotFoundException("Class member for class ID:" + classId + " could not be found.");
             }
-            throw new ContentProviderException("Class " + classId + " could not be retrieved.", hcee);
+            throw new ContentProviderException("Class member for class ID: " + classId + " could not be retrieved.", hcee);
         } catch (Exception e) {
-            logger.error("Gooru class '" + classId + "' could not be processed.", e);
-            throw new InternalServerException("Class " + classId + " could not be processed.", e);
+            logger.error("Gooru class member '" + classId + "' could not be processed.", e);
+            throw new InternalServerException("Class member for class ID: " + classId + " could not be processed.", e);
         }
     }
 
