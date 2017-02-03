@@ -55,7 +55,7 @@ public class ContextService {
     AssessmentRestClient assessmentRestClient;
 
     @Autowired
-    ClassMemberRestClient ClassMemberRestClient;
+    ClassMemberRestClient classMemberRestClient;
 
     @Autowired
     AuthenticationRestClient authenticationRestClient;
@@ -73,7 +73,7 @@ public class ContextService {
 
         if (contextDto.getClassId() != null) {
             ClassMemberContentDto classMember =
-                    ClassMemberRestClient.getClassMembers(contextDto.getClassId().toString(), token);
+                    classMemberRestClient.getClassMembers(contextDto.getClassId().toString(), token);
             createContextProfiles(classMember.getMemberIds(), context.getId());
         }
 
