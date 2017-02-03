@@ -56,7 +56,7 @@ public class ContextController {
     public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's collection ID, " +
             "class ID (optional) and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
-                                           @RequestAttribute(value = "profileId") String profileId,
+                                           @RequestAttribute(value = "profileId") UUID profileId,
                                            @RequestAttribute(value = "token") String token) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();

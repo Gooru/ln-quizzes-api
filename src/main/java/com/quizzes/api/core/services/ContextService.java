@@ -7,7 +7,6 @@ import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
-import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
@@ -65,12 +64,11 @@ public class ContextService {
     private Gson gson;
 
     @Transactional
-    public IdResponseDto createContext(ContextPostRequestDto contextDto, String profileId, String token) {
+    public IdResponseDto createContext(ContextPostRequestDto contextDto, UUID profileId, String token) {
         //TODO: Validate collection, class if exist, profile (could be anonymous)
-        validateCollectionOwner(contextDto.getCollectionId().toString(), contextDto.getIsCollection(),
-                UUID.fromString(profileId), token);
+        validateCollectionOwner(contextDto.getCollectionId(), contextDto.getIsCollection(), profileId, token);
 
-        Context context = createContextObject(contextDto, UUID.fromString(profileId));
+        Context context = createContextObject(contextDto, profileId);
         context = contextRepository.save(context);
 
         if (contextDto.getClassId() != null) {
@@ -92,22 +90,19 @@ public class ContextService {
         return context;
     }
 
-    private UUID getCollectionOwnerId(String collectionId, boolean isCollection, UUID profileId, String token) {
-        UUID ownerId;
-        if (isCollection) {
-            CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, token);
-            ownerId = collectionContentDto.getOwnerId();
-        } else {
-            AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(collectionId, token);
-            ownerId = assessmentContentDto.getOwnerId();
-        }
-        return ownerId;
+    private UUID getCollectionOwnerId(String collectionId, boolean isCollection, String token) {
+        CollectionContentDto collectionContentDto = isCollection ?
+                collectionRestClient.getCollection(collectionId, token) :
+                assessmentRestClient.getAssessment(collectionId, token);
+
+        return collectionContentDto.getOwnerId();
     }
 
-    private void validateCollectionOwner(String collectionId, boolean isCollection, UUID profileId, String token) {
-        UUID ownerId = getCollectionOwnerId(collectionId, isCollection, profileId, token);
+    private void validateCollectionOwner(UUID collectionId, boolean isCollection, UUID profileId, String token) {
+        UUID ownerId = getCollectionOwnerId(collectionId.toString(), isCollection, token);
         if (!ownerId.equals(profileId)) {
-            throw new InvalidOwnerException("Wrong owner");
+            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID:" +
+                    collectionId + ".");
         }
     }
 

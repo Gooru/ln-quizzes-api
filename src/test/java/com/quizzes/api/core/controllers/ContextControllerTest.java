@@ -46,7 +46,7 @@ public class ContextControllerTest {
     private ContextService contextService;
 
     private UUID collectionId;
-    private String profileId;
+    private UUID profileId;
     private UUID classId;
     private String token;
 
@@ -54,7 +54,7 @@ public class ContextControllerTest {
     public void before() throws Exception {
         collectionId = UUID.randomUUID();
         classId = UUID.randomUUID();
-        profileId = UUID.randomUUID().toString();
+        profileId = UUID.randomUUID();
         token = UUID.randomUUID().toString();
     }
 
