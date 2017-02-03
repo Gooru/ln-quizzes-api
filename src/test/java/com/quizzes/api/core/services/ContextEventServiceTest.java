@@ -90,7 +90,7 @@ public class ContextEventServiceTest {
 
     private UUID collectionId;
     private UUID contextId;
-    private UUID contentId;
+    private UUID resourceId;
     private UUID previousResourceId;
     private UUID contextProfileId;
     private UUID startContextId;
@@ -102,7 +102,7 @@ public class ContextEventServiceTest {
     public void beforeEachTest() {
         collectionId = UUID.randomUUID();
         contextId = UUID.randomUUID();
-        contentId = UUID.randomUUID();
+        resourceId = UUID.randomUUID();
         previousResourceId = UUID.randomUUID();
         contextProfileId = UUID.randomUUID();
         startContextId = UUID.randomUUID();
@@ -133,7 +133,7 @@ public class ContextEventServiceTest {
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, Mockito.times(1)).invoke("resumeStartContextEvent", context, contextProfile);
         assertEquals("Wrong startContext ID", startContextId, result.getId());
-        assertEquals("Wrong currentContentId", contentId, result.getCurrentResourceId());
+        assertEquals("Wrong currentContentId", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId.toString(), result.getCollection().getId());
         assertEquals("There are events", 0, result.getEvents().size());
     }
@@ -164,7 +164,7 @@ public class ContextEventServiceTest {
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verifyPrivate(contextEventService, Mockito.times(1)).invoke("createStartContextEvent", context, profileId);
         assertEquals("Wrong startContext ID", startContextId, result.getId());
-        assertEquals("Wrong currentContentId", contentId, result.getCurrentResourceId());
+        assertEquals("Wrong currentContentId", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId.toString(), result.getCollection().getId());
         assertEquals("There are events", 0, result.getEvents().size());
     }
@@ -191,7 +191,7 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, Mockito.times(1))
                 .invoke("prepareStartContextEventResponse", eq(context), eq(contextProfile), any());
         assertEquals("Wrong startContext ID", startContextId, result.getId());
-        assertEquals("Wrong currentContentId", contentId, result.getCurrentResourceId());
+        assertEquals("Wrong currentContentId", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId.toString(), result.getCollection().getId());
         assertEquals("There are events", 0, result.getEvents().size());
     }
@@ -208,7 +208,7 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, Mockito.times(1)).invoke("findFirstResourceByContextId", contextId);
         assertEquals("Wrong contextId", contextId, result.getContextId());
         assertEquals("Wrong profileId", profileId, result.getProfileId());
-        assertEquals("Wrong currentContentId", contentId, result.getContextId());
+        assertEquals("Wrong currentContentId", resourceId, result.getContextId());
 
         EventSummaryDataDto eventSummaryResult = gson.fromJson(result.getEventSummaryData(), EventSummaryDataDto.class);
         assertEquals("Wrong averageReaction", 0, eventSummaryResult.getAverageReaction());
@@ -271,7 +271,7 @@ public class ContextEventServiceTest {
                         createContext(), createContextProfile(), new ArrayList<>());
 
         assertEquals("Wrong ID", contextId, result.getId());
-        assertEquals("Wrong currentContentId", contentId, result.getCurrentResourceId());
+        assertEquals("Wrong currentContentId", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId.toString(), result.getCollection().getId());
         assertEquals("Wrong events size", 0, result.getEvents().size());
     }
@@ -293,7 +293,7 @@ public class ContextEventServiceTest {
 
         verifyPrivate(contextEventService, times(1)).invoke("sendStartEventMessage", contextProfile, false);
         assertEquals("Wrong startContext ID", startContextId, result.getId());
-        assertEquals("Wrong currentContentId", contentId, result.getCurrentResourceId());
+        assertEquals("Wrong currentContentId", resourceId, result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId.toString(), result.getCollection().getId());
         assertEquals("There are events", 0, result.getEvents().size());
     }
@@ -342,7 +342,7 @@ public class ContextEventServiceTest {
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
 
-        contextEventService.processOnResourceEvent(contextId, profileId, contentId, body);
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
         verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
@@ -405,10 +405,10 @@ public class ContextEventServiceTest {
                 eq(resourceMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
 //        doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
 //                eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
-        //doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
+        //doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
         //        eq(questionMetadataDto.getType()), eq(body.getPreviousResource().getAnswer()), any(AnswerDto.class));
 
-        doReturn(createContextProfileEvent(contextProfileId, contentId, "{}"))
+        doReturn(createContextProfileEvent(contextProfileId, resourceId, "{}"))
                 .when(contextEventService, "createContextProfileEvent", contextProfileId, previousResourceId);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
         //doReturn(100).when(contextEventService, "calculateScore",
@@ -420,7 +420,7 @@ public class ContextEventServiceTest {
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
 
-        contextEventService.processOnResourceEvent(contextId, profileId, contentId, body);
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
 
         verify(contextService, times(1)).findByIdAndAssigneeId(any(UUID.class), any(UUID.class));
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
@@ -506,10 +506,10 @@ public class ContextEventServiceTest {
     @Test
     public void createContextProfileEventPrivateMethod() throws Exception {
         ContextProfileEvent result =
-                WhiteboxImpl.invokeMethod(contextEventService, "createContextProfileEvent", contextProfileId, contentId);
+                WhiteboxImpl.invokeMethod(contextEventService, "createContextProfileEvent", contextProfileId, resourceId);
 
         assertEquals("Wrong contextProfileId", contextProfileId, result.getContextProfileId());
-        assertEquals("Wrong profileId", contentId, result.getContentId());
+        assertEquals("Wrong resource id", resourceId, result.getResourceId());
     }
 
     @Ignore
@@ -634,7 +634,7 @@ public class ContextEventServiceTest {
     @Test
     public void doOnResourceEventTransaction() throws Exception {
         ContextProfile contextProfile = createContextProfile();
-        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, contentId, "{}");
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
 
         WhiteboxImpl.invokeMethod(contextEventService, "doOnResourceEventTransaction",
                 contextProfile, contextProfileEvent);
@@ -685,7 +685,7 @@ public class ContextEventServiceTest {
         ContextProfile contextProfile = createContextProfile();
         contextProfile.setIsComplete(false);
 
-        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, contentId, "{}");
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
         contextProfileEvents.add(contextProfileEvent);
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
@@ -722,7 +722,7 @@ public class ContextEventServiceTest {
     public void doFinishContextEventTransaction() throws Exception {
         ContextProfile contextProfile = createContextProfile();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
-        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, contentId, "{}");
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
         List<ContextProfileEvent> eventsToCreate = new ArrayList<>();
         eventsToCreate.add(contextProfileEvent);
         eventsToCreate.add(contextProfileEvent);
@@ -758,7 +758,7 @@ public class ContextEventServiceTest {
 
         //Setting entity values
         AssigneeEventEntity assigneeEventEntity = Mockito.spy(AssigneeEventEntity.class);
-        when(assigneeEventEntity.getCurrentResourceId()).thenReturn(contentId);
+        when(assigneeEventEntity.getCurrentResourceId()).thenReturn(resourceId);
         when(assigneeEventEntity.getEventData()).thenReturn(gson.toJson(createResponseResourceDto(bodyResourceId,
                 score, reaction, timeSpent, createAnswerList(answerValue), isSkipped)));
         events.add(assigneeEventEntity);
@@ -786,7 +786,7 @@ public class ContextEventServiceTest {
         ProfileEventResponseDto profileResult1 = result.getProfileEvents().get(0);
         assertEquals("Wrong event size for assigneeId1", 1, profileResult1.getEvents().size());
         assertEquals("Wrong profile ID for assigneeId1", assigneeId1, profileResult1.getProfileId());
-        assertEquals("Wrong current content id", contentId, profileResult1.getCurrentResourceId());
+        assertEquals("Wrong current content id", resourceId, profileResult1.getCurrentResourceId());
 
         PostResponseResourceDto eventResult = profileResult1.getEvents().get(0);
         assertEquals("Wrong reaction", 3, eventResult.getReaction());
@@ -1111,7 +1111,7 @@ public class ContextEventServiceTest {
     private ContextProfile createContextProfile() {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setId(contextProfileId);
-        contextProfile.setCurrentContentId(contentId);
+        contextProfile.setCurrentResourceId(resourceId);
         contextProfile.setProfileId(profileId);
         contextProfile.setContextId(contextId);
         return contextProfile;

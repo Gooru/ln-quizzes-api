@@ -24,7 +24,7 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     @Override
     public List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId) {
         return jooq.select(CONTEXT_PROFILE_EVENT.ID, CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID,
-                CONTEXT_PROFILE_EVENT.CONTENT_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
+                CONTEXT_PROFILE_EVENT.RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
                 .from(CONTEXT_PROFILE_EVENT)
                 .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
                 .fetchInto(ContextProfileEvent.class);
@@ -33,7 +33,7 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     @Override
     public Map<UUID, List<AssigneeEventEntity>> findByContextIdGroupByProfileId(UUID contextId) {
         return jooq.select(CURRENT_CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"),
-                CONTEXT_PROFILE.CURRENT_CONTENT_ID, CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE_EVENT.EVENT_DATA,
+                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE_EVENT.EVENT_DATA,
                 CONTEXT_PROFILE.EVENT_SUMMARY_DATA.as("EventsSummary"))
                 .from(CURRENT_CONTEXT_PROFILE)
                 .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.ID.eq(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID))
@@ -46,10 +46,10 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
     @Override
     public ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
         return jooq.select(CONTEXT_PROFILE_EVENT.ID, CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID,
-                CONTEXT_PROFILE_EVENT.CONTENT_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
+                CONTEXT_PROFILE_EVENT.RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA)
                 .from(CONTEXT_PROFILE_EVENT)
                 .where(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(contextProfileId))
-                .and(CONTEXT_PROFILE_EVENT.CONTENT_ID.eq(resourceId))
+                .and(CONTEXT_PROFILE_EVENT.RESOURCE_ID.eq(resourceId))
                 .fetchOneInto(ContextProfileEvent.class);
     }
 
@@ -73,7 +73,7 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
         return jooq.insertInto(CONTEXT_PROFILE_EVENT)
                 .set(CONTEXT_PROFILE_EVENT.ID, UUID.randomUUID())
                 .set(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID, contextProfileEvent.getContextProfileId())
-                .set(CONTEXT_PROFILE_EVENT.CONTENT_ID, contextProfileEvent.getContentId())
+                .set(CONTEXT_PROFILE_EVENT.RESOURCE_ID, contextProfileEvent.getResourceId())
                 .set(CONTEXT_PROFILE_EVENT.EVENT_DATA, contextProfileEvent.getEventData())
                 .returning()
                 .fetchOne()
