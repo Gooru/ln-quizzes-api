@@ -1,5 +1,6 @@
 package com.quizzes.api.core.services;
 
+import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextProfileRepository;
@@ -10,9 +11,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,6 +57,26 @@ public class ContextProfileServiceTest {
     public void save() throws Exception {
         contextProfileService.save(any(ContextProfile.class));
         verify(contextProfileRepository, times(1)).save(any(ContextProfile.class));
+    }
+
+    @Test
+    public void findContextProfileAttemptIds() throws Exception {
+        List<UUID> contextProfileIds = new ArrayList<>();
+        contextProfileIds.add(UUID.randomUUID());
+        contextProfileIds.add(UUID.randomUUID());
+        contextProfileIds.add(UUID.randomUUID());
+
+        when(contextProfileRepository.findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class))).
+                thenReturn(contextProfileIds);
+
+        AttemptIdsResponseDto result = contextProfileService.findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+
+        verify(contextProfileRepository, times(1)).
+                findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+
+        assertNotNull("Result is null", result);
+        assertEquals("Attempts size is incorrect", result.getAttempts().size(), 3);
     }
 
 }

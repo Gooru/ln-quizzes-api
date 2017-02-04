@@ -1,12 +1,15 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileEventResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.services.ContextEventService;
 import com.quizzes.api.core.services.ContextProfileService;
@@ -21,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +33,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -293,4 +297,57 @@ public class ContextEventControllerTest {
         assertEquals("It's not skipped", true, eventResult.getIsSkipped());
     }
 
+    @Test
+    public void getContextProfileAttempIds() throws Exception {
+
+        when(contextService.findByIdAndOwnerId(eq(contextId), eq(ownerId))).thenReturn(null);
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(eq(contextId), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(contextId, UUID.randomUUID(), ownerId.toString());
+
+        verify(contextService, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
+
+    @Test(expected = InvalidOwnerException.class)
+    public void getContextProfileAttempIdsWithDifferentOwner() throws Exception {
+
+        when(contextService.findByIdAndOwnerId(eq(contextId), not(eq(ownerId)))).thenThrow(new InvalidOwnerException("Invalid owner"));
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(contextId, UUID.randomUUID(), UUID.randomUUID().toString());
+
+        verify(contextService, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void getContextProfileAttempIdsWithNoContext() throws Exception {
+
+        when(contextService.findByIdAndOwnerId(not(eq(contextId)), eq(ownerId))).thenThrow(new ContentNotFoundException("Context not found"));
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(UUID.randomUUID(), UUID.randomUUID(), ownerId.toString());
+
+        verify(contextService, times(1)).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
 }

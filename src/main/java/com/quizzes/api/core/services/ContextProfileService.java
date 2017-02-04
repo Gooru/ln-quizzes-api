@@ -1,5 +1,7 @@
 package com.quizzes.api.core.services;
 
+import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
+import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextProfileRepository;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ContextProfileService {
@@ -34,6 +37,18 @@ public class ContextProfileService {
 
     public List<UUID> findContextProfileIdsByContextId(UUID contextId) {
         return contextProfileRepository.findContextProfileIdsByContextId(contextId);
+    }
+
+    public AttemptIdsResponseDto findContextProfileAttemptIds(UUID contextId, UUID assigneeId) {
+        AttemptIdsResponseDto result = new AttemptIdsResponseDto();
+        List<IdResponseDto> ids = contextProfileRepository.
+                findContextProfileIdsByContextIdAndProfileId(contextId, assigneeId).
+                stream().map(uuid -> {IdResponseDto idResponseDto = new IdResponseDto();
+                idResponseDto.setId(uuid);
+                return idResponseDto;
+                }).collect(Collectors.toList());
+        result.setAttempts(ids);
+        return result;
     }
 
     public ContextProfile save(ContextProfile contextProfile) {
