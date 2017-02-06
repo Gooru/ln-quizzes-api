@@ -2,7 +2,7 @@ package com.quizzes.api.core.repositories.jooq;
 
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.entities.ContextProfileContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
 import org.jooq.DSLContext;
@@ -143,7 +143,7 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public ContextProfileContextEntity findContextProfileContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
+    public ContextProfileWithContextEntity findContextProfileAndContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
         return jooq.select(CONTEXT.ID.as("ContextId"), CONTEXT.COLLECTION_ID, CONTEXT_PROFILE.PROFILE_ID,
                 CONTEXT_PROFILE.ID.as("ContextProfileId"), CONTEXT_PROFILE.IS_COMPLETE)
                 .from(CONTEXT)
@@ -153,7 +153,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .and(CONTEXT.IS_DELETED.eq(false))
                 .orderBy(CONTEXT_PROFILE.CREATED_AT.desc())
                 .limit(1)
-                .fetchOneInto(ContextProfileContextEntity.class);
+                .fetchOneInto(ContextProfileWithContextEntity.class);
     }
 
     @Override

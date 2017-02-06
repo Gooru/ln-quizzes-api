@@ -2,7 +2,7 @@ package com.quizzes.api.core.model.entities;
 
 import java.util.UUID;
 
-public interface ContextProfileContextEntity extends ContextEntity {
+public interface ContextProfileWithContextEntity extends ContextEntity {
 
     UUID getProfileId();
 

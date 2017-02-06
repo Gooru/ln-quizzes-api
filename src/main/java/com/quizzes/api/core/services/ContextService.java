@@ -15,7 +15,7 @@ import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.entities.ContextProfileContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
@@ -263,9 +263,9 @@ public class ContextService {
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
-    public ContextProfileContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
-        ContextProfileContextEntity entity =
-                contextRepository.findContextProfileContextByContextIdAndProfileId(contextId, profileId);
+    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
+        ContextProfileWithContextEntity entity =
+                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
         if (entity == null) {
             throw new ContentNotFoundException("Context not found for ID: " + contextId);
         }

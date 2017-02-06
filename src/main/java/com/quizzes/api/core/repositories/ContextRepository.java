@@ -2,7 +2,7 @@ package com.quizzes.api.core.repositories;
 
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.entities.ContextProfileContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 
 import java.util.List;
@@ -40,6 +40,14 @@ public interface ContextRepository {
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 
-    ContextProfileContextEntity findContextProfileContextByContextIdAndProfileId(UUID contextId, UUID profileId);
+    /**
+     * Finds the last {@link ContextProfileWithContextEntity} for a specific profile in a context.
+     * If ContextProfile fields contains null, it's because the profile is not assigned in the context.
+     * 
+     * @param contextId This is mandatory
+     * @param profileId This is mandatory
+     * @return the {@link ContextProfileWithContextEntity} found
+     */
+    ContextProfileWithContextEntity findContextProfileAndContextByContextIdAndProfileId(UUID contextId, UUID profileId);
 
 }

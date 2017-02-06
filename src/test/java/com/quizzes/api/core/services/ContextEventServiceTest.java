@@ -15,7 +15,7 @@ import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
-import com.quizzes.api.core.model.entities.ContextProfileContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
@@ -37,7 +37,6 @@ import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,7 +114,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithContextProfileIsCompleteTrue() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
         when(entity.getIsComplete()).thenReturn(true);
 
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
@@ -144,7 +143,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithContextProfileIsCompleteFalse() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
         when(entity.getIsComplete()).thenReturn(false);
 
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
@@ -173,7 +172,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithoutCurrentContextProfile() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
 
         StartContextEventResponseDto startContextEventResponseDto = createStartContextEventResponseDto();
 
@@ -200,7 +199,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void createContextProfilePrivateMethod() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
         ContextProfile contextProfile = createContextProfile();
 
         doReturn(contextProfile).when(contextEventService, "createContextProfileObject", contextId, profileId);
@@ -222,7 +221,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void createCurrentContextProfilePrivateMethod() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
 
         doReturn(currentContextProfile).when(contextEventService, "createCurrentContextProfileObject",
@@ -246,7 +245,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContext() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
         when(entity.getCurrentResourceId()).thenReturn(resourceId);
 
         doNothing().when(contextEventService, "sendStartEventMessage",
@@ -334,7 +333,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void sendStartEventMessage() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
         when(entity.getIsComplete()).thenReturn(true);
         when(entity.getCurrentResourceId()).thenReturn(resourceId);
 
@@ -357,7 +356,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void resumeStartContextEvent() throws Exception {
-        ContextProfileContextEntity entity = createContextProfileContextEntity();
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
 
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
                 eq(entity), any(ArrayList.class));
@@ -1267,8 +1266,8 @@ public class ContextEventServiceTest {
         return resourceMetadataDto;
     }
 
-    private ContextProfileContextEntity createContextProfileContextEntity() {
-        ContextProfileContextEntity entity = mock(ContextProfileContextEntity.class);
+    private ContextProfileWithContextEntity createContextProfileContextEntity() {
+        ContextProfileWithContextEntity entity = mock(ContextProfileWithContextEntity.class);
 
         when(entity.getContextId()).thenReturn(contextId);
         when(entity.getCollectionId()).thenReturn(collectionId);
