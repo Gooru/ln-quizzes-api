@@ -5,17 +5,13 @@ import java.sql.Timestamp;
 
 public interface ContextEntity {
 
-    UUID getId();
+    UUID getContextId();
 
-    void setId(UUID contextId);
+    void setContextId(UUID contextId);
 
     UUID getCollectionId();
 
     void setCollectionId(UUID collectionId);
-
-    UUID getGroupId();
-
-    void setGroupId(UUID groupId);
 
     Timestamp getCreatedAt();
 
