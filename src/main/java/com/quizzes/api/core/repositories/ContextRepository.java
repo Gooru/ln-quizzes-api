@@ -1,6 +1,8 @@
 package com.quizzes.api.core.repositories;
 
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
+import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 
@@ -10,13 +12,22 @@ import java.util.UUID;
 
 public interface ContextRepository {
 
+    ContextEntity findCreatedContextByContextIdAndProfileId(UUID contextId, UUID profileId);
+
+    List<ContextEntity> findCreatedContextsByProfileId(UUID profileId);
+
+    AssignedContextEntity findAssignedContextByContextIdAndProfileId(UUID contextId, UUID profileId);
+
+    List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId);
+
     Context save(Context context);
+
 
     Context findById(UUID id);
 
     ContextOwnerEntity findContextOwnerById(UUID id);
 
-    List<Context> findByOwnerId(UUID ownerId);
+
 
     Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId);
 

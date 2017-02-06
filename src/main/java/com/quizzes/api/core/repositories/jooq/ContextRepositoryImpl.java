@@ -1,18 +1,25 @@
 package com.quizzes.api.core.repositories.jooq;
 
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
+import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.quizzes.api.core.model.jooq.tables.Context.CONTEXT;
+import static com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
+import static com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
 
 @Repository
 public class ContextRepositoryImpl implements ContextRepository {
@@ -21,8 +28,59 @@ public class ContextRepositoryImpl implements ContextRepository {
     private DSLContext jooq;
 
     @Override
+    public ContextEntity findCreatedContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        return jooq.select()
+                .from(CONTEXT)
+                .where(CONTEXT.ID.eq(contextId))
+                .and(CONTEXT.PROFILE_ID.eq(profileId))
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .fetchOneInto(ContextEntity.class);
+    }
+
+    @Override
+    public List<ContextEntity> findCreatedContextsByProfileId(UUID profileId) {
+        return jooq.select()
+                .from(CONTEXT)
+                .where(CONTEXT.PROFILE_ID.eq(profileId))
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .fetchInto(ContextEntity.class);
+    }
+
+    @Override
+    public AssignedContextEntity findAssignedContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        List<Field<?>> fields = new ArrayList<>(Arrays.asList(CONTEXT.fields()));
+        fields.add(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID);
+        return jooq.select(fields)
+                .from(CONTEXT)
+                .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
+                .leftJoin(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
+                .where(CONTEXT.ID.eq(contextId))
+                .and(CONTEXT.IS_ACTIVE.eq(true))
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .fetchOneInto(AssignedContextEntity.class);
+    }
+
+    @Override
+    public List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId) {
+        List<Field<?>> fields = new ArrayList<>(Arrays.asList(CONTEXT.fields()));
+        fields.add(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID);
+        return jooq.select(fields)
+                .from(CONTEXT)
+                .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
+                .leftJoin(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
+                .where(CONTEXT.IS_ACTIVE.eq(true))
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .fetchInto(AssignedContextEntity.class);
+    }
+
+
+    @Override
     public Context findById(UUID id) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.IS_ACTIVE)
+        return jooq.select()
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
                 .and(CONTEXT.IS_DELETED.eq(false))
@@ -38,13 +96,7 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .fetchOneInto(ContextOwnerEntity.class);
     }
 
-    @Override
-    public List<Context> findByOwnerId(UUID ownerId) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.IS_ACTIVE)
-                .from(CONTEXT)
-                .where(CONTEXT.PROFILE_ID.eq(ownerId))
-                .fetchInto(Context.class);
-    }
+
 
     @Override
     public Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId) {
