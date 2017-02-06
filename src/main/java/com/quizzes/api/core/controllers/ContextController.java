@@ -76,7 +76,9 @@ public class ContextController {
                     "The fields `profileId` and `hasStarted` will not be present on the response body.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", responseContainer = "List",
-                    response = ContextGetResponseDto.class)
+                    response = ContextGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Content Not Found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(path = "/contexts/created", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -91,7 +93,9 @@ public class ContextController {
                     "The session token should correspond to the Owner (Profile). " +
                     "The fields `profileId` and `hasStarted` will not be present on the response body.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class)
+            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Content Not Found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(path = "/contexts/{contextId}/created", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -126,7 +130,9 @@ public class ContextController {
                     "Anonymous session token will be rejected by this endpoint.\n\n" +
                     "The fields `isActive` and `modifiedDate` will not be present on the response body.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class)
+            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Content Not Found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(path = "/contexts/{contextId}/assigned",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
