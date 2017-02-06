@@ -342,6 +342,8 @@ public class ContextEventService {
             case MultipleChoice:
             case MultipleChoiceImage:
             case MultipleChoiceText:
+            case HotTextWord:
+            case HotTextSentence:
                 return calculateScoreForMultipleChoice(userAnswers, correctAnswers);
             default:
                 return 0;
