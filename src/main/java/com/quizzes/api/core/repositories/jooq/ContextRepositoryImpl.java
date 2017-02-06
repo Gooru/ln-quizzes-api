@@ -143,13 +143,15 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public ContextProfileWithContextEntity findContextProfileAndContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
+    public ContextProfileWithContextEntity findContextProfileAndContextByContextIdAndProfileId(UUID contextId,
+                                                                                               UUID profileId) {
         return jooq.select(CONTEXT.ID.as("ContextId"), CONTEXT.COLLECTION_ID, CONTEXT_PROFILE.PROFILE_ID,
                 CONTEXT_PROFILE.ID.as("ContextProfileId"), CONTEXT_PROFILE.IS_COMPLETE)
                 .from(CONTEXT)
                 .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
                         .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
                 .where(CONTEXT.ID.eq(contextId))
+                .and(CONTEXT.IS_ACTIVE.eq(true))
                 .and(CONTEXT.IS_DELETED.eq(false))
                 .orderBy(CONTEXT_PROFILE.CREATED_AT.desc())
                 .limit(1)

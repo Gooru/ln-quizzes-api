@@ -1,7 +1,5 @@
 package com.quizzes.api.core.dtos;
 
-import com.quizzes.api.core.dtos.controller.CollectionDto;
-
 import java.util.List;
 import java.util.UUID;
 
