@@ -1046,7 +1046,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
                 questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 100", 100, result);
     }
@@ -1055,7 +1055,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
 
-        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
                 questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }
@@ -1064,7 +1064,7 @@ public class ContextEventServiceTest {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
 
-        int result =  WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
                 questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
         assertEquals("Score should be 0", 0, result);
     }

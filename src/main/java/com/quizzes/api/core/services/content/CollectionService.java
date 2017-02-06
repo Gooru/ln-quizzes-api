@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class CollectionService {
 
     private static final Map<String, String> questionTypeMap;
+    private static final Pattern hotTextHighlightPattern = Pattern.compile("\\[(.*?)\\]");
 
     static {
         questionTypeMap = new HashMap<>();
@@ -167,13 +168,12 @@ public class CollectionService {
     private List<AnswerDto> getHotTextHighlightCorrectAnswers(ResourceContentDto resourceContentDto) {
         List<AnswerDto> correctAnswers = new ArrayList<>();
         String answerText = resourceContentDto.getAnswers().get(0).getAnswerText();
-        Pattern pattern = Pattern.compile("\\[(.*?)\\]");
-        Matcher matcher = pattern.matcher(answerText);
+        Matcher hotTextHighlightMatcher = hotTextHighlightPattern.matcher(answerText);
 
         int answerCount = 0;
-        while (matcher.find()) {
-            int answerStart = matcher.start(1) - (answerCount * 2) - 1; // matcher start - (2x + 1) to counter the missing [] on the FE
-            String answerValue = answerText.substring(matcher.start(1), matcher.end(1));
+        while (hotTextHighlightMatcher.find()) {
+            int answerStart = hotTextHighlightMatcher.start(1) - (answerCount * 2) - 1; // matcher start - (2x + 1) to counter the missing [] on the FE
+            String answerValue = answerText.substring(hotTextHighlightMatcher.start(1), hotTextHighlightMatcher.end(1));
             correctAnswers.add(new AnswerDto(encodeAnswer(answerValue + "," + answerStart)));
             answerCount++;
         }
