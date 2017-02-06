@@ -11,6 +11,8 @@ public interface ContextProfileEventRepository {
 
     List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId);
 
+    List<UUID> findReourceIdsByContextProfileId(UUID contextProfileId);
+
     ContextProfileEvent save(ContextProfileEvent contextProfileEvent);
 
     ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId);

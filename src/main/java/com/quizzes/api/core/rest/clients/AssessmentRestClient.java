@@ -2,6 +2,7 @@ package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
+import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
@@ -18,6 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Component
 public class AssessmentRestClient {
@@ -73,6 +76,11 @@ public class AssessmentRestClient {
             logger.error("Gooru Assessment '" + assessmentId + "' could not be processed.", e);
             throw new InternalServerException("Assessment " + assessmentId + " could not be processed.", e);
         }
+    }
+
+    public List<ResourceContentDto> getAssessmentResources(String assessmentId, String token) {
+        AssessmentContentDto assessmentContentDto = getAssessment(assessmentId, token);
+        return assessmentContentDto.getQuestions();
     }
 }
 
