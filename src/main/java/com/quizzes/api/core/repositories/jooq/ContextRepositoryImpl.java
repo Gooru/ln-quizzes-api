@@ -24,7 +24,8 @@ public class ContextRepositoryImpl implements ContextRepository {
 
     @Override
     public Context findById(UUID id) {
-        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.IS_ACTIVE)
+        return jooq.select(CONTEXT.ID, CONTEXT.COLLECTION_ID, CONTEXT.CONTEXT_DATA, CONTEXT.IS_ACTIVE,
+                CONTEXT.IS_COLLECTION)
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
                 .and(CONTEXT.IS_DELETED.eq(false))

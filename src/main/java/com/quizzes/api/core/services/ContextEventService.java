@@ -70,8 +70,7 @@ public class ContextEventService {
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
         ContextProfileWithContextEntity entity = contextService.findProfileIdInContext(contextId, profileId);
         try {
-            CurrentContextProfile currentContextProfile =
-                    currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
+            currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
             if (entity.getIsComplete()) {
                 return createContextProfile(entity);
             } else {
@@ -141,7 +140,7 @@ public class ContextEventService {
     }
 
     private void finishContextEvent(Context context, ContextProfile contextProfile,
-                                           CurrentContextProfile currentContextProfile, String token) {
+                                    CurrentContextProfile currentContextProfile, String token) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getId());
 
@@ -162,21 +161,6 @@ public class ContextEventService {
         doFinishContextEventTransaction(contextProfile, currentContextProfile, contextProfileEventsToCreate);
 
         sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
-    }
-
-    private List<ResourceContentDto> getResourcesToCreate(List<ContextProfileEvent> contextProfileEvents,
-                                                       List<ResourceContentDto> resources) {
-        List<UUID> contextProfileEventResourceIds = contextProfileEvents.stream()
-                .map(ContextProfileEvent::getResourceId).collect(Collectors.toList());
-
-        return resources.stream()
-                .filter(resource -> !contextProfileEventResourceIds.contains(UUID.fromString(resource.getId())))
-                .collect(Collectors.toList());
-    }
-
-    private List<ResourceContentDto> getCollectionResources(UUID collectionId, boolean isCollection, String token) {
-        return isCollection ? collectionRestClient.getCollectionResources(collectionId.toString(), token) :
-            assessmentRestClient.getAssessmentResources(collectionId.toString(), token);
     }
 
     public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
@@ -472,6 +456,21 @@ public class ContextEventService {
     private void doCurrentContextEventTransaction(CurrentContextProfile currentContextProfile) {
         currentContextProfileService.delete(currentContextProfile);
         currentContextProfileService.create(currentContextProfile);
+    }
+
+    private List<ResourceContentDto> getResourcesToCreate(List<ContextProfileEvent> contextProfileEvents,
+                                                          List<ResourceContentDto> resources) {
+        List<UUID> contextProfileEventResourceIds = contextProfileEvents.stream()
+                .map(ContextProfileEvent::getResourceId).collect(Collectors.toList());
+
+        return resources.stream()
+                .filter(resource -> !contextProfileEventResourceIds.contains(UUID.fromString(resource.getId())))
+                .collect(Collectors.toList());
+    }
+
+    private List<ResourceContentDto> getCollectionResources(UUID collectionId, boolean isCollection, String token) {
+        return isCollection ? collectionRestClient.getCollectionResources(collectionId.toString(), token) :
+                assessmentRestClient.getAssessmentResources(collectionId.toString(), token);
     }
 
     /*

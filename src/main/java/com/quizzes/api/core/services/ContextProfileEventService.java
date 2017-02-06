@@ -20,10 +20,6 @@ public class ContextProfileEventService {
         return contextProfileEventRepository.findByContextProfileId(contextProfileId);
     }
 
-    List<UUID> findReourceIdsByContextProfileId(UUID contextProfileId) {
-        return contextProfileEventRepository.findReourceIdsByContextProfileId(contextProfileId);
-    }
-
     ContextProfileEvent save(ContextProfileEvent contextProfileEvent) {
         return contextProfileEventRepository.save(contextProfileEvent);
     }
