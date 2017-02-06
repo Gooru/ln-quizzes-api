@@ -242,8 +242,6 @@ public class ContextService {
         return mapAssignedContextEntityToContextGetResponseDto(context);
     }
 
-
-
     public ContextGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId)
             throws ContentNotFoundException {
         ContextOwnerEntity context = contextRepository.findContextOwnerByContextIdAndAssigneeId(contextId, assigneeId);
@@ -307,7 +305,7 @@ public class ContextService {
     private ContextGetResponseDto mapAssignedContextEntityToContextGetResponseDto(AssignedContextEntity context) {
         ContextGetResponseDto createdContext = mapContextEntityToContextGetResponseDto(context);
         createdContext.setProfileId(context.getProfileId());
-        createdContext.setHasStarted(context.getContextProfileId() != null);
+        createdContext.setHasStarted(context.getCurrentContextProfileId() != null);
         createdContext.setIsActive(null);
         createdContext.setModifiedDate(null);
         return createdContext;

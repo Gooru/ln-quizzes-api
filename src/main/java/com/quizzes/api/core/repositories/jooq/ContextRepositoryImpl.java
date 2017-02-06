@@ -49,7 +49,7 @@ public class ContextRepositoryImpl implements ContextRepository {
     @Override
     public AssignedContextEntity findAssignedContextByContextIdAndProfileId(UUID contextId, UUID profileId) {
         List<Field<?>> fields = new ArrayList<>(Arrays.asList(CONTEXT.fields()));
-        fields.add(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID);
+        fields.add(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("current_context_profile_id"));
         return jooq.select(fields)
                 .from(CONTEXT)
                 .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
@@ -59,14 +59,15 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .where(CONTEXT.ID.eq(contextId))
                 .and(CONTEXT.IS_ACTIVE.eq(true))
                 .and(CONTEXT.IS_DELETED.eq(false))
+                .limit(1)
                 .fetchOneInto(AssignedContextEntity.class);
     }
 
     @Override
     public List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId) {
         List<Field<?>> fields = new ArrayList<>(Arrays.asList(CONTEXT.fields()));
-        fields.add(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID);
-        return jooq.select(fields)
+        fields.add(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("current_context_profile_id"));
+        return jooq.selectDistinct(CONTEXT_PROFILE.ID.as("context_profile_id")).select(fields)
                 .from(CONTEXT)
                 .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
                         .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
