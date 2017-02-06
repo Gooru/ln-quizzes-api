@@ -42,8 +42,8 @@ public interface ContextRepository {
 
     /**
      * Finds the last {@link ContextProfileWithContextEntity} for a specific profile in a context.
-     * If ContextProfile fields contains null, it's because the profile is not assigned in the context.
-     * 
+     * If ContextProfile fields contain null, it's because the profile is not assigned in the context.
+     *
      * @param contextId This is mandatory
      * @param profileId This is mandatory
      * @return the {@link ContextProfileWithContextEntity} found
