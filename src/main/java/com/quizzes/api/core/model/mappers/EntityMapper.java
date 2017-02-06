@@ -7,7 +7,7 @@ public class EntityMapper {
 
     public static Context mapContextEntityToContext(ContextEntity contextEntity) {
         Context context = new Context();
-        context.setId(contextEntity.getId());
+        context.setId(contextEntity.getContextId());
         context.setCollectionId(contextEntity.getCollectionId());
         context.setContextData(contextEntity.getContextData());
         context.setIsActive(contextEntity.getIsActive());
