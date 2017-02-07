@@ -54,6 +54,8 @@ public class CollectionService {
                 QuestionTypeEnum.HotTextWord.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.SentenceHotTextHighlightQuestion.getLiteral(),
                 QuestionTypeEnum.HotTextSentence.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral(),
+                QuestionTypeEnum.TextEntry.getLiteral());
     }
 
     @Autowired
@@ -195,11 +197,15 @@ public class CollectionService {
         if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
             return resource.getAnswers().get(0).getAnswerText().replaceAll("(\\[|\\])", "");
         }
+        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
+            return resource.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
+        }
         return resource.getTitle();
     }
 
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
-        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral()) ||
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return null;
         }
 

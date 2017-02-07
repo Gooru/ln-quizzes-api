@@ -17,7 +17,6 @@ import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
-import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
@@ -349,7 +348,8 @@ public class ContextEventService {
             case SingleChoice:
                 return calculateScoreForSimpleOption(userAnswers.get(0).getValue(), correctAnswers.get(0).getValue());
             case DragAndDrop:
-                return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
+            case TextEntry:
+                return calculateScoreForOrderedMultipleChoice(userAnswers, correctAnswers);
             case MultipleChoice:
             case MultipleChoiceImage:
             case MultipleChoiceText:
@@ -380,7 +380,7 @@ public class ContextEventService {
      * @param correctAnswers Correct answers for the question
      * @return the score
      */
-    private int calculateScoreForDragAndDrop(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+    private int calculateScoreForOrderedMultipleChoice(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
         if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
@@ -393,7 +393,8 @@ public class ContextEventService {
 
     /**
      * Multiple Answer method compares the answers with the correct answer ignoring the order
-     * Works for multiple_choice, multiple_choice_image and multiple_choice_text
+     * Works for multiple_choice, multiple_choice_image, multiple_choice_text, hot_text_word and
+     * hot_text_sentence
      *
      * @param userAnswers    Answers provided by the user
      * @param correctAnswers Correct answers for the question
