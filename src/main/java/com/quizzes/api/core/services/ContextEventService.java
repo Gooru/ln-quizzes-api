@@ -16,6 +16,7 @@ import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
+import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
@@ -164,7 +165,7 @@ public class ContextEventService {
     }
 
     public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
-        Context context = contextService.findByIdAndOwnerId(contextId, ownerId);
+        ContextEntity context = contextService.findCreatedContext(contextId, ownerId);
         Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
                 contextProfileEventService.findByContextId(contextId);
         ContextEventsResponseDto response = new ContextEventsResponseDto();
@@ -362,6 +363,8 @@ public class ContextEventService {
             case MultipleChoice:
             case MultipleChoiceImage:
             case MultipleChoiceText:
+            case HotTextWord:
+            case HotTextSentence:
                 return calculateScoreForMultipleChoice(userAnswers, correctAnswers);
             default:
                 return 0;

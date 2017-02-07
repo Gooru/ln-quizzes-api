@@ -4,17 +4,13 @@ import java.util.UUID;
 
 public interface ContextProfileWithContextEntity extends ContextEntity {
 
-    UUID getProfileId();
+    UUID getContextProfileId();
 
-    void setProfileId(UUID profileId);
+    void setContextProfileId(UUID contextProfileId);
 
     UUID getCurrentResourceId();
 
     void setCurrentResourceId(UUID currentResourceId);
-
-    UUID getContextProfileId();
-
-    void setContextProfileId(UUID contextProfileId);
 
     boolean getIsComplete();
 

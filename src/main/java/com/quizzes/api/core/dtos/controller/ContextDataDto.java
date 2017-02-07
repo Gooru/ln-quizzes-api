@@ -5,6 +5,7 @@ import com.quizzes.api.core.dtos.MetadataDto;
 import java.util.Map;
 
 public class ContextDataDto {
+
     private MetadataDto metadata;
     private Map<String, String> contextMap;
 
@@ -23,4 +24,5 @@ public class ContextDataDto {
     public void setContextMap(Map<String, String> contextMap) {
         this.contextMap = contextMap;
     }
+
 }

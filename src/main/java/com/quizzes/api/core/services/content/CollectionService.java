@@ -26,12 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class CollectionService {
 
     private static final Map<String, String> questionTypeMap;
+    private static final Pattern hotTextHighlightPattern = Pattern.compile("\\[(.*?)\\]");
 
     static {
         questionTypeMap = new HashMap<>();
@@ -47,6 +50,10 @@ public class CollectionService {
                 QuestionTypeEnum.MultipleChoiceImage.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.HotSpotTextQuestion.getLiteral(),
                 QuestionTypeEnum.MultipleChoiceText.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.WordHotTextHighlightQuestion.getLiteral(),
+                QuestionTypeEnum.HotTextWord.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.SentenceHotTextHighlightQuestion.getLiteral(),
+                QuestionTypeEnum.HotTextSentence.getLiteral());
     }
 
     @Autowired
@@ -131,24 +138,49 @@ public class CollectionService {
     private ResourceMetadataDto mapQuestionResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
-        metadata.setType(mapQuestionType(resourceContentDto.getContentSubformat()));
+        metadata.setType(mapQuestionType(resourceContentDto));
         if(resourceContentDto.getAnswers() != null){
-            metadata.setCorrectAnswer(getCorrectAnswers(resourceContentDto.getAnswers()));
-            metadata.setInteraction(createInteraction(resourceContentDto.getAnswers()));
+            metadata.setCorrectAnswer(getCorrectAnswers(resourceContentDto));
+            metadata.setInteraction(createInteraction(resourceContentDto));
         }
-        metadata.setBody(resourceContentDto.getTitle());
+        metadata.setBody(getBody(resourceContentDto));
         return metadata;
     }
 
-    private String mapQuestionType(String gooruQuestionType) {
-        String mappedType = questionTypeMap.get(gooruQuestionType);
-        if (mappedType == null) {
-            mappedType = QuestionTypeEnum.None.getLiteral();
+    private String mapQuestionType(ResourceContentDto resourceContentDto) {
+        String contentSubformat = resourceContentDto.getContentSubformat();
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
+            contentSubformat = resourceContentDto.getAnswers().get(0).getHighlightType() + "_" +
+                    contentSubformat;
         }
-        return mappedType;
+
+        String mappedType = questionTypeMap.get(contentSubformat);
+        return (mappedType == null) ? QuestionTypeEnum.None.getLiteral() : mappedType;
     }
 
-    private List<AnswerDto> getCorrectAnswers(List<AnswerContentDto> answers) {
+    private List<AnswerDto> getCorrectAnswers(ResourceContentDto resourceContentDto) {
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
+            return getHotTextHighlightCorrectAnswers(resourceContentDto);
+        }
+        return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers());
+    }
+
+    private List<AnswerDto> getHotTextHighlightCorrectAnswers(ResourceContentDto resourceContentDto) {
+        List<AnswerDto> correctAnswers = new ArrayList<>();
+        String answerText = resourceContentDto.getAnswers().get(0).getAnswerText();
+        Matcher hotTextHighlightMatcher = hotTextHighlightPattern.matcher(answerText);
+
+        int answerCount = 0;
+        while (hotTextHighlightMatcher.find()) {
+            int answerStart = hotTextHighlightMatcher.start(1) - (answerCount * 2) - 1; // matcher start - (2x + 1) to counter the missing [] on the FE
+            String answerValue = answerText.substring(hotTextHighlightMatcher.start(1), hotTextHighlightMatcher.end(1));
+            correctAnswers.add(new AnswerDto(encodeAnswer(answerValue + "," + answerStart)));
+            answerCount++;
+        }
+        return correctAnswers;
+    }
+
+    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers) {
         List<AnswerDto> correctAnswers = new ArrayList<>();
         if (answers != null) {
             correctAnswers = answers.stream()
@@ -159,8 +191,19 @@ public class CollectionService {
         return correctAnswers;
     }
 
-    private InteractionDto createInteraction(List<AnswerContentDto> answers) {
-        List<ChoiceDto> choices = answers.stream().map(answer -> {
+    private String getBody(ResourceContentDto resource) {
+        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
+            return resource.getAnswers().get(0).getAnswerText().replaceAll("(\\[|\\])", "");
+        }
+        return resource.getTitle();
+    }
+
+    private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
+            return null;
+        }
+
+        List<ChoiceDto> choices = resourceContentDto.getAnswers().stream().map(answer -> {
             ChoiceDto choiceDto = new ChoiceDto();
             choiceDto.setFixed(true);
             choiceDto.setText(answer.getAnswerText());
