@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -77,6 +76,18 @@ public class CollectionService {
         return convertGooruCollectionToQuizzesFormat(collectionContentDto);
     }
 
+    public List<ResourceDto> getAssessmentQuestions(String assessmentId) {
+        String userToken = authenticationRestClient.generateAnonymousToken();
+        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
+        return mapResources(assessmentContentDto.getQuestions());
+    }
+
+    public List<ResourceDto> getCollectionResources(String collectionId) {
+        String userToken = authenticationRestClient.generateAnonymousToken();
+        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, userToken);
+        return mapResources(collectionContentDto.getContent());
+    }
+
     private CollectionDto convertGooruAssessmentToQuizzesFormat(AssessmentContentDto assessmentDto) {
         CollectionDto collectionDto = createCollectionDto(assessmentDto.getId(), assessmentDto.getTitle());
         collectionDto.setResources(mapResources(assessmentDto.getQuestions()));
@@ -104,7 +115,7 @@ public class CollectionService {
         if (resourceContentDtos != null) {
             resourceDtos = resourceContentDtos.stream().map(resourceContentDto -> {
                 ResourceDto resourceDto = new ResourceDto();
-                resourceDto.setId(UUID.fromString(resourceContentDto.getId()));
+                resourceDto.setId(resourceContentDto.getId());
                 resourceDto.setSequence((short) resourceContentDto.getSequence());
 
                 ResourceMetadataDto metadata;

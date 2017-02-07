@@ -1,6 +1,7 @@
 package com.quizzes.api.core.services;
 
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.CurrentContextProfileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,16 @@ public class CurrentContextProfileService {
         CurrentContextProfile currentContextProfile =
                 currentContextProfileRepository.findByContextIdAndProfileId(contextId, profileId);
         if (currentContextProfile == null) {
+            throw new ContentNotFoundException("Current Context Profile not found for Context ID: " + contextId
+                    + " and Profile ID: " + profileId);
+        }
+        return currentContextProfile;
+    }
+
+    public AssignedContextEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        AssignedContextEntity currentContextProfile =
+                currentContextProfileRepository.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
+        if (currentContextProfile == null || currentContextProfile.getContextProfileId() == null) {
             throw new ContentNotFoundException("Current Context Profile not found for Context ID: " + contextId
                     + " and Profile ID: " + profileId);
         }

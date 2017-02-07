@@ -30,6 +30,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -138,8 +139,10 @@ public class ContextEventControllerTest {
 
     @Test
     public void addEvent() throws Exception {
-        ResponseEntity<?> result = controller.onResourceEvent(UUID.randomUUID(), UUID.randomUUID(),
-                new OnResourceEventPostRequestDto(), "quizzes", UUID.randomUUID());
+        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
+        ResponseEntity<?> result = controller.onResourceEvent(resourceId, contextId,
+                body, profileId);
+
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
