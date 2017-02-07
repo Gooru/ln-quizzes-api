@@ -1,7 +1,6 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 const NileApiUrl = require('./quizzesTestConfiguration.js').nileApiUrl;
 const frisby = require('frisby');
-const atob = require('atob');
 
 var testUsers = {};
     testUsers["testuser01"] = {"firstname": "TestUser", "lastname": "QAOne", "identityId": "testuser01@edify.cr"};
