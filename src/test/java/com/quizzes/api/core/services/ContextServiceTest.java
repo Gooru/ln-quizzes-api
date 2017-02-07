@@ -14,9 +14,11 @@ import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
+import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
@@ -229,6 +231,50 @@ public class ContextServiceTest {
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
     }
+//    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
+//        ContextProfileWithContextEntity entity =
+//                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
+//        if (entity == null) {
+//            throw new ContentNotFoundException("Context not found for ID: " + contextId);
+//        }
+//
+//        if (entity.getProfileId() == null) {
+//            throw new InvalidAssigneeException("Profile ID: " + profileId + " not assigned to the context ID: "
+//                    + contextId);
+//        }
+//        return entity;
+//    }
+
+    @Test
+    public void findProfileIdInContext() throws Exception {
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
+
+        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
+
+        ContextProfileWithContextEntity result = contextService.findProfileIdInContext(contextId, profileId);
+
+        verify(contextRepository, times(1)).findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong context Id", contextId, result.getContextId());
+        assertEquals("Wrong profile Id", profileId, result.getProfileId());
+    }
+
+    @Test(expected = InvalidAssigneeException.class)
+    public void findProfileIdInContextThrowsInvalidAssigneeException() throws Exception {
+        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
+        when(entity.getProfileId()).thenReturn(null);
+
+        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
+
+        contextService.findProfileIdInContext(contextId, profileId);
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findProfileIdInContextThrowsContentNotFoundException() throws Exception {
+        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(null);
+        contextService.findProfileIdInContext(contextId, profileId);
+    }
 
     @Test
     public void getCollectionOwnerIdForCollection() throws Exception {
@@ -402,7 +448,7 @@ public class ContextServiceTest {
 
         verify(contextRepository, times(1)).findContextOwnerById(any(UUID.class));
         assertNotNull("Context is null", context);
-        assertEquals("Wrong id for context", contextOwnerEntityMock.getId(), context.getId());
+        assertEquals("Wrong id for context", contextOwnerEntityMock.getContextId(), context.getId());
         assertEquals("Wrong id for collection", contextOwnerEntityMock.getCollectionId(), context.getCollectionId());
     }
 
@@ -576,7 +622,7 @@ public class ContextServiceTest {
         Map<UUID, List<ContextAssigneeEntity>> contextsMap = new HashMap<>();
 
         ContextAssigneeEntity row1 = mock(ContextAssigneeEntity.class);
-        when(row1.getId()).thenReturn(contextId);
+        when(row1.getContextId()).thenReturn(contextId);
         when(row1.getCollectionId()).thenReturn(UUID.randomUUID());
         when(row1.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row1.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
@@ -590,7 +636,7 @@ public class ContextServiceTest {
         UUID groupId = UUID.randomUUID();
         contextId = UUID.randomUUID();
         ContextAssigneeEntity row2 = mock(ContextAssigneeEntity.class);
-        when(row2.getId()).thenReturn(contextId);
+        when(row2.getContextId()).thenReturn(contextId);
         when(row2.getCollectionId()).thenReturn(UUID.randomUUID());
         when(row2.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row2.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
@@ -601,7 +647,7 @@ public class ContextServiceTest {
         contextAssigneeEntityList2.add(row2);
 
         ContextAssigneeEntity row3 = mock(ContextAssigneeEntity.class);
-        when(row3.getId()).thenReturn(contextId);
+        when(row3.getContextId()).thenReturn(contextId);
         when(row3.getCollectionId()).thenReturn(UUID.randomUUID());
         when(row3.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(row3.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
@@ -630,7 +676,7 @@ public class ContextServiceTest {
         UUID classId = UUID.randomUUID();
 
         ContextAssigneeEntity contextAssigneeEntity = mock(ContextAssigneeEntity.class);
-        when(contextAssigneeEntity.getId()).thenReturn(contextId);
+        when(contextAssigneeEntity.getContextId()).thenReturn(contextId);
         when(contextAssigneeEntity.getCollectionId()).thenReturn(UUID.randomUUID());
         when(contextAssigneeEntity.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
         when(contextAssigneeEntity.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
@@ -759,7 +805,7 @@ public class ContextServiceTest {
                         "    'dueDate': 2" +
                         "  }" +
                         "}";
-        when(contextOwnerEntity.getId()).thenReturn(contextId);
+        when(contextOwnerEntity.getContextId()).thenReturn(contextId);
         when(contextOwnerEntity.getCollectionId()).thenReturn(collectionId);
         when(contextOwnerEntity.getContextData()).thenReturn(contextData);
         when(contextOwnerEntity.getCreatedAt()).thenReturn(createdAt);
@@ -773,6 +819,17 @@ public class ContextServiceTest {
         contextPostRequestDto.setCollectionId(collectionId);
         contextPostRequestDto.setContextData(createContextDataDto());
         return contextPostRequestDto;
+    }
+
+    private ContextProfileWithContextEntity createContextProfileContextEntity() {
+        ContextProfileWithContextEntity entityMock = mock(ContextProfileWithContextEntity.class);
+
+        when(entityMock.getIsComplete()).thenReturn(true);
+        when(entityMock.getContextProfileId()).thenReturn(contextProfileId);
+        when(entityMock.getContextId()).thenReturn(contextId);
+        when(entityMock.getCollectionId()).thenReturn(collectionId);
+        when(entityMock.getProfileId()).thenReturn(profileId);
+        return entityMock;
     }
 
 }

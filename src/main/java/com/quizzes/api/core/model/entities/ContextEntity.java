@@ -1,5 +1,6 @@
 package com.quizzes.api.core.model.entities;
 
+import java.util.UUID;
 import java.sql.Timestamp;
 import java.util.UUID;
 

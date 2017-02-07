@@ -17,6 +17,7 @@ import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
+import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
@@ -80,50 +81,6 @@ public class ContextService {
         }
 
         return new IdResponseDto(context.getId());
-    }
-
-    private Context createContextObject(ContextPostRequestDto contextDto, UUID profileId) {
-        Context context = new Context();
-        context.setProfileId(profileId);
-        context.setClassId(contextDto.getClassId());
-        context.setCollectionId(contextDto.getCollectionId());
-        context.setContextData(gson.toJson(contextDto.getContextData()));
-        context.setIsCollection(contextDto.getIsCollection());
-        return context;
-    }
-
-    private UUID getCollectionOwnerId(String collectionId, boolean isCollection, String token) {
-        CollectionContentDto collectionContentDto = isCollection ?
-                collectionRestClient.getCollection(collectionId, token) :
-                assessmentRestClient.getAssessment(collectionId, token);
-
-        return collectionContentDto.getOwnerId();
-    }
-
-    private void validateCollectionOwner(UUID collectionId, boolean isCollection, UUID profileId, String token) {
-        UUID ownerId = getCollectionOwnerId(collectionId.toString(), isCollection, token);
-        if (!ownerId.equals(profileId)) {
-            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID:" +
-                    collectionId + ".");
-        }
-    }
-
-    private void createContextProfiles(List<UUID> memberIds, UUID contextId) {
-        if (memberIds != null && !memberIds.isEmpty()) {
-            memberIds.forEach(memberId -> {
-                ContextProfile contextProfile = createContextProfile(contextId, memberId);
-                contextProfileService.save(contextProfile);
-            });
-        }
-    }
-
-    private ContextProfile createContextProfile(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setContextId(contextId);
-        contextProfile.setProfileId(profileId);
-        contextProfile.setIsComplete(false);
-        contextProfile.setEventSummaryData(gson.toJson(new EventSummaryDataDto()));
-        return contextProfile;
     }
 
     /**
@@ -253,27 +210,23 @@ public class ContextService {
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
-    public Context findByIdAndAssigneeId(UUID contextId, UUID assigneeId) {
-        List<ContextAssigneeEntity> assigneeEntities = contextRepository.findContextAssigneeByContextId(contextId);
-        if (assigneeEntities.isEmpty()) {
+    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
+        ContextProfileWithContextEntity entity =
+                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
+        if (entity == null) {
             throw new ContentNotFoundException("Context not found for ID: " + contextId);
         }
-        ContextAssigneeEntity contextAssigneeEntity = assigneeEntities.stream()
-                .filter(entity -> entity.getAssigneeProfileId().equals(assigneeId))
-                .findAny()
-                .orElse(null);
-        if (contextAssigneeEntity == null) {
-            throw new InvalidAssigneeException("Profile ID: " + assigneeId + " not assigned to the context ID: " + contextId);
+
+        if (entity.getProfileId() == null) {
+            throw new InvalidAssigneeException("Profile ID: " + profileId + " not assigned to the context ID: "
+                    + contextId);
         }
-        Context result = new Context();
-        result.setId(contextAssigneeEntity.getId());
-        result.setCollectionId(contextAssigneeEntity.getCollectionId());
-        result.setContextData(contextAssigneeEntity.getContextData());
-        return result;
+        return entity;
     }
 
     private ContextGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {
         ContextGetResponseDto contextAssigned = new ContextGetResponseDto();
+        contextAssigned.setId(contextOwner.getContextId());
         // TODO Fix this
         /*
         contextAssigned.setId(contextOwner.getId());
@@ -285,6 +238,50 @@ public class ContextService {
         */
 
         return contextAssigned;
+    }
+
+    private Context createContextObject(ContextPostRequestDto contextDto, UUID profileId) {
+        Context context = new Context();
+        context.setProfileId(profileId);
+        context.setClassId(contextDto.getClassId());
+        context.setCollectionId(contextDto.getCollectionId());
+        context.setContextData(gson.toJson(contextDto.getContextData()));
+        context.setIsCollection(contextDto.getIsCollection());
+        return context;
+    }
+
+    private UUID getCollectionOwnerId(String collectionId, boolean isCollection, String token) {
+        CollectionContentDto collectionContentDto = isCollection ?
+                collectionRestClient.getCollection(collectionId, token) :
+                assessmentRestClient.getAssessment(collectionId, token);
+
+        return collectionContentDto.getOwnerId();
+    }
+
+    private void validateCollectionOwner(UUID collectionId, boolean isCollection, UUID profileId, String token) {
+        UUID ownerId = getCollectionOwnerId(collectionId.toString(), isCollection, token);
+        if (!ownerId.equals(profileId)) {
+            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID:" +
+                    collectionId + ".");
+        }
+    }
+
+    private void createContextProfiles(List<UUID> memberIds, UUID contextId) {
+        if (memberIds != null && !memberIds.isEmpty()) {
+            memberIds.forEach(memberId -> {
+                ContextProfile contextProfile = createContextProfile(contextId, memberId);
+                contextProfileService.save(contextProfile);
+            });
+        }
+    }
+
+    private ContextProfile createContextProfile(UUID contextId, UUID profileId) {
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setContextId(contextId);
+        contextProfile.setProfileId(profileId);
+        contextProfile.setIsComplete(false);
+        contextProfile.setEventSummaryData(gson.toJson(new EventSummaryDataDto()));
+        return contextProfile;
     }
 
     private ContextGetResponseDto mapContextEntityToContextGetResponseDto(ContextEntity context) {
