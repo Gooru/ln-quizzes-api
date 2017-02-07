@@ -25,10 +25,6 @@ public interface ContextRepository {
 
     Context save(Context context);
 
-
-
-
-
     Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId);
 
     Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByContextIdAndOwnerId(UUID contextId, UUID ownerId);

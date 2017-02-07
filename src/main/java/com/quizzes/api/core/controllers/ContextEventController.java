@@ -81,9 +81,9 @@ public class ContextEventController {
     public ResponseEntity<Void> finishContextEvent(
             @ApiParam(value = "ID of the context to have its attempt finished.", required = true, name = "ContextID")
             @PathVariable UUID contextId,
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) {
-        contextEventService.processFinishContextEvent(contextId, profileId);
+            @RequestAttribute(value = "profileId") UUID profileId,
+            @RequestAttribute(value = "token") String token) {
+        contextEventService.processFinishContextEvent(contextId, profileId, token);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

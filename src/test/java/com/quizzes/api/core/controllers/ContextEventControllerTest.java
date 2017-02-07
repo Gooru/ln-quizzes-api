@@ -54,6 +54,7 @@ public class ContextEventControllerTest {
     private UUID resourceId;
     private UUID ownerId;
     private UUID profileId;
+    private String token;
 
     @Before
     public void before() throws Exception {
@@ -62,6 +63,7 @@ public class ContextEventControllerTest {
         resourceId = UUID.randomUUID();
         ownerId = UUID.randomUUID();
         profileId = UUID.randomUUID();
+        token = UUID.randomUUID().toString();
     }
 
     @Test
@@ -125,9 +127,9 @@ public class ContextEventControllerTest {
     }
 
     @Test
-    public void finishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning", UUID.randomUUID());
-        verify(contextEventService, times(1)).processFinishContextEvent(any(UUID.class), any(UUID.class));
+    public void processFinishContextEvent() throws Exception {
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId, token);
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId, token);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());

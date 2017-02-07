@@ -88,8 +88,6 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
 
-
-
     @Override
     public Map<UUID, List<ContextAssigneeEntity>> findContextAssigneeByOwnerId(UUID ownerId) {
         return null;
