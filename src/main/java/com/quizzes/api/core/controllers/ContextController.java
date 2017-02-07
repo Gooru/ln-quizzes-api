@@ -2,10 +2,10 @@ package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
-import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
-import com.quizzes.api.core.exceptions.InvalidRequestException;
-import com.quizzes.api.core.model.jooq.tables.pojos.Context;
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
+import com.quizzes.api.core.model.entities.ContextEntity;
+import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.services.ContextService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -19,10 +19,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.ConstraintViolation;
@@ -44,9 +42,12 @@ public class ContextController {
     @Autowired
     private ContextService contextService;
 
+    @Autowired
+    private EntityMapper entityMapper;
+
     @ApiOperation(
-            value = "Creates an assignment",
-            notes = "Creates an assignment of a collection or an assessment to specified context," +
+            value = "Creates Assignment",
+            notes = "Creates an Assignment of a Collection or Assessment to specified Context," +
                     " returning a generated Context ID.")
     @ApiResponses({@ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
@@ -75,92 +76,96 @@ public class ContextController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get created contexts",
-            notes = "Get all the contexts created by the Owner Profile.\n\nThe fields `owner` and `hasStarted` won't be present on requests to this end point")
+    @ApiOperation(value = "Gets Created Contexts",
+            notes = "Gets all the Contexts created by a Profile.\n\n" +
+                    "The session token should correspond to the Owner (Profile). " +
+                    "The fields `profileId` and `hasStarted` will not be present on the response body.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", responseContainer = "List",
-                    response = ContextGetResponseDto.class)
+                    response = ContextGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Content Not Found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
-    @RequestMapping(path = "/contexts/created",
-            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(path = "/contexts/created", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextGetResponseDto>> getCreatedContexts(
-            @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @ApiParam(name = "profile-id", required = true, value = "Context owner Profile ID")
-            @RequestHeader(value = "profile-id") UUID profileId,
-            @ApiParam(value = "optional query params", required = true, name = "filterMap")
-            @RequestParam Map<String, String> filterMap) throws Exception {
-
-        List<ContextGetResponseDto> list = contextService.findCreatedContexts(profileId);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
+        List<ContextEntity> contexts = contextService.findCreatedContexts(profileId);
+        return new ResponseEntity<>(
+                contexts.stream().map(context -> entityMapper.mapContextEntityToContextGetResponseDto(context))
+                        .collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get assigned contexts",
-            notes = "Get all the ‘active’ contexts assigned to the assignee profile.\n\nThe fields `assignees` and `modifiedDate` won't be present on requests to this end point")
+    @ApiOperation(
+            value = "Gets Created Context by ID",
+            notes = "Gets a Context by its Context ID created by a Profile.\n\n" +
+                    "The session token should correspond to the Owner (Profile). " +
+                    "The fields `profileId` and `hasStarted` will not be present on the response body.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", responseContainer = "List",
-                    response = ContextGetResponseDto.class)
+            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Content Not Found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
+    })
+    @RequestMapping(path = "/contexts/{contextId}/created", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ContextGetResponseDto> getCreatedContext(
+            @ApiParam(name = "ContextID", required = true,
+                    value = "The ID of the context you want to get from the set of created contexts.")
+            @PathVariable UUID contextId,
+            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
+        return new ResponseEntity<>(
+                entityMapper.mapContextEntityToContextGetResponseDto(
+                        contextService.findCreatedContext(contextId, profileId))
+                , HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Gets Assigned Contexts",
+            notes = "Gets all `Active` Contexts assigned to a Profile. " +
+                    "The session token should correspond to the Assignee (Profile). " +
+                    "Anonymous session token will be rejected by this endpoint.\n\n" +
+                    "The fields `isActive` and `modifiedDate` will not be present on the response body.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Successful Response Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Content Not Found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(path = "/contexts/assigned",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextGetResponseDto>> getAssignedContexts(
-            @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @ApiParam(name = "profile-id", required = true, value = "Assignee Profile ID")
-            @RequestHeader(value = "profile-id") UUID profileId,
-            @ApiParam(value = "Filter the contexts by isActive flag", required = false, name = "isActive")
-            @RequestParam(value = "isActive", required = false) Boolean isActive,
-            @ApiParam(value = "Filter the contexts by start date in milliseconds", required = false, name = "startDate")
-            @RequestParam(value = "startDate", required = false) Long startDate,
-            @ApiParam(value = "Filter the contexts by due date in milliseconds", required = false, name = "dueDate")
-            @RequestParam(value = "dueDate", required = false) Long dueDate) throws Exception {
-
-        if (isActive != null && (startDate != null || dueDate != null)) {
-            throw new InvalidRequestException("isActive parameter can't be combined with startDate or dueDate");
-        }
-
-        List<ContextGetResponseDto> contexts = contextService.getAssignedContexts(profileId, isActive, startDate, dueDate);
-        return new ResponseEntity<>(contexts, HttpStatus.OK);
+            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
+        List<AssignedContextEntity> contexts = contextService.findAssignedContexts(profileId);
+        return new ResponseEntity<>(
+                contexts.stream().map(context -> entityMapper.mapAssignedContextEntityToContextGetResponseDto(context))
+                        .collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
-    @ApiOperation(
-            value = "Get created context by ID",
-            notes = "Gets a Context by the Context ID from the set of created contexts.")
+    @ApiOperation(value = "Gets Assigned Context by ID",
+            notes = "Gets the `Active` Context specified by the Context ID assigned to a Profile. " +
+                    "The session token should correspond to the Assignee (Profile). " +
+                    "Anonymous session token will be rejected by this endpoint.\n\n" +
+                    "The fields `isActive` and `modifiedDate` will not be present on the response body.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class)
-    })
-    @RequestMapping(path = "/contexts/{contextId}/created",
-            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ContextGetResponseDto> getCreatedContextByContextId(
-            @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of created contexts.")
-            @PathVariable UUID contextId,
-            @ApiParam(name = "lms-id", required = false, value = "Client LMS ID")
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @ApiParam(name = "profile-id", required = true, value = "Context owner Profile ID")
-            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-
-        ContextGetResponseDto result = contextService.findCreatedContextByContextIdAndOwnerId(contextId, profileId);
-
-        return new ResponseEntity<>(result, HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Get assigned context by ID",
-            notes = "Gets a Context by the Context ID from the set of assigned contexts.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class)
+            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Content Not Found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(path = "/contexts/{contextId}/assigned",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ContextGetResponseDto> getAssignedContextByContextId(
-            @ApiParam(name = "ContextID", required = true, value = "The ID of the context you want to get from the set of assigned contexts.")
+    public ResponseEntity<ContextGetResponseDto> getAssignedContext(
+            @ApiParam(name = "ContextID", required = true,
+                    value = "The ID of the context you want to get from the set of assigned contexts.")
             @PathVariable UUID contextId,
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) throws Exception {
-        ContextGetResponseDto response =
-                contextService.getAssignedContextByContextIdAndAssigneeId(contextId, profileId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
+        return new ResponseEntity<>(
+                entityMapper.mapAssignedContextEntityToContextGetResponseDto(
+                        contextService.findAssignedContext(contextId, profileId))
+                , HttpStatus.OK);
     }
 
+    // TODO We need to clarify how will be integrated the Update for Contexts in Nile
+    /*
     @ApiOperation(value = "Update context", notes = "Updates the context data and adds assignees to the context.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
@@ -185,5 +190,6 @@ public class ContextController {
         result.setId(context.getId());
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
+    */
 
 }
