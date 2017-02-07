@@ -3,6 +3,9 @@ package com.quizzes.api.core.controllers;
 import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
+import com.quizzes.api.core.model.entities.ContextEntity;
+import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.services.ContextService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,6 +41,9 @@ public class ContextController {
 
     @Autowired
     private ContextService contextService;
+
+    @Autowired
+    private EntityMapper entityMapper;
 
     @ApiOperation(
             value = "Creates Assignment",
@@ -84,7 +90,11 @@ public class ContextController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextGetResponseDto>> getCreatedContexts(
             @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        return new ResponseEntity<>(contextService.findCreatedContexts(profileId), HttpStatus.OK);
+        List<ContextEntity> contexts = contextService.findCreatedContexts(profileId);
+        return new ResponseEntity<>(
+                contexts.stream().map(context -> entityMapper.mapContextEntityToContextGetResponseDto(context))
+                        .collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     @ApiOperation(
@@ -104,7 +114,10 @@ public class ContextController {
                     value = "The ID of the context you want to get from the set of created contexts.")
             @PathVariable UUID contextId,
             @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        return new ResponseEntity<>(contextService.findCreatedContext(contextId, profileId), HttpStatus.OK);
+        return new ResponseEntity<>(
+                entityMapper.mapContextEntityToContextGetResponseDto(
+                        contextService.findCreatedContext(contextId, profileId))
+                , HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Assigned Contexts",
@@ -121,7 +134,11 @@ public class ContextController {
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextGetResponseDto>> getAssignedContexts(
             @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        return new ResponseEntity<>(contextService.findAssignedContexts(profileId), HttpStatus.OK);
+        List<AssignedContextEntity> contexts = contextService.findAssignedContexts(profileId);
+        return new ResponseEntity<>(
+                contexts.stream().map(context -> entityMapper.mapAssignedContextEntityToContextGetResponseDto(context))
+                        .collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Assigned Context by ID",
@@ -141,7 +158,10 @@ public class ContextController {
                     value = "The ID of the context you want to get from the set of assigned contexts.")
             @PathVariable UUID contextId,
             @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        return new ResponseEntity<>(contextService.findAssignedContext(contextId, profileId), HttpStatus.OK);
+        return new ResponseEntity<>(
+                entityMapper.mapAssignedContextEntityToContextGetResponseDto(
+                        contextService.findAssignedContext(contextId, profileId))
+                , HttpStatus.OK);
     }
 
     // TODO We need to clarify how will be integrated the Update for Contexts in Nile

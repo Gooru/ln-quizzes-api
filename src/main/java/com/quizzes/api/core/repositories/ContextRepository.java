@@ -13,6 +13,8 @@ import java.util.UUID;
 
 public interface ContextRepository {
 
+    Context findById(UUID id);
+
     ContextEntity findCreatedContextByContextIdAndProfileId(UUID contextId, UUID profileId);
 
     List<ContextEntity> findCreatedContextsByProfileId(UUID profileId);
@@ -24,9 +26,6 @@ public interface ContextRepository {
     Context save(Context context);
 
 
-    Context findById(UUID id);
-
-    ContextOwnerEntity findContextOwnerById(UUID id);
 
 
 

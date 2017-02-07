@@ -6,9 +6,9 @@ import java.util.UUID;
 
 public interface ContextEntity {
 
-    UUID getId();
+    UUID getContextId();
 
-    void setId(UUID contextId);
+    void setContextId(UUID contextId);
 
     UUID getCollectionId();
 
