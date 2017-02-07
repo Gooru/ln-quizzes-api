@@ -1,16 +1,10 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 const NileApiUrl = require('./quizzesTestConfiguration.js').nileApiUrl;
 const frisby = require('frisby');
+const atob = require('atob');
 
 var testUsers = {};
-    testUsers["teacherqa01"] = {"firstname": "teacherqa01", "lastname": "teacherqa01", "identityId": "teacherqa01@edify.cr"};
-    testUsers["teacherqa02"] = {"firstname": "teacherqa02", "lastname": "teacherqa02", "identityId": "teacherqa02@edify.cr"};
-    testUsers["teacherqa03"] = {"firstname": "teacherqa03", "lastname": "teacherqa03", "identityId": "teacherqa03@edify.cr"};
-    testUsers["studentqa01"] = {"firstname": "studentqa01", "lastname": "studentqa01", "identityId": "studentqa01@edify.cr"};
-    testUsers["studentqa02"] = {"firstname": "studentqa02", "lastname": "studentqa02", "identityId": "studentqa02@edify.cr"};
-    testUsers["studentqa03"] = {"firstname": "studentqa03", "lastname": "studentqa03", "identityId": "studentqa03@edify.cr"};
-    testUsers["studentqa04"] = {"firstname": "studentqa04", "lastname": "studentqa04", "identityId": "studentqa04@edify.cr"};
-    testUsers["studentqa05"] = {"firstname": "studentqa05", "lastname": "studentqa05", "identityId": "studentqa05@edify.cr"};
+    testUsers["testuser01"] = {"firstname": "TestUser", "lastname": "QAOne", "identityId": "testuser01@edify.cr"};
 
 var quizzesCommon = {
 
@@ -56,16 +50,20 @@ var quizzesCommon = {
             .toss();
     },
 
+    getProfileIdFromToken : function(token) {
+        return Buffer(token, 'base64').toString().split(":")[1];
+    },
+
     startTest: function (title, functionalTest) {
         console.log("\n ****** Executing Functional Test: " + title + " ****** \n");
         functionalTest();
     },
 
     createContext: function (afterJsonFunction) {
-        this.getAuthorizationToken("teacherqa01", function (authResponse) {
+        this.getAuthorizationToken("testuser01", function (authResponse) {
             frisby.create('Test context creation for teacherqa01')
                 .post(QuizzesApiUrl + '/v1/contexts', {
-                    'collectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+                    'collectionId': '88c9bdd1-fe37-45fd-b294-75c54654d665',
                     'contextData': {
                         'contextMap': {
                             'classId': 'class-id-1'
@@ -81,7 +79,7 @@ var quizzesCommon = {
 //                .expectHeaderContains('content-type', 'application/json')
 //                .inspectJSON()
                 .afterJSON(function (context) {
-                    afterJsonFunction(context);
+                    afterJsonFunction(context, authResponse);
                 })
                 .toss();
         })
@@ -94,7 +92,7 @@ var quizzesCommon = {
      * @param afterJsonFunction function to call on afterJSON
      */
     createContextWithParams: function (body, afterJsonFunction) {
-        this.getAuthorizationToken("teacherqa01", function (authResponse) {
+        this.getAuthorizationToken("testuser01", function (authResponse) {
             frisby.create('Test context creation using body ' + body)
                 .post(QuizzesApiUrl + '/v1/contexts', body, {json: true})
                 .addHeader('Authorization', 'Token ' + authResponse.access_token)
