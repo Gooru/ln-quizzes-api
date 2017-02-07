@@ -1,59 +1,86 @@
 package com.quizzes.api.core.dtos;
 
-import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 
-import java.util.List;
 import java.util.UUID;
 
 public class ContextGetResponseDto {
 
-    private UUID id;
-
-    private CollectionDto collection;
-
-    private long createdDate;
-
-    private long modifiedDate;
-
+    private UUID contextId;
+    private UUID collectionId;
+    private Boolean isCollection;
+    private UUID profileId;
+    private UUID classId;
+    private Boolean isActive;
+    private Long startDate;
+    private Long dueDate;
     private ContextDataDto contextData;
+    private Long createdDate;
+    private Long modifiedDate;
+    private Boolean hasStarted;
 
-    private IdResponseDto owner;
-
-    private List<IdResponseDto> assignees;
-
-    private Boolean hasStarted = null;
-
-    public UUID getId() {
-        return id;
+    public UUID getContextId() {
+        return contextId;
     }
 
-    public void setId(UUID id) {
-        this.id = id;
+    public void setContextId(UUID contextId) {
+        this.contextId = contextId;
     }
 
-    public CollectionDto getCollection() {
-        return collection;
+    public UUID getCollectionId() {
+        return collectionId;
     }
 
-    public void setCollection(CollectionDto collection) {
-        this.collection = collection;
+    public void setCollectionId(UUID collectionId) {
+        this.collectionId = collectionId;
     }
 
-    public long getCreatedDate(){
-        return this.createdDate;
+    public Boolean getIsCollection() {
+        return isCollection;
     }
 
-    public void setCreatedDate(long createdDate){
-        this.createdDate = createdDate;
+    public void setIsCollection(Boolean isCollection) {
+        this.isCollection = isCollection;
     }
 
-    public void setModifiedDate(long modifiedDate){
-        this.modifiedDate = modifiedDate;
+    public UUID getProfileId() {
+        return profileId;
     }
 
-    public long getModifiedDate(){
-        return this.modifiedDate;
+    public void setProfileId(UUID profileId) {
+        this.profileId = profileId;
+    }
+
+    public UUID getClassId() {
+        return classId;
+    }
+
+    public void setClassId(UUID classId) {
+        this.classId = classId;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Long getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Long startDate) {
+        this.startDate = startDate;
+    }
+
+    public Long getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(Long dueDate) {
+        this.dueDate = dueDate;
     }
 
     public ContextDataDto getContextData() {
@@ -64,27 +91,27 @@ public class ContextGetResponseDto {
         this.contextData = contextData;
     }
 
-    public IdResponseDto getOwner() {
-        return owner;
+    public Long getCreatedDate() {
+        return createdDate;
     }
 
-    public void setOwner(IdResponseDto owner) {
-        this.owner = owner;
+    public void setCreatedDate(Long createdDate) {
+        this.createdDate = createdDate;
     }
 
-    public List<IdResponseDto> getAssignees() {
-        return assignees;
+    public Long getModifiedDate() {
+        return modifiedDate;
     }
 
-    public void setAssignees(List<IdResponseDto> assignees) {
-        this.assignees = assignees;
+    public void setModifiedDate(Long modifiedDate) {
+        this.modifiedDate = modifiedDate;
     }
 
-    public boolean getHasStarted() {
+    public Boolean getHasStarted() {
         return hasStarted;
     }
 
-    public void setHasStarted(boolean hasStarted) {
+    public void setHasStarted(Boolean hasStarted) {
         this.hasStarted = hasStarted;
     }
 

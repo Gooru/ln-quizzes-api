@@ -49,14 +49,12 @@ public class ContextEventController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDto.class),
             @ApiResponse(code = 500, message = "Bad request")})
-    @RequestMapping(path = "/contexts/{contextId}/start",
-            method = RequestMethod.POST,
+    @RequestMapping(path = "/contexts/{contextId}/start", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
             @ApiParam(value = "Id of the context that will be started", required = true, name = "ContextID")
             @PathVariable UUID contextId,
-            @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-            @RequestHeader(value = "profile-id") UUID profileId) {
+            @RequestAttribute(value = "profileId") UUID profileId) {
         return new ResponseEntity<>(contextEventService.processStartContextEvent(contextId, profileId), HttpStatus.OK);
     }
 
@@ -146,7 +144,7 @@ public class ContextEventController {
         if (assigneeProfileId != authorizationProfileUUID) {
             //this means that an authorized user is requesting for an assignee attempts
             //we need to verify that this user is the owner of the context
-            contextService.findByIdAndOwnerId(contextId, authorizationProfileUUID);
+            contextService.findCreatedContext(contextId, authorizationProfileUUID);
         }
 
         AttemptIdsResponseDto attemptIdsDto = contextProfileService.findContextProfileAttemptIds(contextId, assigneeProfileId);
