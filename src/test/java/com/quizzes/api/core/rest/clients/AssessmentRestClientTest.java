@@ -1,7 +1,6 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
@@ -10,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.HttpEntity;
@@ -90,9 +88,9 @@ public class AssessmentRestClientTest {
         doReturn(assessmentContentDto).when(assessmentRestClient).getAssessment(assessmentId, userToken);
 
         List<ResourceContentDto> result =
-                assessmentRestClient.getAssessmentResources(assessmentId, userToken);
+                assessmentRestClient.getAssessmentQuestions(assessmentId, userToken);
 
-        verify(assessmentRestClient, times(1)).getAssessmentResources(assessmentId, userToken);
+        verify(assessmentRestClient, times(1)).getAssessmentQuestions(assessmentId, userToken);
         assertEquals("Wrong resources size", 1, result.size());
     }
 

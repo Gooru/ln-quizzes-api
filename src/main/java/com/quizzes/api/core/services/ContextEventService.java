@@ -470,7 +470,7 @@ public class ContextEventService {
 
     private List<ResourceContentDto> getCollectionResources(UUID collectionId, boolean isCollection, String token) {
         return isCollection ? collectionRestClient.getCollectionResources(collectionId.toString(), token) :
-                assessmentRestClient.getAssessmentResources(collectionId.toString(), token);
+                assessmentRestClient.getAssessmentQuestions(collectionId.toString(), token);
     }
 
     /*
