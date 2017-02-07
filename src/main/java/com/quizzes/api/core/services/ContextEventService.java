@@ -402,8 +402,6 @@ public class ContextEventService {
     private int calculateScoreForMultipleChoice(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
         if (userAnswers.size() != correctAnswers.size()) {
             return 0;
-        } else if (userAnswers.isEmpty() && correctAnswers.isEmpty()) {
-            return 100;
         }
 
         boolean result = correctAnswers.stream().map(AnswerDto::getValue).collect(Collectors.toList())

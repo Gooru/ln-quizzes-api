@@ -1158,6 +1158,16 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void calculateScoreForMultipleChoiceRightAnswersForEmptyArrays() throws Exception {
+        List<AnswerDto> userAnswers = new ArrayList<>();
+        List<AnswerDto> correctAnswers = new ArrayList<>();
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
     public void calculateScoreForMultipleChoiceWrongAnswers() throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
