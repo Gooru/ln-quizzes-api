@@ -10,6 +10,9 @@ public class AnswerContentDto {
     @SerializedName("answer_type")
     private String answerType;
 
+    @SerializedName("highlight_type")
+    private String highlightType;
+
     @SerializedName("is_correct")
     private String isCorrect;
 
@@ -34,6 +37,14 @@ public class AnswerContentDto {
 
     public void setAnswerType(String answerType) {
         this.answerType = answerType;
+    }
+
+    public String getHighlightType() {
+        return highlightType;
+    }
+
+    public void setHighlightType(String highlightType) {
+        this.highlightType = highlightType;
     }
 
     public String isCorrect() {
