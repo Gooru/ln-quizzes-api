@@ -999,6 +999,16 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void calculateScoreForTextEntryCaseInsensitiveRightAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("ONE"), createAnswerDto(" two "), createAnswerDto("THRee "));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("One"), createAnswerDto("Two"), createAnswerDto("Three"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.TextEntry.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
     public void calculateScoreForTextEntryWrongAnswers() throws Exception {
         calculateScoreForOrderedMultipleChoiceWrongAnswers(QuestionTypeEnum.TextEntry);
     }

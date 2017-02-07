@@ -445,16 +445,16 @@ public class CollectionServiceTest {
         List<AnswerDto> resultWord = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 2, resultWord.size());
-        assertEquals("Wrong first correct answer value", encodeAnswer("big,4"), resultWord.get(0).getValue());
-        assertEquals("Wrong second correct answer value", encodeAnswer("down,22"), resultWord.get(1).getValue());
+        assertEquals("Wrong first correct answer value", "big,4", resultWord.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "down,22", resultWord.get(1).getValue());
 
         resourceContentDto = createHotTextHighlightResourceContentDto("sentence");
 
         List<AnswerDto> resultSentence = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 2, resultSentence.size());
-        assertEquals("Wrong first correct answer value", encodeAnswer("big bad wolf,4"), resultSentence.get(0).getValue());
-        assertEquals("Wrong second correct answer value", encodeAnswer("down the house.,22"), resultSentence.get(1).getValue());
+        assertEquals("Wrong first correct answer value", "big bad wolf,4", resultSentence.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "down the house.,22", resultSentence.get(1).getValue());
     }
 
     @Test
@@ -464,8 +464,8 @@ public class CollectionServiceTest {
         List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 2, result.size());
-        assertEquals("Wrong first correct answer value", encodeAnswer("12"), result.get(0).getValue());
-        assertEquals("Wrong second correct answer value", encodeAnswer("6"), result.get(1).getValue());
+        assertEquals("Wrong first correct answer value", "12", result.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "6", result.get(1).getValue());
     }
 
     @Test
@@ -660,11 +660,6 @@ public class CollectionServiceTest {
         resourceDto.setSequence(sequence);
         resourceDto.setMetadata(metadata);
         return resourceDto;
-    }
-
-    private String encodeAnswer(String answer) {
-        byte[] message = answer.getBytes(StandardCharsets.UTF_8);
-        return Base64.getEncoder().encodeToString(message);
     }
 
 }
