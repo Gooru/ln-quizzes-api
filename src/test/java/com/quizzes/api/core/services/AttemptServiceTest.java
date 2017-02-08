@@ -11,16 +11,9 @@ import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
-import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.services.AttemptService;
-import com.quizzes.api.core.services.ContextProfileEventService;
-import com.quizzes.api.core.services.ContextProfileService;
-import com.quizzes.api.core.services.ContextService;
-import com.quizzes.api.core.services.CurrentContextProfileService;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -199,14 +191,14 @@ public class AttemptServiceTest {
         contextProfileIds.add(UUID.randomUUID());
         contextProfileIds.add(UUID.randomUUID());
 
-        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
+        when(contextProfileService.findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class))).
                 thenReturn(contextProfileIds);
 
         AttemptIdsResponseDto result = attemptService.findAttemptIds(any(UUID.class),
                 any(UUID.class));
 
         verify(contextProfileService, times(1)).
-                findContextProfileAttemptIds(any(UUID.class), any(UUID.class));
+                findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class));
 
         assertNotNull("Result is null", result);
         assertEquals("Attempts size is incorrect", 3, result.getAttempts().size());

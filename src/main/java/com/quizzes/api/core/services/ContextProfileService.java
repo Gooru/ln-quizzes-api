@@ -36,7 +36,7 @@ public class ContextProfileService {
         return contextProfileRepository.findContextProfileIdsByContextId(contextId);
     }
 
-    public List<UUID> findContextProfileAttemptIds(UUID contextId, UUID assigneeId) {
+    public List<UUID> findContextProfileIdsByContextIdAndProfileId(UUID contextId, UUID assigneeId) {
         return contextProfileRepository.findContextProfileIdsByContextIdAndProfileId(contextId, assigneeId);
     }
 

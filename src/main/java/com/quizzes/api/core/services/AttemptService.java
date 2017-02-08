@@ -9,13 +9,7 @@ import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
-import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.services.ContextProfileEventService;
-import com.quizzes.api.core.services.ContextProfileService;
-import com.quizzes.api.core.services.ContextService;
-import com.quizzes.api.core.services.CurrentContextProfileService;
 import com.quizzes.api.core.services.content.CollectionService;
-import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +51,7 @@ public class AttemptService {
 
     public AttemptIdsResponseDto findAttemptIds(UUID contextId, UUID assigneeId) {
         AttemptIdsResponseDto result = new AttemptIdsResponseDto();
-        List<IdResponseDto> ids = contextProfileService.findContextProfileAttemptIds(contextId, assigneeId).
+        List<IdResponseDto> ids = contextProfileService.findContextProfileIdsByContextIdAndProfileId(contextId, assigneeId).
                 stream().map(IdResponseDto::new).collect(Collectors.toList());
         result.setAttempts(ids);
         return result;
