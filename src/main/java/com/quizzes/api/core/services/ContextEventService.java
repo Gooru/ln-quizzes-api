@@ -346,7 +346,9 @@ public class ContextEventService {
             case SingleChoice:
                 return calculateScoreForSimpleOption(userAnswers, correctAnswers);
             case DragAndDrop:
-                return calculateScoreForDragAndDrop(userAnswers, correctAnswers);
+                return calculateScoreForOrderedMultipleChoice(userAnswers, correctAnswers);
+            case TextEntry:
+                return calculateScoreForCaseInsensitiveOrderedMultipleChoice(userAnswers, correctAnswers);
             case MultipleChoice:
             case MultipleChoiceImage:
             case MultipleChoiceText:
@@ -374,13 +376,36 @@ public class ContextEventService {
     }
 
     /**
-     * Drag and Drop method
+     * Compares user and correct answers, including the answer order
+     * Values are trimmed and case is ignored
+     *
+     * Works for text_entry
      *
      * @param userAnswers    Answers provided by the user
      * @param correctAnswers Correct answers for the question
      * @return the score
      */
-    private int calculateScoreForDragAndDrop(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+    private int calculateScoreForCaseInsensitiveOrderedMultipleChoice(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+        if (userAnswers.size() < correctAnswers.size()) {
+            return 0;
+        }
+        boolean isAnswerCorrect = IntStream.range(0, correctAnswers.size() - 1)
+                .allMatch(i -> correctAnswers.get(i).getValue().trim()
+                        .equalsIgnoreCase(userAnswers.get(i).getValue().trim()));
+
+        return isAnswerCorrect ? 100 : 0;
+    }
+
+    /**
+     * Compares user and correct answers, including the answer order
+     *
+     * Works for drag_and_drop
+     *
+     * @param userAnswers    Answers provided by the user
+     * @param correctAnswers Correct answers for the question
+     * @return the score
+     */
+    private int calculateScoreForOrderedMultipleChoice(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
         if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
@@ -392,8 +417,10 @@ public class ContextEventService {
     }
 
     /**
-     * Multiple Answer method compares the answers with the correct answer ignoring the order
-     * Works for multiple_choice, multiple_choice_image and multiple_choice_text
+     * Compares user and correct answers, order is not important
+     *
+     * Works for multiple_choice, multiple_choice_image, multiple_choice_text, hot_text_word and
+     * hot_text_sentence
      *
      * @param userAnswers    Answers provided by the user
      * @param correctAnswers Correct answers for the question

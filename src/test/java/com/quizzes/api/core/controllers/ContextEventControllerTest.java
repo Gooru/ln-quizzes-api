@@ -1,12 +1,15 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileEventResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.services.ContextEventService;
 import com.quizzes.api.core.services.ContextProfileService;
 import com.quizzes.api.core.services.ContextService;
@@ -29,8 +32,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -161,7 +165,7 @@ public class ContextEventControllerTest {
         answers.add(answerDto);
 
         //Setting Events
-        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers,1234, false);
+        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers, 1234, false);
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event);
 
@@ -223,7 +227,7 @@ public class ContextEventControllerTest {
         List<AnswerDto> answers = new ArrayList<>();
 
         //Setting Events
-        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers,1234, true);
+        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers, 1234, true);
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event);
 
@@ -270,6 +274,60 @@ public class ContextEventControllerTest {
         assertEquals("TimeSpent is not 1234", 1234, eventResult.getTimeSpent());
         assertTrue("Answer is not empty", eventResult.getAnswer().isEmpty());
         assertEquals("It's not skipped", true, eventResult.getIsSkipped());
+    }
+
+    @Test
+    public void getContextProfileAttempIds() throws Exception {
+
+        when(contextService.findCreatedContext(eq(contextId), eq(ownerId))).thenReturn(null);
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(eq(contextId), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(contextId, UUID.randomUUID(), ownerId.toString());
+
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
+
+    @Test(expected = InvalidOwnerException.class)
+    public void getContextProfileAttempIdsWithDifferentOwner() throws Exception {
+
+        when(contextService.findCreatedContext(eq(contextId), not(eq(ownerId)))).thenThrow(new InvalidOwnerException("Invalid owner"));
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(contextId, UUID.randomUUID(), UUID.randomUUID().toString());
+
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void getContextProfileAttempIdsWithNoContext() throws Exception {
+
+        when(contextService.findCreatedContext(not(eq(contextId)), eq(ownerId))).thenThrow(new ContentNotFoundException("Context not found"));
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(UUID.randomUUID(), UUID.randomUUID(), ownerId.toString());
+
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
     }
 
     private PostResponseResourceDto createPostResponseResourceDto(int score, int reaction, UUID resourceId,

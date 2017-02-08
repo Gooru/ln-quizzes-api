@@ -11,6 +11,8 @@ public class ResourceContentDto {
 
     private String title;
 
+    private String description;
+
     @SerializedName("content_format")
     private String contentFormat;
 
@@ -43,6 +45,14 @@ public class ResourceContentDto {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getContentSubformat() {
