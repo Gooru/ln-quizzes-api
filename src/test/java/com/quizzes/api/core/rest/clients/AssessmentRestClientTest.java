@@ -79,19 +79,4 @@ public class AssessmentRestClientTest {
         verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
     }
 
-    @Test
-    public void getCollectionResources() throws Exception {
-        AssessmentContentDto assessmentContentDto = new AssessmentContentDto();
-        assessmentContentDto.setId(assessmentId);
-        assessmentContentDto.setQuestions(Arrays.asList(new ResourceContentDto()));
-
-        doReturn(assessmentContentDto).when(assessmentRestClient).getAssessment(assessmentId, userToken);
-
-        List<ResourceContentDto> result =
-                assessmentRestClient.getAssessmentQuestions(assessmentId, userToken);
-
-        verify(assessmentRestClient, times(1)).getAssessmentQuestions(assessmentId, userToken);
-        assertEquals("Wrong resources size", 1, result.size());
-    }
-
 }

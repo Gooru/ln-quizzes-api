@@ -3,7 +3,6 @@ package com.quizzes.api.core.services;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.quizzes.api.core.dtos.ClassMemberContentDto;
-import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
@@ -14,10 +13,8 @@ import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
-import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
@@ -229,50 +226,6 @@ public class ContextServiceTest {
 
         assertNotNull("Response is Null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result.getId());
-    }
-//    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
-//        ContextProfileWithContextEntity entity =
-//                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
-//        if (entity == null) {
-//            throw new ContentNotFoundException("Context not found for ID: " + contextId);
-//        }
-//
-//        if (entity.getProfileId() == null) {
-//            throw new InvalidAssigneeException("Profile ID: " + profileId + " not assigned to the context ID: "
-//                    + contextId);
-//        }
-//        return entity;
-//    }
-
-    @Test
-    public void findProfileIdInContext() throws Exception {
-        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
-
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
-
-        ContextProfileWithContextEntity result = contextService.findProfileIdInContext(contextId, profileId);
-
-        verify(contextRepository, times(1)).findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong context Id", contextId, result.getContextId());
-        assertEquals("Wrong profile Id", profileId, result.getProfileId());
-    }
-
-    @Test(expected = InvalidAssigneeException.class)
-    public void findProfileIdInContextThrowsInvalidAssigneeException() throws Exception {
-        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
-        when(entity.getProfileId()).thenReturn(null);
-
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
-
-        contextService.findProfileIdInContext(contextId, profileId);
-    }
-
-    @Test(expected = ContentNotFoundException.class)
-    public void findProfileIdInContextThrowsContentNotFoundException() throws Exception {
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(null);
-        contextService.findProfileIdInContext(contextId, profileId);
     }
 
     @Test
@@ -824,17 +777,6 @@ public class ContextServiceTest {
         contextPostRequestDto.setCollectionId(collectionId);
         contextPostRequestDto.setContextData(createContextDataDto());
         return contextPostRequestDto;
-    }
-
-    private ContextProfileWithContextEntity createContextProfileContextEntity() {
-        ContextProfileWithContextEntity entityMock = mock(ContextProfileWithContextEntity.class);
-
-        when(entityMock.getIsComplete()).thenReturn(true);
-        when(entityMock.getContextProfileId()).thenReturn(contextProfileId);
-        when(entityMock.getContextId()).thenReturn(contextId);
-        when(entityMock.getCollectionId()).thenReturn(collectionId);
-        when(entityMock.getProfileId()).thenReturn(profileId);
-        return entityMock;
     }
 
 }

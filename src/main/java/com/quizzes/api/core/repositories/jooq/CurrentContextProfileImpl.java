@@ -1,5 +1,7 @@
 package com.quizzes.api.core.repositories.jooq;
 
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.CurrentContextProfileRepository;
 import org.jooq.DSLContext;
@@ -8,7 +10,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+import static com.quizzes.api.core.model.jooq.tables.Context.CONTEXT;
 import static com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
+import static com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
 
 @Repository
 public class CurrentContextProfileImpl implements CurrentContextProfileRepository {
@@ -24,6 +28,23 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
                 .where(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
                 .fetchOneInto(CurrentContextProfile.class);
+    }
+
+    @Override
+    public ContextProfileEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        return jooq.select(CONTEXT.ID.as("ContextId"), CONTEXT.IS_COLLECTION, CONTEXT.COLLECTION_ID,
+                CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.PROFILE_ID, CONTEXT_PROFILE.ID.as("ContextProfileId"),
+                CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("CurrentContextProfileId"))
+                .from(CONTEXT)
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
+                .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .leftJoin(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
+                .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .where(CONTEXT.ID.eq(contextId))
+                .and(CONTEXT.IS_ACTIVE.eq(true))
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .orderBy(CONTEXT_PROFILE.CREATED_AT.desc()).limit(1)
+                .fetchOneInto(ContextProfileEntity.class);
     }
 
     @Override

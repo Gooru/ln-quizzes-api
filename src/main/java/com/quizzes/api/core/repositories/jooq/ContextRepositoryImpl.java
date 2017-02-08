@@ -4,7 +4,6 @@ import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
 import org.jooq.DSLContext;
@@ -180,22 +179,6 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .and(CONTEXT.IS_ACTIVE.eq(true))
                 .fetchOneInto(ContextOwnerEntity.class);
         */
-    }
-
-    @Override
-    public ContextProfileWithContextEntity findContextProfileAndContextByContextIdAndProfileId(UUID contextId,
-                                                                                               UUID profileId) {
-        return jooq.select(CONTEXT.ID.as("context_id"), CONTEXT.COLLECTION_ID, CONTEXT_PROFILE.PROFILE_ID,
-                CONTEXT_PROFILE.ID.as("context_profile_id"), CONTEXT_PROFILE.IS_COMPLETE)
-                .from(CONTEXT)
-                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
-                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
-                .where(CONTEXT.ID.eq(contextId))
-                .and(CONTEXT.IS_ACTIVE.eq(true))
-                .and(CONTEXT.IS_DELETED.eq(false))
-                .orderBy(CONTEXT_PROFILE.CREATED_AT.desc())
-                .limit(1)
-                .fetchOneInto(ContextProfileWithContextEntity.class);
     }
 
     @Override

@@ -143,8 +143,10 @@ public class ContextEventControllerTest {
 
     @Test
     public void addEvent() throws Exception {
-        ResponseEntity<?> result = controller.onResourceEvent(UUID.randomUUID(), UUID.randomUUID(),
-                new OnResourceEventPostRequestDto(), "quizzes", UUID.randomUUID());
+        OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
+        ResponseEntity<?> result = controller.onResourceEvent(resourceId, contextId,
+                body, profileId);
+
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
@@ -163,7 +165,7 @@ public class ContextEventControllerTest {
         answers.add(answerDto);
 
         //Setting Events
-        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers,1234, false);
+        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers, 1234, false);
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event);
 
@@ -225,7 +227,7 @@ public class ContextEventControllerTest {
         List<AnswerDto> answers = new ArrayList<>();
 
         //Setting Events
-        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers,1234, true);
+        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers, 1234, true);
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event);
 
