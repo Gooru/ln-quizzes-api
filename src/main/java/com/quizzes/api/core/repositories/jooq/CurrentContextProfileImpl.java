@@ -1,6 +1,7 @@
 package com.quizzes.api.core.repositories.jooq;
 
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.CurrentContextProfileRepository;
 import org.jooq.DSLContext;
@@ -30,7 +31,7 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
     }
 
     @Override
-    public AssignedContextEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
+    public ContextProfileEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
         return jooq.select(CONTEXT.ID.as("ContextId"), CONTEXT.IS_COLLECTION, CONTEXT.COLLECTION_ID,
                 CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.PROFILE_ID, CONTEXT_PROFILE.ID.as("ContextProfileId"),
                 CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("CurrentContextProfileId"))
@@ -43,7 +44,7 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
                 .and(CONTEXT.IS_ACTIVE.eq(true))
                 .and(CONTEXT.IS_DELETED.eq(false))
                 .orderBy(CONTEXT_PROFILE.CREATED_AT.desc()).limit(1)
-                .fetchOneInto(AssignedContextEntity.class);
+                .fetchOneInto(ContextProfileEntity.class);
     }
 
     @Override

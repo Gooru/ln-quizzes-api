@@ -12,12 +12,4 @@ public interface AssignedContextEntity extends ContextEntity {
 
     void setCurrentContextProfileId(UUID currentContextProfileId);
 
-    UUID getCurrentResourceId();
-
-    void setCurrentResourceId(UUID currentResourceId);
-
-    Boolean getIsComplete();
-
-    void setIsComplete(Boolean isComplete);
-
 }

@@ -18,6 +18,7 @@ import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
@@ -123,7 +124,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithContextProfileIsCompleteTrue() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
         when(entity.getIsComplete()).thenReturn(true);
         when(entity.getCurrentContextProfileId()).thenReturn(contextProfileId);
 
@@ -152,7 +153,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithContextProfileIsCompleteFalse() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
         when(entity.getIsComplete()).thenReturn(false);
         when(entity.getCurrentContextProfileId()).thenReturn(contextProfileId);
 
@@ -179,7 +180,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithoutCurrentContextProfile() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
 
         StartContextEventResponseDto startContextEventResponseDto = createStartContextEventResponseDto();
 
@@ -205,7 +206,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void createContextProfilePrivateMethod() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
         ContextProfile contextProfile = createContextProfile();
 
         doReturn(contextProfile).when(contextEventService, "createContextProfileObject", contextId, profileId);
@@ -227,7 +228,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void createCurrentContextProfilePrivateMethod() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
 
         doReturn(currentContextProfile).when(contextEventService, "createCurrentContextProfileObject",
@@ -251,7 +252,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContext() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
         when(entity.getCurrentResourceId()).thenReturn(resourceId);
 
         doNothing().when(contextEventService, "sendStartEventMessage",
@@ -330,7 +331,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void sendStartEventMessage() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
         when(entity.getIsComplete()).thenReturn(true);
         when(entity.getCurrentResourceId()).thenReturn(resourceId);
 
@@ -353,7 +354,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void resumeStartContextEvent() throws Exception {
-        AssignedContextEntity entity = createAssignedContextEntity();
+        ContextProfileEntity entity = createContextProfileEntity();
 
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
                 eq(entity), any(ArrayList.class));
@@ -402,7 +403,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processOnResourceEventWithoutEvent() throws Exception {
-        AssignedContextEntity currentContextProfile = createAssignedContextEntity();
+        ContextProfileEntity currentContextProfile = createContextProfileEntity();
         when(currentContextProfile.getIsCollection()).thenReturn(true);
 
         ResourceDto resource = createResourceDto();
@@ -474,7 +475,7 @@ public class ContextEventServiceTest {
     }
 
     public void processOnResourceEventWithoutEventWithoutAnswer() throws Exception {
-        AssignedContextEntity currentContextProfile = createAssignedContextEntity();
+        ContextProfileEntity currentContextProfile = createContextProfileEntity();
         when(currentContextProfile.getIsCollection()).thenReturn(true);
 
         ResourceDto resource = createResourceDto();
@@ -545,7 +546,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processOnResourceEventExistingEvent() throws Exception {
-        AssignedContextEntity currentContextProfile = createAssignedContextEntity();
+        ContextProfileEntity currentContextProfile = createContextProfileEntity();
         when(currentContextProfile.getIsCollection()).thenReturn(true);
 
         ResourceDto resource = createResourceDto();
@@ -1418,6 +1419,17 @@ public class ContextEventServiceTest {
 
     private AssignedContextEntity createAssignedContextEntity() {
         AssignedContextEntity entity = mock(AssignedContextEntity.class);
+
+        when(entity.getContextId()).thenReturn(contextId);
+        when(entity.getCollectionId()).thenReturn(collectionId);
+        when(entity.getProfileId()).thenReturn(profileId);
+        when(entity.getContextProfileId()).thenReturn(contextProfileId);
+
+        return entity;
+    }
+
+    private ContextProfileEntity createContextProfileEntity() {
+        ContextProfileEntity entity = mock(ContextProfileEntity.class);
 
         when(entity.getContextId()).thenReturn(contextId);
         when(entity.getCollectionId()).thenReturn(collectionId);

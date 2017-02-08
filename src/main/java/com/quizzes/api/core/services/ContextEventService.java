@@ -19,6 +19,7 @@ import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
@@ -66,7 +67,7 @@ public class ContextEventService {
     Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
-        AssignedContextEntity entity =
+        ContextProfileEntity entity =
                 currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
 
         if (entity.getCurrentContextProfileId() == null) {
@@ -80,7 +81,7 @@ public class ContextEventService {
 
     public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
                                        OnResourceEventPostRequestDto body) {
-        AssignedContextEntity context =
+        ContextProfileEntity context =
                 currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
         PostRequestResourceDto resourceDto = getPreviousResource(body);
 
@@ -222,27 +223,27 @@ public class ContextEventService {
         eventsToCreate.stream().forEach(event -> contextProfileEventService.save(event));
     }
 
-    private StartContextEventResponseDto createCurrentContextProfile(AssignedContextEntity entity) {
+    private StartContextEventResponseDto createCurrentContextProfile(ContextProfileEntity entity) {
         CurrentContextProfile currentContextProfile = createCurrentContextProfileObject(
                 entity.getContextId(), entity.getProfileId(), entity.getContextProfileId());
         doCurrentContextEventTransaction(currentContextProfile);
         return processStartContext(entity, new ArrayList<>());
     }
 
-    private StartContextEventResponseDto processStartContext(AssignedContextEntity entity,
+    private StartContextEventResponseDto processStartContext(ContextProfileEntity entity,
                                                              List<ContextProfileEvent> contextProfileEvents) {
         sendStartEventMessage(entity.getContextId(), entity.getProfileId(), entity.getCurrentResourceId(), true);
         return prepareStartContextEventResponse(entity.getContextId(), entity.getCurrentResourceId(),
                 entity.getCollectionId(), contextProfileEvents);
     }
 
-    private StartContextEventResponseDto createContextProfile(AssignedContextEntity entity) {
+    private StartContextEventResponseDto createContextProfile(ContextProfileEntity entity) {
         ContextProfile contextProfile = createContextProfileObject(entity.getContextId(), entity.getProfileId());
         doCreateContextProfileTransaction(contextProfile);
         return processStartContext(entity, new ArrayList<>());
     }
 
-    private StartContextEventResponseDto resumeStartContextEvent(AssignedContextEntity entity) {
+    private StartContextEventResponseDto resumeStartContextEvent(ContextProfileEntity entity) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(entity.getContextProfileId());
         return processStartContext(entity, contextProfileEvents);
