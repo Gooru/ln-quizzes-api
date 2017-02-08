@@ -49,9 +49,9 @@ public class AttemptService {
         return response;
     }
 
-    public AttemptIdsResponseDto findAttemptIds(UUID contextId, UUID assigneeId) {
+    public AttemptIdsResponseDto findAttemptIds(UUID contextId, UUID profileId) {
         AttemptIdsResponseDto result = new AttemptIdsResponseDto();
-        List<IdResponseDto> ids = contextProfileService.findContextProfileIdsByContextIdAndProfileId(contextId, assigneeId).
+        List<IdResponseDto> ids = contextProfileService.findContextProfileIdsByContextIdAndProfileId(contextId, profileId).
                 stream().map(IdResponseDto::new).collect(Collectors.toList());
         result.setAttempts(ids);
         return result;
