@@ -76,7 +76,7 @@ public class ContextProfileServiceTest {
                 findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class));
 
         assertNotNull("Result is null", result);
-        assertEquals("Attempts size is incorrect", result.getAttempts().size(), 3);
+        assertEquals("Attempts size is incorrect", 3, result.getAttempts().size());
     }
 
 }

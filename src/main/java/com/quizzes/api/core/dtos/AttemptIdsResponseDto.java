@@ -3,7 +3,7 @@ package com.quizzes.api.core.dtos;
 import java.util.List;
 
 public class AttemptIdsResponseDto {
-    List<IdResponseDto> attempts;
+    private List<IdResponseDto> attempts;
 
     public List<IdResponseDto> getAttempts() {
         return attempts;

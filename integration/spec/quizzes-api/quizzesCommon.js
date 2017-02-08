@@ -1,9 +1,9 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
-const NileApiUrl = require('./quizzesTestConfiguration.js').nileApiUrl;
+const ContentProviderApiUrl = require('./quizzesTestConfiguration.js').contentProviderApiUrl;
 const frisby = require('frisby');
 
 var testUsers = {};
-    testUsers["testuser01"] = {"firstname": "TestUser", "lastname": "QAOne", "identityId": "testuser01@edify.cr"};
+    testUsers["TestAcc01"] = {"firstname": "Test", "lastname": "Acc", "identityId": "acc01@test.com"};
 
 var quizzesCommon = {
 
@@ -28,7 +28,7 @@ var quizzesCommon = {
         var authorizationUser = this.getTestUser(userId);
         console.log("Autorization user " + authorizationUser.identityId);
         frisby.create('Gets the authorization token for ' + userId)
-            .post(NileApiUrl + '/v1/authorize', {
+            .post(ContentProviderApiUrl + '/v1/authorize', {
                 "client_key": "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==",
                 "client_id": "ba956a97-ae15-11e5-a302-f8a963065976",
                 "grant_type": "google",
@@ -59,10 +59,11 @@ var quizzesCommon = {
     },
 
     createContext: function (afterJsonFunction) {
-        this.getAuthorizationToken("testuser01", function (authResponse) {
-            frisby.create('Test context creation for teacherqa01')
+        this.getAuthorizationToken("TestAcc01", function (authResponse) {
+            frisby.create('Test context creation for TestAcc01')
                 .post(QuizzesApiUrl + '/v1/contexts', {
-                    'collectionId': '88c9bdd1-fe37-45fd-b294-75c54654d665',
+                    'collectionId': '3c843308-8864-4ecd-a1c8-75ab423336f2',
+                    'isCollection': false,
                     'contextData': {
                         'contextMap': {
                             'classId': 'class-id-1'
@@ -76,7 +77,7 @@ var quizzesCommon = {
                 //TODO: createContext is not fully working at this point, it is returning null
                 //TODO: once it is complete uncomment this two lines
 //                .expectHeaderContains('content-type', 'application/json')
-//                .inspectJSON()
+                .inspectJSON()
                 .afterJSON(function (context) {
                     afterJsonFunction(context, authResponse);
                 })
@@ -91,7 +92,7 @@ var quizzesCommon = {
      * @param afterJsonFunction function to call on afterJSON
      */
     createContextWithParams: function (body, afterJsonFunction) {
-        this.getAuthorizationToken("testuser01", function (authResponse) {
+        this.getAuthorizationToken("TestAcc", function (authResponse) {
             frisby.create('Test context creation using body ' + body)
                 .post(QuizzesApiUrl + '/v1/contexts', body, {json: true})
                 .addHeader('Authorization', 'Token ' + authResponse.access_token)

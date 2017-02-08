@@ -3,7 +3,7 @@ const QuizzesCommon = require('./quizzesCommon.js');
 var frisby = require('frisby');
 
 QuizzesCommon.startTest("Create Context", function () {
-    QuizzesCommon.getAuthorizationToken("testuser01", function (authResponse) {
+    QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
         QuizzesCommon.createContext(function () {
             //TODO: verify the context once we have the get context endpoint working
 
@@ -11,7 +11,7 @@ QuizzesCommon.startTest("Create Context", function () {
     });
 });
 
-QuizzesCommon.getAuthorizationToken("testuser01", function (authResponse) {
+QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
     frisby.create('Test wrong collection ID')
         .post(QuizzesApiUrl + '/v1/contexts', {
             'collectionId': 'wrong-assessment-id',
@@ -34,7 +34,7 @@ QuizzesCommon.getAuthorizationToken("testuser01", function (authResponse) {
 //TODO: this error will be a controlled 401 instead of 500
 frisby.create('Test context without owner (no authorization token)')
     .post(QuizzesApiUrl + '/v1/contexts', {
-        'collectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+        'collectionId': 'fa3bcf64-6ea8-4cdd-9ebe-359a24f5c9dd',
         'contextData': {
             'contextMap': {
                 'classId': 'class-id-1'
@@ -49,10 +49,10 @@ frisby.create('Test context without owner (no authorization token)')
 //    .expectJSON({"exception":"Missing request attribute \u0027profileId\u0027 of type String"})
     .toss();
 
-QuizzesCommon.getAuthorizationToken("testuser01", function (authResponse) {
+QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
     frisby.create('Test context without contextData')
         .post(QuizzesApiUrl + '/v1/contexts', {
-            'collectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+            'collectionId': 'fa3bcf64-6ea8-4cdd-9ebe-359a24f5c9dd',
         }, {json: true})
         .addHeader('Authorization', 'Token ' + authResponse.access_token)
         .inspectRequest()

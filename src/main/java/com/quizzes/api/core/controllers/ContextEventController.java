@@ -8,6 +8,7 @@ import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.services.ContextEventService;
 import com.quizzes.api.core.services.ContextProfileService;
 import com.quizzes.api.core.services.ContextService;
+import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -137,9 +138,7 @@ public class ContextEventController {
             @ApiParam(value = "Assignee Profile ID", required = true, name = "profileId")
             @PathVariable(name = "profileId") UUID assigneeProfileId,
             @RequestAttribute(value = "profileId") String authorizationProfileId) {
-        if (authorizationProfileId.equals("anonymous")){
-            throw new InvalidOwnerException("Not allowed to run this service");
-        }
+        QuizzesUtils.rejectAnonymous(authorizationProfileId);
         UUID authorizationProfileUUID = UUID.fromString(authorizationProfileId);
         if (assigneeProfileId != authorizationProfileUUID) {
             //this means that an authorized user is requesting for an assignee attempts

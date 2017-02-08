@@ -43,8 +43,7 @@ public class ContextProfileService {
         AttemptIdsResponseDto result = new AttemptIdsResponseDto();
         List<IdResponseDto> ids = contextProfileRepository.
                 findContextProfileIdsByContextIdAndProfileId(contextId, assigneeId).
-                stream().map(uuid -> {IdResponseDto idResponseDto = new IdResponseDto();
-                idResponseDto.setId(uuid);
+                stream().map(uuid -> {IdResponseDto idResponseDto = new IdResponseDto(uuid);
                 return idResponseDto;
                 }).collect(Collectors.toList());
         result.setAttempts(ids);

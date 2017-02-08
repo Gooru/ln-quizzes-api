@@ -25,17 +25,17 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .from(CONTEXT_PROFILE)
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
-                .and(CONTEXT_PROFILE.IS_COMPLETE.eq(true))
                 .limit(1)
                 .fetchOneInto(ContextProfile.class);
     }
 
     @Override
     public List<UUID> findContextProfileIdsByContextIdAndProfileId(UUID contextId, UUID profileId) {
-        return jooq.select()
+        return jooq.select(CONTEXT_PROFILE.ID)
                 .from(CONTEXT_PROFILE)
                 .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .and(CONTEXT_PROFILE.IS_COMPLETE.eq(true))
                 .orderBy(CONTEXT_PROFILE.CREATED_AT.asc())
                 .fetch(CONTEXT_PROFILE.ID, UUID.class);
     }
