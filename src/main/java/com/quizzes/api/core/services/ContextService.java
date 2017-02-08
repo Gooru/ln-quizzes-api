@@ -1,33 +1,39 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.*;
-import com.quizzes.api.core.dtos.controller.CollectionDto;
+import com.quizzes.api.core.dtos.ClassMemberContentDto;
+import com.quizzes.api.core.dtos.ContextGetResponseDto;
+import com.quizzes.api.core.dtos.ContextPostRequestDto;
+import com.quizzes.api.core.dtos.ContextPutRequestDto;
+import com.quizzes.api.core.dtos.EventSummaryDataDto;
+import com.quizzes.api.core.dtos.IdResponseDto;
+import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
-import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
+import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
+import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
+import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.repositories.ContextRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.quizzes.api.core.rest.clients.AssessmentRestClient;
+import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
+import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class ContextService {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     ContextProfileService contextProfileService;
@@ -42,73 +48,43 @@ public class ContextService {
     ContextRepository contextRepository;
 
     @Autowired
+    CollectionRestClient collectionRestClient;
+
+    @Autowired
+    AssessmentRestClient assessmentRestClient;
+
+    @Autowired
+    ClassMemberRestClient classMemberRestClient;
+
+    @Autowired
+    AuthenticationRestClient authenticationRestClient;
+
+    @Autowired
     private Gson gson;
 
-    /**
-     * A {@link Collection} is the Quizzes representation of an Assessment in a Content Provider
-     * and in the Content Provider there are original Assessments (an Assessment that it's create from scratch)
-     * and copied Assessments (copied from another Assessment)
-     * In an Original Assessment the Assessment ID is the same as the field Assessment parent ID, this means that
-     * the Assessment has no parent or is not copied from other Assessment.
-     * A copied Assessment has it's own unique ID and in the field parent ID has the ID of the Assessment it is being copied from
-     * In Quizzes each {@link Collection} has it's owner, and that owner matches or represents a Content Provider owner.
-     * A Quizzes owner can use an Assessment he owns in the Content Provider or a "Public" Assessment from a different owner
-     * but in the case of Assessments owned by others then the Quizzes user should copy the Assessment and use that copy.
-     * Some Examples are:
-     * ++Collection ID = c1 with external ID (Assessment ID) = a1 external parent ID (parent Assessment ID) = a1 and owner ID = o1
-     * this is a Collection from an original Assessment, not copied
-     * ++Collection ID = c2 with external ID (Assessment ID) = a2 external parent ID (parent Assessment ID) = a1 and owner ID = o2
-     * this is another's owner (ID = o2) copy of the Assessment ID = a1 and this is the parent Assessment ID
-     * ++Collection ID = c4 with external ID (Assessment ID) = a4 external parent ID (parent Assessment ID) = a2 and owner ID = o3
-     * this is an owner's o3 copy of Assessment ID = a2
-     * ++Collection ID = c5 with external ID (Assessment ID) = a5 external parent ID (parent Assessment ID) = a5 and owner ID = o4
-     * this is an owner's o4 own Assessment ID = a5
-     *
-     * @param contextPostRequestDto information to create the new {@link Context}
-     * @param lms                   {@link Lms} of the {@link Collection} and the Owner and Assignees
-     * @return The only value in the result is the context ID
-     */
+    @Autowired
+    private EntityMapper entityMapper;
+
     @Transactional
-    public IdResponseDto createContext(ContextPostRequestDto contextPostRequestDto) {
-        // TODO Replace this logic
-        /*
-        Profile owner = profileService.findByExternalIdAndLmsId(contextPostRequestDto.getOwner().getId(), lms);
-        if (owner == null) {
-            owner = createProfile(contextPostRequestDto.getOwner(), lms);
-        }
+    public IdResponseDto createContext(ContextPostRequestDto contextDto, UUID profileId, String token) {
+        //TODO: Validate collection, class if exist, profile (could be anonymous)
+        validateCollectionOwner(contextDto.getCollectionId(), contextDto.getIsCollection(), profileId, token);
 
-        Collection collection = collectionService.findByOwnerProfileIdAndExternalParentId(owner.getId(), contextPostRequestDto.getExternalCollectionId());
-
-        if (collection == null) {
-            collection = collectionService.findByExternalId(contextPostRequestDto.getExternalCollectionId());
-            if (collection == null
-                    || (collection != null && !collection.getOwnerProfileId().equals(owner.getId()))) {
-                // the collection is noll OR the collection has a different owner
-                //collection = collectionContentService.createCollection(contextPostRequestDto.getExternalCollectionId(), owner);
-            }
-        }
-
-        Group group = groupService.createGroup(owner.getId());
-        assignProfilesToGroup(group.getId(), contextPostRequestDto.getAssignees(), lms);
-
-        Context context = new Context();
-        context.setCollectionId(collection.getId());
-        context.setGroupId(group.getId());
-        context.setContextData(gson.toJson(contextPostRequestDto.getContextData()));
-
+        Context context = createContextObject(contextDto, profileId);
         context = contextRepository.save(context);
-        IdResponseDto result = new IdResponseDto();
-        result.setId(context.getId());
 
-        return result;
-        */
-        return null;
+        if (contextDto.getClassId() != null) {
+            ClassMemberContentDto classMember =
+                    classMemberRestClient.getClassMembers(contextDto.getClassId().toString(), token);
+            createContextProfiles(classMember.getMemberIds(), context.getId());
+        }
+
+        return new IdResponseDto(context.getId());
     }
 
     /**
      * @param contextId            the id of the context to update
      * @param contextPutRequestDto the assignees and contextData to update
-     * @param lms                  the LMS id
      * @return the updated Context
      */
     @Transactional
@@ -178,103 +154,31 @@ public class ContextService {
         return context;
     }
 
-    public Context findByIdAndOwnerId(UUID contextId, UUID ownerId) {
-        ContextOwnerEntity contextOwner = contextRepository.findContextOwnerById(contextId);
-        if (contextOwner == null) {
-            throw new ContentNotFoundException("Context not found for Context ID: " + contextId);
-        }
-        if (!contextOwner.getOwnerProfileId().equals(ownerId)) {
-            throw new InvalidOwnerException("Invalid Owner ID: " + ownerId + " for Context ID: " + contextId);
-        }
-        return EntityMapper.mapContextEntityToContext(contextOwner);
+    public List<ContextEntity> findCreatedContexts(UUID profileId) {
+        return contextRepository.findCreatedContextsByProfileId(profileId);
     }
 
-    public List<ContextGetResponseDto> findCreatedContexts(UUID ownerId) {
-        List<ContextGetResponseDto> result = new ArrayList<>();
-        Map<UUID, List<ContextAssigneeEntity>> contextByOwnerList =
-                contextRepository.findContextAssigneeByOwnerId(ownerId);
-
-        if (contextByOwnerList != null && contextByOwnerList.entrySet() != null) {
-            contextByOwnerList.forEach(
-                    (key, value) -> {
-                        ContextGetResponseDto contextGetResponseDto = new ContextGetResponseDto();
-                        contextGetResponseDto.setId(key);
-                        if (!value.isEmpty()) {
-                            ContextAssigneeEntity firstEntryValue = value.get(0);
-                            contextGetResponseDto.setContextData(gson.fromJson(firstEntryValue.getContextData(),
-                                    ContextDataDto.class));
-                            CollectionDto collectionDto = new CollectionDto(firstEntryValue.getCollectionId().toString());
-                            contextGetResponseDto.setCollection(collectionDto);
-                            List<IdResponseDto> assignees = value.stream().map(profile -> {
-                                IdResponseDto assignee = new IdResponseDto();
-                                assignee.setId(profile.getAssigneeProfileId());
-                                return assignee;
-                            }).collect(Collectors.toList());
-                            contextGetResponseDto.setAssignees(assignees);
-                            contextGetResponseDto.setCreatedDate(firstEntryValue.getCreatedAt().getTime());
-                            contextGetResponseDto.setModifiedDate(firstEntryValue.getCreatedAt().getTime());
-                            //@TODO Change this value to getModifiedAt when it is available from the DB
-                        }
-                        result.add(contextGetResponseDto);
-
-                    }
-            );
+    public ContextEntity findCreatedContext(UUID contextId, UUID profileId) throws ContentNotFoundException {
+        ContextEntity context = contextRepository.findCreatedContextByContextIdAndProfileId(contextId, profileId);
+        if (context == null) {
+            throw new ContentNotFoundException("Context not found for Context ID: " + contextId
+                    + " and Owner Profile ID: " + profileId);
         }
-        return result;
+        return context;
     }
 
-    public ContextGetResponseDto findCreatedContextByContextIdAndOwnerId(UUID contextId, UUID ownerId) {
-        Map<UUID, List<ContextAssigneeEntity>> result =
-                contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId);
-
-        ContextGetResponseDto response = null;
-
-        if (!result.isEmpty() && result.containsKey(contextId)) {
-            response = new ContextGetResponseDto();
-
-            List<ContextAssigneeEntity> assigneeEntities = result.get(contextId);
-            response.setId(contextId);
-
-            ContextAssigneeEntity firstEntity = assigneeEntities.get(0);
-            response.setContextData(gson.fromJson(firstEntity.getContextData(), ContextDataDto.class));
-
-            CollectionDto collection = new CollectionDto();
-            collection.setId(firstEntity.getCollectionId().toString());
-            response.setCollection(collection);
-
-            List<IdResponseDto> assignees = assigneeEntities.stream().map(profile -> {
-                IdResponseDto assignee = new IdResponseDto();
-                assignee.setId(profile.getAssigneeProfileId());
-                return assignee;
-            }).collect(Collectors.toList());
-
-            response.setAssignees(assignees);
-            response.setCreatedDate(firstEntity.getCreatedAt().getTime());
-            response.setModifiedDate(firstEntity.getUpdatedAt().getTime());
-        } else {
-            throw new ContentNotFoundException("We could not find the context: " + contextId + ".");
-        }
-        return response;
+    public List<AssignedContextEntity> findAssignedContexts(UUID profileId) {
+        return contextRepository.findAssignedContextsByProfileId(profileId);
     }
 
-    /**
-     * Finds the list of all {@link ContextOwnerEntity} for an assignee based on four criteria.
-     * 1 - assigneeId, mandatory
-     * 2 - isActive flag, optional param, default is true
-     * 3 - startDate, optional, default is null
-     * 4 - dueDate, optional, default is null
-     *
-     * @param assigneeId      This is mandatory
-     * @param isActive        if null, then the default is true, can't be used with startDate or dueDate
-     * @param startDateMillis start date milliseconds, if not null the query looks for records with startDate >= than this param, can't be used with isActive
-     * @param dueDateMillis   due date milliseconds, if not null the query looks for records with dueDate <= than this param, can't be used with isActive
-     * @return the list of {@link ContextAssigneeEntity} found
-     */
-
-    public List<ContextGetResponseDto> getAssignedContexts(UUID assigneeId, Boolean isActive, Long startDateMillis, Long dueDateMillis) {
-        return contextRepository.findContextOwnerByAssigneeIdAndFilters(assigneeId, isActive, startDateMillis, dueDateMillis).stream()
-                .map(context -> mapContextOwnerEntityToContextAssignedDto(context))
-                .collect(Collectors.toList());
+    public AssignedContextEntity findAssignedContext(UUID contextId, UUID profileId) throws ContentNotFoundException {
+        AssignedContextEntity context =
+                contextRepository.findAssignedContextByContextIdAndProfileId(contextId, profileId);
+        if (context == null) {
+            throw new ContentNotFoundException("Context not found for Context ID: " + contextId
+                    + " and Assignee Profile ID: " + profileId);
+        }
+        return context;
     }
 
     public ContextGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId)
@@ -288,35 +192,77 @@ public class ContextService {
         return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
-    public Context findByIdAndAssigneeId(UUID contextId, UUID assigneeId) {
-        List<ContextAssigneeEntity> assigneeEntities = contextRepository.findContextAssigneeByContextId(contextId);
-        if (assigneeEntities.isEmpty()) {
+    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
+        ContextProfileWithContextEntity entity =
+                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
+        if (entity == null) {
             throw new ContentNotFoundException("Context not found for ID: " + contextId);
         }
-        ContextAssigneeEntity contextAssigneeEntity = assigneeEntities.stream()
-                .filter(entity -> entity.getAssigneeProfileId().equals(assigneeId))
-                .findAny()
-                .orElse(null);
-        if (contextAssigneeEntity == null) {
-            throw new InvalidAssigneeException("Profile ID: " + assigneeId + " not assigned to the context ID: " + contextId);
+
+        if (entity.getProfileId() == null) {
+            throw new InvalidAssigneeException("Profile ID: " + profileId + " not assigned to the context ID: "
+                    + contextId);
         }
-        Context result = new Context();
-        result.setId(contextAssigneeEntity.getId());
-        result.setCollectionId(contextAssigneeEntity.getCollectionId());
-        result.setContextData(contextAssigneeEntity.getContextData());
-        return result;
+        return entity;
     }
 
     private ContextGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {
         ContextGetResponseDto contextAssigned = new ContextGetResponseDto();
+        // TODO Fix this
+        /*
         contextAssigned.setId(contextOwner.getId());
         contextAssigned.setCollection(new CollectionDto(contextOwner.getCollectionId().toString()));
         contextAssigned.setCreatedDate(contextOwner.getCreatedAt().getTime());
         contextAssigned.setHasStarted(contextOwner.getContextProfileId() != null);
         contextAssigned.setOwner(new IdResponseDto(contextOwner.getOwnerProfileId()));
         contextAssigned.setContextData(gson.fromJson(contextOwner.getContextData(), ContextDataDto.class));
+        */
 
         return contextAssigned;
+    }
+
+    private Context createContextObject(ContextPostRequestDto contextDto, UUID profileId) {
+        Context context = new Context();
+        context.setProfileId(profileId);
+        context.setClassId(contextDto.getClassId());
+        context.setCollectionId(contextDto.getCollectionId());
+        context.setContextData(gson.toJson(contextDto.getContextData()));
+        context.setIsCollection(contextDto.getIsCollection());
+        return context;
+    }
+
+    private UUID getCollectionOwnerId(String collectionId, boolean isCollection, String token) {
+        CollectionContentDto collectionContentDto = isCollection ?
+                collectionRestClient.getCollection(collectionId, token) :
+                assessmentRestClient.getAssessment(collectionId, token);
+
+        return collectionContentDto.getOwnerId();
+    }
+
+    private void validateCollectionOwner(UUID collectionId, boolean isCollection, UUID profileId, String token) {
+        UUID ownerId = getCollectionOwnerId(collectionId.toString(), isCollection, token);
+        if (!ownerId.equals(profileId)) {
+            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID:" +
+                    collectionId + ".");
+        }
+    }
+
+    private void createContextProfiles(List<UUID> memberIds, UUID contextId) {
+        if (memberIds != null && !memberIds.isEmpty()) {
+            memberIds.forEach(memberId -> {
+                ContextProfile contextProfile = createContextProfile(contextId, memberId);
+                contextProfileService.save(contextProfile);
+            });
+        }
+    }
+
+    private ContextProfile createContextProfile(UUID contextId, UUID profileId) {
+        ContextProfile contextProfile = new ContextProfile();
+        contextProfile.setContextId(contextId);
+        contextProfile.setProfileId(profileId);
+        contextProfile.setIsComplete(false);
+        contextProfile.setEventSummaryData(gson.toJson(new EventSummaryDataDto()));
+        return contextProfile;
     }
 
 }

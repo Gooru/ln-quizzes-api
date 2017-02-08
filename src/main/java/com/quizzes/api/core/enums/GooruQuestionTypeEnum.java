@@ -13,7 +13,15 @@ public enum GooruQuestionTypeEnum {
 
     HotSpotImageQuestion("hot_spot_image_question"),
 
-    HotSpotTextQuestion("hot_spot_text_question");
+    HotSpotTextQuestion("hot_spot_text_question"),
+
+    HotTextHighlightQuestion("hot_text_highlight_question"),
+
+    WordHotTextHighlightQuestion("word_hot_text_highlight_question"),
+
+    SentenceHotTextHighlightQuestion("sentence_hot_text_highlight_question"),
+
+    FillInTheBlankQuestion("fill_in_the_blank_question");
 
     private final String literal;
 

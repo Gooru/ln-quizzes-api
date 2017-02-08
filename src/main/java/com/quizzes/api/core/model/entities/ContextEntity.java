@@ -2,31 +2,52 @@ package com.quizzes.api.core.model.entities;
 
 import java.util.UUID;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public interface ContextEntity {
 
-    UUID getId();
+    UUID getContextId();
 
-    void setId(UUID contextId);
+    void setContextId(UUID contextId);
 
     UUID getCollectionId();
 
     void setCollectionId(UUID collectionId);
 
-    UUID getGroupId();
+    Boolean getIsCollection();
 
-    void setGroupId(UUID groupId);
+    void setIsCollection(Boolean isCollection);
 
-    Timestamp getCreatedAt();
+    UUID getProfileId();
 
-    void setCreatedAt(Timestamp createdAt);
+    void setProfileId(UUID profileId);
+
+    UUID getClassId();
+
+    void setClassId(UUID classId);
+
+    boolean getIsActive();
+
+    void setIsActive(boolean isActive);
+
+    Timestamp getStartDate();
+
+    void setStartDate(Timestamp startDate);
+
+    Timestamp getDueDate();
+
+    void setDueDate(Timestamp dueDate);
 
     String getContextData();
 
     void setContextData(String contextData);
 
-    boolean getIsActive();
+    Timestamp getCreatedAt();
 
-    void setIsActive(boolean isActive);
+    void setCreatedAt(Timestamp createdAt);
+
+    Timestamp getUpdatedAt();
+
+    void setUpdatedAt(Timestamp updateAt);
 
 }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 @RestController
@@ -116,6 +117,18 @@ public class ExceptionHandlerController {
     public ExceptionMessageDto handleInvalidRequestException(InvalidRequestException e) {
         logger.error("Invalid request", e);
         return new ExceptionMessageDto("Invalid request", HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    }
+
+    /**
+     * Handles Spring MethodArgumentTypeMismatchException
+     *
+     * @return Bad Request with status 400
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
+    public ExceptionMessageDto handleInvalidRequestException(MethodArgumentTypeMismatchException e) {
+        logger.error("Bad Request", e);
+        return new ExceptionMessageDto("Bad Request", HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 
 }

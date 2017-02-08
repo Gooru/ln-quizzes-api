@@ -24,6 +24,15 @@ public enum QuestionTypeEnum {
     @SerializedName("multiple_choice_text")
     MultipleChoiceText("multiple_choice_text"),
 
+    @SerializedName("hot_text_word")
+    HotTextWord("hot_text_word"),
+
+    @SerializedName("hot_text_sentence")
+    HotTextSentence("hot_text_sentence"),
+
+    @SerializedName("text_entry")
+    TextEntry("text_entry"),
+
     @SerializedName("match")
     Match("match"),
 

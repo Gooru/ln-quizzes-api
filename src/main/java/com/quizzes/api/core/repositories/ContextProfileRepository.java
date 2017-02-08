@@ -9,6 +9,8 @@ public interface ContextProfileRepository {
 
     ContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId);
 
+    List<UUID> findContextProfileIdsByContextIdAndProfileId(UUID contextId, UUID profileId);
+
     List<UUID> findContextProfileIdsByContextId(UUID contextId);
 
     ContextProfile save(ContextProfile contextProfile);

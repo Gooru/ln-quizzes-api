@@ -1,13 +1,15 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileEventResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
-import com.quizzes.api.core.model.jooq.tables.pojos.Context;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.services.ContextEventService;
 import com.quizzes.api.core.services.ContextProfileService;
 import com.quizzes.api.core.services.ContextService;
@@ -21,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +32,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -55,6 +58,8 @@ public class ContextEventControllerTest {
     private UUID collectionId;
     private UUID resourceId;
     private UUID ownerId;
+    private UUID profileId;
+    private String token;
 
     @Before
     public void before() throws Exception {
@@ -62,6 +67,8 @@ public class ContextEventControllerTest {
         collectionId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
         ownerId = UUID.randomUUID();
+        profileId = UUID.randomUUID();
+        token = UUID.randomUUID().toString();
     }
 
     @Test
@@ -77,47 +84,33 @@ public class ContextEventControllerTest {
 
         //Setting Events
         UUID resource1 = UUID.randomUUID();
-        PostResponseResourceDto event1 = new PostResponseResourceDto();
-        event1.setScore(0);
-        event1.setReaction(0);
-        event1.setResourceId(resource1);
-        event1.setAnswer(answers);
-        event1.setTimeSpent(1234);
-        event1.setIsSkipped(false);
+        PostResponseResourceDto event1 = createPostResponseResourceDto(0, 0, resource1, answers, 1234, false);
 
         UUID resource2 = UUID.randomUUID();
-        PostResponseResourceDto event2 = new PostResponseResourceDto();
-        event2.setScore(0);
-        event2.setReaction(0);
-        event2.setResourceId(resource2);
-        event2.setAnswer(new ArrayList<>());
-        event2.setTimeSpent(1234);
-        event2.setIsSkipped(true);
+        PostResponseResourceDto event2 = createPostResponseResourceDto(0, 0, resource2, new ArrayList<>(), 1234, true);
 
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event1);
         events.add(event2);
 
         StartContextEventResponseDto startContext = new StartContextEventResponseDto();
-        startContext.setId(contextId);
+        startContext.setContextId(contextId);
         startContext.setCurrentResourceId(resourceId);
-        startContext.setCollection(collection);
+        startContext.setCollectionId(collectionId);
         startContext.setEvents(events);
 
-        when(contextService.findByIdAndAssigneeId(any(UUID.class), any(UUID.class))).thenReturn(new Context());
 
         when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
 
-        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(UUID.randomUUID(),
-                "quizzes", UUID.randomUUID());
+        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(contextId, profileId);
 
-        verify(contextEventService, times(1)).processStartContextEvent(any(UUID.class), any(UUID.class));
+        verify(contextEventService, times(1)).processStartContextEvent(contextId, profileId);
 
         StartContextEventResponseDto resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
         assertEquals("Wrong resource id is null", resourceId, resultBody.getCurrentResourceId());
-        assertEquals("Wrong id", contextId, resultBody.getId());
-        assertEquals("Wrong collection id", collection.getId(), resultBody.getCollection().getId());
+        assertEquals("Wrong id", contextId, resultBody.getContextId());
+        assertEquals("Wrong collection id", collectionId, resultBody.getCollectionId());
         assertEquals("Wrong collection id", 2, resultBody.getEvents().size());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
 
@@ -139,9 +132,9 @@ public class ContextEventControllerTest {
     }
 
     @Test
-    public void finishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(UUID.randomUUID(), "its_learning", UUID.randomUUID());
-        verify(contextEventService, times(1)).processFinishContextEvent(any(UUID.class), any(UUID.class));
+    public void processFinishContextEvent() throws Exception {
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId, token);
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId, token);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
@@ -170,13 +163,7 @@ public class ContextEventControllerTest {
         answers.add(answerDto);
 
         //Setting Events
-        PostResponseResourceDto event = new PostResponseResourceDto();
-        event.setScore(0);
-        event.setReaction(0);
-        event.setResourceId(resourceId);
-        event.setAnswer(answers);
-        event.setTimeSpent(1234);
-        event.setIsSkipped(false);
+        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers,1234, false);
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event);
 
@@ -238,13 +225,7 @@ public class ContextEventControllerTest {
         List<AnswerDto> answers = new ArrayList<>();
 
         //Setting Events
-        PostResponseResourceDto event = new PostResponseResourceDto();
-        event.setScore(0);
-        event.setReaction(0);
-        event.setResourceId(resourceId);
-        event.setAnswer(answers);
-        event.setTimeSpent(1234);
-        event.setIsSkipped(true);
+        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers,1234, true);
         List<PostResponseResourceDto> events = new ArrayList<>();
         events.add(event);
 
@@ -291,6 +272,73 @@ public class ContextEventControllerTest {
         assertEquals("TimeSpent is not 1234", 1234, eventResult.getTimeSpent());
         assertTrue("Answer is not empty", eventResult.getAnswer().isEmpty());
         assertEquals("It's not skipped", true, eventResult.getIsSkipped());
+    }
+
+    @Test
+    public void getContextProfileAttempIds() throws Exception {
+
+        when(contextService.findCreatedContext(eq(contextId), eq(ownerId))).thenReturn(null);
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(eq(contextId), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(contextId, UUID.randomUUID(), ownerId.toString());
+
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
+
+    @Test(expected = InvalidOwnerException.class)
+    public void getContextProfileAttempIdsWithDifferentOwner() throws Exception {
+
+        when(contextService.findCreatedContext(eq(contextId), not(eq(ownerId)))).thenThrow(new InvalidOwnerException("Invalid owner"));
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(contextId, UUID.randomUUID(), UUID.randomUUID().toString());
+
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void getContextProfileAttempIdsWithNoContext() throws Exception {
+
+        when(contextService.findCreatedContext(not(eq(contextId)), eq(ownerId))).thenThrow(new ContentNotFoundException("Context not found"));
+
+        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
+        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
+                thenReturn(attemptIdsResponseDto);
+
+        ResponseEntity<AttemptIdsResponseDto> response = controller.
+                getContextProfileAttempIds(UUID.randomUUID(), UUID.randomUUID(), ownerId.toString());
+
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+
+        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
+                any(UUID.class));
+    }
+
+    private PostResponseResourceDto createPostResponseResourceDto(int score, int reaction, UUID resourceId,
+                                                                  List<AnswerDto> answers, long timespent,
+                                                                  boolean isSkipped) {
+        PostResponseResourceDto event = new PostResponseResourceDto();
+        event.setScore(score);
+        event.setReaction(reaction);
+        event.setResourceId(resourceId);
+        event.setAnswer(answers);
+        event.setTimeSpent(timespent);
+        event.setIsSkipped(isSkipped);
+        return event;
     }
 
 }

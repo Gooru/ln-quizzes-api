@@ -25,8 +25,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -318,18 +320,18 @@ public class CollectionServiceTest {
     public void mapQuestionResource() throws Exception {
         ResourceContentDto resourceContentDto = createQuestionContentDto();
 
-        doReturn(trueFalseQuestion).when(collectionService, "mapQuestionType", trueFalseQuestion);
+        doReturn(trueFalseQuestion).when(collectionService, "mapQuestionType", resourceContentDto);
         doReturn(Arrays.asList(new AnswerDto("A"))).when(collectionService, "getCorrectAnswers",
-                resourceContentDto.getAnswers());
+                resourceContentDto);
         doReturn(createInteractionDto()).when(collectionService, "createInteraction",
-                resourceContentDto.getAnswers());
+                resourceContentDto);
 
         ResourceMetadataDto result =
                 WhiteboxImpl.invokeMethod(collectionService, "mapQuestionResource", resourceContentDto);
 
-        verifyPrivate(collectionService, times(1)).invoke("mapQuestionType", trueFalseQuestion);
-        verifyPrivate(collectionService, times(1)).invoke("getCorrectAnswers", resourceContentDto.getAnswers());
-        verifyPrivate(collectionService, times(1)).invoke("createInteraction", resourceContentDto.getAnswers());
+        verifyPrivate(collectionService, times(1)).invoke("mapQuestionType", resourceContentDto);
+        verifyPrivate(collectionService, times(1)).invoke("getCorrectAnswers", resourceContentDto);
+        verifyPrivate(collectionService, times(1)).invoke("createInteraction", resourceContentDto);
 
         assertEquals("Wrong title", questionTitle, result.getTitle());
         assertEquals("Wrong body", questionTitle, result.getBody());
@@ -345,12 +347,41 @@ public class CollectionServiceTest {
     }
 
     @Test
+    public void getBody() throws Exception {
+        ResourceContentDto resourceContentDto = createQuestionContentDto();
+
+        String result = WhiteboxImpl.invokeMethod(collectionService, "getBody", resourceContentDto);
+
+        assertEquals("Wrong body content", resourceContentDto.getTitle(), result);
+    }
+
+    @Test
+    public void getBodyHotTextHighlight() throws Exception {
+        ResourceContentDto resourceContentDto = createHotTextHighlightResourceContentDto("word");
+
+        String result = WhiteboxImpl.invokeMethod(collectionService, "getBody", resourceContentDto);
+
+        assertEquals("Wrong body content", "The big bad wolf blew down the house.", result);
+    }
+
+    @Test
+    public void getBodyFillInTheBlank() throws Exception {
+        ResourceContentDto resourceContentDto = createFillInTheBlankResourceContentDto();
+
+        String result = WhiteboxImpl.invokeMethod(collectionService, "getBody", resourceContentDto);
+
+        assertEquals("Wrong body content", "(3x4) = []<br />(3x2) = []", result);
+    }
+
+    @Test
     public void createInteraction() throws Exception {
         AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "text");
         AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "text");
         List<AnswerContentDto> answers = Arrays.asList(answer1, answer2);
+        ResourceContentDto resourceContentDto = createQuestionContentDto();
+        resourceContentDto.setAnswers(answers);
 
-        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", answers);
+        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
 
         assertEquals("Wrong number of maxChoices", 0, result.getMaxChoices());
         assertEquals("Wrong prompt value", "", result.getPrompt());
@@ -365,6 +396,24 @@ public class CollectionServiceTest {
     }
 
     @Test
+    public void createInteractionHotTextHighlight() throws Exception {
+        ResourceContentDto resourceContentDto = createHotTextHighlightResourceContentDto("word");
+
+        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
+
+        assertNull("Interaction is null", result);
+    }
+
+    @Test
+    public void createInteractionFillInTheBlank() throws Exception {
+        ResourceContentDto resourceContentDto = createFillInTheBlankResourceContentDto();
+
+        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
+
+        assertNull("Interaction is null", result);
+    }
+
+    @Test
     public void createCollectionDto() throws Exception {
         CollectionDto result =
                 WhiteboxImpl.invokeMethod(collectionService, "createCollectionDto", collectionId, collectionTitle);
@@ -374,12 +423,14 @@ public class CollectionServiceTest {
     }
 
     @Test
-    public void getCorrectAnswers() throws Exception {
+    public void getCorrectAnswersMultipleChoice() throws Exception {
         AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "text");
         AnswerContentDto answer2 = createAnswerContentDto("2", "false", 2, "text");
         List<AnswerContentDto> answers = Arrays.asList(answer1, answer2);
+        ResourceContentDto resourceContentDto = createQuestionContentDto();
+        resourceContentDto.setAnswers(answers);
 
-        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", answers);
+        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 1, result.size());
 
@@ -388,21 +439,92 @@ public class CollectionServiceTest {
     }
 
     @Test
+    public void getCorrectAnswersHotTextHighlight() throws Exception {
+        ResourceContentDto resourceContentDto = createHotTextHighlightResourceContentDto("word");
+
+        List<AnswerDto> resultWord = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
+
+        assertEquals("Wrong number of answers", 2, resultWord.size());
+        assertEquals("Wrong first correct answer value", "big,4", resultWord.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "down,22", resultWord.get(1).getValue());
+
+        resourceContentDto = createHotTextHighlightResourceContentDto("sentence");
+
+        List<AnswerDto> resultSentence = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
+
+        assertEquals("Wrong number of answers", 2, resultSentence.size());
+        assertEquals("Wrong first correct answer value", "big bad wolf,4", resultSentence.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "down the house.,22", resultSentence.get(1).getValue());
+    }
+
+    @Test
+    public void getCorrectAnswersFillInTheBlank() throws Exception {
+        ResourceContentDto resourceContentDto = createFillInTheBlankResourceContentDto();
+
+        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
+
+        assertEquals("Wrong number of answers", 2, result.size());
+        assertEquals("Wrong first correct answer value", "12", result.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "6", result.get(1).getValue());
+    }
+
+    @Test
     public void mapQuestionType() throws Exception {
+        ResourceContentDto resourceContentDto = new ResourceContentDto();
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral());
         String trueFalseQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
-                GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral());
+                resourceContentDto);
         assertEquals("True/False question type wrongly mapped",
                 QuestionTypeEnum.TrueFalse.getLiteral(), trueFalseQuestionType);
+
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
         String singleChoiceQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
-                GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
-        assertEquals("MultipleChoice question type wrongly mapped",
+                resourceContentDto);
+        assertEquals("SingleChoice question type wrongly mapped",
                 QuestionTypeEnum.SingleChoice.getLiteral(), singleChoiceQuestionType);
+
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
         String dragAndDropQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
-                GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
+                resourceContentDto);
         assertEquals("DragAndDrop question type wrongly mapped",
                 QuestionTypeEnum.DragAndDrop.getLiteral(), dragAndDropQuestionType);
+
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.MultipleAnswerQuestion.getLiteral());
+        String multipleChoiceQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
+                resourceContentDto);
+        assertEquals("MultipleChoice question type wrongly mapped",
+                QuestionTypeEnum.MultipleChoice.getLiteral(), multipleChoiceQuestionType);
+
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotSpotImageQuestion.getLiteral());
+        String multipleChoiceImageQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
+                resourceContentDto);
+        assertEquals("MultipleChoiceImage question type wrongly mapped",
+                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), multipleChoiceImageQuestionType);
+
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotSpotTextQuestion.getLiteral());
+        String multipleChoiceTextQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
+                resourceContentDto);
+        assertEquals("MultipleChoiceText question type wrongly mapped",
+                QuestionTypeEnum.MultipleChoiceText.getLiteral(), multipleChoiceTextQuestionType);
+
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral());
+        AnswerContentDto answer = new AnswerContentDto();
+        answer.setHighlightType("word");
+        resourceContentDto.setAnswers(Arrays.asList(answer));
+        String hotTextWordQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
+                resourceContentDto);
+        assertEquals("HotTextWord question type wrongly mapped",
+                QuestionTypeEnum.HotTextWord.getLiteral(), hotTextWordQuestionType);
+        answer.setHighlightType("sentence");
+        resourceContentDto.setAnswers(Arrays.asList(answer));
+        String hotTextSentenceQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
+                resourceContentDto);
+        assertEquals("HotTextSentence question type wrongly mapped",
+                QuestionTypeEnum.HotTextSentence.getLiteral(), hotTextSentenceQuestionType);
+
+        resourceContentDto.setContentSubformat("unknown");
         String noneQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
-                "unknown");
+                resourceContentDto);
         assertEquals("None question type wrongly mapped",
                 QuestionTypeEnum.None.getLiteral(), noneQuestionType);
     }
@@ -431,11 +553,38 @@ public class CollectionServiceTest {
         return resourceContentDto;
     }
 
+    private ResourceContentDto createHotTextHighlightResourceContentDto(String highlightType) {
+        ResourceContentDto resourceContentDto = new ResourceContentDto();
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral());
+        AnswerContentDto answer = highlightType.equals("word") ?
+                createAnswerContentDto("1", "1", 1, "The [big] bad wolf blew [down] the house.", "word") :
+                createAnswerContentDto("1", "1", 1, "The [big bad wolf] blew [down the house.]", "sentence");
+        resourceContentDto.setAnswers(Arrays.asList(answer));
+
+        return resourceContentDto;
+    }
+
+    private ResourceContentDto createFillInTheBlankResourceContentDto() {
+        ResourceContentDto resourceContentDto = new ResourceContentDto();
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral());
+        resourceContentDto.setDescription("(3x4) = [12]<br />(3x2) = [6]");
+        AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "12");
+        AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "6");
+        resourceContentDto.setAnswers(Arrays.asList(answer1, answer2));
+
+        return resourceContentDto;
+    }
+
     private AnswerContentDto createAnswerContentDto(String id, String isCorrect, int sequence, String text) {
+        return createAnswerContentDto(id, isCorrect, sequence, text, null);
+    }
+
+    private AnswerContentDto createAnswerContentDto(String id, String isCorrect, int sequence, String text, String highlightType) {
         AnswerContentDto answer = new AnswerContentDto();
         answer.setIsCorrect(isCorrect);
         answer.setSequence(sequence);
         answer.setAnswerText(text);
+        answer.setHighlightType(highlightType);
         answer.setId(id);
         return answer;
     }

@@ -2,7 +2,9 @@ package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
+import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
@@ -23,6 +25,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.List;
 
 @Component
 public class CollectionRestClient {
@@ -82,7 +85,7 @@ public class CollectionRestClient {
         }
     }
 
-    public String copyAssessment(String collectionId, String token) {
+    public String copyCollection(String collectionId, String token) {
         String endpointUrl = configurationService.getContentApiUrl() + COLLECTIONS_COPIER_PATH;
 
         if (logger.isDebugEnabled()) {
@@ -108,6 +111,11 @@ public class CollectionRestClient {
             logger.error("Gooru Collection copy '" + collectionId + "' could not be processed.", e);
             throw new InternalServerException("Collection copy " + collectionId + " could not be processed.", e);
         }
+    }
+
+    public List<ResourceContentDto> getCollectionResources(String collectionId, String token) {
+        CollectionContentDto collectionContentDto = getCollection(collectionId, token);
+        return collectionContentDto.getContent();
     }
 
 }
