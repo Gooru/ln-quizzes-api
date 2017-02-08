@@ -2,10 +2,10 @@ package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
-import com.quizzes.api.core.dtos.ContextEventsResponseDto;
+import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
-import com.quizzes.api.core.dtos.ProfileEventResponseDto;
+import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
@@ -23,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,7 +58,6 @@ public class ContextEventControllerTest {
     private UUID contextId;
     private UUID collectionId;
     private UUID resourceId;
-    private UUID ownerId;
     private UUID profileId;
     private String token;
 
@@ -66,7 +66,6 @@ public class ContextEventControllerTest {
         contextId = UUID.randomUUID();
         collectionId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
-        ownerId = UUID.randomUUID();
         profileId = UUID.randomUUID();
         token = UUID.randomUUID().toString();
     }
@@ -150,184 +149,6 @@ public class ContextEventControllerTest {
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
-    }
-
-    @Test
-    public void getContextEventsIsSkippedFalse() throws Exception {
-        //Setting collectionDto
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(collectionId.toString());
-
-        //Setting Answers
-        AnswerDto answerDto = new AnswerDto();
-        answerDto.setValue("A");
-        List<AnswerDto> answers = new ArrayList<>();
-        answers.add(answerDto);
-
-        //Setting Events
-        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers, 1234, false);
-        List<PostResponseResourceDto> events = new ArrayList<>();
-        events.add(event);
-
-        //Setting ProfileEvents
-        UUID currentResourceId = UUID.randomUUID();
-        UUID profileId = UUID.randomUUID();
-        ProfileEventResponseDto profileEventResponseDto = new ProfileEventResponseDto();
-        profileEventResponseDto.setCurrentResourceId(currentResourceId);
-        profileEventResponseDto.setProfileId(profileId);
-        profileEventResponseDto.setEvents(events);
-
-        List<ProfileEventResponseDto> profileEvents = new ArrayList<>();
-        profileEvents.add(profileEventResponseDto);
-
-        //Creating studentEventDto mock
-        ContextEventsResponseDto contextEvents = new ContextEventsResponseDto();
-        contextEvents.setContextId(contextId);
-        contextEvents.setCollection(collectionDto);
-        contextEvents.setProfileEvents(profileEvents);
-
-        when(contextEventService.getContextEvents(any(UUID.class), any(UUID.class))).thenReturn(contextEvents);
-
-        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes",
-                ownerId);
-
-        verify(contextEventService, times(1)).getContextEvents(contextId, ownerId);
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-
-        ContextEventsResponseDto resultBody = result.getBody();
-        assertEquals("Invalid context ID", contextId, resultBody.getContextId());
-        assertEquals("Invalid collection ID", collectionId.toString(), resultBody.getCollection().getId());
-        assertEquals("Wrong size in profile events", 1, resultBody.getProfileEvents().size());
-
-        ProfileEventResponseDto profileEventResult = resultBody.getProfileEvents().get(0);
-        assertEquals("Invalid current resource ID", currentResourceId, profileEventResult.getCurrentResourceId());
-        assertEquals("Invalid profile ID", profileId, profileEventResult.getProfileId());
-        assertEquals("Invalid number of events", 1, profileEventResult.getEvents().size());
-
-        PostResponseResourceDto eventResult = profileEventResult.getEvents().get(0);
-        assertEquals("Score is not 0", 0, eventResult.getScore());
-        assertEquals("Reaction is not 0", 0, eventResult.getReaction());
-        assertEquals("TimeSpent is not 1234", 1234, eventResult.getTimeSpent());
-        assertEquals("Invalid number of answers", 1, eventResult.getAnswer().size());
-        assertEquals("Answer is not A", "A", eventResult.getAnswer().get(0).getValue());
-        assertEquals("It's not skipped", false, eventResult.getIsSkipped());
-    }
-
-    @Test
-    public void getContextEventsIsSkippedTrue() throws Exception {
-
-        //Setting collectionDto
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(collectionId.toString());
-
-        //Setting Answers
-        AnswerDto answerDto = new AnswerDto();
-        List<AnswerDto> answers = new ArrayList<>();
-
-        //Setting Events
-        PostResponseResourceDto event = createPostResponseResourceDto(0, 0, resourceId, answers, 1234, true);
-        List<PostResponseResourceDto> events = new ArrayList<>();
-        events.add(event);
-
-        //Setting ProfileEvents
-        UUID currentResourceId = UUID.randomUUID();
-        UUID profileId = UUID.randomUUID();
-        ProfileEventResponseDto profileEventResponseDto = new ProfileEventResponseDto();
-        profileEventResponseDto.setCurrentResourceId(currentResourceId);
-        profileEventResponseDto.setProfileId(profileId);
-        profileEventResponseDto.setEvents(events);
-
-        List<ProfileEventResponseDto> profileEvents = new ArrayList<>();
-        profileEvents.add(profileEventResponseDto);
-
-        //Creating studentEventDto mock
-        ContextEventsResponseDto contextEvents = new ContextEventsResponseDto();
-        contextEvents.setContextId(contextId);
-        contextEvents.setCollection(collectionDto);
-        contextEvents.setProfileEvents(profileEvents);
-
-        when(contextEventService.getContextEvents(any(UUID.class), any(UUID.class))).thenReturn(contextEvents);
-
-        ResponseEntity<ContextEventsResponseDto> result = controller.getContextEvents(contextId, "quizzes",
-                ownerId);
-
-        verify(contextEventService, times(1)).getContextEvents(contextId, ownerId);
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-
-        ContextEventsResponseDto resultBody = result.getBody();
-        assertEquals("Invalid context ID", contextId, resultBody.getContextId());
-        assertEquals("Invalid collection ID", collectionId.toString(), resultBody.getCollection().getId());
-        assertEquals("Wrong size in profile events", 1, resultBody.getProfileEvents().size());
-
-        ProfileEventResponseDto profileEventResult = resultBody.getProfileEvents().get(0);
-        assertEquals("Invalid current resource ID", currentResourceId, profileEventResult.getCurrentResourceId());
-        assertEquals("Invalid profile ID", profileId, profileEventResult.getProfileId());
-        assertEquals("Invalid number of events", 1, profileEventResult.getEvents().size());
-
-        PostResponseResourceDto eventResult = profileEventResult.getEvents().get(0);
-        assertEquals("Score is not 0", 0, eventResult.getScore());
-        assertEquals("Reaction is not 0", 0, eventResult.getReaction());
-        assertEquals("TimeSpent is not 1234", 1234, eventResult.getTimeSpent());
-        assertTrue("Answer is not empty", eventResult.getAnswer().isEmpty());
-        assertEquals("It's not skipped", true, eventResult.getIsSkipped());
-    }
-
-    @Test
-    public void getContextProfileAttempIds() throws Exception {
-
-        when(contextService.findCreatedContext(eq(contextId), eq(ownerId))).thenReturn(null);
-
-        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
-        when(contextProfileService.findContextProfileAttemptIds(eq(contextId), any(UUID.class))).
-                thenReturn(attemptIdsResponseDto);
-
-        ResponseEntity<AttemptIdsResponseDto> response = controller.
-                getContextProfileAttempIds(contextId, UUID.randomUUID(), ownerId.toString());
-
-        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
-
-        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
-                any(UUID.class));
-    }
-
-    @Test(expected = InvalidOwnerException.class)
-    public void getContextProfileAttempIdsWithDifferentOwner() throws Exception {
-
-        when(contextService.findCreatedContext(eq(contextId), not(eq(ownerId)))).thenThrow(new InvalidOwnerException("Invalid owner"));
-
-        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
-        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
-                thenReturn(attemptIdsResponseDto);
-
-        ResponseEntity<AttemptIdsResponseDto> response = controller.
-                getContextProfileAttempIds(contextId, UUID.randomUUID(), UUID.randomUUID().toString());
-
-        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
-
-        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
-                any(UUID.class));
-    }
-
-    @Test(expected = ContentNotFoundException.class)
-    public void getContextProfileAttempIdsWithNoContext() throws Exception {
-
-        when(contextService.findCreatedContext(not(eq(contextId)), eq(ownerId))).thenThrow(new ContentNotFoundException("Context not found"));
-
-        AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
-        when(contextProfileService.findContextProfileAttemptIds(any(UUID.class), any(UUID.class))).
-                thenReturn(attemptIdsResponseDto);
-
-        ResponseEntity<AttemptIdsResponseDto> response = controller.
-                getContextProfileAttempIds(UUID.randomUUID(), UUID.randomUUID(), ownerId.toString());
-
-        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
-
-        verify(contextProfileService, times(1)).findContextProfileAttemptIds(any(UUID.class),
-                any(UUID.class));
     }
 
     private PostResponseResourceDto createPostResponseResourceDto(int score, int reaction, UUID resourceId,

@@ -2,15 +2,14 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
-import com.quizzes.api.core.dtos.ContextEventsResponseDto;
+import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
-import com.quizzes.api.core.dtos.ProfileEventResponseDto;
+import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
-import com.quizzes.api.core.dtos.controller.CollectionDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
@@ -161,44 +160,6 @@ public class ContextEventService {
         doFinishContextEventTransaction(contextProfile, contextProfileEventsToCreate);
 
         sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
-    }
-
-    public ContextEventsResponseDto getContextEvents(UUID contextId, UUID ownerId) {
-        ContextEntity context = contextService.findCreatedContext(contextId, ownerId);
-        Map<UUID, List<AssigneeEventEntity>> assigneeEvents =
-                contextProfileEventService.findByContextId(contextId);
-        ContextEventsResponseDto response = new ContextEventsResponseDto();
-        response.setContextId(contextId);
-
-        CollectionDto collection = new CollectionDto();
-        collection.setId(context.getCollectionId().toString());
-        response.setCollection(collection);
-
-        List<ProfileEventResponseDto> profileEvents = assigneeEvents.entrySet().stream().map(entity -> {
-            List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();
-            ProfileEventResponseDto profileEvent = new ProfileEventResponseDto();
-            profileEvent.setProfileId(entity.getKey());
-
-            AssigneeEventEntity anyAssigneeEventEntity = assigneeEventEntityList.get(0);
-            if (!assigneeEventEntityList.isEmpty()) {
-                profileEvent.setCurrentResourceId(anyAssigneeEventEntity.getCurrentResourceId());
-                profileEvent.setIsComplete(anyAssigneeEventEntity.getIsComplete());
-            }
-
-            profileEvent.setEvents(assigneeEventEntityList.stream()
-                    .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
-                    .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
-                            PostResponseResourceDto.class)).collect(Collectors.toList()));
-
-            EventSummaryDataDto eventSummaryDataDto =
-                    gson.fromJson(anyAssigneeEventEntity.getEventsSummary(), EventSummaryDataDto.class);
-            profileEvent.setContextProfileSummary(eventSummaryDataDto);
-
-            return profileEvent;
-
-        }).collect(Collectors.toList());
-        response.setProfileEvents(profileEvents);
-        return response;
     }
 
     @Transactional

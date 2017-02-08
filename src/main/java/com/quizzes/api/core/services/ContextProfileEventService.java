@@ -16,19 +16,19 @@ public class ContextProfileEventService {
     @Autowired
     ContextProfileEventRepository contextProfileEventRepository;
 
-    List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId) {
+    public List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId) {
         return contextProfileEventRepository.findByContextProfileId(contextProfileId);
     }
 
-    ContextProfileEvent save(ContextProfileEvent contextProfileEvent) {
+    public ContextProfileEvent save(ContextProfileEvent contextProfileEvent) {
         return contextProfileEventRepository.save(contextProfileEvent);
     }
 
-    ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
+    public ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
         return contextProfileEventRepository.findByContextProfileIdAndResourceId(contextProfileId, resourceId);
     }
 
-    Map<UUID, List<AssigneeEventEntity>> findByContextId(UUID contextId){
+    public Map<UUID, List<AssigneeEventEntity>> findByContextId(UUID contextId) {
         return contextProfileEventRepository.findByContextIdGroupByProfileId(contextId);
     }
 
