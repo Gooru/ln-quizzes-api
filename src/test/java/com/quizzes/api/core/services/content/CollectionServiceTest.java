@@ -347,6 +347,33 @@ public class CollectionServiceTest {
     }
 
     @Test
+    public void getBody() throws Exception {
+        ResourceContentDto resourceContentDto = createQuestionContentDto();
+
+        String result = WhiteboxImpl.invokeMethod(collectionService, "getBody", resourceContentDto);
+
+        assertEquals("Wrong body content", resourceContentDto.getTitle(), result);
+    }
+
+    @Test
+    public void getBodyHotTextHighlight() throws Exception {
+        ResourceContentDto resourceContentDto = createHotTextHighlightResourceContentDto("word");
+
+        String result = WhiteboxImpl.invokeMethod(collectionService, "getBody", resourceContentDto);
+
+        assertEquals("Wrong body content", "The big bad wolf blew down the house.", result);
+    }
+
+    @Test
+    public void getBodyFillInTheBlank() throws Exception {
+        ResourceContentDto resourceContentDto = createFillInTheBlankResourceContentDto();
+
+        String result = WhiteboxImpl.invokeMethod(collectionService, "getBody", resourceContentDto);
+
+        assertEquals("Wrong body content", "(3x4) = []<br />(3x2) = []", result);
+    }
+
+    @Test
     public void createInteraction() throws Exception {
         AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "text");
         AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "text");
@@ -370,12 +397,20 @@ public class CollectionServiceTest {
 
     @Test
     public void createInteractionHotTextHighlight() throws Exception {
-        ResourceContentDto resourceContentDto = new ResourceContentDto();
-        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral());
+        ResourceContentDto resourceContentDto = createHotTextHighlightResourceContentDto("word");
 
         InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
 
-        assertNull("Choice Id is null", result);
+        assertNull("Interaction is null", result);
+    }
+
+    @Test
+    public void createInteractionFillInTheBlank() throws Exception {
+        ResourceContentDto resourceContentDto = createFillInTheBlankResourceContentDto();
+
+        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
+
+        assertNull("Interaction is null", result);
     }
 
     @Test
@@ -405,25 +440,32 @@ public class CollectionServiceTest {
 
     @Test
     public void getCorrectAnswersHotTextHighlight() throws Exception {
-        AnswerContentDto answer = createAnswerContentDto("1", "1", 1, "The [big] bad wolf blew [down] the house.", "word");
-        ResourceContentDto resourceContentDto = createQuestionContentDto();
-        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral());
-        resourceContentDto.setAnswers(Arrays.asList(answer));
+        ResourceContentDto resourceContentDto = createHotTextHighlightResourceContentDto("word");
 
         List<AnswerDto> resultWord = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 2, resultWord.size());
-        assertEquals("Wrong first correct answer value", encodeAnswer("big,4"), resultWord.get(0).getValue());
-        assertEquals("Wrong second correct answer value", encodeAnswer("down,22"), resultWord.get(1).getValue());
+        assertEquals("Wrong first correct answer value", "big,4", resultWord.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "down,22", resultWord.get(1).getValue());
 
-        resourceContentDto.getAnswers().get(0).setHighlightType("sentence");
-        resourceContentDto.getAnswers().get(0).setAnswerText("The [big bad wolf] blew [down the house.]");
+        resourceContentDto = createHotTextHighlightResourceContentDto("sentence");
 
         List<AnswerDto> resultSentence = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 2, resultSentence.size());
-        assertEquals("Wrong first correct answer value", encodeAnswer("big bad wolf,4"), resultSentence.get(0).getValue());
-        assertEquals("Wrong second correct answer value", encodeAnswer("down the house.,22"), resultSentence.get(1).getValue());
+        assertEquals("Wrong first correct answer value", "big bad wolf,4", resultSentence.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "down the house.,22", resultSentence.get(1).getValue());
+    }
+
+    @Test
+    public void getCorrectAnswersFillInTheBlank() throws Exception {
+        ResourceContentDto resourceContentDto = createFillInTheBlankResourceContentDto();
+
+        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
+
+        assertEquals("Wrong number of answers", 2, result.size());
+        assertEquals("Wrong first correct answer value", "12", result.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "6", result.get(1).getValue());
     }
 
     @Test
@@ -507,6 +549,28 @@ public class CollectionServiceTest {
         resourceContentDto.setContentSubformat(imageResource);
         resourceContentDto.setContentFormat("resource");
         resourceContentDto.setUrl(url);
+
+        return resourceContentDto;
+    }
+
+    private ResourceContentDto createHotTextHighlightResourceContentDto(String highlightType) {
+        ResourceContentDto resourceContentDto = new ResourceContentDto();
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral());
+        AnswerContentDto answer = highlightType.equals("word") ?
+                createAnswerContentDto("1", "1", 1, "The [big] bad wolf blew [down] the house.", "word") :
+                createAnswerContentDto("1", "1", 1, "The [big bad wolf] blew [down the house.]", "sentence");
+        resourceContentDto.setAnswers(Arrays.asList(answer));
+
+        return resourceContentDto;
+    }
+
+    private ResourceContentDto createFillInTheBlankResourceContentDto() {
+        ResourceContentDto resourceContentDto = new ResourceContentDto();
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral());
+        resourceContentDto.setDescription("(3x4) = [12]<br />(3x2) = [6]");
+        AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "12");
+        AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "6");
+        resourceContentDto.setAnswers(Arrays.asList(answer1, answer2));
 
         return resourceContentDto;
     }
@@ -596,11 +660,6 @@ public class CollectionServiceTest {
         resourceDto.setSequence(sequence);
         resourceDto.setMetadata(metadata);
         return resourceDto;
-    }
-
-    private String encodeAnswer(String answer) {
-        byte[] message = answer.getBytes(StandardCharsets.UTF_8);
-        return Base64.getEncoder().encodeToString(message);
     }
 
 }
