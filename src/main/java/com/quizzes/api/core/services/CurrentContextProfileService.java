@@ -25,6 +25,14 @@ public class CurrentContextProfileService {
         return currentContextProfile;
     }
 
+    /**
+     * Finds the currentContextProfile, collectionId, and the current contextProfile for an assignee in a context.
+     * If contextProfileId does not exist it is because the profile is not assigned in the context
+     *
+     * @param contextId context ID
+     * @param profileId profile assigned to the context
+     * @return the currentProfileContext in the {@link AssignedContextEntity} found
+     */
     public AssignedContextEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
         AssignedContextEntity currentContextProfile =
                 currentContextProfileRepository.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
