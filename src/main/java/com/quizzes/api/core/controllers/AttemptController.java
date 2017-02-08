@@ -39,7 +39,6 @@ public class AttemptController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "OK", response = ContextAttemptsResponseDto.class),
             @ApiResponse(code = 404, message = "Provided contextId does not exist"),
-            @ApiResponse(code = 403, message = "Invalid owner"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
     @RequestMapping(path = "/attempts/contexts/{contextId}",
@@ -49,7 +48,6 @@ public class AttemptController {
             @ApiParam(value = "Context ID", required = true, name = "contextId")
             @PathVariable UUID contextId,
             @RequestAttribute(value = "profileId") String profileId) {
-        QuizzesUtils.rejectAnonymous(profileId);
         ContextAttemptsResponseDto contextEvents =
                 attemptService.getCurrentAttemptByProfile(contextId, UUID.fromString(profileId));
         return new ResponseEntity<>(contextEvents, HttpStatus.OK);
