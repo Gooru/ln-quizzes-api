@@ -10,6 +10,7 @@ import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileEventResponseDto;
 import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
+import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
@@ -21,6 +22,8 @@ import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
+import com.quizzes.api.core.rest.clients.AssessmentRestClient;
+import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,6 +48,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -86,12 +90,19 @@ public class ContextEventServiceTest {
     private ActiveMQClientService activeMQClientService;
 
     @Mock
+    private CollectionRestClient collectionRestClient;
+
+    @Mock
+    private AssessmentRestClient assessmentRestClient;
+
+    @Mock
     private Gson gson = new Gson();
 
     @Mock
     private JsonParser jsonParser;
 
     private UUID collectionId;
+    private String token;
     private UUID contextId;
     private UUID resourceId;
     private UUID previousResourceId;
@@ -103,6 +114,7 @@ public class ContextEventServiceTest {
     @Before
     public void beforeEachTest() {
         collectionId = UUID.randomUUID();
+        token = UUID.randomUUID().toString();
         contextId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
         previousResourceId = UUID.randomUUID();
@@ -724,7 +736,6 @@ public class ContextEventServiceTest {
                 .sendOnResourceEventMessage(eq(contextId), eq(profileId), any(OnResourceEventMessageDto.class));
     }
 
-    @Ignore
     @Test
     public void processFinishContextEventIsCompleteTrue() throws Exception {
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
@@ -735,56 +746,166 @@ public class ContextEventServiceTest {
                 .thenReturn(currentContextProfile);
         when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
 
-        contextEventService.processFinishContextEvent(contextId, profileId);
+        contextEventService.processFinishContextEvent(contextId, profileId, token);
 
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
         verify(contextService, times(0)).findById(any());
-        verify(contextProfileEventService, times(0)).findByContextProfileId(any());
-        verifyPrivate(contextEventService, times(0)).invoke("createSkippedContextProfileEvents", any(), any());
-        verifyPrivate(contextEventService, times(0)).invoke("doFinishContextEventTransaction", any(), any(), any());
-        verifyPrivate(contextEventService, times(0)).invoke("sendFinishContextEventMessage", any(), any(), any());
+        verifyPrivate(contextEventService, times(0)).invoke("finishContextEvent", any(), any(), any(), any());
     }
 
-    @Ignore
     @Test
-    public void processFinishContextEvent() throws Exception {
+    public void processFinishContextEventIsCompleteFalse() throws Exception {
+        CurrentContextProfile currentContextProfile = createCurrentContextProfile();
+        ContextProfile contextProfile = createContextProfile();
+        contextProfile.setIsComplete(false);
+        Context context = createContext();
+
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
+        when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
+        when(contextService.findById(contextId)).thenReturn(context);
+        doNothing().when(contextEventService, "finishContextEvent", context, contextProfile,
+                currentContextProfile, token);
+
+        contextEventService.processFinishContextEvent(contextId, profileId, token);
+
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(contextProfileService, times(1)).findById(contextProfileId);
+        verify(contextService, times(1)).findById(contextId);
+        verifyPrivate(contextEventService, times(1)).invoke("finishContextEvent", context, contextProfile,
+                currentContextProfile, token);
+    }
+
+    @Test
+    public void finishContextEvent() throws Exception {
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
         Context context = createContext();
         ContextProfile contextProfile = createContextProfile();
-        contextProfile.setIsComplete(false);
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
         contextProfileEvents.add(contextProfileEvent);
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
-        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
-                .thenReturn(currentContextProfile);
-        when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
-        when(contextService.findById(contextId)).thenReturn(context);
+        List<ResourceContentDto> resources = new ArrayList<>();
+
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
-        //doReturn(new ArrayList<Resource>()).when(contextEventService, "createSkippedContextProfileEvents",
-        //        eq(contextProfileId), any(ArrayList.class));
+        doReturn(resources).when(contextEventService, "getCollectionResources",
+                collectionId, true, token);
+        doReturn(resources).when(contextEventService, "getResourcesToCreate", contextProfileEvents, resources);
+        doReturn(contextProfileEvents).when(contextEventService, "createSkippedContextProfileEvents",
+                contextProfileId, resources);
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, true);
         doNothing().when(contextEventService, "doFinishContextEventTransaction",
-                eq(contextProfile), eq(currentContextProfile), any(ArrayList.class));
+                contextProfile, currentContextProfile, contextProfileEvents);
         doNothing().when(contextEventService, "sendFinishContextEventMessage",
                 contextId, profileId, eventSummaryDataDto);
 
-        contextEventService.processFinishContextEvent(contextId, profileId);
+        WhiteboxImpl.invokeMethod(contextEventService, "finishContextEvent", context, contextProfile,
+                currentContextProfile, token);
 
-        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
-        verify(contextProfileService, times(1)).findById(contextProfileId);
-        verify(contextService, times(1)).findById(contextId);
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
+        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true, token);
+        verifyPrivate(contextEventService, times(1)).invoke("getResourcesToCreate", contextProfileEvents, resources);
         verifyPrivate(contextEventService, times(1)).invoke("createSkippedContextProfileEvents",
-                eq(contextProfileId), any(ArrayList.class));
+                contextProfileId, resources);
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, true);
         verifyPrivate(contextEventService, times(1)).invoke("doFinishContextEventTransaction",
-                eq(contextProfile), eq(currentContextProfile), any(ArrayList.class));
+                contextProfile, currentContextProfile, contextProfileEvents);
         verifyPrivate(contextEventService, times(1)).invoke("sendFinishContextEventMessage",
                 contextId, profileId, eventSummaryDataDto);
+    }
+
+    @Test
+    public void createSkippedContextProfileEvents() throws Exception {
+        ResourceContentDto resource1 = new ResourceContentDto();
+        resource1.setId(resourceId.toString());
+
+        ResourceContentDto resource2 = new ResourceContentDto();
+        resource2.setId(UUID.randomUUID().toString());
+
+        doReturn(new PostResponseResourceDto()).when(contextEventService, "createSkippedEventData", any(UUID.class));
+
+        List<ContextProfileEvent> result = WhiteboxImpl.invokeMethod(contextEventService,
+                "createSkippedContextProfileEvents", contextProfileId, Arrays.asList(resource1, resource2));
+
+        verifyPrivate(contextEventService, times(2)).invoke("createSkippedEventData", any(UUID.class));
+
+        assertEquals("Wrong size", 2, result.size());
+        assertEquals("Wrong resourceToCrete ID", resourceId, result.get(0).getResourceId());
+        assertEquals("Wrong contextProfile ID", contextProfileId, result.get(0).getContextProfileId());
+        assertNotNull("EventData is null",  result.get(0).getEventData());
+
+    }
+
+    @Test
+    public void createSkippedEventData() throws Exception {
+        PostResponseResourceDto result = WhiteboxImpl.invokeMethod(contextEventService,
+                "createSkippedEventData", resourceId);
+
+        assertEquals("Wrong score", 0, result.getScore());
+        assertEquals("Wrong resourceId", resourceId, result.getResourceId());
+        assertEquals("Wrong reaction", 0, result.getReaction());
+        assertTrue("Skip is false", result.getIsSkipped());
+        assertEquals("Wrong timespent", 0, result.getTimeSpent());
+        assertEquals("Wrong answer size", 0, result.getAnswer().size());
+    }
+
+
+    @Test
+    public void getResourcesToCreateOneResult() throws Exception {
+        UUID commonResourceId = UUID.randomUUID();
+        ResourceContentDto resource1 = new ResourceContentDto();
+        resource1.setId(commonResourceId.toString());
+
+        ResourceContentDto resource2 = new ResourceContentDto();
+        resource2.setId(resourceId.toString());
+
+        List<ContextProfileEvent> contextProfileEvents =
+                Arrays.asList(createContextProfileEvent(contextProfileId, commonResourceId, "{}"));
+
+        List<ResourceContentDto> result = WhiteboxImpl.invokeMethod(contextEventService, "getResourcesToCreate",
+                contextProfileEvents, Arrays.asList(resource1, resource2));
+
+        assertEquals("Wrong size", 1, result.size());
+        assertEquals("Wrong resourceToCrete ID", resourceId.toString(), result.get(0).getId());
+    }
+
+    @Test
+    public void getResourcesToCreateZeroResults() throws Exception {
+        ResourceContentDto resource = new ResourceContentDto();
+        resource.setId(resourceId.toString());
+
+        List<ContextProfileEvent> contextProfileEvents =
+                Arrays.asList(createContextProfileEvent(contextProfileId, resourceId, "{}"));
+
+        List<ResourceContentDto> result = WhiteboxImpl.invokeMethod(contextEventService, "getResourcesToCreate",
+                contextProfileEvents, Arrays.asList(resource));
+
+        assertEquals("Wrong size", 0, result.size());
+    }
+
+    @Test
+    public void getCollectionResourcesForCollectionType() throws Exception {
+        when(collectionRestClient.getCollectionResources(collectionId.toString(), token))
+                .thenReturn(new ArrayList<ResourceContentDto>());
+
+        WhiteboxImpl.invokeMethod(contextEventService, "getCollectionResources", collectionId, true, token);
+
+        verify(collectionRestClient, times(1)).getCollectionResources(collectionId.toString(), token);
+        verify(assessmentRestClient, times(0)).getAssessmentQuestions(collectionId.toString(), token);
+    }
+
+    @Test
+    public void getCollectionResourcesForAssessmentType() throws Exception {
+        when(assessmentRestClient.getAssessmentQuestions(collectionId.toString(), token))
+                .thenReturn(new ArrayList<ResourceContentDto>());
+
+        WhiteboxImpl.invokeMethod(contextEventService, "getCollectionResources", collectionId, false, token);
+
+        verify(collectionRestClient, times(0)).getCollectionResources(collectionId.toString(), token);
+        verify(assessmentRestClient, times(1)).getAssessmentQuestions(collectionId.toString(), token);
     }
 
     @Test
@@ -799,6 +920,7 @@ public class ContextEventServiceTest {
         WhiteboxImpl.invokeMethod(contextEventService, "doFinishContextEventTransaction",
                 contextProfile, currentContextProfile, eventsToCreate);
 
+        verify(currentContextProfileService, times(1)).delete(currentContextProfile);
         verify(contextProfileService, times(1)).save(contextProfile);
         verify(contextProfileEventService, times(2)).save(contextProfileEvent);
     }
@@ -980,92 +1102,72 @@ public class ContextEventServiceTest {
 
     @Test
     public void calculateScoreByQuestionTypeDragAndDropRightAnswer() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.DragAndDrop.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 100", 100, result);
+        calculateScoreForOrderedMultipleChoiceRightAnswers(QuestionTypeEnum.DragAndDrop);
     }
 
     @Test
     public void calculateScoreByQuestionTypeDragAndDropWrongAnswer() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"), createAnswerDto("B"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.DragAndDrop.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
+        calculateScoreForOrderedMultipleChoiceWrongAnswers(QuestionTypeEnum.DragAndDrop);
     }
 
     @Test
     public void calculateScoreByQuestionTypeDragAndDropWrongNumberOfAnswers() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+        calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum.DragAndDrop);
+    }
+
+    @Test
+    public void calculateScoreForTextEntryRightAnswers() throws Exception {
+        calculateScoreForOrderedMultipleChoiceRightAnswers(QuestionTypeEnum.TextEntry);
+    }
+
+    @Test
+    public void calculateScoreForTextEntryCaseInsensitiveRightAnswers() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("ONE"), createAnswerDto(" two "), createAnswerDto("THRee "));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("One"), createAnswerDto("Two"), createAnswerDto("Three"));
 
         int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.DragAndDrop.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
+                QuestionTypeEnum.TextEntry.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    @Test
+    public void calculateScoreForTextEntryWrongAnswers() throws Exception {
+        calculateScoreForOrderedMultipleChoiceWrongAnswers(QuestionTypeEnum.TextEntry);
+    }
+
+    @Test
+    public void calculateScoreForTextEntryWrongNumberOfAnswers() throws Exception {
+        calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum.TextEntry);
     }
 
     @Test
     public void calculateScoreForMultipleChoiceRightAnswers() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 100", 100, result);
+        calculateScoreForMultipleOptionRightAnswers(QuestionTypeEnum.MultipleChoice);
     }
 
     @Test
     public void calculateScoreForMultipleChoiceWrongAnswers() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
+        calculateScoreForMultipleOptionWrongAnswers(QuestionTypeEnum.MultipleChoice);
     }
 
     @Test
     public void calculateScoreForMultipleChoiceWrongNumberOfAnswers() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoice.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
+        calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum.MultipleChoice);
     }
 
     @Test
     public void calculateScoreForMultipleChoiceImageRightAnswers() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 100", 100, result);
+        calculateScoreForMultipleOptionRightAnswers(QuestionTypeEnum.MultipleChoiceImage);
     }
 
     @Test
     public void calculateScoreForMultipleChoiceImageWrongAnswers() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
+        calculateScoreForMultipleOptionWrongAnswers(QuestionTypeEnum.MultipleChoiceImage);
     }
 
     @Test
     public void calculateScoreForMultipleChoiceImageWrongNumberOfAnswers() throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
+        calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum.MultipleChoiceImage);
     }
 
     @Test
@@ -1113,40 +1215,12 @@ public class ContextEventServiceTest {
         calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum.HotTextSentence);
     }
 
-    private void calculateScoreForMultipleOptionRightAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 100", 100, result);
-    }
-
-    private void calculateScoreForMultipleOptionWrongAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
-    }
-
-    private void calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
-        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
-        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
-
-        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
-                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
-        assertEquals("Score should be 0", 0, result);
-    }
-
     @Test
     public void calculateEventSummaryDataSkipTrue() throws Exception {
         List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
 
         EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
-                "calculateEventSummary",
-                contextProfileEvents, true);
+                "calculateEventSummary", contextProfileEvents, true);
 
         assertNotNull("ContextProfile EventSummaryData is null", eventSummaryDataDto);
         assertEquals(eventSummaryDataDto.getAverageScore(), 60);
@@ -1161,8 +1235,7 @@ public class ContextEventServiceTest {
         List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
 
         EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
-                "calculateEventSummary",
-                contextProfileEvents, false);
+                "calculateEventSummary", contextProfileEvents, false);
 
         assertNotNull("ContextProfile EventSummaryData is null", eventSummaryDataDto);
         assertEquals(eventSummaryDataDto.getAverageScore(), 75);
@@ -1176,8 +1249,7 @@ public class ContextEventServiceTest {
     public void calculateEventSummaryDataForEmptyEventList() throws Exception {
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
         EventSummaryDataDto eventSummaryDataDto = WhiteboxImpl.invokeMethod(contextEventService,
-                "calculateEventSummary",
-                contextProfileEvents, false);
+                "calculateEventSummary", contextProfileEvents, false);
 
         assertEquals(eventSummaryDataDto.getAverageScore(), 0);
         assertEquals(eventSummaryDataDto.getTotalTimeSpent(), 0);
@@ -1217,6 +1289,7 @@ public class ContextEventServiceTest {
         Context context = new Context();
         context.setId(contextId);
         context.setCollectionId(collectionId);
+        context.setIsCollection(true);
         context.setContextData("{}");
         return context;
     }
@@ -1253,6 +1326,7 @@ public class ContextEventServiceTest {
         ContextProfileEvent contextProfileEvent = new ContextProfileEvent();
         contextProfileEvent.setId(UUID.randomUUID());
         contextProfileEvent.setContextProfileId(contextProfileId);
+        contextProfileEvent.setResourceId(resourceId);
         contextProfileEvent.setEventData(evenData);
         return contextProfileEvent;
     }
@@ -1318,6 +1392,51 @@ public class ContextEventServiceTest {
         when(entity.getProfileId()).thenReturn(profileId);
         when(entity.getContextProfileId()).thenReturn(contextProfileId);
         return entity;
+    }
+
+    private void calculateScoreForMultipleOptionRightAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    private void calculateScoreForMultipleOptionWrongAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("C"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    private void calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    private void calculateScoreForOrderedMultipleChoiceRightAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 100", 100, result);
+    }
+
+    private void calculateScoreForOrderedMultipleChoiceWrongAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"), createAnswerDto("B"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
     }
 
 }

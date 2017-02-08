@@ -30,6 +30,9 @@ public enum QuestionTypeEnum {
     @SerializedName("hot_text_sentence")
     HotTextSentence("hot_text_sentence"),
 
+    @SerializedName("text_entry")
+    TextEntry("text_entry"),
+
     @SerializedName("match")
     Match("match"),
 

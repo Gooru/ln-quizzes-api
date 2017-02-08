@@ -54,6 +54,8 @@ public class CollectionService {
                 QuestionTypeEnum.HotTextWord.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.SentenceHotTextHighlightQuestion.getLiteral(),
                 QuestionTypeEnum.HotTextSentence.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral(),
+                QuestionTypeEnum.TextEntry.getLiteral());
     }
 
     @Autowired
@@ -162,7 +164,10 @@ public class CollectionService {
         if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
             return getHotTextHighlightCorrectAnswers(resourceContentDto);
         }
-        return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers());
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
+            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
+        }
+        return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), true);
     }
 
     private List<AnswerDto> getHotTextHighlightCorrectAnswers(ResourceContentDto resourceContentDto) {
@@ -174,18 +179,18 @@ public class CollectionService {
         while (hotTextHighlightMatcher.find()) {
             int answerStart = hotTextHighlightMatcher.start(1) - (answerCount * 2) - 1; // matcher start - (2x + 1) to counter the missing [] on the FE
             String answerValue = answerText.substring(hotTextHighlightMatcher.start(1), hotTextHighlightMatcher.end(1));
-            correctAnswers.add(new AnswerDto(encodeAnswer(answerValue + "," + answerStart)));
+            correctAnswers.add(new AnswerDto(answerValue + "," + answerStart));
             answerCount++;
         }
         return correctAnswers;
     }
 
-    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers) {
+    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers, boolean encodeValues) {
         List<AnswerDto> correctAnswers = new ArrayList<>();
         if (answers != null) {
             correctAnswers = answers.stream()
                     .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
-                    .map(answer -> new AnswerDto(encodeAnswer(answer.getAnswerText())))
+                    .map(answer -> new AnswerDto(encodeValues ? encodeAnswer(answer.getAnswerText()) : answer.getAnswerText()))
                     .collect(Collectors.toList());
         }
         return correctAnswers;
@@ -195,11 +200,15 @@ public class CollectionService {
         if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
             return resource.getAnswers().get(0).getAnswerText().replaceAll("(\\[|\\])", "");
         }
+        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
+            return resource.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
+        }
         return resource.getTitle();
     }
 
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
-        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral()) ||
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return null;
         }
 
