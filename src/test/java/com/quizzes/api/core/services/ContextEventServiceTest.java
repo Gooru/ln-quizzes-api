@@ -1216,6 +1216,15 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void calculateScoreForExtendedText() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("Open text answer..."));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.ExtendedText.getLiteral(), userAnswers, null);
+        assertEquals("Score should be 0", 0, result);
+    }
+
+    @Test
     public void calculateEventSummaryDataSkipTrue() throws Exception {
         List<ContextProfileEvent> contextProfileEvents = createContextProfileEvents();
 

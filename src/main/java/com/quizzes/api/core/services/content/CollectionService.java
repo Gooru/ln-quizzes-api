@@ -56,6 +56,8 @@ public class CollectionService {
                 QuestionTypeEnum.HotTextSentence.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral(),
                 QuestionTypeEnum.TextEntry.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral(),
+                QuestionTypeEnum.ExtendedText.getLiteral());
     }
 
     @Autowired
@@ -167,6 +169,9 @@ public class CollectionService {
         if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
         }
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+            return null;
+        }
         return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), true);
     }
 
@@ -203,12 +208,16 @@ public class CollectionService {
         if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return resource.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
         }
+        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+            return resource.getDescription();
+        }
         return resource.getTitle();
     }
 
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
         if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral()) ||
-                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral()) ||
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
             return null;
         }
 
