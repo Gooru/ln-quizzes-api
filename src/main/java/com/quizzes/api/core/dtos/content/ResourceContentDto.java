@@ -3,12 +3,15 @@ package com.quizzes.api.core.dtos.content;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ResourceContentDto {
 
-    private String id;
+    private UUID id;
 
     private String title;
+
+    private String description;
 
     @SerializedName("content_format")
     private String contentFormat;
@@ -28,11 +31,11 @@ public class ResourceContentDto {
     public ResourceContentDto() {
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -42,6 +45,14 @@ public class ResourceContentDto {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getContentSubformat() {
