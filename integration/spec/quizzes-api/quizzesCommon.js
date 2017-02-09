@@ -135,11 +135,9 @@ var quizzesCommon = {
             .toss()
     },
 
-    getCollectionById: function (collectionId, assigneeProfileId, afterJsonFunction) {
-        frisby.create('Get the collection information')
-            .get(QuizzesApiUrl + '/v1/collection/' + collectionId)
-            .addHeader('profile-id', assigneeProfileId)
-            .addHeader('client-id', 'quizzes')
+    getCollectionById: function (collectionId, type, afterJsonFunction) {
+        frisby.create('Get the ' + type + ' information')
+            .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
             .inspectRequest()
             .expectStatus(200)
             .inspectJSON()
@@ -254,7 +252,9 @@ var quizzesCommon = {
                 exception: String
             })
             .toss();
-    }
+    },
+
+    questionTypeDemoAssessment: '6a4639d3-a93e-490f-9b46-0d5ceb0f6b4e'
 };
 
 module.exports = quizzesCommon;
