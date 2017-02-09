@@ -1,18 +1,14 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
-import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
@@ -168,31 +164,6 @@ public class ContextService {
                     + " and Assignee Profile ID: " + profileId);
         }
         return context;
-    }
-
-    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
-        ContextProfileWithContextEntity entity =
-                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
-        if (entity == null) {
-            throw new ContentNotFoundException("Context not found for ID: " + contextId);
-        }
-
-        if (entity.getProfileId() == null) {
-            throw new InvalidAssigneeException("Profile ID: " + profileId + " not assigned to the context ID: "
-                    + contextId);
-        }
-        return entity;
-    }
-
-    public ContextGetResponseDto getAssignedContextByContextIdAndAssigneeId(UUID contextId, UUID assigneeId)
-            throws ContentNotFoundException {
-        ContextOwnerEntity context = contextRepository.findContextOwnerByContextIdAndAssigneeId(contextId, assigneeId);
-        if (context == null) {
-            throw new ContentNotFoundException("Context not found for ID: " + contextId +
-                    " and Assignee ID: " + assigneeId);
-        }
-
-        return mapContextOwnerEntityToContextAssignedDto(context);
     }
 
     private UUID getCollectionOwnerId(String collectionId, boolean isCollection, String token) {

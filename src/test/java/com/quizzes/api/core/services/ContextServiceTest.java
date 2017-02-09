@@ -11,11 +11,9 @@ import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
-import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
@@ -226,37 +224,6 @@ public class ContextServiceTest {
 
         assertNotNull("Response is null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result);
-    }
-
-    @Test
-    public void findProfileIdInContext() throws Exception {
-        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
-
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
-
-        ContextProfileWithContextEntity result = contextService.findProfileIdInContext(contextId, profileId);
-
-        verify(contextRepository, times(1)).findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong context Id", contextId, result.getContextId());
-        assertEquals("Wrong profile Id", profileId, result.getProfileId());
-    }
-
-    @Test(expected = InvalidAssigneeException.class)
-    public void findProfileIdInContextThrowsInvalidAssigneeException() throws Exception {
-        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
-        when(entity.getProfileId()).thenReturn(null);
-
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
-
-        contextService.findProfileIdInContext(contextId, profileId);
-    }
-
-    @Test(expected = ContentNotFoundException.class)
-    public void findProfileIdInContextThrowsContentNotFoundException() throws Exception {
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(null);
-        contextService.findProfileIdInContext(contextId, profileId);
     }
 
     @Test
@@ -602,17 +569,6 @@ public class ContextServiceTest {
         contextPostRequestDto.setCollectionId(collectionId);
         contextPostRequestDto.setContextData(createContextDataDto());
         return contextPostRequestDto;
-    }
-
-    private ContextProfileWithContextEntity createContextProfileContextEntity() {
-        ContextProfileWithContextEntity entityMock = mock(ContextProfileWithContextEntity.class);
-
-        when(entityMock.getIsComplete()).thenReturn(true);
-        when(entityMock.getContextProfileId()).thenReturn(contextProfileId);
-        when(entityMock.getContextId()).thenReturn(contextId);
-        when(entityMock.getCollectionId()).thenReturn(collectionId);
-        when(entityMock.getProfileId()).thenReturn(profileId);
-        return entityMock;
     }
 
     private ContextEntity createContextEntityMock() {
