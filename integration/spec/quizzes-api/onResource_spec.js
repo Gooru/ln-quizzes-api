@@ -2,7 +2,7 @@ const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 var frisby = require('frisby');
 
 frisby.create('Test context creation for two assignees and one owner for answering a started context using onResource endpoint.')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -49,7 +49,7 @@ frisby.create('Test context creation for two assignees and one owner for answeri
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -65,15 +65,15 @@ frisby.create('Test context creation for two assignees and one owner for answeri
                             .inspectJSON()
                             .afterJSON(function (collection) {
                                 frisby.create('Start Context to be able to answer')
-                                    .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
+                                    .post(QuizzesApiUrl + '/v1/contexts/' + context.id + '/start')
                                     .addHeader('profile-id', profile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
                                     .expectStatus(200)
                                     .afterJSON(function (startResponse) {
                                         frisby.create('Answer the first and current question')
-                                            .post(QuizzesApiUrl + '/v1/context/'
-                                                + context.id + '/event/on-resource/' + collection.resources[1].id , {
+                                            .post(QuizzesApiUrl + '/v1/contexts/'
+                                                + context.id + '/onResource/' + collection.resources[1].id , {
                                                 "previousResource": {
                                                     "answer": [
                                                         {
@@ -104,7 +104,7 @@ frisby.create('Test context creation for two assignees and one owner for answeri
 
 
 frisby.create('Test context creation for one assignee and owner for answering a non-started context using onResource endpoint.')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -151,7 +151,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -167,8 +167,8 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                             .inspectJSON()
                             .afterJSON(function (collection) {
                                 frisby.create('Answer the first and current question without starting the context')
-                                    .post(QuizzesApiUrl + '/v1/context/'
-                                        + context.id + '/event/on-resource/' + collection.resources[1].id , {
+                                    .post(QuizzesApiUrl + '/v1/contexts/'
+                                        + context.id + '/onResource/' + collection.resources[1].id , {
                                         "previousResource": {
                                             "answer": [
                                                 {
@@ -206,7 +206,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
 
 
 frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint and try to answer as owner')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -253,7 +253,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -269,7 +269,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                             .inspectJSON()
                             .afterJSON(function (collection) {
                                 frisby.create('Start Context to be able to answer')
-                                    .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
+                                    .post(QuizzesApiUrl + '/v1/contexts/' + context.id + '/start')
                                     .addHeader('profile-id', profile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
@@ -283,7 +283,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                                             .inspectJSON()
                                             .afterJSON(function (ownerProfile) {
                                                 frisby.create('Answer the first and current question as the owner who is not an assignee')
-                                                    .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/on-resource/' + collection.resources[1].id , {
+                                                    .post(QuizzesApiUrl + '/v1/contexts/' + context.id + '/onResource/' + collection.resources[1].id , {
                                                         "previousResource": {
                                                             "answer": [
                                                                 {
@@ -324,7 +324,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
     .toss();
 
 frisby.create('Test context creation for one assignee and owner for answering a started context using onResource endpoint with a wrong contextId or ResourceId')
-    .post(QuizzesApiUrl + '/v1/context', {
+    .post(QuizzesApiUrl + '/v1/contexts', {
         'externalCollectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
         'assignees': [
             {
@@ -371,7 +371,7 @@ frisby.create('Test context creation for one assignee and owner for answering a 
             .inspectJSON()
             .afterJSON(function (profile) {
                 frisby.create('Get assigned context information')
-                    .get(QuizzesApiUrl + '/v1/context/assigned/' + context.id)
+                    .get(QuizzesApiUrl + '/v1/contexts/' + context.id + '/assigned')
                     .addHeader('profile-id', profile.id)
                     .addHeader('client-id', 'quizzes')
                     .inspectRequest()
@@ -387,15 +387,15 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                             .inspectJSON()
                             .afterJSON(function (collection) {
                                 frisby.create('Start Context to be able to answer')
-                                    .post(QuizzesApiUrl + '/v1/context/' + context.id + '/event/start')
+                                    .post(QuizzesApiUrl + '/v1/contexts/' + context.id + '/start')
                                     .addHeader('profile-id', profile.id)
                                     .addHeader('client-id', 'quizzes')
                                     .inspectRequest()
                                     .expectStatus(200)
                                     .afterJSON(function (startResponse) {
                                         frisby.create('Answer the first and current question with a wrong contextID')
-                                            .post(QuizzesApiUrl + '/v1/context/'
-                                                + collection.resources[0].id + '/event/on-resource/' + collection.resources[1].id , {
+                                            .post(QuizzesApiUrl + '/v1/contexts/'
+                                                + collection.resources[0].id + '/onResource/' + collection.resources[1].id , {
                                                 "previousResource": {
                                                     "answer": [
                                                         {
@@ -422,8 +422,8 @@ frisby.create('Test context creation for one assignee and owner for answering a 
                                             })
                                             .toss();
                                         frisby.create('Answer the first and current question with a wrong resourceID')
-                                            .post(QuizzesApiUrl + '/v1/context/' + context.id
-                                                + '/event/on-resource/74b62b82-6e77-48b8-b5bc-aac34148b77a'  , {
+                                            .post(QuizzesApiUrl + '/v1/contexts/' + context.id
+                                                + '/onResource/74b62b82-6e77-48b8-b5bc-aac34148b77a'  , {
                                                 "previousResource": {
                                                     "answer": [
                                                         {

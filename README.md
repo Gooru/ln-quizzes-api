@@ -34,6 +34,7 @@ Some prerequisites to start up the RESTful API server are:
 * `[activemq_install_dir]/bin/activemq console` to start up ActiveMQ server.
 * Install and start up PostgreSQL server.
 * `psql -U postgres -c 'CREATE DATABASE quizzes;'` to create Quizzes database.
+* [Install and configure Varnish.](docs/varnish-configuration.md)
 
 ## How to use Flyway?
 The most important functionalities with Flyway are:
