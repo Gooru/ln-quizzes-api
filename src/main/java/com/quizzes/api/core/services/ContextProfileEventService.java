@@ -1,6 +1,7 @@
 package com.quizzes.api.core.services;
 
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEventEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;

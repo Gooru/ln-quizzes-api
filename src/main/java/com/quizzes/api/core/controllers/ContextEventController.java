@@ -1,5 +1,6 @@
 package com.quizzes.api.core.controllers;
 
+import com.quizzes.api.core.dtos.AttemptGetResponseDto;
 import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
@@ -171,6 +172,26 @@ public class ContextEventController {
 
         AttemptIdsResponseDto attemptIdsDto = contextProfileService.findContextProfileAttemptIds(contextId, assigneeProfileId);
         return new ResponseEntity<>(attemptIdsDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get the Student Events by Context ID",
+            notes = "Returns the list of student events in the provided Context ID.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class),
+            @ApiResponse(code = 404, message = "Provided contextId does not exist"),
+            @ApiResponse(code = 403, message = "Invalid owner"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
+    })
+    @RequestMapping(path = "/attempts/{attemptId}",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AttemptGetResponseDto> getAttempt(
+            @ApiParam(value = "Context ID", required = true, name = "attemptId")
+            @PathVariable UUID attemptId,
+            @RequestAttribute(value = "profileId") String profileId) {
+        QuizzesUtils.rejectAnonymous(profileId);
+        AttemptGetResponseDto attemptDto = contextEventService.getAttempt(attemptId, UUID.fromString(profileId));
+        return new ResponseEntity<>(attemptDto, HttpStatus.OK);
     }
 }
 

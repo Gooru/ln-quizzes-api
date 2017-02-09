@@ -2,6 +2,7 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.AttemptGetResponseDto;
 import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
@@ -17,11 +18,13 @@ import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEventEntity;
 import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
+import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
@@ -64,6 +67,9 @@ public class ContextEventService {
 
     @Autowired
     AssessmentRestClient assessmentRestClient;
+
+    @Autowired
+    ContextProfileEventRepository contextProfileEventRepository;
 
     @Autowired
     Gson gson;
@@ -238,6 +244,36 @@ public class ContextEventService {
         }).collect(Collectors.toList());
         response.setProfileEvents(profileEvents);*/
         return response;
+    }
+
+    public AttemptGetResponseDto getAttempt(UUID attemptId, UUID profileId) {
+
+        List<ContextProfileEventEntity> contextProfileEvents =
+                contextProfileEventRepository.findByContextProfileIdAndProfileId(attemptId, profileId);
+
+        if (contextProfileEvents.isEmpty()) {
+            throw new ContentNotFoundException("Attempt: " + attemptId + " not found for profile: " + profileId);
+        }
+
+        ContextProfileEventEntity firstEvent = contextProfileEvents.get(0);
+        AttemptGetResponseDto result = new AttemptGetResponseDto();
+        result.setAttemptId(firstEvent.getContextProfileId());
+        result.setContextId(firstEvent.getContextId());
+        result.setCollectionId(firstEvent.getCollectionId());
+        result.setProfileId(firstEvent.getProfileId());
+        result.setCurrentResourceId(firstEvent.getCurrentResourceId());
+        result.setEventSummary(gson.fromJson(firstEvent.getEventsSummary(), EventSummaryDataDto.class));
+        List<PostResponseResourceDto> events = contextProfileEvents.stream().
+                filter(contextProfileEvent -> contextProfileEvent.getEventData() != null).
+                map(contextProfileEvent -> {
+                    PostResponseResourceDto event =
+                            gson.fromJson(contextProfileEvent.getEventData(), PostResponseResourceDto.class);
+                    event.setResourceId(contextProfileEvent.getResourceId());
+                    return event;
+                }).collect(Collectors.toList());
+        result.setEvents(events);
+
+        return result;
     }
 
     @Transactional
