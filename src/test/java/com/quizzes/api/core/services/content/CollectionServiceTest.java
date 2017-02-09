@@ -25,10 +25,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,7 +62,7 @@ public class CollectionServiceTest {
     private String assessmentId;
     private String collectionId;
     private UUID resourceId;
-    private String questionId;
+    private UUID questionId;
     private String collectionTitle;
     private String resourceTitle;
     private String questionTitle;
@@ -78,7 +76,7 @@ public class CollectionServiceTest {
         assessmentId = UUID.randomUUID().toString();
         collectionId = UUID.randomUUID().toString();
         resourceId = UUID.randomUUID();
-        questionId = UUID.randomUUID().toString();
+        questionId = UUID.randomUUID();
         collectionTitle = "Assessment title";
         resourceTitle = "Resource title";
         questionTitle = "Question title";
@@ -253,7 +251,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong number of resources", 1, result.size());
 
         ResourceDto resourceResult = result.get(0);
-        assertEquals("Wrong resource ID", questionId, resourceResult.getId().toString());
+        assertEquals("Wrong resource ID", questionId, resourceResult.getId());
         assertTrue("IsResource is false ", resourceResult.getIsResource());
         assertEquals("Wrong sequence", 1, resourceResult.getSequence());
 
@@ -283,7 +281,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong number of resources", 1, result.size());
 
         ResourceDto resourceResult = result.get(0);
-        assertEquals("Wrong resource ID", questionId, resourceResult.getId().toString());
+        assertEquals("Wrong resource ID", questionId, resourceResult.getId());
         assertFalse("Wrong isResource is true", resourceResult.getIsResource());
         assertEquals("Wrong sequence", 1, resourceResult.getSequence());
 
@@ -374,6 +372,15 @@ public class CollectionServiceTest {
     }
 
     @Test
+    public void getBodyOpenEnded() throws Exception {
+        ResourceContentDto resourceContentDto = createOpenEndedResourceContentDto();
+
+        String result = WhiteboxImpl.invokeMethod(collectionService, "getBody", resourceContentDto);
+
+        assertEquals("Wrong body content", "Enter your thoughts here", result);
+    }
+
+    @Test
     public void createInteraction() throws Exception {
         AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "text");
         AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "text");
@@ -397,20 +404,17 @@ public class CollectionServiceTest {
 
     @Test
     public void createInteractionHotTextHighlight() throws Exception {
-        ResourceContentDto resourceContentDto = createHotTextHighlightResourceContentDto("word");
-
-        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
-
-        assertNull("Interaction is null", result);
+        createNullInteraction(createHotTextHighlightResourceContentDto("word"));
     }
 
     @Test
     public void createInteractionFillInTheBlank() throws Exception {
-        ResourceContentDto resourceContentDto = createFillInTheBlankResourceContentDto();
+        createNullInteraction(createFillInTheBlankResourceContentDto());
+    }
 
-        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
-
-        assertNull("Interaction is null", result);
+    @Test
+    public void createInteractionOpenEnded() throws Exception {
+        createNullInteraction(createOpenEndedResourceContentDto());
     }
 
     @Test
@@ -469,6 +473,15 @@ public class CollectionServiceTest {
     }
 
     @Test
+    public void getCorrectAnswersOpenEnded() throws Exception {
+        ResourceContentDto resourceContentDto = createOpenEndedResourceContentDto();
+
+        List<AnswerDto> result = WhiteboxImpl.invokeMethod(collectionService, "getCorrectAnswers", resourceContentDto);
+
+        assertNull("Open ended question correct answers not null", result);
+    }
+
+    @Test
     public void mapQuestionType() throws Exception {
         ResourceContentDto resourceContentDto = new ResourceContentDto();
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral());
@@ -522,6 +535,18 @@ public class CollectionServiceTest {
         assertEquals("HotTextSentence question type wrongly mapped",
                 QuestionTypeEnum.HotTextSentence.getLiteral(), hotTextSentenceQuestionType);
 
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral());
+        String textEntryQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
+                resourceContentDto);
+        assertEquals("TextEntry question type wrongly mapped",
+                QuestionTypeEnum.TextEntry.getLiteral(), textEntryQuestionType);
+
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral());
+        String extendedTextQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
+                resourceContentDto);
+        assertEquals("ExtendedText question type wrongly mapped",
+                QuestionTypeEnum.ExtendedText.getLiteral(), extendedTextQuestionType);
+
         resourceContentDto.setContentSubformat("unknown");
         String noneQuestionType = WhiteboxImpl.invokeMethod(collectionService, "mapQuestionType",
                 resourceContentDto);
@@ -571,6 +596,16 @@ public class CollectionServiceTest {
         AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "12");
         AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "6");
         resourceContentDto.setAnswers(Arrays.asList(answer1, answer2));
+
+        return resourceContentDto;
+    }
+
+    private ResourceContentDto createOpenEndedResourceContentDto() {
+        ResourceContentDto resourceContentDto = new ResourceContentDto();
+        resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral());
+        resourceContentDto.setDescription("Enter your thoughts here");
+        AnswerContentDto answer = createAnswerContentDto("1", "1", 1, "My thoughts...");
+        resourceContentDto.setAnswers(Arrays.asList(answer));
 
         return resourceContentDto;
     }
@@ -662,4 +697,9 @@ public class CollectionServiceTest {
         return resourceDto;
     }
 
+    private void createNullInteraction(ResourceContentDto resourceContentDto) throws Exception {
+        InteractionDto result = WhiteboxImpl.invokeMethod(collectionService, "createInteraction", resourceContentDto);
+
+        assertNull("Interaction is null", result);
+    }
 }

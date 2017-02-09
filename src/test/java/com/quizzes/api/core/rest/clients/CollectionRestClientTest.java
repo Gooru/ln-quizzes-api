@@ -78,18 +78,4 @@ public class CollectionRestClientTest {
         verify(configurationService, times(1)).getContentApiUrl();
     }
 
-    @Test
-    public void getCollectionResources() throws Exception {
-        CollectionContentDto collectionContentDto = new CollectionContentDto();
-        collectionContentDto.setId(collectionId);
-        collectionContentDto.setContent(Arrays.asList(new ResourceContentDto()));
-
-        doReturn(collectionContentDto).when(collectionRestClient).getCollection(collectionId, userToken);
-
-        List<ResourceContentDto> result =
-                collectionRestClient.getCollectionResources(collectionId, userToken);
-
-        verify(collectionRestClient, times(1)).getCollection(collectionId, userToken);
-        assertEquals("Wrong resources size", 1, result.size());
-    }
 }

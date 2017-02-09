@@ -25,7 +25,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -56,6 +55,8 @@ public class CollectionService {
                 QuestionTypeEnum.HotTextSentence.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral(),
                 QuestionTypeEnum.TextEntry.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral(),
+                QuestionTypeEnum.ExtendedText.getLiteral());
     }
 
     @Autowired
@@ -77,6 +78,18 @@ public class CollectionService {
         String userToken = authenticationRestClient.generateAnonymousToken();
         CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, userToken);
         return convertGooruCollectionToQuizzesFormat(collectionContentDto);
+    }
+
+    public List<ResourceDto> getAssessmentQuestions(String assessmentId) {
+        String userToken = authenticationRestClient.generateAnonymousToken();
+        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
+        return mapResources(assessmentContentDto.getQuestions());
+    }
+
+    public List<ResourceDto> getCollectionResources(String collectionId) {
+        String userToken = authenticationRestClient.generateAnonymousToken();
+        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, userToken);
+        return mapResources(collectionContentDto.getContent());
     }
 
     private CollectionDto convertGooruAssessmentToQuizzesFormat(AssessmentContentDto assessmentDto) {
@@ -106,7 +119,7 @@ public class CollectionService {
         if (resourceContentDtos != null) {
             resourceDtos = resourceContentDtos.stream().map(resourceContentDto -> {
                 ResourceDto resourceDto = new ResourceDto();
-                resourceDto.setId(UUID.fromString(resourceContentDto.getId()));
+                resourceDto.setId(resourceContentDto.getId());
                 resourceDto.setSequence((short) resourceContentDto.getSequence());
 
                 ResourceMetadataDto metadata;
@@ -167,6 +180,9 @@ public class CollectionService {
         if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
         }
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+            return null;
+        }
         return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), true);
     }
 
@@ -203,12 +219,16 @@ public class CollectionService {
         if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return resource.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
         }
+        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+            return resource.getDescription();
+        }
         return resource.getTitle();
     }
 
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
         if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral()) ||
-                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral()) ||
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
             return null;
         }
 

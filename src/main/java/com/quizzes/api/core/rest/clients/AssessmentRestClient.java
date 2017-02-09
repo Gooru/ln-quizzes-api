@@ -78,9 +78,5 @@ public class AssessmentRestClient {
         }
     }
 
-    public List<ResourceContentDto> getAssessmentQuestions(String assessmentId, String token) {
-        AssessmentContentDto assessmentContentDto = getAssessment(assessmentId, token);
-        return assessmentContentDto.getQuestions();
-    }
 }
 

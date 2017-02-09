@@ -2,11 +2,18 @@
 
 source .ci/common.sh
 
+info "Installing virtualenv..."
+silent pip install --user -U virtualenv
+
+info "Creating a new virtualenv..."
+silent ${HOME}/.local/bin/virtualenv ./.venv
+source ./.venv/bin/activate
+
 info "Installing docker compose..."
-silent pip install --user -U docker-compose
+silent pip install -U docker-compose
 
 info "Starting the application using docker compose..."
-${HOME}/.local/bin/docker-compose up -d
+silent docker-compose up -d
 
 retry /usr/bin/curl -S --fail -s http://localhost:8080/health
 

@@ -33,6 +33,9 @@ public enum QuestionTypeEnum {
     @SerializedName("text_entry")
     TextEntry("text_entry"),
 
+    @SerializedName("extended_text")
+    ExtendedText("extended_text"),
+
     @SerializedName("match")
     Match("match"),
 
