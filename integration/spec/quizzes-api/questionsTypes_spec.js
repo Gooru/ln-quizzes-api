@@ -29,7 +29,7 @@ var checkTrueFalseQuestion = function (resources) {
         "value": "VHJ1ZQ==",
         "sequence": 1
     });
-    expect(resource[0].metadata.interaction.choices).toContain({
+    expect(resources[0].metadata.interaction.choices).toContain({
         "text": "False",
         "isFixed": true,
         "value": "RmFsc2U=",
