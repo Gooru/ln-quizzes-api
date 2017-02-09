@@ -113,9 +113,4 @@ public class CollectionRestClient {
         }
     }
 
-    public List<ResourceContentDto> getCollectionResources(String collectionId, String token) {
-        CollectionContentDto collectionContentDto = getCollection(collectionId, token);
-        return collectionContentDto.getContent();
-    }
-
 }

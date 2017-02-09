@@ -8,14 +8,11 @@ import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
-import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
-import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.mappers.EntityMapper;
@@ -30,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ContextService {
@@ -190,20 +186,6 @@ public class ContextService {
         }
 
         return mapContextOwnerEntityToContextAssignedDto(context);
-    }
-
-    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
-        ContextProfileWithContextEntity entity =
-                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
-        if (entity == null) {
-            throw new ContentNotFoundException("Context not found for ID: " + contextId);
-        }
-
-        if (entity.getProfileId() == null) {
-            throw new InvalidAssigneeException("Profile ID: " + profileId + " not assigned to the context ID: "
-                    + contextId);
-        }
-        return entity;
     }
 
     private ContextGetResponseDto mapContextOwnerEntityToContextAssignedDto(ContextOwnerEntity contextOwner) {

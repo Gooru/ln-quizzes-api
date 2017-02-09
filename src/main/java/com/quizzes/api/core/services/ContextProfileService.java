@@ -36,6 +36,10 @@ public class ContextProfileService {
         return contextProfileRepository.findContextProfileIdsByContextId(contextId);
     }
 
+    public List<UUID> findContextProfileIdsByContextIdAndProfileId(UUID contextId, UUID assigneeId) {
+        return contextProfileRepository.findContextProfileIdsByContextIdAndProfileId(contextId, assigneeId);
+    }
+
     public ContextProfile save(ContextProfile contextProfile) {
         return contextProfileRepository.save(contextProfile);
     }

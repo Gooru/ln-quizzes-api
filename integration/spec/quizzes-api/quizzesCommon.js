@@ -1,16 +1,9 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
-const NileApiUrl = require('./quizzesTestConfiguration.js').nileApiUrl;
+const ContentProviderApiUrl = require('./quizzesTestConfiguration.js').contentProviderApiUrl;
 const frisby = require('frisby');
 
 var testUsers = {};
-    testUsers["teacherqa01"] = {"firstname": "teacherqa01", "lastname": "teacherqa01", "identityId": "teacherqa01@edify.cr"};
-    testUsers["teacherqa02"] = {"firstname": "teacherqa02", "lastname": "teacherqa02", "identityId": "teacherqa02@edify.cr"};
-    testUsers["teacherqa03"] = {"firstname": "teacherqa03", "lastname": "teacherqa03", "identityId": "teacherqa03@edify.cr"};
-    testUsers["studentqa01"] = {"firstname": "studentqa01", "lastname": "studentqa01", "identityId": "studentqa01@edify.cr"};
-    testUsers["studentqa02"] = {"firstname": "studentqa02", "lastname": "studentqa02", "identityId": "studentqa02@edify.cr"};
-    testUsers["studentqa03"] = {"firstname": "studentqa03", "lastname": "studentqa03", "identityId": "studentqa03@edify.cr"};
-    testUsers["studentqa04"] = {"firstname": "studentqa04", "lastname": "studentqa04", "identityId": "studentqa04@edify.cr"};
-    testUsers["studentqa05"] = {"firstname": "studentqa05", "lastname": "studentqa05", "identityId": "studentqa05@edify.cr"};
+    testUsers["TestAcc01"] = {"firstname": "Test", "lastname": "Acc", "identityId": "acc01@test.com"};
 
 var quizzesCommon = {
 
@@ -35,7 +28,7 @@ var quizzesCommon = {
         var authorizationUser = this.getTestUser(userId);
         console.log("Autorization user " + authorizationUser.identityId);
         frisby.create('Gets the authorization token for ' + userId)
-            .post(NileApiUrl + '/v1/authorize', {
+            .post(ContentProviderApiUrl + '/v1/authorize', {
                 "client_key": "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==",
                 "client_id": "ba956a97-ae15-11e5-a302-f8a963065976",
                 "grant_type": "google",
@@ -56,16 +49,21 @@ var quizzesCommon = {
             .toss();
     },
 
+    getProfileIdFromToken : function(token) {
+        return Buffer(token, 'base64').toString().split(":")[1];
+    },
+
     startTest: function (title, functionalTest) {
         console.log("\n ****** Executing Functional Test: " + title + " ****** \n");
         functionalTest();
     },
 
     createContext: function (afterJsonFunction) {
-        this.getAuthorizationToken("teacherqa01", function (authResponse) {
-            frisby.create('Test context creation for teacherqa01')
+        this.getAuthorizationToken("TestAcc01", function (authResponse) {
+            frisby.create('Test context creation for TestAcc01')
                 .post(QuizzesApiUrl + '/v1/contexts', {
-                    'collectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+                    'collectionId': '3c843308-8864-4ecd-a1c8-75ab423336f2',
+                    'isCollection': false,
                     'contextData': {
                         'contextMap': {
                             'classId': 'class-id-1'
@@ -79,9 +77,9 @@ var quizzesCommon = {
                 //TODO: createContext is not fully working at this point, it is returning null
                 //TODO: once it is complete uncomment this two lines
 //                .expectHeaderContains('content-type', 'application/json')
-//                .inspectJSON()
+                .inspectJSON()
                 .afterJSON(function (context) {
-                    afterJsonFunction(context);
+                    afterJsonFunction(context, authResponse);
                 })
                 .toss();
         })
@@ -94,7 +92,7 @@ var quizzesCommon = {
      * @param afterJsonFunction function to call on afterJSON
      */
     createContextWithParams: function (body, afterJsonFunction) {
-        this.getAuthorizationToken("teacherqa01", function (authResponse) {
+        this.getAuthorizationToken("TestAcc", function (authResponse) {
             frisby.create('Test context creation using body ' + body)
                 .post(QuizzesApiUrl + '/v1/contexts', body, {json: true})
                 .addHeader('Authorization', 'Token ' + authResponse.access_token)

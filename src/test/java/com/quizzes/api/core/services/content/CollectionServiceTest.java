@@ -62,7 +62,7 @@ public class CollectionServiceTest {
     private String assessmentId;
     private String collectionId;
     private UUID resourceId;
-    private String questionId;
+    private UUID questionId;
     private String collectionTitle;
     private String resourceTitle;
     private String questionTitle;
@@ -76,7 +76,7 @@ public class CollectionServiceTest {
         assessmentId = UUID.randomUUID().toString();
         collectionId = UUID.randomUUID().toString();
         resourceId = UUID.randomUUID();
-        questionId = UUID.randomUUID().toString();
+        questionId = UUID.randomUUID();
         collectionTitle = "Assessment title";
         resourceTitle = "Resource title";
         questionTitle = "Question title";
@@ -251,7 +251,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong number of resources", 1, result.size());
 
         ResourceDto resourceResult = result.get(0);
-        assertEquals("Wrong resource ID", questionId, resourceResult.getId().toString());
+        assertEquals("Wrong resource ID", questionId, resourceResult.getId());
         assertTrue("IsResource is false ", resourceResult.getIsResource());
         assertEquals("Wrong sequence", 1, resourceResult.getSequence());
 
@@ -281,7 +281,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong number of resources", 1, result.size());
 
         ResourceDto resourceResult = result.get(0);
-        assertEquals("Wrong resource ID", questionId, resourceResult.getId().toString());
+        assertEquals("Wrong resource ID", questionId, resourceResult.getId());
         assertFalse("Wrong isResource is true", resourceResult.getIsResource());
         assertEquals("Wrong sequence", 1, resourceResult.getSequence());
 

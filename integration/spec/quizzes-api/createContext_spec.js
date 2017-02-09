@@ -3,31 +3,15 @@ const QuizzesCommon = require('./quizzesCommon.js');
 var frisby = require('frisby');
 
 QuizzesCommon.startTest("Create Context", function () {
-    QuizzesCommon.getAuthorizationToken("teacherqa01", function (authResponse) {
+    QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
         QuizzesCommon.createContext(function () {
-            QuizzesCommon.getProfileByExternalId('student-id-1', function (json) {
-                frisby.create('Verify that Assignee Profile has the correct data')
-                    .get(QuizzesApiUrl + '/v1/profile/' + json.id)
-                    .addHeader('Authorization', 'Token ' + authResponse.access_data)
-                    .inspectRequest()
+            //TODO: verify the context once we have the get context endpoint working
 
-                    .expectStatus(200)
-                    .inspectJSON()
-                    .expectJSON({
-                        'id': json.id,
-                        'externalId': 'student-id-1',
-                        'firstName': 'StudentFirstName1',
-                        'lastName': 'StudentLastName1',
-                        'username': 'student1',
-                        'email': 'student1@quizzes.com'
-                    })
-                    .toss();
-            });
         });
     });
 });
 
-QuizzesCommon.getAuthorizationToken("teacherqa01", function (authResponse) {
+QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
     frisby.create('Test wrong collection ID')
         .post(QuizzesApiUrl + '/v1/contexts', {
             'collectionId': 'wrong-assessment-id',
@@ -50,7 +34,7 @@ QuizzesCommon.getAuthorizationToken("teacherqa01", function (authResponse) {
 //TODO: this error will be a controlled 401 instead of 500
 frisby.create('Test context without owner (no authorization token)')
     .post(QuizzesApiUrl + '/v1/contexts', {
-        'collectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+        'collectionId': 'fa3bcf64-6ea8-4cdd-9ebe-359a24f5c9dd',
         'contextData': {
             'contextMap': {
                 'classId': 'class-id-1'
@@ -65,10 +49,10 @@ frisby.create('Test context without owner (no authorization token)')
 //    .expectJSON({"exception":"Missing request attribute \u0027profileId\u0027 of type String"})
     .toss();
 
-QuizzesCommon.getAuthorizationToken("teacherqa01", function (authResponse) {
+QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
     frisby.create('Test context without contextData')
         .post(QuizzesApiUrl + '/v1/contexts', {
-            'collectionId': 'b7af52ce-7afc-4301-959c-4342a6f941cb',
+            'collectionId': 'fa3bcf64-6ea8-4cdd-9ebe-359a24f5c9dd',
         }, {json: true})
         .addHeader('Authorization', 'Token ' + authResponse.access_token)
         .inspectRequest()

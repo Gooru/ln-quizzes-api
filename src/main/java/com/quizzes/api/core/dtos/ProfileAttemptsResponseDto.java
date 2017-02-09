@@ -3,15 +3,15 @@ package com.quizzes.api.core.dtos;
 import java.util.List;
 import java.util.UUID;
 
-public class ProfileEventResponseDto {
+public class ProfileAttemptsResponseDto {
 
     private UUID currentResourceId;
     private UUID profileId;
     private List<PostResponseResourceDto> events;
     private boolean isComplete;
-    private EventSummaryDataDto contextProfileSummary;
+    private EventSummaryDataDto eventSummary;
 
-    public ProfileEventResponseDto() {
+    public ProfileAttemptsResponseDto() {
     }
 
     public UUID getCurrentResourceId() {
@@ -46,11 +46,11 @@ public class ProfileEventResponseDto {
         this.isComplete = isComplete;
     }
 
-    public EventSummaryDataDto getContextProfileSummary() {
-        return contextProfileSummary;
+    public EventSummaryDataDto getEventSummary() {
+        return eventSummary;
     }
 
-    public void setContextProfileSummary(EventSummaryDataDto contextProfileSummary) {
-        this.contextProfileSummary = contextProfileSummary;
+    public void setEventSummary(EventSummaryDataDto eventSummary) {
+        this.eventSummary = eventSummary;
     }
 }
