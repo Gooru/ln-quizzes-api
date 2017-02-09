@@ -184,26 +184,6 @@ public class AttemptServiceTest {
 
     }
 
-    @Test
-    public void findContextProfileAttemptIds() throws Exception {
-        List<UUID> contextProfileIds = new ArrayList<>();
-        contextProfileIds.add(UUID.randomUUID());
-        contextProfileIds.add(UUID.randomUUID());
-        contextProfileIds.add(UUID.randomUUID());
-
-        when(contextProfileService.findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class))).
-                thenReturn(contextProfileIds);
-
-        AttemptIdsResponseDto result = attemptService.findAttemptIds(any(UUID.class),
-                any(UUID.class));
-
-        verify(contextProfileService, times(1)).
-                findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-
-        assertNotNull("Result is null", result);
-        assertEquals("Attempts size is incorrect", 3, result.getAttempts().size());
-    }
-
     private AssignedContextEntity createAssignedContextEntity() {
         AssignedContextEntity assignedContextEntity = mock(AssignedContextEntity.class);
 

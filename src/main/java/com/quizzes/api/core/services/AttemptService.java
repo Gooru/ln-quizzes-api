@@ -49,14 +49,6 @@ public class AttemptService {
         return response;
     }
 
-    public AttemptIdsResponseDto findAttemptIds(UUID contextId, UUID profileId) {
-        AttemptIdsResponseDto result = new AttemptIdsResponseDto();
-        List<IdResponseDto> ids = contextProfileService.findContextProfileIdsByContextIdAndProfileId(contextId, profileId).
-                stream().map(IdResponseDto::new).collect(Collectors.toList());
-        result.setAttempts(ids);
-        return result;
-    }
-
     private List<ProfileAttemptsResponseDto> mapProfileAttempts(Map<UUID, List<AssigneeEventEntity>> assigneeEvents) {
         return assigneeEvents.entrySet().stream().map(entity -> {
             List<AssigneeEventEntity> assigneeEventEntityList = entity.getValue();

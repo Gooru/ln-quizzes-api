@@ -3,6 +3,7 @@ package com.quizzes.api.core.controllers;
 import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.services.AttemptService;
+import com.quizzes.api.core.services.ContextProfileService;
 import com.quizzes.api.core.services.ContextService;
 import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
@@ -33,6 +34,9 @@ public class AttemptController {
     @Autowired
     private ContextService contextService;
 
+    @Autowired
+    private ContextProfileService contextProfileService;
+
     @ApiOperation(value = "Get Current Attempt Data Grouped By Profile",
             notes = "Returns the information of the Current (or Last) Attempt for every Profile ID assigned to " +
                     "the Context ID. The session-token should correspond to the owner of the Context ID")
@@ -56,7 +60,7 @@ public class AttemptController {
     @ApiOperation(value = "Get all the student event attempts",
             notes = "Returns the list of student events attempts IDs")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ContextAttemptsResponseDto.class),
+            @ApiResponse(code = 200, message = "OK", response = AttemptIdsResponseDto.class),
             @ApiResponse(code = 404, message = "Provided contextId does not exist"),
             @ApiResponse(code = 403, message = "Invalid assignee"),
             @ApiResponse(code = 500, message = "Internal Server Error")
@@ -78,7 +82,9 @@ public class AttemptController {
             contextService.findCreatedContext(contextId, authorizationProfileUUID);
         }
 
-        AttemptIdsResponseDto attemptIdsDto = attemptService.findAttemptIds(contextId, assigneeProfileId);
+        AttemptIdsResponseDto attemptIdsDto = new AttemptIdsResponseDto();
+        attemptIdsDto.setAttempts(contextProfileService
+                .findContextProfileIdsByContextIdAndProfileId(contextId, assigneeProfileId));
         return new ResponseEntity<>(attemptIdsDto, HttpStatus.OK);
     }
 }
