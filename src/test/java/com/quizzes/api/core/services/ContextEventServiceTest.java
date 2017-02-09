@@ -2,12 +2,10 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
-import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
-import com.quizzes.api.core.dtos.ProfileEventResponseDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
@@ -28,12 +26,10 @@ import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
@@ -41,9 +37,7 @@ import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
@@ -369,38 +363,6 @@ public class ContextEventServiceTest {
         assertEquals("Wrong number of events", 0, result.getEvents().size());
     }
 
-//    AssignedContextEntity context =
-//            currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
-//    PostRequestResourceDto resourceDto = getPreviousResource(body);
-//
-//    List<ResourceDto> collectionResources = getCollectionResources(context.getCollectionId(),
-//            context.getIsCollection());
-//    ResourceDto currentResource = findResourceInContext(collectionResources, resourceId, contextId);
-//    ResourceDto previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(),
-//            contextId);
-//
-//    List<ContextProfileEvent> contextProfileEvents =
-//            contextProfileEventService.findByContextProfileId(context.getContextProfileId());
-//    ContextProfileEvent contextProfileEvent = contextProfileEvents.stream()
-//            .filter(event -> event.getResourceId().equals(previousResource.getId())).findFirst().orElse(null);
-//
-//        if (contextProfileEvent == null) {
-//        contextProfileEvent = createContextProfileEvent(context.getContextProfileId(), previousResource.getId());
-//        contextProfileEvents.add(contextProfileEvent);
-//        resourceDto.setScore(!resourceDto.getIsSkipped() ? calculateScore(previousResource, resourceDto.getAnswer()) : 0);
-//    } else {
-//        resourceDto = updateExistingResourceDto(contextProfileEvent, previousResource, resourceDto);
-//    }
-//
-//        contextProfileEvent.setEventData(gson.toJson(resourceDto));
-//
-//    EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
-//    ContextProfile contextProfile = updateContextProfile(context.getContextProfileId(),
-//            currentResource.getId(), gson.toJson(eventSummary));
-//
-//    doOnResourceEventTransaction(contextProfile, contextProfileEvent);
-//    sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
-
     @Test
     public void processOnResourceEventWithoutEvent() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
@@ -423,7 +385,7 @@ public class ContextEventServiceTest {
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
-        List<ResourceDto> collectionResources =  Arrays.asList(resource, previousResource);
+        List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
 
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
@@ -466,7 +428,7 @@ public class ContextEventServiceTest {
 
         verifyPrivate(contextEventService, times(0)).invoke("updateExistingResourceDto", any(), any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
-        verifyPrivate(contextEventService, times(1)).invoke( "updateContextProfile", contextProfileId, resourceId,
+        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", contextProfileId, resourceId,
                 gson.toJson(eventSummaryDataDto));
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
@@ -496,7 +458,7 @@ public class ContextEventServiceTest {
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
-        List<ResourceDto> collectionResources =  Arrays.asList(resource, previousResource);
+        List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
 
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
@@ -536,7 +498,7 @@ public class ContextEventServiceTest {
 
         verifyPrivate(contextEventService, times(0)).invoke("updateExistingResourceDto", any(), any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
-        verifyPrivate(contextEventService, times(1)).invoke( "updateContextProfile", contextProfileId, resourceId,
+        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", contextProfileId, resourceId,
                 gson.toJson(eventSummaryDataDto));
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
@@ -566,7 +528,7 @@ public class ContextEventServiceTest {
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = Arrays.asList(contextProfileEvent);
-        List<ResourceDto> collectionResources =  Arrays.asList(resource, previousResource);
+        List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
 
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
@@ -605,7 +567,7 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, times(1)).invoke("updateExistingResourceDto",
                 eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
-        verifyPrivate(contextEventService, times(1)).invoke( "updateContextProfile", contextProfileId, resourceId,
+        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", contextProfileId, resourceId,
                 gson.toJson(eventSummaryDataDto));
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
@@ -715,7 +677,7 @@ public class ContextEventServiceTest {
     public void findResourceInContext() throws Exception {
         ResourceDto resource = createResourceDto();
 
-        List<ResourceDto> collectionResources =  new ArrayList<>();
+        List<ResourceDto> collectionResources = new ArrayList<>();
         collectionResources.add(resource);
 
         ResourceDto result = WhiteboxImpl.invokeMethod(contextEventService, "findResourceInContext",
@@ -728,7 +690,7 @@ public class ContextEventServiceTest {
     public void findResourceInContextThrowException() throws Exception {
         ResourceDto resource = createResourceDto();
 
-        List<ResourceDto> collectionResources =  new ArrayList<>();
+        List<ResourceDto> collectionResources = new ArrayList<>();
         collectionResources.add(resource);
 
         WhiteboxImpl.invokeMethod(contextEventService, "findResourceInContext",
@@ -854,7 +816,7 @@ public class ContextEventServiceTest {
         assertEquals("Wrong size", 2, result.size());
         assertEquals("Wrong resourceToCrete ID", resourceId, result.get(0).getResourceId());
         assertEquals("Wrong contextProfile ID", contextProfileId, result.get(0).getContextProfileId());
-        assertNotNull("EventData is null",  result.get(0).getEventData());
+        assertNotNull("EventData is null", result.get(0).getEventData());
 
     }
 
@@ -949,104 +911,6 @@ public class ContextEventServiceTest {
                 contextId, profileId, new EventSummaryDataDto());
         verify(activeMQClientService, times(1))
                 .sendFinishContextEventMessage(eq(contextId), eq(profileId), any(FinishContextEventMessageDto.class));
-    }
-
-    @Ignore
-    @Test
-    public void getContextEvents() throws Exception {
-        //Map values for findAllContextEvents
-        Map<UUID, List<AssigneeEventEntity>> contextEventsMap = new HashMap<>();
-        List<AssigneeEventEntity> events = new ArrayList<>();
-
-        //Body values
-        UUID bodyResourceId = UUID.randomUUID(); //Last resource id
-        long timeSpent = 1000;
-        int reaction = 3;
-        int score = 100;
-        boolean isSkipped = false;
-        String answerValue = "D";
-
-        //Setting entity values
-        AssigneeEventEntity assigneeEventEntity = Mockito.spy(AssigneeEventEntity.class);
-        when(assigneeEventEntity.getCurrentResourceId()).thenReturn(resourceId);
-        when(assigneeEventEntity.getEventData()).thenReturn(gson.toJson(createResponseResourceDto(bodyResourceId,
-                score, reaction, timeSpent, createAnswerList(answerValue), isSkipped)));
-        events.add(assigneeEventEntity);
-
-        //Adding students
-        UUID assigneeId1 = UUID.randomUUID();
-        contextEventsMap.put(assigneeId1, events);
-
-        //Setting context
-        Context context = createContext();
-
-        when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
-        //when(contextService.findByIdAndOwnerId(contextId, ownerId)).thenReturn(context);
-
-        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
-
-        verify(contextProfileEventService, times(1)).findByContextId(contextId);
-        //verify(contextService, times(1)).findByIdAndOwnerId(contextId, ownerId);
-
-        assertNotNull("Result is null", result);
-        assertEquals("Wrong context ID", contextId, result.getContextId());
-        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertEquals("Wrong size of events ID", 1, result.getProfileEvents().size());
-
-        ProfileEventResponseDto profileResult1 = result.getProfileEvents().get(0);
-        assertEquals("Wrong event size for assigneeId1", 1, profileResult1.getEvents().size());
-        assertEquals("Wrong profile ID for assigneeId1", assigneeId1, profileResult1.getProfileId());
-        assertEquals("Wrong current content id", resourceId, profileResult1.getCurrentResourceId());
-
-        PostResponseResourceDto eventResult = profileResult1.getEvents().get(0);
-        assertEquals("Wrong reaction", 3, eventResult.getReaction());
-        assertEquals("Wrong timeSpent", 1000, eventResult.getTimeSpent());
-        assertEquals("Wrong resource Id", bodyResourceId, eventResult.getResourceId());
-        assertEquals("Wrong score", 100, eventResult.getScore());
-        assertFalse("Wrong isSkipped value", eventResult.getIsSkipped());
-        assertEquals("Wrong answer value", answerValue, eventResult.getAnswer().get(0).getValue());
-    }
-
-    @Ignore
-    @Test
-    public void getContextEventsWithoutEvents() throws Exception {
-        //Map values for findAllContextEvents
-        Map<UUID, List<AssigneeEventEntity>> contextEventsMap = new HashMap<>();
-        List<AssigneeEventEntity> events = new ArrayList<>();
-
-        //Setting events
-        UUID currentResourceId = UUID.randomUUID();
-
-        //Setting entity values
-        AssigneeEventEntity assigneeEventEntity = Mockito.spy(AssigneeEventEntity.class);
-        when(assigneeEventEntity.getCurrentResourceId()).thenReturn(currentResourceId);
-        when(assigneeEventEntity.getEventData()).thenReturn(null);
-        events.add(assigneeEventEntity);
-
-        //Adding student
-        UUID assigneeId = UUID.randomUUID();
-        contextEventsMap.put(assigneeId, events);
-
-        //Setting context
-        Context context = createContext();
-
-        when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
-        //when(contextService.findByIdAndOwnerId(contextId, ownerId)).thenReturn(context);
-
-        ContextEventsResponseDto result = contextEventService.getContextEvents(contextId, ownerId);
-
-        verify(contextProfileEventService, times(1)).findByContextId(contextId);
-        //verify(contextService, times(1)).findByIdAndOwnerId(contextId, ownerId);
-
-        assertNotNull("Result is null", result);
-        assertEquals("Wrong context ID", contextId, result.getContextId());
-        assertEquals("Wrong collection ID", collectionId.toString(), result.getCollection().getId());
-        assertEquals("Wrong size of events ID", 1, result.getProfileEvents().size());
-
-        ProfileEventResponseDto profileResult = result.getProfileEvents().get(0);
-        assertEquals("Wrong event size", 0, profileResult.getEvents().size());
-        assertEquals("Wrong profile ID", assigneeId, profileResult.getProfileId());
-        assertEquals("Wrong current resource", currentResourceId, profileResult.getCurrentResourceId());
     }
 
     @Test
@@ -1240,6 +1104,15 @@ public class ContextEventServiceTest {
     @Test
     public void calculateScoreForHotTextSentenceWrongNumberOfAnswers() throws Exception {
         calculateScoreForMultipleOptionWrongNumberOfAnswers(QuestionTypeEnum.HotTextSentence);
+    }
+
+    @Test
+    public void calculateScoreForExtendedText() throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("Open text answer..."));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                QuestionTypeEnum.ExtendedText.getLiteral(), userAnswers, null);
+        assertEquals("Score should be 0", 0, result);
     }
 
     @Test

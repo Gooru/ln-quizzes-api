@@ -21,7 +21,9 @@ public enum GooruQuestionTypeEnum {
 
     SentenceHotTextHighlightQuestion("sentence_hot_text_highlight_question"),
 
-    FillInTheBlankQuestion("fill_in_the_blank_question");
+    FillInTheBlankQuestion("fill_in_the_blank_question"),
+
+    OpenEndedQuestion("open_ended_question");
 
     private final String literal;
 
