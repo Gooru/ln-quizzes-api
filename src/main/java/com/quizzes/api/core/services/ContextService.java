@@ -177,8 +177,8 @@ public class ContextService {
     private void validateCollectionOwner(UUID collectionId, boolean isCollection, UUID profileId, String token) {
         UUID ownerId = getCollectionOwnerId(collectionId.toString(), isCollection, token);
         if (!ownerId.equals(profileId)) {
-            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID:" +
-                    collectionId + ".");
+            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID: " +
+                    collectionId);
         }
     }
 
