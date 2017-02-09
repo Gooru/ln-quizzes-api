@@ -54,7 +54,7 @@ public class ContextController {
     @RequestMapping(path = "/contexts",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> assignContext(@ApiParam(name = "Body", value = "The contexts's collection ID, " +
+    public ResponseEntity<?> createContext(@ApiParam(name = "Body", value = "The contexts's collection ID, " +
             "class ID (optional) and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
                                            @RequestAttribute(value = "profileId") UUID profileId,
@@ -71,9 +71,9 @@ public class ContextController {
             errors.put("Errors", constraintErrors);
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
         }
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, profileId, token);
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        UUID contextId = contextService.createContext(contextPostRequestDto, profileId, token);
+        return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Created Contexts",
