@@ -1,6 +1,5 @@
 package com.quizzes.api.core.dtos.content;
 
-
 import com.google.gson.annotations.SerializedName;
 
 public class AccessTokenResponseDto {
@@ -26,4 +25,5 @@ public class AccessTokenResponseDto {
     public void setClientId(String clientId) {
         this.clientId = clientId;
     }
+
 }

@@ -57,11 +57,11 @@ public class AuthorizationTokenInterceptorTest {
         accessTokenResponseDto.setClientId(UUID.randomUUID().toString());
         accessTokenResponseDto.setUserId(UUID.randomUUID().toString());
 
-        when(authenticationRestClient.verifyUserToken(any(String.class))).thenReturn(accessTokenResponseDto);
+        when(authenticationRestClient.verifyAccessToken(any(String.class))).thenReturn(accessTokenResponseDto);
 
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
 
-        verify(authenticationRestClient, times(1)).verifyUserToken(any(String.class));
+        verify(authenticationRestClient, times(1)).verifyAccessToken(any(String.class));
 
         assertTrue("Result is false", result);
     }

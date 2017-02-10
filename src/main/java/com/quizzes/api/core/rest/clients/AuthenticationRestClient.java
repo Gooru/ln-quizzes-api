@@ -23,11 +23,8 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class AuthenticationRestClient {
-    private static final String CLIENT_KEY = "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==";
-    private static final String CLIENT_ID = "ba956a97-ae15-11e5-a302-f8a963065976";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
-    private static final String AUTH_API_URL = "/api/nucleus-auth/v1/";
-    private static final String ANONYMOUS_AUTH_API_URL = AUTH_API_URL.concat("token");
+    private static final String AUTH_TOKEN_URL = "api/nucleus-auth/v2/token";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,9 +40,8 @@ public class AuthenticationRestClient {
     @Autowired
     private GooruHelper gooruHelper;
 
-    public AccessTokenResponseDto verifyUserToken(String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
-
+    public void verifyAccessToken(String token) {
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_TOKEN_URL;
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
@@ -55,19 +51,13 @@ public class AuthenticationRestClient {
         try {
             HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
             HttpEntity entity = new HttpEntity(headers);
-            ResponseEntity<AccessTokenResponseDto> responseEntity =
-                    restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AccessTokenResponseDto.class);
-            AccessTokenResponseDto accessTokenResponseDto = responseEntity.getBody();
 
+            ResponseEntity<String> responseEntity =
+                    restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, String.class);
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);
-                logger.debug("Body: " + gsonPretty.toJson(accessTokenResponseDto));
+                logger.debug("Body: " + gsonPretty.toJson(responseEntity));
             }
-
-            return accessTokenResponseDto;
-        } catch (HttpClientErrorException hcee) {
-            logger.error("Gooru Token '" + token + "' is not valid.", hcee);
-            throw new InvalidSessionException("Unauthorized Token " + token, hcee);
         } catch (RestClientException rce) {
             logger.error("Gooru Token '" + token + "' is not valid.", rce);
             throw new ContentProviderException("Gooru Token " + token + " is not valid.", rce);

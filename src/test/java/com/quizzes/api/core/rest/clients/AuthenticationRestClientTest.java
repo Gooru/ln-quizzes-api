@@ -50,7 +50,7 @@ public class AuthenticationRestClientTest {
         doReturn(new ResponseEntity<>(response, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AccessTokenResponseDto.class));
 
-        authenticationRestClient.verifyUserToken("ANY_TOKEN");
+        authenticationRestClient.verifyAccessToken("ANY_TOKEN");
 
         verify(configurationService, times(1)).getContentApiUrl();
 
