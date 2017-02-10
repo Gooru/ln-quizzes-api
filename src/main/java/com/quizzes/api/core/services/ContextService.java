@@ -77,7 +77,7 @@ public class ContextService {
         Context context = new Context();
         context.setCollectionId(collectionId);
         context.setProfileId(profileId);
-        context.setIsCollection(collection.getCollection());
+        context.setIsCollection(collection.getIsCollection());
 
         Context savedContext = contextRepository.save(context);
         return savedContext.getId();

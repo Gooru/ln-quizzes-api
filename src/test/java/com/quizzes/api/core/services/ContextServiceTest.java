@@ -637,7 +637,7 @@ public class ContextServiceTest {
 
     private CollectionContentDto createCollectionContentDto() {
         CollectionContentDto collectionContentDto = new CollectionContentDto();
-        collectionContentDto.setCollection(true);
+        collectionContentDto.setIsCollection(true);
         collectionContentDto.setId(collectionId.toString());
         collectionContentDto.setOwnerId(profileId);
         return collectionContentDto;

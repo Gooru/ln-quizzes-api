@@ -78,7 +78,7 @@ public class AssessmentRestClientTest {
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
         verify(configurationService, times(1)).getContentApiUrl();
         verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
-        assertFalse("Collection is true", result.getCollection());
+        assertFalse("Collection is true", result.getIsCollection());
     }
 
 }

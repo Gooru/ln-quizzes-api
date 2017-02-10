@@ -67,7 +67,7 @@ public class CollectionRestClient {
             ResponseEntity<CollectionContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, CollectionContentDto.class);
             CollectionContentDto collection = responseEntity.getBody();
-            collection.setCollection(true);
+            collection.setIsCollection(true);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);

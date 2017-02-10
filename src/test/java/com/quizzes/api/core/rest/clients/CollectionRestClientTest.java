@@ -78,7 +78,7 @@ public class CollectionRestClientTest {
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
         verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
         verify(configurationService, times(1)).getContentApiUrl();
-        assertTrue("Collection is false", result.getCollection());
+        assertTrue("Collection is false", result.getIsCollection());
     }
 
 }

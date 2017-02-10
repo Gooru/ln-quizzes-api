@@ -45,11 +45,11 @@ public class CollectionContentDto {
         this.ownerId = ownerId;
     }
 
-    public Boolean getCollection() {
+    public Boolean getIsCollection() {
         return isCollection;
     }
 
-    public void setCollection(Boolean collection) {
+    public void setIsCollection(Boolean collection) {
         isCollection = collection;
     }
 

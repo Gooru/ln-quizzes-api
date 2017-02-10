@@ -60,7 +60,7 @@ public class AssessmentRestClient {
             ResponseEntity<AssessmentContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AssessmentContentDto.class);
             AssessmentContentDto assessment = responseEntity.getBody();
-            assessment.setCollection(false);
+            assessment.setIsCollection(false);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);
