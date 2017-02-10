@@ -2,16 +2,15 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AttemptGetResponseDto;
-import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
-import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEventEntity;
+import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,6 +77,14 @@ public class AttemptService {
         }).collect(Collectors.toList());
     }
 
+    /**
+     * Get the Attempt information
+     * If the Collection in the {@link Context} has no Resources then Event Data will be empty ("null")
+     *
+     * @param attemptId the Attempt ID
+     * @param profileId the Owner or the Assignee ID, it works for both
+     * @return
+     */
     public AttemptGetResponseDto getAttempt(UUID attemptId, UUID profileId) {
 
         List<ContextProfileEventEntity> contextProfileEvents =

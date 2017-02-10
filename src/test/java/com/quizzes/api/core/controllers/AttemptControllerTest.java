@@ -1,6 +1,7 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.AttemptGetResponseDto;
 import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
@@ -177,6 +178,28 @@ public class AttemptControllerTest {
 
         verify(contextProfileService, times(1)).findContextProfileIdsByContextIdAndProfileId(any(UUID.class),
                 any(UUID.class));
+    }
+
+    @Test
+    public void getAttempt() throws Exception {
+        UUID attemptId = UUID.randomUUID();
+
+        when(attemptService.getAttempt(attemptId, profileId)).thenReturn(new AttemptGetResponseDto());
+
+        ResponseEntity<AttemptGetResponseDto> response = controller.getAttempt(attemptId, profileId.toString());
+
+        verify(attemptService, times(1)).getAttempt(attemptId, profileId);
+    }
+
+    @Test(expected = InvalidOwnerException.class)
+    public void getAttemptWhenAnonymous() throws Exception {
+        UUID attemptId = UUID.randomUUID();
+
+        when(attemptService.getAttempt(attemptId, profileId)).thenReturn(new AttemptGetResponseDto());
+
+        ResponseEntity<AttemptGetResponseDto> response = controller.getAttempt(attemptId, "anonymous");
+
+        verify(attemptService, times(1)).getAttempt(attemptId, profileId);
     }
 
     private PostResponseResourceDto createPostResponseResourceDto(int score, int reaction, UUID resourceId,
