@@ -29,11 +29,31 @@ var checkTrueFalseQuestion = function (resources) {
     });
 };
 
+var checkHotTextWordQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Highlight Word Question");
+    expect(resources[0].metadata.body).toEqual("The big bad wolf blew down the house.");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(2);
+    expect(resources[0].metadata.correctAnswer[0]).toEqual({"value": "big,4"});
+    expect(resources[0].metadata.correctAnswer[1]).toEqual({"value": "down,22"});
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
+
+var checkHotTextSentenceQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Highlight Sentence Question");
+    expect(resources[0].metadata.body).toEqual("The first little pig built his house of straw. The big bad wolf blew down the house. The second pig built his house of wood.");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(1);
+    expect(resources[0].metadata.correctAnswer).toEqual([{"value": "The big bad wolf blew down the house.,47"}]);
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
 
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
     QuizzesCommon.getAssessmentById(QuizzesCommon.questionTypeDemoAssessment, function(json) {
         var resources = json.resources;
 
+        checkHotTextWordQuestion(getResourceByQuestionType(resources, "hot_text_word"));
+        checkHotTextSentenceQuestion(getResourceByQuestionType(resources, "hot_text_sentence"));
         checkTrueFalseQuestion(getResourceByQuestionType(resources, "true_false"));
     });
 });
