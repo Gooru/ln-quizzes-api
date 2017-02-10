@@ -89,7 +89,7 @@ public class ContextControllerTest {
         ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
 
         verify(contextService, times(1)).createContext(assignment, profileId, token);
-        verify(contextService, times(0)).createContextForAnonymous(any(), any());
+        verify(contextService, times(0)).createContextForAnonymous(any(), any(), any());
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
@@ -101,12 +101,12 @@ public class ContextControllerTest {
         assignment.setCollectionId(collectionId);
 
         when(configurationService.getAnonymousId()).thenCallRealMethod();
-        when(contextService.createContextForAnonymous(collectionId, anonymousId)).thenReturn(contextId);
+        when(contextService.createContextForAnonymous(collectionId, anonymousId, token)).thenReturn(contextId);
 
         ResponseEntity<?> result = controller.createContext(assignment, "anonymous", token);
 
         verify(contextService, times(0)).createContext(any(), any(), any());
-        verify(contextService, times(1)).createContextForAnonymous(collectionId, anonymousId);
+        verify(contextService, times(1)).createContextForAnonymous(collectionId, anonymousId, token);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());

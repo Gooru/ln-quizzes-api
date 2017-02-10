@@ -47,8 +47,7 @@ public class AssessmentRestClient {
     @Autowired
     AuthenticationRestClient authenticationRestClient;
 
-    public AssessmentContentDto getAssessment(UUID assessmentId) {
-        String token = authenticationRestClient.generateAnonymousToken();
+    public AssessmentContentDto getAssessment(UUID assessmentId, String token) {
         String endpointUrl = configurationService.getContentApiUrl() + ASSESSMENTS_PATH + assessmentId;
 
         if (logger.isDebugEnabled()) {

@@ -54,8 +54,7 @@ public class CollectionRestClient {
     @Autowired
     ConfigurationService configurationService;
 
-    public CollectionContentDto getCollection(UUID collectionId) {
-        String token = authenticationRestClient.generateAnonymousToken();
+    public CollectionContentDto getCollection(UUID collectionId, String token) {
         String endpointUrl = configurationService.getContentApiUrl() + COLLECTIONS_PATH + collectionId;
 
         if (logger.isDebugEnabled()) {

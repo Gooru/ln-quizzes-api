@@ -52,7 +52,7 @@ public class ContextService {
     public UUID createContext(ContextPostRequestDto contextDto, UUID profileId, String token) throws
             InvalidOwnerException {
         CollectionContentDto collection =
-                getCollection(contextDto.getIsCollection(), contextDto.getCollectionId());
+                getCollection(contextDto.getIsCollection(), contextDto.getCollectionId(), token);
         validateCollectionOwnerInContext(profileId, collection.getOwnerId(), contextDto.getCollectionId());
 
         Context context = createContextObject(contextDto, profileId);
@@ -72,8 +72,8 @@ public class ContextService {
         return savedContext.getId();
     }
 
-    public UUID createContextForAnonymous(UUID collectionId, UUID profileId) {
-        CollectionContentDto collection = getCollection(null, collectionId);
+    public UUID createContextForAnonymous(UUID collectionId, UUID profileId, String token) {
+        CollectionContentDto collection = getCollection(null, collectionId, token);
         Context context = new Context();
         context.setCollectionId(collectionId);
         context.setProfileId(profileId);
@@ -83,14 +83,14 @@ public class ContextService {
         return savedContext.getId();
     }
 
-    private CollectionContentDto getCollection(Boolean type, UUID collectionId) {
+    private CollectionContentDto getCollection(Boolean type, UUID collectionId, String token) {
         if (type == null) {
-            return collectionService.getCollectionContentUnknownType(collectionId);
+            return collectionService.getCollectionContentUnknownType(collectionId, token);
         } else if (type) {
-            return collectionRestClient.getCollection(collectionId);
+            return collectionRestClient.getCollection(collectionId, token);
         }
 
-        return assessmentRestClient.getAssessment(collectionId);
+        return assessmentRestClient.getAssessment(collectionId, token);
     }
 
     /**

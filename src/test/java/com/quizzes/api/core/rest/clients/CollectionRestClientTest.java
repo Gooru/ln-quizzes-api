@@ -71,13 +71,11 @@ public class CollectionRestClientTest {
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
         doReturn(new HttpHeaders()).when(gooruHelper).setupHttpHeaders(userToken);
         doReturn(url).when(configurationService).getContentApiUrl();
-        doReturn(userToken).when(authenticationRestClient).generateAnonymousToken();
 
-        CollectionContentDto result = collectionRestClient.getCollection(collectionId);
+        CollectionContentDto result = collectionRestClient.getCollection(collectionId, userToken);
 
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
-        verify(authenticationRestClient, times(1)).generateAnonymousToken();
         verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
         verify(configurationService, times(1)).getContentApiUrl();
         assertTrue("Collection is false", result.getCollection());

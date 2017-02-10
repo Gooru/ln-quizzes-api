@@ -91,12 +91,14 @@ public class CollectionServiceTest {
         CollectionDto collectionDto = createCollectionDtoForAssessment();
         AssessmentContentDto assessmentContentDto = new AssessmentContentDto();
 
-        when(assessmentRestClient.getAssessment(assessmentId)).thenReturn(assessmentContentDto);
+        when(authenticationRestClient.generateAnonymousToken()).thenReturn(token);
+        when(assessmentRestClient.getAssessment(assessmentId, token)).thenReturn(assessmentContentDto);
         doReturn(collectionDto).when(collectionService, "convertGooruAssessmentToQuizzesFormat", assessmentContentDto);
 
         CollectionDto result = collectionService.getAssessment(assessmentId);
 
-        verify(assessmentRestClient, times(1)).getAssessment(assessmentId);
+        verify(authenticationRestClient, times(1)).generateAnonymousToken();
+        verify(assessmentRestClient, times(1)).getAssessment(assessmentId, token);
         verifyPrivate(collectionService, times(1)).invoke("convertGooruAssessmentToQuizzesFormat", assessmentContentDto);
 
         assertEquals("Wrong assessment ID", assessmentId.toString(), result.getId());
@@ -127,12 +129,14 @@ public class CollectionServiceTest {
         CollectionDto collectionDto = createCollectionDtoForCollection();
         CollectionContentDto collectionContentDto = new CollectionContentDto();
 
-        when(collectionRestClient.getCollection(collectionId)).thenReturn(collectionContentDto);
+        when(authenticationRestClient.generateAnonymousToken()).thenReturn(token);
+        when(collectionRestClient.getCollection(collectionId, token)).thenReturn(collectionContentDto);
         doReturn(collectionDto).when(collectionService, "convertGooruCollectionToQuizzesFormat", collectionContentDto);
 
         CollectionDto result = collectionService.getCollection(collectionId);
 
-        verify(collectionRestClient, times(1)).getCollection(collectionId);
+        verify(authenticationRestClient, times(1)).generateAnonymousToken();
+        verify(collectionRestClient, times(1)).getCollection(collectionId, token);
         verifyPrivate(collectionService, times(1)).invoke("convertGooruCollectionToQuizzesFormat", collectionContentDto);
 
         assertEquals("Wrong assessment ID", collectionId.toString(), result.getId());

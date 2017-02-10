@@ -66,7 +66,7 @@ public class ContextController {
         if(profileId.equals(ConfigurationService.ANONYMOUS)){
             return new ResponseEntity<>(
                     new IdResponseDto(contextService.createContextForAnonymous(contextPostRequestDto.getCollectionId(),
-                            configurationService.getAnonymousId())), HttpStatus.OK);
+                            configurationService.getAnonymousId(), token)), HttpStatus.OK);
         }
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();

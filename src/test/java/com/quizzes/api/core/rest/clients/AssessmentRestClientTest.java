@@ -69,16 +69,14 @@ public class AssessmentRestClientTest {
         doReturn(url).when(configurationService).getContentApiUrl();
         doReturn(new HttpHeaders()).when(gooruHelper).setupHttpHeaders(userToken);
 
-        doReturn(userToken).when(authenticationRestClient).generateAnonymousToken();
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
 
-        AssessmentContentDto result = assessmentRestClient.getAssessment(assessmentId);
+        AssessmentContentDto result = assessmentRestClient.getAssessment(assessmentId, userToken);
 
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
         verify(configurationService, times(1)).getContentApiUrl();
-        verify(authenticationRestClient, times(1)).generateAnonymousToken();
         verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
         assertFalse("Collection is true", result.getCollection());
     }
