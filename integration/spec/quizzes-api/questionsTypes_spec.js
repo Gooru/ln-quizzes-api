@@ -29,11 +29,22 @@ var checkTrueFalseQuestion = function (resources) {
     });
 };
 
+var checkTextEntryQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Fill in the Blank Question");
+    expect(resources[0].metadata.body).toEqual("<span style=\"background-color: rgb(255, 255, 255);\">FIll with \"wolf\" and \"house\". The big bad [] blew down the [].</span><br>");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(2);
+    expect(resources[0].metadata.correctAnswer[0]).toEqual({"value": "wolf"});
+    expect(resources[0].metadata.correctAnswer[1]).toEqual({"value": "house"});
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
+
 
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
     QuizzesCommon.getAssessmentById(QuizzesCommon.questionTypeDemoAssessment, function(json) {
         var resources = json.resources;
 
         checkTrueFalseQuestion(getResourceByQuestionType(resources, "true_false"));
+        checkTextEntryQuestion(getResourceByQuestionType(resources, "text_entry"));
     });
 });
