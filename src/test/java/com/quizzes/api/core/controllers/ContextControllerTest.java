@@ -100,7 +100,6 @@ public class ContextControllerTest {
         ContextPostRequestDto assignment = new ContextPostRequestDto();
         assignment.setCollectionId(collectionId);
 
-        when(configurationService.getAnonymousId()).thenCallRealMethod();
         when(contextService.createContextForAnonymous(collectionId, anonymousId, token)).thenReturn(contextId);
 
         ResponseEntity<?> result = controller.createContext(assignment, "anonymous", token);

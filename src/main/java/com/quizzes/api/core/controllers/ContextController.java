@@ -45,9 +45,6 @@ public class ContextController {
     private ContextService contextService;
 
     @Autowired
-    private ConfigurationService configurationService;
-
-    @Autowired
     private EntityMapper entityMapper;
 
     @ApiOperation(
@@ -67,7 +64,7 @@ public class ContextController {
         if(QuizzesUtils.isAnonymous(profileId)){
             return new ResponseEntity<>(
                     new IdResponseDto(contextService.createContextForAnonymous(contextPostRequestDto.getCollectionId(),
-                            configurationService.getAnonymousId(), token)), HttpStatus.OK);
+                            QuizzesUtils.getAnonymousId(), token)), HttpStatus.OK);
         }
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
