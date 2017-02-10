@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: quizzes-api.services
+  - source: quizzes-api.service
     destination: /etc/systemd/system/
   - source: quizzes-api.jar
     destination: /opt/quizzes-api/
