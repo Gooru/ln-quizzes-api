@@ -214,6 +214,22 @@ public class ContextServiceTest {
     }
 
     @Test
+    public void createContextForAnonymous() throws Exception {
+        CollectionContentDto collectionContentDto = createCollectionContentDto();
+        Context context = new Context();
+        context.setId(contextId);
+
+        doReturn(collectionContentDto).when(contextService, "getCollection", null, collectionId);
+        doReturn(context).when(contextRepository).save(any(Context.class));
+
+        UUID result = contextService.createContextForAnonymous(collectionId, profileId);
+
+        verifyPrivate(contextService, times(1)).invoke("getCollection", null, collectionId);
+        verify(contextRepository, times(1)).save(any(Context.class));
+        assertEquals("Wrong id for context", contextId, result);
+    }
+
+    @Test
     public void createContextWithoutClassIdForCollection() throws Exception {
         CollectionContentDto collectionContentDto = createCollectionContentDto();
         ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
