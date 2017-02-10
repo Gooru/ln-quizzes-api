@@ -3,7 +3,6 @@ package com.quizzes.api.core.services;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.quizzes.api.core.dtos.ClassMemberContentDto;
-import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.MetadataDto;
@@ -45,7 +44,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -220,12 +218,17 @@ public class ContextServiceTest {
         context.setId(contextId);
 
         doReturn(collectionContentDto).when(contextService, "getCollection", null, collectionId, token);
+        doReturn(new ContextProfile()).when(contextService, "createContextProfileObject", any(UUID.class),
+                any(UUID.class));
         doReturn(context).when(contextRepository).save(any(Context.class));
+        doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
 
         UUID result = contextService.createContextForAnonymous(collectionId, profileId, token);
 
         verifyPrivate(contextService, times(1)).invoke("getCollection", null, collectionId, token);
+        verifyPrivate(contextService, times(1)).invoke("createContextProfileObject", any(UUID.class), any(UUID.class));
         verify(contextRepository, times(1)).save(any(Context.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
         assertEquals("Wrong id for context", contextId, result);
     }
 
@@ -262,13 +265,13 @@ public class ContextServiceTest {
 
     @Test
     public void getCollectionContentUnknownType() throws Exception {
-        when(collectionService.getCollectionContentUnknownType(collectionId, token))
+        when(collectionService.getCollectionOrAssessment(collectionId, token))
                 .thenReturn(new CollectionContentDto());
         Boolean isCollection = null;
 
         WhiteboxImpl.invokeMethod(contextService, "getCollection", isCollection, collectionId, token);
 
-        verify(collectionService, times(1)).getCollectionContentUnknownType(collectionId, token);
+        verify(collectionService, times(1)).getCollectionOrAssessment(collectionId, token);
         verify(collectionRestClient, times(0)).getCollection(any(), any());
         verify(assessmentRestClient, times(0)).getAssessment(any(), any());
     }
@@ -280,7 +283,7 @@ public class ContextServiceTest {
 
         WhiteboxImpl.invokeMethod(contextService, "getCollection", true, collectionId, token);
 
-        verify(collectionService, times(0)).getCollectionContentUnknownType(collectionId, token);
+        verify(collectionService, times(0)).getCollectionOrAssessment(collectionId, token);
         verify(collectionRestClient, times(1)).getCollection(any(), any());
         verify(assessmentRestClient, times(0)).getAssessment(any(), any());
     }
@@ -292,7 +295,7 @@ public class ContextServiceTest {
 
         WhiteboxImpl.invokeMethod(contextService, "getCollection", false, collectionId, token);
 
-        verify(collectionService, times(0)).getCollectionContentUnknownType(collectionId, token);
+        verify(collectionService, times(0)).getCollectionOrAssessment(collectionId, token);
         verify(collectionRestClient, times(0)).getCollection(any(), any());
         verify(assessmentRestClient, times(1)).getAssessment(any(), any());
     }

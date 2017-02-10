@@ -17,4 +17,8 @@ public class QuizzesUtils {
             throw new InvalidOwnerException(message);
         }
     }
+
+    public static boolean isAnonymous(String profileId) {
+        return profileId.equals(ANONYMOUS_PROFILE);
+    }
 }

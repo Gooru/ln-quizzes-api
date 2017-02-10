@@ -72,6 +72,15 @@ public class ContextService {
         return savedContext.getId();
     }
 
+    /**
+     * Only saves collectionId, profileId and isCollection for anonymous contexts
+     *
+     * @param collectionId collection ID
+     * @param profileId we use an UUID with zeros for anonymous
+     * @param token for the anonymous user
+     * @return the context ID
+     */
+    @Transactional
     public UUID createContextForAnonymous(UUID collectionId, UUID profileId, String token) {
         CollectionContentDto collection = getCollection(null, collectionId, token);
         Context context = new Context();
@@ -80,12 +89,13 @@ public class ContextService {
         context.setIsCollection(collection.getIsCollection());
 
         Context savedContext = contextRepository.save(context);
+        contextProfileService.save(createContextProfileObject(savedContext.getId(), profileId));
         return savedContext.getId();
     }
 
     private CollectionContentDto getCollection(Boolean type, UUID collectionId, String token) {
         if (type == null) {
-            return collectionService.getCollectionContentUnknownType(collectionId, token);
+            return collectionService.getCollectionOrAssessment(collectionId, token);
         } else if (type) {
             return collectionRestClient.getCollection(collectionId, token);
         }

@@ -82,7 +82,7 @@ public class CollectionService {
         return convertGooruCollectionToQuizzesFormat(collectionContentDto);
     }
 
-    public CollectionContentDto getCollectionContentUnknownType(UUID collectionId, String token) {
+    public CollectionContentDto getCollectionOrAssessment(UUID collectionId, String token) {
         CollectionContentDto collectionContentDto;
         try {
             collectionContentDto = collectionRestClient.getCollection(collectionId, token);

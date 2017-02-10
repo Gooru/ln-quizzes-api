@@ -8,6 +8,7 @@ import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.ContextService;
+import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -63,7 +64,7 @@ public class ContextController {
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
                                            @RequestAttribute(value = "profileId") String profileId,
                                            @RequestAttribute(value = "token") String token) {
-        if(profileId.equals(ConfigurationService.ANONYMOUS)){
+        if(QuizzesUtils.isAnonymous(profileId)){
             return new ResponseEntity<>(
                     new IdResponseDto(contextService.createContextForAnonymous(contextPostRequestDto.getCollectionId(),
                             configurationService.getAnonymousId(), token)), HttpStatus.OK);
