@@ -50,14 +50,14 @@ public class ClassMemberRestClientTest {
     private String userToken;
     private String url;
     private UUID memberId;
-    private String classId;
+    private UUID classId;
 
     @Before
     public void before() throws Exception {
         userToken = "user-token";
         url = "http://www.gooru.org";
         memberId = UUID.randomUUID();
-        classId  = UUID.randomUUID().toString();
+        classId  = UUID.randomUUID();
     }
 
     @Test

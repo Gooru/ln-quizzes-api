@@ -869,24 +869,24 @@ public class ContextEventServiceTest {
 
     @Test
     public void getCollectionResourcesForCollectionType() throws Exception {
-        when(collectionService.getCollectionResources(collectionId.toString()))
+        when(collectionService.getCollectionResources(collectionId))
                 .thenReturn(new ArrayList<ResourceDto>());
 
         WhiteboxImpl.invokeMethod(contextEventService, "getCollectionResources", collectionId, true);
 
-        verify(collectionService, times(1)).getCollectionResources(collectionId.toString());
-        verify(collectionService, times(0)).getAssessmentQuestions(collectionId.toString());
+        verify(collectionService, times(1)).getCollectionResources(collectionId);
+        verify(collectionService, times(0)).getAssessmentQuestions(collectionId);
     }
 
     @Test
     public void getCollectionResourcesForAssessmentType() throws Exception {
-        when(collectionService.getAssessmentQuestions(collectionId.toString()))
+        when(collectionService.getAssessmentQuestions(collectionId))
                 .thenReturn(new ArrayList<ResourceDto>());
 
         WhiteboxImpl.invokeMethod(contextEventService, "getCollectionResources", collectionId, false);
 
-        verify(collectionService, times(0)).getCollectionResources(collectionId.toString());
-        verify(collectionService, times(1)).getAssessmentQuestions(collectionId.toString());
+        verify(collectionService, times(0)).getCollectionResources(collectionId);
+        verify(collectionService, times(1)).getAssessmentQuestions(collectionId);
     }
 
     @Test

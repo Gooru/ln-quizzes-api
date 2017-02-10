@@ -452,8 +452,8 @@ public class ContextEventService {
     }
 
     private List<ResourceDto> getCollectionResources(UUID collectionId, boolean isCollection) {
-        return isCollection ? collectionService.getCollectionResources(collectionId.toString()) :
-                collectionService.getAssessmentQuestions(collectionId.toString());
+        return isCollection ? collectionService.getCollectionResources(collectionId) :
+                collectionService.getAssessmentQuestions(collectionId);
     }
 
     private PostRequestResourceDto updateExistingResourceDto(ContextProfileEvent contextProfileEvent,

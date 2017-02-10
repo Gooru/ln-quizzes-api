@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class CollectionRestClient {
@@ -53,7 +54,8 @@ public class CollectionRestClient {
     @Autowired
     ConfigurationService configurationService;
 
-    public CollectionContentDto getCollection(String collectionId, String token) {
+    public CollectionContentDto getCollection(UUID collectionId) {
+        String token = authenticationRestClient.generateAnonymousToken();
         String endpointUrl = configurationService.getContentApiUrl() + COLLECTIONS_PATH + collectionId;
 
         if (logger.isDebugEnabled()) {
@@ -66,6 +68,7 @@ public class CollectionRestClient {
             ResponseEntity<CollectionContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, CollectionContentDto.class);
             CollectionContentDto collection = responseEntity.getBody();
+            collection.setCollection(true);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);

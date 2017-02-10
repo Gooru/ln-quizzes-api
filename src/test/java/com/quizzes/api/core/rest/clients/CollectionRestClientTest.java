@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
@@ -50,32 +52,35 @@ public class CollectionRestClientTest {
     private GooruHelper gooruHelper;
 
     private String userToken;
-    private String collectionId;
+    private UUID collectionId;
     private String url;
 
     @Before
     public void before() throws Exception {
         userToken = "user-token";
-        collectionId = UUID.randomUUID().toString();
+        collectionId = UUID.randomUUID();
         url = "http://www.gooru.org";
     }
 
     @Test
     public void getCollection() throws Exception {
         CollectionContentDto collectionContentDto = new CollectionContentDto();
-        collectionContentDto.setId(UUID.randomUUID().toString());
+        collectionContentDto.setId(collectionId.toString());
 
         doReturn(new ResponseEntity<>(collectionContentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
         doReturn(new HttpHeaders()).when(gooruHelper).setupHttpHeaders(userToken);
         doReturn(url).when(configurationService).getContentApiUrl();
+        doReturn(userToken).when(authenticationRestClient).generateAnonymousToken();
 
-        collectionRestClient.getCollection(collectionContentDto.getId(), userToken);
+        CollectionContentDto result = collectionRestClient.getCollection(collectionId);
 
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
+        verify(authenticationRestClient, times(1)).generateAnonymousToken();
         verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
         verify(configurationService, times(1)).getContentApiUrl();
+        assertTrue("Collection is false", result.getCollection());
     }
 
 }

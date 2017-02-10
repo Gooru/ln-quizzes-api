@@ -15,6 +15,7 @@ import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
+import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,19 +43,23 @@ public class ContextService {
     private ClassMemberRestClient classMemberRestClient;
 
     @Autowired
+    private CollectionService collectionService;
+
+    @Autowired
     private Gson gson;
 
     @Transactional
-    public UUID createContext(ContextPostRequestDto contextDto, UUID profileId, String token) {
-        //TODO: Validate collection, class if exist, profile (could be anonymous)
-        validateCollectionOwner(contextDto.getCollectionId(), contextDto.getIsCollection(), profileId, token);
+    public UUID createContext(ContextPostRequestDto contextDto, UUID profileId, String token) throws
+            InvalidOwnerException {
+        CollectionContentDto collection =
+                getCollection(contextDto.getIsCollection(), contextDto.getCollectionId());
+        validateCollectionOwnerInContext(profileId, collection.getOwnerId(), contextDto.getCollectionId());
 
         Context context = createContextObject(contextDto, profileId);
         List<UUID> assigneeIds = new ArrayList<>();
 
         if (contextDto.getClassId() != null) {
-            assigneeIds.addAll(classMemberRestClient.getClassMembers(contextDto.getClassId().toString(), token)
-                    .getMemberIds());
+            assigneeIds.addAll(classMemberRestClient.getClassMembers(contextDto.getClassId(), token).getMemberIds());
         }
 
         // Saves all processed data
@@ -65,6 +70,27 @@ public class ContextService {
         }
 
         return savedContext.getId();
+    }
+
+    public UUID createContextForAnonymous(UUID collectionId, UUID profileId) {
+        CollectionContentDto collection = getCollection(null, collectionId);
+        Context context = new Context();
+        context.setCollectionId(collectionId);
+        context.setProfileId(profileId);
+        context.setIsCollection(collection.getCollection());
+
+        Context savedContext = contextRepository.save(context);
+        return savedContext.getId();
+    }
+
+    private CollectionContentDto getCollection(Boolean type, UUID collectionId) {
+        if (type == null) {
+            return collectionService.getCollectionContentUnknownType(collectionId);
+        } else if (type) {
+            return collectionRestClient.getCollection(collectionId);
+        }
+
+        return assessmentRestClient.getAssessment(collectionId);
     }
 
     /**
@@ -166,16 +192,8 @@ public class ContextService {
         return context;
     }
 
-    private UUID getCollectionOwnerId(String collectionId, boolean isCollection, String token) {
-        CollectionContentDto collectionContentDto = isCollection ?
-                collectionRestClient.getCollection(collectionId, token) :
-                assessmentRestClient.getAssessment(collectionId, token);
-
-        return collectionContentDto.getOwnerId();
-    }
-
-    private void validateCollectionOwner(UUID collectionId, boolean isCollection, UUID profileId, String token) {
-        UUID ownerId = getCollectionOwnerId(collectionId.toString(), isCollection, token);
+    private void validateCollectionOwnerInContext(UUID profileId, UUID ownerId, UUID collectionId) throws
+            InvalidOwnerException {
         if (!ownerId.equals(profileId)) {
             throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID: " +
                     collectionId);

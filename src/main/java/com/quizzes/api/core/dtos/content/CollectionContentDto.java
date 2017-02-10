@@ -14,6 +14,8 @@ public class CollectionContentDto {
     @SerializedName("owner_id")
     private UUID ownerId;
 
+    private Boolean isCollection;
+
     private List<ResourceContentDto> content;
 
     public CollectionContentDto() {
@@ -41,6 +43,14 @@ public class CollectionContentDto {
 
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public Boolean getCollection() {
+        return isCollection;
+    }
+
+    public void setCollection(Boolean collection) {
+        isCollection = collection;
     }
 
     public List<ResourceContentDto> getContent() {
