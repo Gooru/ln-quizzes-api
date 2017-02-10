@@ -13,6 +13,7 @@ import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
@@ -25,6 +26,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -68,27 +70,38 @@ public class CollectionService {
     @Autowired
     CollectionRestClient collectionRestClient;
 
-    public CollectionDto getAssessment(String assessmentId) {
-        String userToken = authenticationRestClient.generateAnonymousToken();
-        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
+    public CollectionDto getAssessment(UUID assessmentId) {
+        String token = authenticationRestClient.generateAnonymousToken();
+        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, token);
         return convertGooruAssessmentToQuizzesFormat(assessmentContentDto);
     }
 
-    public CollectionDto getCollection(String collectionId) {
-        String userToken = authenticationRestClient.generateAnonymousToken();
-        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, userToken);
+    public CollectionDto getCollection(UUID collectionId) {
+        String token = authenticationRestClient.generateAnonymousToken();
+        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, token);
         return convertGooruCollectionToQuizzesFormat(collectionContentDto);
     }
 
-    public List<ResourceDto> getAssessmentQuestions(String assessmentId) {
-        String userToken = authenticationRestClient.generateAnonymousToken();
-        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
+    public CollectionContentDto getCollectionOrAssessment(UUID collectionId, String token) {
+        CollectionContentDto collectionContentDto;
+        try {
+            collectionContentDto = collectionRestClient.getCollection(collectionId, token);
+        } catch (ContentNotFoundException cnfe){
+            collectionContentDto = assessmentRestClient.getAssessment(collectionId, token);
+        }
+
+        return collectionContentDto;
+    }
+
+    public List<ResourceDto> getAssessmentQuestions(UUID assessmentId) {
+        String token = authenticationRestClient.generateAnonymousToken();
+        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, token);
         return mapResources(assessmentContentDto.getQuestions());
     }
 
-    public List<ResourceDto> getCollectionResources(String collectionId) {
-        String userToken = authenticationRestClient.generateAnonymousToken();
-        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, userToken);
+    public List<ResourceDto> getCollectionResources(UUID collectionId) {
+        String token = authenticationRestClient.generateAnonymousToken();
+        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, token );
         return mapResources(collectionContentDto.getContent());
     }
 

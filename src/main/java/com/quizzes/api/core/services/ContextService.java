@@ -15,6 +15,7 @@ import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
+import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,19 +43,21 @@ public class ContextService {
     private ClassMemberRestClient classMemberRestClient;
 
     @Autowired
+    private CollectionService collectionService;
+
+    @Autowired
     private Gson gson;
 
     @Transactional
-    public UUID createContext(ContextPostRequestDto contextDto, UUID profileId, String token) {
-        //TODO: Validate collection, class if exist, profile (could be anonymous)
-        validateCollectionOwner(contextDto.getCollectionId(), contextDto.getIsCollection(), profileId, token);
+    public UUID createContext(ContextPostRequestDto contextDto, UUID profileId, String token) throws
+            InvalidOwnerException {
+        validateCollectionOwnerInContext(profileId, contextDto.getCollectionId(), contextDto.getIsCollection(), token);
 
         Context context = createContextObject(contextDto, profileId);
         List<UUID> assigneeIds = new ArrayList<>();
 
         if (contextDto.getClassId() != null) {
-            assigneeIds.addAll(classMemberRestClient.getClassMembers(contextDto.getClassId().toString(), token)
-                    .getMemberIds());
+            assigneeIds.addAll(classMemberRestClient.getClassMembers(contextDto.getClassId(), token).getMemberIds());
         }
 
         // Saves all processed data
@@ -64,6 +67,27 @@ public class ContextService {
                     contextProfileService.save(createContextProfileObject(savedContext.getId(), assigneeId)));
         }
 
+        return savedContext.getId();
+    }
+
+    /**
+     * Only saves collectionId, profileId and isCollection for anonymous contexts
+     *
+     * @param collectionId collection ID
+     * @param profileId    we use an UUID with zeros for anonymous
+     * @param token        for the anonymous user
+     * @return the context ID
+     */
+    @Transactional
+    public UUID createContextForAnonymous(UUID collectionId, UUID profileId, String token) {
+        CollectionContentDto collection = collectionService.getCollectionOrAssessment(collectionId, token);
+        Context context = new Context();
+        context.setCollectionId(collectionId);
+        context.setProfileId(profileId);
+        context.setIsCollection(collection.getIsCollection());
+
+        Context savedContext = contextRepository.save(context);
+        contextProfileService.save(createContextProfileObject(savedContext.getId(), profileId));
         return savedContext.getId();
     }
 
@@ -166,16 +190,11 @@ public class ContextService {
         return context;
     }
 
-    private UUID getCollectionOwnerId(String collectionId, boolean isCollection, String token) {
-        CollectionContentDto collectionContentDto = isCollection ?
-                collectionRestClient.getCollection(collectionId, token) :
-                assessmentRestClient.getAssessment(collectionId, token);
+    private void validateCollectionOwnerInContext(UUID profileId, UUID collectionId, boolean isCollection, String token)
+            throws InvalidOwnerException {
+        UUID ownerId = isCollection ? collectionRestClient.getCollection(collectionId, token).getOwnerId() :
+                assessmentRestClient.getAssessment(collectionId, token).getOwnerId();
 
-        return collectionContentDto.getOwnerId();
-    }
-
-    private void validateCollectionOwner(UUID collectionId, boolean isCollection, UUID profileId, String token) {
-        UUID ownerId = getCollectionOwnerId(collectionId.toString(), isCollection, token);
         if (!ownerId.equals(profileId)) {
             throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID: " +
                     collectionId);

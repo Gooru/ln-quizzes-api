@@ -32,46 +32,46 @@ public class CollectionControllerTest {
     @Mock
     private Gson gson = new Gson();
 
-    private String collectionId;
+    private UUID collectionId;
 
     @Before
     public void before() {
-        collectionId = UUID.randomUUID().toString();
+        collectionId = UUID.randomUUID();
     }
 
     @Test
     public void getCollectionWithTypeCollection() throws Exception {
         CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(collectionId);
+        collectionDto.setId(collectionId.toString());
 
         PowerMockito.when(collectionService.getCollection(collectionId)).thenReturn(collectionDto);
 
         ResponseEntity<CollectionDto> result =
-                collectionController.getCollection(UUID.fromString(collectionId), "collection");
+                collectionController.getCollection(collectionId, "collection");
 
         verify(collectionService, times(1)).getCollection(collectionId);
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
-        assertEquals("Wrong collection ID", collectionId, result.getBody().getId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getBody().getId());
     }
 
     @Test
     public void getCollectionWithTypeAssessment() throws Exception {
         CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(collectionId);
+        collectionDto.setId(collectionId.toString());
 
         when(collectionService.getAssessment(collectionId)).thenReturn(collectionDto);
 
         ResponseEntity<CollectionDto> result =
-                collectionController.getCollection(UUID.fromString(collectionId), "assessment");
+                collectionController.getCollection(collectionId, "assessment");
 
         verify(collectionService, times(1)).getAssessment(collectionId);
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
-        assertEquals("Wrong assessment ID", collectionId, result.getBody().getId());
+        assertEquals("Wrong assessment ID", collectionId.toString(), result.getBody().getId());
     }
 
     @Test(expected = InvalidRequestException.class)
     public void getCollectionThrowException() throws Exception {
-        collectionController.getCollection(UUID.fromString(collectionId), "as");
+        collectionController.getCollection(collectionId, "as");
     }
 
 }

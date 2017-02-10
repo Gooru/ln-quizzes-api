@@ -6,7 +6,9 @@ import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
+import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.ContextService;
+import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -57,8 +59,14 @@ public class ContextController {
     public ResponseEntity<?> createContext(@ApiParam(name = "Body", value = "The contexts's collection ID, " +
             "class ID (optional) and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
-                                           @RequestAttribute(value = "profileId") UUID profileId,
+                                           @RequestAttribute(value = "profileId") String profileId,
                                            @RequestAttribute(value = "token") String token) {
+        if(QuizzesUtils.isAnonymous(profileId)){
+            return new ResponseEntity<>(
+                    new IdResponseDto(contextService.createContextForAnonymous(contextPostRequestDto.getCollectionId(),
+                            QuizzesUtils.getAnonymousId(), token)), HttpStatus.OK);
+        }
+
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations = validator.validate(contextPostRequestDto);
@@ -72,7 +80,7 @@ public class ContextController {
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        UUID contextId = contextService.createContext(contextPostRequestDto, profileId, token);
+        UUID contextId = contextService.createContext(contextPostRequestDto, UUID.fromString(profileId), token);
         return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);
     }
 

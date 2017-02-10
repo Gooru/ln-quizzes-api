@@ -19,6 +19,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.UUID;
+
 
 @Component
 public class ClassMemberRestClient {
@@ -41,7 +43,7 @@ public class ClassMemberRestClient {
     @Autowired
     ConfigurationService configurationService;
 
-    public ClassMemberContentDto getClassMembers(String classId, String token) {
+    public ClassMemberContentDto getClassMembers(UUID classId, String token) {
         String endpointUrl = configurationService.getContentApiUrl() + String.format(CLASS_MEMBERS_URL, classId);
 
         if (logger.isDebugEnabled()) {

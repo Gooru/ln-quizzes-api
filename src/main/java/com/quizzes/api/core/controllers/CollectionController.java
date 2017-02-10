@@ -50,10 +50,10 @@ public class CollectionController {
         switch (type) {
             case "collection":
                 return new ResponseEntity<>(
-                        collectionService.getCollection(collectionId.toString()), HttpStatus.OK);
+                        collectionService.getCollection(collectionId), HttpStatus.OK);
             case "assessment":
                 return new ResponseEntity<>(
-                        collectionService.getAssessment(collectionId.toString()), HttpStatus.OK);
+                        collectionService.getAssessment(collectionId), HttpStatus.OK);
             default:
                 throw new InvalidRequestException("Wrong collection type");
         }
