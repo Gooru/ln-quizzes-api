@@ -68,10 +68,10 @@ public class AuthenticationRestClient {
     }
 
     public String generateAnonymousToken() {
-        String endpointUrl = configurationService.getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
+        String endpointUrl = configurationService.getContentApiUrl(); //+ ANONYMOUS_AUTH_API_URL;
         TokenRequestDto tokenRequest = new TokenRequestDto();
-        tokenRequest.setClientId(CLIENT_ID);
-        tokenRequest.setClientKey(CLIENT_KEY);
+//        tokenRequest.setClientId(CLIENT_ID);
+//        tokenRequest.setClientKey(CLIENT_KEY);
         tokenRequest.setGrantType(ANONYMOUS_GRANT_TYPE);
 
         if (logger.isDebugEnabled()) {

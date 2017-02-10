@@ -9,6 +9,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.Base64;
 
 @Component
@@ -23,14 +24,15 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
         if (authorization != null) {
             String token = getToken(authorization);
-            String[] userInfoData = Base64.getDecoder().decode(token).toString().split(":")[2].split("::");
-            String profileId = userInfoData[0];
-            //
+            byte[] userInfoData = Base64.getDecoder().decode(token);//.toString().split(":")[2].split("::");
+            String decodedToken = new String(userInfoData);
+            String[] splits = decodedToken.split()
+//            String profileId = userInfoData[0];
 
-            AccessTokenResponseDto accessTokenResponseDto = authenticationRestClient.verifyAccessToken(token);
+            authenticationRestClient.verifyAccessToken(token);
 
-            request.setAttribute("profileId", accessTokenResponseDto.getUserId());
-            request.setAttribute("clientId", accessTokenResponseDto.getClientId());
+//            request.setAttribute("profileId", accessTokenResponseDto.getUserId());
+//            request.setAttribute("clientId", accessTokenResponseDto.getClientId());
             request.setAttribute("token", token);
         }
         return true;

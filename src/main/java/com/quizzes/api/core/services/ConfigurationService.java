@@ -14,18 +14,25 @@ import java.util.Arrays;
 @Service
 public class ConfigurationService {
 
-    @Value("${session.time.minutes}")
-    private double sessionMinutes;
 
     @Value("${content.api.url}")
     private String contentApiUrl;
 
-    public double getSessionMinutes() {
-        return sessionMinutes;
-    }
+    @Value("${content.api.client_key}")
+    private String clientKey;
+
+    @Value("${content.api.client_id}")
+    private String clientId;
 
     public String getContentApiUrl() {
         return contentApiUrl;
     }
 
+    public String getClientKey() {
+        return clientKey;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
 }
