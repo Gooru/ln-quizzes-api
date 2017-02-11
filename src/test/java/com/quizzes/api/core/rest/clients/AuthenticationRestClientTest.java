@@ -1,6 +1,5 @@
 package com.quizzes.api.core.rest.clients;
 
-import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.junit.Test;

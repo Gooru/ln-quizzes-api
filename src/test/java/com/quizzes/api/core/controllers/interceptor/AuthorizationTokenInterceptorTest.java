@@ -1,6 +1,5 @@
 package com.quizzes.api.core.controllers.interceptor;
 
-import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.junit.Before;
