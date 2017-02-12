@@ -6,7 +6,6 @@ import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
-import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.ContextService;
 import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
@@ -64,7 +63,7 @@ public class ContextController {
         if(QuizzesUtils.isAnonymous(profileId)){
             return new ResponseEntity<>(
                     new IdResponseDto(contextService.createContextForAnonymous(contextPostRequestDto.getCollectionId(),
-                            QuizzesUtils.getAnonymousId(), token)), HttpStatus.OK);
+                            QuizzesUtils.getAnonymousId())), HttpStatus.OK);
         }
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
