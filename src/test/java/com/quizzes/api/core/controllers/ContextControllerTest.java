@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -89,7 +90,7 @@ public class ContextControllerTest {
         ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
 
         verify(contextService, times(1)).createContext(assignment, profileId, token);
-        verify(contextService, times(0)).createContextForAnonymous(any(), any(), any());
+        verify(contextService, times(0)).createContextForAnonymous(any(UUID.class), any(UUID.class));
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
@@ -100,12 +101,12 @@ public class ContextControllerTest {
         ContextPostRequestDto assignment = new ContextPostRequestDto();
         assignment.setCollectionId(collectionId);
 
-        when(contextService.createContextForAnonymous(collectionId, anonymousId, token)).thenReturn(contextId);
+        when(contextService.createContextForAnonymous(collectionId, anonymousId)).thenReturn(contextId);
 
         ResponseEntity<?> result = controller.createContext(assignment, "anonymous", token);
 
-        verify(contextService, times(0)).createContext(any(), any(), any());
-        verify(contextService, times(1)).createContextForAnonymous(collectionId, anonymousId, token);
+        verify(contextService, times(0)).createContext(any(ContextPostRequestDto.class), any(UUID.class), anyString());
+        verify(contextService, times(1)).createContextForAnonymous(collectionId, anonymousId);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());

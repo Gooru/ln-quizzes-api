@@ -1,6 +1,8 @@
 package com.quizzes.api.core.dtos;
 
-public class AnswerDto {
+import java.io.Serializable;
+
+public class AnswerDto implements Serializable {
 
     private String value;
 

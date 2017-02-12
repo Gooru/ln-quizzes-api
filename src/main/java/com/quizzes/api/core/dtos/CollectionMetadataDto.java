@@ -1,6 +1,8 @@
 package com.quizzes.api.core.dtos;
 
-public class CollectionMetadataDto {
+import java.io.Serializable;
+
+public class CollectionMetadataDto implements Serializable {
 
     private String title;
 
@@ -15,4 +17,5 @@ public class CollectionMetadataDto {
     public void setTitle(String title) {
         this.title = title;
     }
+
 }

@@ -1,7 +1,7 @@
 package com.quizzes.api.core.controllers.interceptor;
 
 import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
-import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,12 +44,6 @@ public class AuthorizationTokenInterceptorTest {
     }
 
     @Test
-    public void preHandle() throws Exception {
-        boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
-        assertTrue("Result is false", result);
-    }
-
-    @Test
     public void preHandleAuthorization() throws Exception {
         request.addHeader("Authorization", authorization);
 
@@ -66,31 +60,26 @@ public class AuthorizationTokenInterceptorTest {
         assertTrue("Result is false", result);
     }
 
-    @Test(expected = InvalidSessionException.class)
+    @Test(expected = InvalidRequestException.class)
     public void preHandleAuthorizationInvalidSession() throws Exception {
         request.addHeader("Authorization", token);
-
-        boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
+        sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
     }
 
     @Test
     public void getToken() throws Exception {
-        String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", authorization);
-
+        String result = WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", authorization);
         assertEquals("Wrong session value", token, result);
     }
 
-    @Test(expected = InvalidSessionException.class)
+    @Test(expected = InvalidRequestException.class)
     public void getTokenExceptionWhenNull() throws Exception {
-        String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", "");
+        WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", "");
     }
 
-    @Test(expected = InvalidSessionException.class)
+    @Test(expected = InvalidRequestException.class)
     public void getTokenExceptionWhenWrongData() throws Exception {
-        String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", UUID.randomUUID().toString());
+        WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", UUID.randomUUID().toString());
     }
 
 }
