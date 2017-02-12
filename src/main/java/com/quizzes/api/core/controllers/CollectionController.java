@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.UUID;
 
 @CrossOrigin
@@ -50,11 +49,8 @@ public class CollectionController {
                     required = true, name = "Type")
             @RequestParam String type,
             @RequestParam(required = false) boolean refresh) {
-        CollectionDto collectionDto = getCollectionDto(collectionId, type, refresh);
-        if (collectionDto.getResources() != null && !collectionDto.getResources().isEmpty()) {
-            collectionDto.getResources().forEach(resourceDto -> resourceDto.getMetadata().setCorrectAnswer(null));
-        }
-        return new ResponseEntity<>(collectionDto, HttpStatus.OK);
+
+        return prepareResponse(getCollectionDto(collectionId, type, refresh));
     }
 
     private CollectionDto getCollectionDto(UUID collectionId, String type, boolean refresh) {
@@ -69,6 +65,14 @@ public class CollectionController {
         } else {
             throw new InvalidRequestException("Invalid 'type' parameter: " + type);
         }
+    }
+
+    private ResponseEntity<CollectionDto> prepareResponse(CollectionDto collectionDto) {
+        collectionDto.setOwnerId(null);
+        if (collectionDto.getResources() != null && !collectionDto.getResources().isEmpty()) {
+            collectionDto.getResources().forEach(resourceDto -> resourceDto.getMetadata().setCorrectAnswer(null));
+        }
+        return new ResponseEntity<>(collectionDto, HttpStatus.OK);
     }
 
 }
