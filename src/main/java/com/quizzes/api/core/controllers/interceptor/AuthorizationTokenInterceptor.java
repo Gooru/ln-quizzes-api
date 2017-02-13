@@ -3,6 +3,7 @@ package com.quizzes.api.core.controllers.interceptor;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -18,6 +19,11 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+            return true;
+        }
+
         String authorization = request.getHeader("Authorization");
         String token = getToken(authorization);
         String[] decodedTokenValues = new String(Base64.getDecoder().decode(token)).split(":");
