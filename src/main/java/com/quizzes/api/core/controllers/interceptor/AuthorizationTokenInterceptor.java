@@ -34,6 +34,7 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
         request.setAttribute("clientId", decodedTokenValues[4]);
         request.setAttribute("token", token);
         return true;
+
     }
 
     private String getToken(String authorization) throws InvalidRequestException {
