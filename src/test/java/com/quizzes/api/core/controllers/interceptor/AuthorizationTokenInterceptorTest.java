@@ -31,9 +31,9 @@ public class AuthorizationTokenInterceptorTest {
     private AuthenticationRestClient authenticationRestClient;
 
     private String authorization;
-    private String authorizationAnonymous;
-    private String tokenAnonymous;
     private String token;
+    private String tokenAnonymous;
+    private String authorizationAnonymous;
     private MockHttpServletRequest request;
 
 
@@ -43,6 +43,7 @@ public class AuthorizationTokenInterceptorTest {
         token = "MjoxNDg2NzY5NTgwNzcxOjk4NDJkNDQ5LWYyNDQtNDhmZC1iYWU2LThhNWM5MTNjMjM1ZDo6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
         authorizationAnonymous = "Token " + tokenAnonymous;
         authorization = "Token " + token;
+        authorizationAnonymous = "Token " + tokenAnonymous;
         request = new MockHttpServletRequest();
     }
 

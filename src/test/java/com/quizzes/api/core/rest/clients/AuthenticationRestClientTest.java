@@ -20,6 +20,8 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.powermock.api.mockito.PowerMockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -44,8 +46,7 @@ public class AuthenticationRestClientTest {
         HttpHeaders headers = new HttpHeaders();
         doReturn(headers).when(gooruHelper).setupHttpHeaders(any(String.class));
 
-
-        doReturn(new ResponseEntity<>(null, HttpStatus.OK).when(restTemplate)
+        doReturn(new ResponseEntity<>(Void.class, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(Void.class));
 
         authenticationRestClient.verifyAccessToken("ANY_TOKEN");
