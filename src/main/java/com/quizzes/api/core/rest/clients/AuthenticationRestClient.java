@@ -37,7 +37,7 @@ public class AuthenticationRestClient {
     private GooruHelper gooruHelper;
 
     public void verifyAccessToken(String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "/token";
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "token";
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
@@ -59,7 +59,7 @@ public class AuthenticationRestClient {
     }
 
     public String generateAnonymousToken() {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "/signin";
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "signin";
         TokenRequestDto tokenRequest = new TokenRequestDto();
         tokenRequest.setClientId(configurationService.getClientId());
         tokenRequest.setClientKey(configurationService.getClientKey());

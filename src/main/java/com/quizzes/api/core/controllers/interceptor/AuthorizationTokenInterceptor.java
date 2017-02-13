@@ -2,7 +2,6 @@ package com.quizzes.api.core.controllers.interceptor;
 
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
-import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -25,9 +24,8 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
         authenticationRestClient.verifyAccessToken(token);
 
-        boolean isAnonymous = QuizzesUtils.isAnonymous(decodedTokenValues[1]);
-        request.setAttribute("profileId", isAnonymous ? decodedTokenValues[1] : decodedTokenValues[2]);
-        request.setAttribute("clientId", isAnonymous ? decodedTokenValues[2] : decodedTokenValues[4]);
+        request.setAttribute("profileId", decodedTokenValues[2]);
+        request.setAttribute("clientId", decodedTokenValues[4]);
         request.setAttribute("token", token);
         return true;
     }

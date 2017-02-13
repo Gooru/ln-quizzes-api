@@ -39,7 +39,7 @@ public class AuthorizationTokenInterceptorTest {
 
     @Before
     public void beforeEachTest() {
-        tokenAnonymous = "MTQ4NTUzMzM2MDA1Nzphbm9ueW1vdXM6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
+        tokenAnonymous = "MjoxNDg3MDAxNzc5MDg5OmFub255bW91czo6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
         token = "MjoxNDg2NzY5NTgwNzcxOjk4NDJkNDQ5LWYyNDQtNDhmZC1iYWU2LThhNWM5MTNjMjM1ZDo6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
         authorizationAnonymous = "Token " + tokenAnonymous;
         authorization = "Token " + token;
