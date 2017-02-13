@@ -1,8 +1,9 @@
 package com.quizzes.api.core.dtos;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ResourceMetadataDto {
+public class ResourceMetadataDto implements Serializable {
 
     private String title;
     private String type;

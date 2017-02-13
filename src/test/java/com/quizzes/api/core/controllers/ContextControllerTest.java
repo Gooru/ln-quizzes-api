@@ -7,6 +7,7 @@ import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
+import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.ContextService;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -45,6 +47,9 @@ public class ContextControllerTest {
     @Mock
     private ContextService contextService;
 
+    @Mock
+    private ConfigurationService configurationService;
+
     @Spy
     private EntityMapper entityMapper;
 
@@ -57,6 +62,7 @@ public class ContextControllerTest {
     private String token;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private UUID anonymousId;
 
     @Before
     public void before() throws Exception {
@@ -69,6 +75,7 @@ public class ContextControllerTest {
         token = UUID.randomUUID().toString();
         createdAt = new Timestamp(System.currentTimeMillis());
         updatedAt = new Timestamp(System.currentTimeMillis());
+        anonymousId = UUID.fromString("00000000-0000-0000-0000-000000000000");
     }
 
     @Test
@@ -80,7 +87,26 @@ public class ContextControllerTest {
 
         when(contextService.createContext(assignment, profileId, token)).thenReturn(contextId);
 
-        ResponseEntity<?> result = controller.createContext(assignment, profileId, token);
+        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
+
+        verify(contextService, times(1)).createContext(assignment, profileId, token);
+        verify(contextService, times(0)).createContextForAnonymous(any(UUID.class), any(UUID.class));
+        assertNotNull("Response is null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
+    }
+
+    @Test
+    public void createContextForAnonymous() throws Exception {
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
+        assignment.setCollectionId(collectionId);
+
+        when(contextService.createContextForAnonymous(collectionId, anonymousId)).thenReturn(contextId);
+
+        ResponseEntity<?> result = controller.createContext(assignment, "anonymous", token);
+
+        verify(contextService, times(0)).createContext(any(ContextPostRequestDto.class), any(UUID.class), anyString());
+        verify(contextService, times(1)).createContextForAnonymous(collectionId, anonymousId);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
@@ -90,7 +116,7 @@ public class ContextControllerTest {
     public void assignContextEmptyAssignment() throws Exception {
         when(contextService.createContext(any(ContextPostRequestDto.class), eq(profileId), eq(token))).thenReturn(null);
 
-        ResponseEntity<?> result = controller.createContext(new ContextPostRequestDto(), profileId, token);
+        ResponseEntity<?> result = controller.createContext(new ContextPostRequestDto(), profileId.toString(), token);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), containsString("Error in collectionId"));
@@ -106,7 +132,7 @@ public class ContextControllerTest {
                 .thenReturn(contextId);
 
         //Testing no collection
-        ResponseEntity<?> result = controller.createContext(assignment, profileId, token);
+        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in contextData")));
@@ -115,7 +141,7 @@ public class ContextControllerTest {
 
         assignment.setCollectionId(UUID.randomUUID());
 
-        result = controller.createContext(assignment, profileId, token);
+        result = controller.createContext(assignment, profileId.toString(), token);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Response body is null", result.getBody());
@@ -130,7 +156,7 @@ public class ContextControllerTest {
                 .thenReturn(contextId);
 
         //Testing no context
-        ResponseEntity<?> result = controller.createContext(assignment, profileId, token);
+        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
         assertThat(result.getBody().toString(), not(containsString("Error in collection")));
@@ -140,7 +166,7 @@ public class ContextControllerTest {
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
 
-        result = controller.createContext(assignment, profileId, token);
+        result = controller.createContext(assignment, profileId.toString(), token);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Response body is null", result.getBody());

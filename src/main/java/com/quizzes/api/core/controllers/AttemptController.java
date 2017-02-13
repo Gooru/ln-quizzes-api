@@ -104,8 +104,7 @@ public class AttemptController {
             @ApiParam(value = "Event attempt ID", required = true, name = "attemptId")
             @PathVariable UUID attemptId,
             @RequestAttribute(value = "profileId") String profileId) {
-        QuizzesUtils.rejectAnonymous(profileId);
-        AttemptGetResponseDto attemptDto = attemptService.getAttempt(attemptId, UUID.fromString(profileId));
+        AttemptGetResponseDto attemptDto = attemptService.getAttempt(attemptId, QuizzesUtils.resolveProfileId(profileId));
         return new ResponseEntity<>(attemptDto, HttpStatus.OK);
     }
 }

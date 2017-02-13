@@ -1,8 +1,10 @@
 package com.quizzes.api.core.dtos;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class InteractionDto {
+public class InteractionDto implements Serializable {
+
     private boolean shuffle;
     private int maxChoices;
     private String prompt;
@@ -42,4 +44,5 @@ public class InteractionDto {
     public void setChoices(List<ChoiceDto> choices) {
         this.choices = choices;
     }
+
 }

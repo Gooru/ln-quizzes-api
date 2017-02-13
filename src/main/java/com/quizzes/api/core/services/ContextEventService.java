@@ -19,7 +19,6 @@ import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextProfileEventRepository;
-import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,31 +36,27 @@ import java.util.stream.IntStream;
 public class ContextEventService {
 
     @Autowired
-    ContextProfileService contextProfileService;
+    private ContextProfileService contextProfileService;
 
     @Autowired
-    ContextProfileEventService contextProfileEventService;
+    private ContextProfileEventService contextProfileEventService;
 
     @Autowired
-    ContextService contextService;
+    private ContextService contextService;
 
     @Autowired
-    ContextRepository contextRepository;
+    private CurrentContextProfileService currentContextProfileService;
 
     @Autowired
-    CurrentContextProfileService currentContextProfileService;
+    private ActiveMQClientService activeMQClientService;
 
     @Autowired
-    ActiveMQClientService activeMQClientService;
-
-    @Autowired
-    CollectionService collectionService;
+    private CollectionService collectionService;
 
     @Autowired
     ContextProfileEventRepository contextProfileEventRepository;
 
-    @Autowired
-    Gson gson;
+    private Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
         ContextProfileEntity entity =
@@ -82,8 +77,8 @@ public class ContextEventService {
                 currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
         PostRequestResourceDto resourceDto = getPreviousResource(body);
 
-        List<ResourceDto> collectionResources = getCollectionResources(context.getCollectionId(),
-                context.getIsCollection());
+        List<ResourceDto> collectionResources =
+                getCollectionResources(context.getCollectionId(), context.getIsCollection());
         ResourceDto currentResource = findResourceInContext(collectionResources, resourceId, contextId);
         ResourceDto previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(),
                 contextId);
@@ -96,7 +91,9 @@ public class ContextEventService {
         if (contextProfileEvent == null) {
             contextProfileEvent = createContextProfileEvent(context.getContextProfileId(), previousResource.getId());
             contextProfileEvents.add(contextProfileEvent);
-            resourceDto.setScore(!resourceDto.getIsSkipped() ? calculateScore(previousResource, resourceDto.getAnswer()) : 0);
+            resourceDto.setScore(!resourceDto.getIsSkipped() ?
+                    calculateScore(previousResource, resourceDto.getAnswer()) :
+                    0);
         } else {
             resourceDto = updateExistingResourceDto(contextProfileEvent, previousResource, resourceDto);
         }
@@ -450,8 +447,9 @@ public class ContextEventService {
     }
 
     private List<ResourceDto> getCollectionResources(UUID collectionId, boolean isCollection) {
-        return isCollection ? collectionService.getCollectionResources(collectionId.toString()) :
-                collectionService.getAssessmentQuestions(collectionId.toString());
+        return isCollection ?
+                collectionService.getCollectionResources(collectionId) :
+                collectionService.getAssessmentQuestions(collectionId);
     }
 
     private PostRequestResourceDto updateExistingResourceDto(ContextProfileEvent contextProfileEvent,
@@ -479,8 +477,7 @@ public class ContextEventService {
     }
 
     private ResourceDto findResourceInContext(List<ResourceDto> resources, UUID resourceId, UUID contextId) {
-        ResourceDto resource = resources.stream()
-                .filter(r -> r.getId().equals(resourceId)).findFirst().orElse(null);
+        ResourceDto resource = resources.stream().filter(r -> r.getId().equals(resourceId)).findFirst().orElse(null);
         if (resource == null) {
             throw new ContentNotFoundException("Resource ID: " + resourceId + " is not part of " +
                     "the Context ID: " + contextId);
