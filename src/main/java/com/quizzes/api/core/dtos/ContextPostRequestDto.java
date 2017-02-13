@@ -17,7 +17,7 @@ public class ContextPostRequestDto {
 
     private UUID classId;
 
-    private boolean isCollection;
+    private Boolean isCollection;
 
     @NotNull(message = "{assignment.context_data.not_null}")
     private ContextDataDto contextData;
@@ -49,11 +49,11 @@ public class ContextPostRequestDto {
         this.contextData = contextData;
     }
 
-    public boolean getIsCollection() {
+    public Boolean getIsCollection() {
         return isCollection;
     }
 
-    public void setIsCollection(boolean collection) {
+    public void setIsCollection(Boolean collection) {
         isCollection = collection;
     }
 }

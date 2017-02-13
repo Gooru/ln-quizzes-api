@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -32,46 +33,72 @@ public class CollectionControllerTest {
     @Mock
     private Gson gson = new Gson();
 
-    private String collectionId;
+    private UUID collectionId;
 
     @Before
     public void before() {
-        collectionId = UUID.randomUUID().toString();
+        collectionId = UUID.randomUUID();
     }
 
     @Test
     public void getCollectionWithTypeCollection() throws Exception {
         CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(collectionId);
+        collectionDto.setId(collectionId.toString());
 
-        PowerMockito.when(collectionService.getCollection(collectionId)).thenReturn(collectionDto);
+        PowerMockito.when(collectionService.getCollection(any(UUID.class))).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDto> result =
-                collectionController.getCollection(UUID.fromString(collectionId), "collection");
+        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "collection", false);
 
-        verify(collectionService, times(1)).getCollection(collectionId);
+        verify(collectionService, times(1)).getCollection(any(UUID.class));
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
-        assertEquals("Wrong collection ID", collectionId, result.getBody().getId());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getBody().getId());
+    }
+
+    @Test
+    public void getCollectionWithTypeCollectionAndCacheRefresh() throws Exception {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId.toString());
+
+        PowerMockito.when(collectionService.getCollectionWithCacheRefresh(any(UUID.class))).thenReturn(collectionDto);
+
+        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "collection", true);
+
+        verify(collectionService, times(1)).getCollectionWithCacheRefresh(any(UUID.class));
+        assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getBody().getId());
     }
 
     @Test
     public void getCollectionWithTypeAssessment() throws Exception {
         CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(collectionId);
+        collectionDto.setId(collectionId.toString());
 
-        when(collectionService.getAssessment(collectionId)).thenReturn(collectionDto);
+        when(collectionService.getAssessment(any(UUID.class))).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDto> result =
-                collectionController.getCollection(UUID.fromString(collectionId), "assessment");
+        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "assessment", false);
 
-        verify(collectionService, times(1)).getAssessment(collectionId);
+        verify(collectionService, times(1)).getAssessment(any(UUID.class));
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
-        assertEquals("Wrong assessment ID", collectionId, result.getBody().getId());
+        assertEquals("Wrong assessment ID", collectionId.toString(), result.getBody().getId());
+    }
+
+    @Test
+    public void getCollectionWithTypeAssessmentAndCacheRefresh() throws Exception {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId.toString());
+
+        when(collectionService.getAssessmentWithCacheRefresh(any(UUID.class))).thenReturn(collectionDto);
+
+        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "assessment", true);
+
+        verify(collectionService, times(1)).getAssessmentWithCacheRefresh(any(UUID.class));
+        assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Wrong assessment ID", collectionId.toString(), result.getBody().getId());
     }
 
     @Test(expected = InvalidRequestException.class)
     public void getCollectionThrowException() throws Exception {
-        collectionController.getCollection(UUID.fromString(collectionId), "as");
+        collectionController.getCollection(collectionId, "as", false);
     }
 
 }

@@ -44,10 +44,9 @@ public class AuthenticationRestClientTest {
         HttpHeaders headers = new HttpHeaders();
         doReturn(headers).when(gooruHelper).setupHttpHeaders(any(String.class));
 
-        AccessTokenResponseDto response = new AccessTokenResponseDto();
 
-        doReturn(new ResponseEntity<>(response, HttpStatus.OK)).when(restTemplate)
-                .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AccessTokenResponseDto.class));
+        doReturn(new ResponseEntity<>(null, HttpStatus.OK).when(restTemplate)
+                .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(Void.class));
 
         authenticationRestClient.verifyAccessToken("ANY_TOKEN");
 
@@ -55,7 +54,7 @@ public class AuthenticationRestClientTest {
 
         verify(gooruHelper, times(1)).setupHttpHeaders(any(String.class));
 
-        verify(restTemplate, times(1)).exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AccessTokenResponseDto.class));
+        verify(restTemplate, times(1)).exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(Void.class));
     }
 
 }

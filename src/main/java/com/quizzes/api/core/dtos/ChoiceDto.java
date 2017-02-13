@@ -1,6 +1,9 @@
 package com.quizzes.api.core.dtos;
 
-public class ChoiceDto {
+import java.io.Serializable;
+
+public class ChoiceDto implements Serializable {
+
     private String text;
     private boolean isFixed;
     private String value;
@@ -40,4 +43,5 @@ public class ChoiceDto {
     public void setSequence(int sequence) {
         this.sequence = sequence;
     }
+
 }

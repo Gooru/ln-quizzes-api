@@ -1,8 +1,9 @@
 package com.quizzes.api.core.dtos;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class ResourceDto {
+public class ResourceDto implements Serializable {
 
     private UUID id;
 

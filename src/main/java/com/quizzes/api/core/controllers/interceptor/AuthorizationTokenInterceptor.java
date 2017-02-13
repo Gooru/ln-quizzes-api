@@ -1,7 +1,8 @@
 package com.quizzes.api.core.controllers.interceptor;
 
-import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -19,28 +20,26 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String authorization = request.getHeader("Authorization");
+        String token = getToken(authorization);
+        String[] decodedTokenValues = new String(Base64.getDecoder().decode(token)).split(":");
 
-        if (authorization != null) {
-            String token = getToken(authorization);
-            String[] decodedTokenValues = new String(Base64.getDecoder().decode(token)).split(":");
+        authenticationRestClient.verifyAccessToken(token);
 
-            authenticationRestClient.verifyAccessToken(token);
-
-            request.setAttribute("profileId", decodedTokenValues[2]);
-            request.setAttribute("clientId", decodedTokenValues[4]);
-            request.setAttribute("token", token);
-        }
+        boolean isAnonymous = QuizzesUtils.isAnonymous(decodedTokenValues[1]);
+        request.setAttribute("profileId", isAnonymous ? decodedTokenValues[1] : decodedTokenValues[2]);
+        request.setAttribute("clientId", isAnonymous ? decodedTokenValues[2] : decodedTokenValues[4]);
+        request.setAttribute("token", token);
         return true;
     }
 
-    private String getToken(String authorization) throws InvalidSessionException {
-        if(authorization == null){
-            throw new InvalidSessionException("Wrong Authorization value, it must contain: Token <token>");
+    private String getToken(String authorization) throws InvalidRequestException {
+        if (authorization == null) {
+            throw new InvalidRequestException("Authorization header is required");
         }
 
-        String[] sessionToken = authorization.split(" ");
+        String[] sessionToken = authorization.split("\\s");
         if (sessionToken.length != 2 || !sessionToken[0].equals("Token")) {
-            throw new InvalidSessionException("Wrong Authorization value, it must contain: Token <token>");
+            throw new InvalidRequestException("Authorization header value is wrong, it must contain: Token <token>");
         }
         return sessionToken[1];
     }
