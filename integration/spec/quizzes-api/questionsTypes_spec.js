@@ -29,6 +29,29 @@ var checkSingleChoiceQuestion = function (resources) {
     });
 };
 
+var checkMultipleChoiceQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Multiple Answer Question");
+    expect(resources[0].metadata.body).toEqual("Multiple Answer Question");
+    expect(resources[0].metadata.correctAnswer).toEqual([{"value": "QQ=="}]);
+    expect(resources[0].metadata.interaction.shuffle).toBeDefined();
+    expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
+    expect(resources[0].metadata.interaction.prompt).toBeDefined();
+    expect(resources[0].metadata.interaction.choices.length).toEqual(4);
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "A",
+        "isFixed": true,
+        "value": "QQ==",
+        "sequence": 1
+    });
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "B",
+        "isFixed": true,
+        "value": "Qg==",
+        "sequence": 2
+    });
+};
+
 var checkTrueFalseQuestion = function (resources) {
     expect(resources.length).toEqual(1);
     expect(resources[0].metadata.title).toEqual("True False Question");
@@ -58,6 +81,7 @@ QuizzesCommon.startTest("Get an assessment and check all the question types", fu
         var resources = json.resources;
 
         checkSingleChoiceQuestion(getResourceByQuestionType(resources, "single_choice"));
+        checkMultipleChoiceQuestion(getResourceByQuestionType(resources, "multiple_choice"));
         checkTrueFalseQuestion(getResourceByQuestionType(resources, "true_false"));
     });
 });
