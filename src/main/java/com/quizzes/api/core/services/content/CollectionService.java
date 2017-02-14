@@ -1,5 +1,9 @@
 package com.quizzes.api.core.services.content;
 
+import com.google.code.ssm.api.ParameterValueKeyProvider;
+import com.google.code.ssm.api.ReadThroughSingleCache;
+import com.google.code.ssm.api.ReturnDataUpdateContent;
+import com.google.code.ssm.api.UpdateSingleCache;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.ChoiceDto;
 import com.quizzes.api.core.dtos.CollectionDto;
@@ -13,6 +17,7 @@ import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
@@ -56,47 +61,76 @@ public class CollectionService {
                 QuestionTypeEnum.HotTextSentence.getLiteral());
         questionTypeMap.put(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral(),
                 QuestionTypeEnum.TextEntry.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral(),
+                QuestionTypeEnum.ExtendedText.getLiteral());
     }
 
     @Autowired
-    AuthenticationRestClient authenticationRestClient;
+    private AuthenticationRestClient authenticationRestClient;
 
     @Autowired
-    AssessmentRestClient assessmentRestClient;
+    private AssessmentRestClient assessmentRestClient;
 
     @Autowired
-    CollectionRestClient collectionRestClient;
+    private CollectionRestClient collectionRestClient;
 
-    public CollectionDto getAssessment(String assessmentId) {
-        String userToken = authenticationRestClient.generateAnonymousToken();
-        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, userToken);
-        return convertGooruAssessmentToQuizzesFormat(assessmentContentDto);
+    @ReadThroughSingleCache(namespace = "Assessments")
+    public CollectionDto getAssessment(@ParameterValueKeyProvider UUID assessmentId) {
+        String token = authenticationRestClient.generateAnonymousToken();
+        AssessmentContentDto assessmentContentDto = assessmentRestClient.getAssessment(assessmentId, token);
+        return createCollectionDtoFromAssessmentContentDto(assessmentContentDto);
     }
 
-    public CollectionDto getCollection(String collectionId) {
-        String userToken = authenticationRestClient.generateAnonymousToken();
-        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, userToken);
-        return convertGooruCollectionToQuizzesFormat(collectionContentDto);
+    @ReturnDataUpdateContent
+    @UpdateSingleCache(namespace = "Assessments")
+    public CollectionDto getAssessmentWithCacheRefresh(@ParameterValueKeyProvider UUID assessmentId) {
+        return getAssessment(assessmentId);
     }
 
-    private CollectionDto convertGooruAssessmentToQuizzesFormat(AssessmentContentDto assessmentDto) {
-        CollectionDto collectionDto = createCollectionDto(assessmentDto.getId(), assessmentDto.getTitle());
-        collectionDto.setResources(mapResources(assessmentDto.getQuestions()));
-
-        return collectionDto;
+    @ReadThroughSingleCache(namespace = "Collections")
+    public CollectionDto getCollection(@ParameterValueKeyProvider UUID collectionId) {
+        String token = authenticationRestClient.generateAnonymousToken();
+        CollectionContentDto collectionContentDto = collectionRestClient.getCollection(collectionId, token);
+        return createCollectionDtoFromCollectionContentDto(collectionContentDto);
     }
 
-    private CollectionDto convertGooruCollectionToQuizzesFormat(CollectionContentDto collectionContentDto) {
-        CollectionDto collectionDto = createCollectionDto(collectionContentDto.getId(), collectionContentDto.getTitle());
-        collectionDto.setResources(mapResources(collectionContentDto.getContent()));
-
-        return collectionDto;
+    @ReturnDataUpdateContent
+    @UpdateSingleCache(namespace = "Collections")
+    public CollectionDto getCollectionWithCacheRefresh(@ParameterValueKeyProvider UUID collectionId) {
+        return getCollection(collectionId);
     }
 
-    private CollectionDto createCollectionDto(String id, String title) {
+    public CollectionDto getCollectionOrAssessment(UUID collectionId) {
+        try {
+            return getCollection(collectionId);
+        } catch (ContentNotFoundException e){
+            return getAssessment(collectionId);
+        }
+    }
+
+    public List<ResourceDto> getAssessmentQuestions(UUID assessmentId) {
+        CollectionDto assessment = getAssessment(assessmentId);
+        return assessment.getResources();
+    }
+
+    public List<ResourceDto> getCollectionResources(UUID collectionId) {
+        CollectionDto collection = getCollection(collectionId);
+        return collection.getResources();
+    }
+
+    private CollectionDto createCollectionDtoFromCollectionContentDto(CollectionContentDto collectionContentDto) {
         CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(id);
-        collectionDto.setMetadata(new CollectionMetadataDto(title));
+        collectionDto.setId(collectionContentDto.getId());
+        collectionDto.setOwnerId(collectionContentDto.getOwnerId());
+        collectionDto.setMetadata(new CollectionMetadataDto(collectionContentDto.getTitle()));
+        collectionDto.setResources(mapResources(collectionContentDto.getContent()));
+        collectionDto.setIsCollection(collectionContentDto.getIsCollection());
+        return collectionDto;
+    }
+
+    private CollectionDto createCollectionDtoFromAssessmentContentDto(AssessmentContentDto assessmentContentDto) {
+        CollectionDto collectionDto = createCollectionDtoFromCollectionContentDto(assessmentContentDto);
+        collectionDto.setResources(mapResources(assessmentContentDto.getQuestions()));
         return collectionDto;
     }
 
@@ -106,7 +140,7 @@ public class CollectionService {
         if (resourceContentDtos != null) {
             resourceDtos = resourceContentDtos.stream().map(resourceContentDto -> {
                 ResourceDto resourceDto = new ResourceDto();
-                resourceDto.setId(UUID.fromString(resourceContentDto.getId()));
+                resourceDto.setId(resourceContentDto.getId());
                 resourceDto.setSequence((short) resourceContentDto.getSequence());
 
                 ResourceMetadataDto metadata;
@@ -167,6 +201,9 @@ public class CollectionService {
         if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
         }
+        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+            return null;
+        }
         return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), true);
     }
 
@@ -203,12 +240,16 @@ public class CollectionService {
         if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return resource.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
         }
+        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+            return resource.getDescription();
+        }
         return resource.getTitle();
     }
 
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
         if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral()) ||
-                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral()) ||
+                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
             return null;
         }
 

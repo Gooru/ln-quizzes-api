@@ -5,7 +5,7 @@ var frisby = require('frisby');
 
 var verifyGetContextEvents = function (contextId, ownerProfileId, result, afterJsonFunction) {
     return frisby.create('Get the context Events as an owner')
-        .get(QuizzesApiUrl + '/v1/context/' + contextId + '/events')
+        .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/events')
         .addHeader('profile-id', ownerProfileId)
         .addHeader('lms-id', 'quizzes')
         .inspectRequest()
@@ -15,7 +15,7 @@ var verifyGetContextEvents = function (contextId, ownerProfileId, result, afterJ
         .afterJSON(function () {
             afterJsonFunction(afterJsonFunction);
         })
-}
+};
 
 QuizzesCommon.startTest("Test finished context summary for 10 correctly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {

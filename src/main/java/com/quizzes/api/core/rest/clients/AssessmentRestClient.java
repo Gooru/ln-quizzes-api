@@ -21,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class AssessmentRestClient {
@@ -46,7 +47,7 @@ public class AssessmentRestClient {
     @Autowired
     AuthenticationRestClient authenticationRestClient;
 
-    public AssessmentContentDto getAssessment(String assessmentId, String token) {
+    public AssessmentContentDto getAssessment(UUID assessmentId, String token) {
         String endpointUrl = configurationService.getContentApiUrl() + ASSESSMENTS_PATH + assessmentId;
 
         if (logger.isDebugEnabled()) {
@@ -59,6 +60,7 @@ public class AssessmentRestClient {
             ResponseEntity<AssessmentContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AssessmentContentDto.class);
             AssessmentContentDto assessment = responseEntity.getBody();
+            assessment.setIsCollection(false);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);
@@ -78,9 +80,5 @@ public class AssessmentRestClient {
         }
     }
 
-    public List<ResourceContentDto> getAssessmentQuestions(String assessmentId, String token) {
-        AssessmentContentDto assessmentContentDto = getAssessment(assessmentId, token);
-        return assessmentContentDto.getQuestions();
-    }
 }
 

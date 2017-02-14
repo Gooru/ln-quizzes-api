@@ -3,39 +3,37 @@ package com.quizzes.api.core.services;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.quizzes.api.core.dtos.ClassMemberContentDto;
-import com.quizzes.api.core.dtos.ContextGetResponseDto;
+import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
-import com.quizzes.api.core.dtos.EventSummaryDataDto;
-import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.dtos.MetadataDto;
 import com.quizzes.api.core.dtos.ProfileDto;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
 import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
-import com.quizzes.api.core.model.entities.ContextAssigneeEntity;
-import com.quizzes.api.core.model.entities.ContextProfileWithContextEntity;
+import com.quizzes.api.core.model.entities.AssignedContextEntity;
+import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
 import com.quizzes.api.core.rest.clients.CollectionRestClient;
+import com.quizzes.api.core.services.content.CollectionService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,10 +45,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -71,19 +67,13 @@ public class ContextServiceTest {
     private ContextRepository contextRepository;
 
     @Mock
-    private ContextProfileEventService contextProfileEventService;
-
-    @Mock
     private ContextProfileService contextProfileService;
 
     @Mock
     private ClassMemberRestClient classMemberRestClient;
 
     @Mock
-    private CollectionRestClient collectionRestClient;
-
-    @Mock
-    private AssessmentRestClient assessmentRestClient;
+    private CollectionService collectionService;
 
     @Mock
     private Gson gson = new Gson();
@@ -94,10 +84,11 @@ public class ContextServiceTest {
     private UUID classId;
     private UUID unitId;
     private UUID memberId;
-    private UUID ownerProfileId;
-    private UUID contextProfileId;
-    private Timestamp createdAt;
     private String token;
+    private UUID contextProfileId;
+    private UUID currentContextProfileId;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     @Before
     public void before() throws Exception {
@@ -105,12 +96,13 @@ public class ContextServiceTest {
         collectionId = UUID.randomUUID();
         unitId = UUID.randomUUID();
         classId = UUID.randomUUID();
-        ownerProfileId = UUID.randomUUID();
-        contextProfileId = UUID.randomUUID();
-        createdAt = Timestamp.from(Instant.now());
         profileId = UUID.randomUUID();
         memberId = UUID.randomUUID();
+        contextProfileId = UUID.randomUUID();
+        currentContextProfileId = UUID.randomUUID();
         token = UUID.randomUUID().toString();
+        createdAt = new Timestamp(System.currentTimeMillis());
+        updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
     @Test
@@ -118,58 +110,59 @@ public class ContextServiceTest {
         ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
         contextPostRequestDto.setClassId(classId);
         contextPostRequestDto.setIsCollection(false);
-
         Context contextResult = createContextMock();
         contextResult.setId(contextId);
-
         ClassMemberContentDto classMember = createClassMember();
+        classMember.getMemberIds().add(UUID.randomUUID());
 
-        doNothing().when(contextService, "validateCollectionOwner", collectionId, false, profileId, token);
-        doReturn(createContextMock()).when(contextService, "createContextObject", contextPostRequestDto, profileId);
-        doNothing().when(contextService, "createContextProfiles", classMember.getMemberIds(), contextId);
-        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-        when(classMemberRestClient.getClassMembers(classId.toString(), token)).thenReturn(classMember);
+        doNothing().when(contextService, "validateCollectionOwnerInContext", any(UUID.class), any(UUID.class),
+                any(Boolean.class));
+        doReturn(contextResult).when(contextService, "createContextObject", any(ContextPostRequestDto.class),
+                any(UUID.class));
+        doReturn(classMember).when(classMemberRestClient).getClassMembers(any(UUID.class), any(String.class));
+        doReturn(contextResult).when(contextRepository).save(any(Context.class));
+        doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, profileId, token);
+        UUID result = contextService.createContext(contextPostRequestDto, profileId, token);
 
+        verifyPrivate(contextService, times(1))
+                .invoke("validateCollectionOwnerInContext", any(UUID.class), any(UUID.class), any(Boolean.class));
+        verifyPrivate(contextService, times(1))
+                .invoke("createContextObject", any(ContextPostRequestDto.class), any(UUID.class));
+        verify(classMemberRestClient, times(1)).getClassMembers(any(UUID.class), anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(classMemberRestClient, times(1)).getClassMembers(classId.toString(), token);
-        verifyPrivate(contextService, times(1)).invoke("createContextObject", contextPostRequestDto, profileId);
-        verifyPrivate(contextService, times(1)).invoke("createContextProfiles", classMember.getMemberIds(), contextId);
-        verifyPrivate(contextService, times(1)).invoke("validateCollectionOwner",
-                collectionId, false, profileId, token);
+        verify(contextProfileService, times(2)).save(any(ContextProfile.class));
 
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result);
     }
 
     @Test
     public void createContextWithoutClassIdForAssessment() throws Exception {
         ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
         contextPostRequestDto.setIsCollection(false);
-
         Context contextResult = createContextMock();
         contextResult.setId(contextId);
 
-        ClassMemberContentDto classMember = createClassMember();
+        doNothing().when(contextService, "validateCollectionOwnerInContext", any(UUID.class), any(UUID.class),
+                any(Boolean.class));
+        doReturn(contextResult).when(contextService, "createContextObject", any(ContextPostRequestDto.class),
+                any(UUID.class));
+        doReturn(contextResult).when(contextRepository).save(any(Context.class));
+        doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
 
-        doReturn(createContextMock()).when(contextService, "createContextObject", contextPostRequestDto, profileId);
-        doNothing().when(contextService, "validateCollectionOwner", collectionId, false, profileId, token);
-        doNothing().when(contextService, "createContextProfiles", any(), any());
-        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-        when(classMemberRestClient.getClassMembers(any(), any())).thenReturn(classMember);
+        UUID result = contextService.createContext(contextPostRequestDto, profileId, token);
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, profileId, token);
-
+        verifyPrivate(contextService, times(1))
+                .invoke("validateCollectionOwnerInContext", any(UUID.class), any(UUID.class), any(Boolean.class));
+        verifyPrivate(contextService, times(1))
+                .invoke("createContextObject", any(ContextPostRequestDto.class), any(UUID.class));
+        verify(classMemberRestClient, times(0)).getClassMembers(any(UUID.class), anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(classMemberRestClient, times(0)).getClassMembers(any(), any());
-        verifyPrivate(contextService, times(1)).invoke("createContextObject", contextPostRequestDto, profileId);
-        verifyPrivate(contextService, times(0)).invoke("createContextProfiles", any(), any());
-        verifyPrivate(contextService, times(1)).invoke("validateCollectionOwner",
-                collectionId, false, profileId, token);
+        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
 
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result);
     }
 
     @Test
@@ -177,241 +170,115 @@ public class ContextServiceTest {
         ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
         contextPostRequestDto.setClassId(classId);
         contextPostRequestDto.setIsCollection(true);
-
         Context contextResult = createContextMock();
         contextResult.setId(contextId);
-
         ClassMemberContentDto classMember = createClassMember();
+        classMember.getMemberIds().add(UUID.randomUUID());
 
-        doNothing().when(contextService, "validateCollectionOwner", collectionId, true, profileId, token);
-        doReturn(createContextMock()).when(contextService, "createContextObject", contextPostRequestDto, profileId);
-        doNothing().when(contextService, "createContextProfiles", classMember.getMemberIds(), contextId);
-        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-        when(classMemberRestClient.getClassMembers(classId.toString(), token)).thenReturn(classMember);
+        doNothing().when(contextService, "validateCollectionOwnerInContext", any(UUID.class), any(UUID.class),
+                any(Boolean.class));
+        doReturn(contextResult).when(contextService, "createContextObject", any(ContextPostRequestDto.class),
+                any(UUID.class));
+        doReturn(classMember).when(classMemberRestClient).getClassMembers(any(UUID.class), any(String.class));
+        doReturn(contextResult).when(contextRepository).save(any(Context.class));
+        doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, profileId, token);
+        UUID result = contextService.createContext(contextPostRequestDto, profileId, token);
 
+        verifyPrivate(contextService, times(1))
+                .invoke("validateCollectionOwnerInContext", any(UUID.class), any(UUID.class), any(Boolean.class));
+        verifyPrivate(contextService, times(1))
+                .invoke("createContextObject", any(ContextPostRequestDto.class), any(UUID.class));
+        verify(classMemberRestClient, times(1)).getClassMembers(any(UUID.class), anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(classMemberRestClient, times(1)).getClassMembers(classId.toString(), token);
-        verifyPrivate(contextService, times(1)).invoke("createContextObject", contextPostRequestDto, profileId);
-        verifyPrivate(contextService, times(1)).invoke("createContextProfiles", classMember.getMemberIds(), contextId);
-        verifyPrivate(contextService, times(1)).invoke("validateCollectionOwner",
-                collectionId, true, profileId, token);
+        verify(contextProfileService, times(2)).save(any(ContextProfile.class));
 
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result);
+    }
+
+    @Test
+    public void createContextForAnonymous() throws Exception {
+        CollectionDto collectionDto = createCollectionDto();
+        Context context = new Context();
+        context.setId(contextId);
+
+        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(collectionId);
+        doReturn(new ContextProfile()).when(contextService, "createContextProfileObject", any(UUID.class),
+                any(UUID.class));
+        doReturn(context).when(contextRepository).save(any(Context.class));
+        doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
+
+        UUID result = contextService.createContextForAnonymous(collectionId, profileId);
+
+        verifyPrivate(contextService, times(1)).invoke("createContextProfileObject", any(UUID.class), any(UUID.class));
+        verify(collectionService, times(1)).getCollectionOrAssessment(collectionId);
+        verify(contextRepository, times(1)).save(any(Context.class));
+        verify(contextProfileService, times(1)).save(any(ContextProfile.class));
+        assertEquals("Wrong id for context", contextId, result);
     }
 
     @Test
     public void createContextWithoutClassIdForCollection() throws Exception {
         ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
         contextPostRequestDto.setIsCollection(true);
-
         Context contextResult = createContextMock();
         contextResult.setId(contextId);
 
-        ClassMemberContentDto classMember = createClassMember();
+        doNothing().when(contextService, "validateCollectionOwnerInContext", any(UUID.class), any(UUID.class),
+                any(Boolean.class));
+        doReturn(contextResult).when(contextService, "createContextObject", any(ContextPostRequestDto.class),
+                any(UUID.class));
+        doReturn(contextResult).when(contextRepository).save(any(Context.class));
+        doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
 
-        doReturn(createContextMock()).when(contextService, "createContextObject", contextPostRequestDto, profileId);
-        doNothing().when(contextService, "validateCollectionOwner", collectionId, true, profileId, token);
-        doNothing().when(contextService, "createContextProfiles", any(), any());
-        when(contextRepository.save(any(Context.class))).thenReturn(contextResult);
-        when(classMemberRestClient.getClassMembers(any(), any())).thenReturn(classMember);
+        UUID result = contextService.createContext(contextPostRequestDto, profileId, token);
 
-        IdResponseDto result = contextService.createContext(contextPostRequestDto, profileId, token);
-
+        verifyPrivate(contextService, times(1))
+                .invoke("validateCollectionOwnerInContext", any(UUID.class), any(UUID.class), any(Boolean.class));
+        verifyPrivate(contextService, times(1))
+                .invoke("createContextObject", any(ContextPostRequestDto.class), any(UUID.class));
+        verify(classMemberRestClient, times(0)).getClassMembers(any(UUID.class), anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
-        verify(classMemberRestClient, times(0)).getClassMembers(any(), any());
-        verifyPrivate(contextService, times(1)).invoke("createContextObject", contextPostRequestDto, profileId);
-        verifyPrivate(contextService, times(0)).invoke("createContextProfiles", any(), any());
-        verifyPrivate(contextService, times(1)).invoke("validateCollectionOwner",
-                collectionId, true, profileId, token);
+        verify(contextProfileService, times(0)).save(any(ContextProfile.class));
 
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", contextResult.getId(), result.getId());
+        assertNotNull("Response is null", result);
+        assertEquals("Wrong id for context", contextResult.getId(), result);
     }
-//    public ContextProfileWithContextEntity findProfileIdInContext(UUID contextId, UUID profileId) {
-//        ContextProfileWithContextEntity entity =
-//                contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
-//        if (entity == null) {
-//            throw new ContentNotFoundException("Context not found for ID: " + contextId);
-//        }
+
+//    private void validateCollectionOwnerInContext(UUID profileId, UUID collectionId, boolean isCollection, String token)
+//            throws InvalidOwnerException {
+//        UUID ownerId = isCollection ? collectionRestClient.getCollection(collectionId, token).getOwnerId() :
+//                assessmentRestClient.getAssessment(collectionId, token).getOwnerId();
 //
-//        if (entity.getProfileId() == null) {
-//            throw new InvalidAssigneeException("Profile ID: " + profileId + " not assigned to the context ID: "
-//                    + contextId);
+//        if (!ownerId.equals(profileId)) {
+//            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID: " +
+//                    collectionId);
 //        }
-//        return entity;
 //    }
 
     @Test
-    public void findProfileIdInContext() throws Exception {
-        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
-
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
-
-        ContextProfileWithContextEntity result = contextService.findProfileIdInContext(contextId, profileId);
-
-        verify(contextRepository, times(1)).findContextProfileAndContextByContextIdAndProfileId(contextId, profileId);
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Wrong context Id", contextId, result.getContextId());
-        assertEquals("Wrong profile Id", profileId, result.getProfileId());
-    }
-
-    @Test(expected = InvalidAssigneeException.class)
-    public void findProfileIdInContextThrowsInvalidAssigneeException() throws Exception {
-        ContextProfileWithContextEntity entity = createContextProfileContextEntity();
-        when(entity.getProfileId()).thenReturn(null);
-
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(entity);
-
-        contextService.findProfileIdInContext(contextId, profileId);
-    }
-
-    @Test(expected = ContentNotFoundException.class)
-    public void findProfileIdInContextThrowsContentNotFoundException() throws Exception {
-        when(contextRepository.findContextProfileAndContextByContextIdAndProfileId(contextId, profileId)).thenReturn(null);
-        contextService.findProfileIdInContext(contextId, profileId);
+    public void validateCollectionOwnerInContextForAssessment() throws Exception {
+        CollectionDto assessmentDto = createAssessmentDto();
+        doReturn(assessmentDto).when(collectionService).getAssessment(any(UUID.class));
+        WhiteboxImpl.invokeMethod(contextService, "validateCollectionOwnerInContext", profileId, collectionId, false);
+        verify(collectionService, times(1)).getAssessment(any(UUID.class));
     }
 
     @Test
-    public void getCollectionOwnerIdForCollection() throws Exception {
-        CollectionContentDto collectionContentDto = new CollectionContentDto();
-        collectionContentDto.setId(collectionId.toString());
-        collectionContentDto.setOwnerId(profileId);
-
-        when(collectionRestClient.getCollection(collectionId.toString(), token)).thenReturn(collectionContentDto);
-
-        UUID result = WhiteboxImpl.invokeMethod(contextService, "getCollectionOwnerId", collectionId.toString(),
-                true, token);
-
-        verify(collectionRestClient, times(1)).getCollection(collectionId.toString(), token);
-        assertEquals("Wrong ownerId", profileId, result);
-    }
-
-    @Test
-    public void getCollectionOwnerIdForAssessment() throws Exception {
-        AssessmentContentDto assessmentContentDto = new AssessmentContentDto();
-        assessmentContentDto.setId(collectionId.toString());
-        assessmentContentDto.setOwnerId(profileId);
-
-        when(assessmentRestClient.getAssessment(collectionId.toString(), token)).thenReturn(assessmentContentDto);
-
-        UUID result = WhiteboxImpl.invokeMethod(contextService, "getCollectionOwnerId", collectionId.toString(),
-                false, token);
-
-        verify(assessmentRestClient, times(1)).getAssessment(collectionId.toString(), token);
-        assertEquals("Wrong ownerId", profileId, result);
-    }
-
-    @Test
-    public void validateCollectionOwner() throws Exception {
-        CollectionContentDto collectionContentDto = new CollectionContentDto();
-        collectionContentDto.setId(collectionId.toString());
-        collectionContentDto.setOwnerId(profileId);
-
-        doReturn(profileId).when(contextService, "getCollectionOwnerId", collectionId.toString(), true, token);
-
-        WhiteboxImpl.invokeMethod(contextService, "validateCollectionOwner", collectionId, true, profileId, token);
-
-        verifyPrivate(contextService, times(1)).invoke("getCollectionOwnerId", collectionId.toString(), true, token);
+    public void validateCollectionOwnerInContextForCollection() throws Exception {
+        CollectionDto collectionDto = createCollectionDto();
+        doReturn(collectionDto).when(collectionService).getCollection(any(UUID.class));
+        WhiteboxImpl.invokeMethod(contextService, "validateCollectionOwnerInContext", profileId, collectionId, true);
+        verify(collectionService, times(1)).getCollection(any(UUID.class));
     }
 
     @Test(expected = InvalidOwnerException.class)
-    public void validateCollectionOwnerThrowsException() throws Exception {
-        UUID anotherOwnerID = UUID.randomUUID();
-        CollectionContentDto collectionContentDto = new CollectionContentDto();
-        collectionContentDto.setId(collectionId.toString());
-        collectionContentDto.setOwnerId(anotherOwnerID);
-
-        doReturn(profileId).when(contextService, "getCollectionOwnerId", collectionId.toString(), false, token);
-
-        WhiteboxImpl.invokeMethod(contextService, "validateCollectionOwner", collectionId, false,
-                anotherOwnerID, token);
-
-        verifyPrivate(contextService, times(1)).invoke("getCollectionOwnerId", collectionId.toString(), false, token);
-    }
-
-    @Test
-    public void createContextProfile() throws Exception {
-        ContextProfile result =
-                WhiteboxImpl.invokeMethod(contextService, "createContextProfile", contextId, profileId);
-
-        assertNull("contextId is not null", result.getId());
-        assertNull("Current resource is not null", result.getCurrentResourceId());
-        assertEquals("Wrong profileId", profileId, result.getProfileId());
-        assertEquals("Wrong classId", contextId, result.getContextId());
-        assertFalse("isComplete is true", result.getIsComplete());
-        assertNotNull("Summary Data is null", result.getEventSummaryData());
-
-        EventSummaryDataDto eventResult = gson.fromJson(result.getEventSummaryData(), EventSummaryDataDto.class);
-        assertEquals("Wrong total time", 0, eventResult.getTotalTimeSpent());
-        assertEquals("Wrong average reaction", 0, eventResult.getAverageReaction());
-        assertEquals("Wrong average score", 0, eventResult.getAverageScore());
-        assertEquals("Wrong total answered", 0, eventResult.getTotalAnswered());
-        assertEquals("Wrong total correct", 0, eventResult.getTotalCorrect());
-    }
-
-    @Test
-    public void createContextProfiles() throws Exception {
-        List<UUID> memberIds = new ArrayList<>();
-        memberIds.add(profileId);
-        memberIds.add(memberId);
-        doReturn(new ContextProfile()).when(contextService, "createContextProfile", eq(contextId), any(UUID.class));
-        when(contextProfileService.save(any(ContextProfile.class))).thenReturn(new ContextProfile());
-
-        WhiteboxImpl.invokeMethod(contextService, "createContextProfiles", memberIds, contextId);
-
-        verify(contextProfileService, times(2)).save(any(ContextProfile.class));
-        verifyPrivate(contextService, times(1)).invoke("createContextProfile", contextId, profileId);
-        verifyPrivate(contextService, times(1)).invoke("createContextProfile", contextId, memberId);
-    }
-
-    @Test
-    public void createContextProfilesMembersNullAndEmpty() throws Exception {
-        List<UUID> memberIds = null;
-        doReturn(new ContextProfile()).when(contextService, "createContextProfile", any(), any());
-
-        WhiteboxImpl.invokeMethod(contextService, "createContextProfiles", memberIds, profileId);
-        verifyPrivate(contextService, times(0)).invoke("createContextProfile", any(), any());
-
-        memberIds = new ArrayList<>();
-        WhiteboxImpl.invokeMethod(contextService, "createContextProfiles", memberIds, profileId);
-        verifyPrivate(contextService, times(0)).invoke("createContextProfile", any(), any());
-    }
-
-    @Test
-    public void createContextObject() throws Exception {
-        ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
-        contextPostRequestDto.setClassId(classId);
-        contextPostRequestDto.setIsCollection(true);
-
-        Context result =
-                WhiteboxImpl.invokeMethod(contextService, "createContextObject", contextPostRequestDto, profileId);
-
-        assertNull("contextId is not null", result.getId());
-        assertEquals("Wrong profileId", profileId, result.getProfileId());
-        assertEquals("Wrong classId", classId, result.getClassId());
-        assertEquals("Wrong contextData", gson.toJson(createContextDataDto()), result.getContextData());
-        assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
-        assertTrue("isCollection is false", result.getIsCollection());
-    }
-
-    @Test
-    public void createContextObjectClassNull() throws Exception {
-        ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
-        contextPostRequestDto.setIsCollection(false);
-
-        Context result =
-                WhiteboxImpl.invokeMethod(contextService, "createContextObject", contextPostRequestDto, profileId);
-
-        assertNull("contextId is not null", result.getId());
-        assertEquals("Wrong profileId", profileId, result.getProfileId());
-        assertNull("classId is not null", result.getClassId());
-        assertEquals("Wrong contextData", gson.toJson(createContextDataDto()), result.getContextData());
-        assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
-        assertFalse("isCollection is true", result.getIsCollection());
+    public void validateCollectionOwnerInContextThrowsException() throws Exception {
+        CollectionDto collectionDto = createCollectionDto();
+        doReturn(collectionDto).when(collectionService).getCollection(any(UUID.class));
+        WhiteboxImpl.invokeMethod(contextService, "validateCollectionOwnerInContext", UUID.randomUUID(), collectionId,
+                true);
     }
 
     @Test
@@ -437,34 +304,116 @@ public class ContextServiceTest {
         contextService.findById(contextId);
     }
 
-    /*
     @Test
-    public void findByIdAndOwnerId() {
-        ContextOwnerEntity contextOwnerEntityMock = createContextOwnerEntityMock();
-        when(contextRepository.findContextOwnerById(any(UUID.class))).thenReturn(contextOwnerEntityMock);
+    public void findCreatedContexts() throws Exception {
+        List<ContextEntity> contextEntities = new ArrayList<>();
+        contextEntities.add(createContextEntityMock());
 
-        Context context = contextService.findByIdAndOwnerId(UUID.randomUUID(),
-                contextOwnerEntityMock.getOwnerProfileId());
+        when(contextRepository.findCreatedContextsByProfileId(any(UUID.class))).thenReturn(contextEntities);
 
-        verify(contextRepository, times(1)).findContextOwnerById(any(UUID.class));
-        assertNotNull("Context is null", context);
-        assertEquals("Wrong id for context", contextOwnerEntityMock.getContextId(), context.getId());
-        assertEquals("Wrong id for collection", contextOwnerEntityMock.getCollectionId(), context.getCollectionId());
+        List<ContextEntity> result = contextService.findCreatedContexts(profileId);
+
+        verify(contextRepository, times(1)).findCreatedContextsByProfileId(any(UUID.class));
+
+        assertEquals("Wrong size", 1, result.size());
+        assertEquals("Wrong context id", contextEntities.get(0).getContextId(), result.get(0).getContextId());
+    }
+
+    @Test
+    public void findCreatedContext() throws Exception {
+        ContextEntity contextEntity = createContextEntityMock();
+
+        when(contextRepository.findCreatedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(contextEntity);
+
+        ContextEntity result = contextService.findCreatedContext(contextId, profileId);
+
+        verify(contextRepository, times(1))
+                .findCreatedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+
+        assertEquals("Wrong context id", contextEntity.getContextId(), result.getContextId());
     }
 
     @Test(expected = ContentNotFoundException.class)
-    public void findByIdAndOwnerIdThrowsContentNotFoundException() {
-        when(contextRepository.findContextOwnerById(any(UUID.class))).thenReturn(null);
-        contextService.findByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
+    public void findCreatedContextWhenThrowsContentNotFoundException() throws Exception {
+        when(contextRepository.findCreatedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(null);
+        contextService.findCreatedContext(contextId, profileId);
     }
 
-    @Test(expected = InvalidOwnerException.class)
-    public void findByIdAndOwnerIdThrowsInvalidOwnerException() {
-        ContextOwnerEntity contextOwnerEntityMock = createContextOwnerEntityMock();
-        when(contextRepository.findContextOwnerById(any(UUID.class))).thenReturn(contextOwnerEntityMock);
-        contextService.findByIdAndOwnerId(UUID.randomUUID(), UUID.randomUUID());
+    @Test
+    public void findAssignedContexts() throws Exception {
+        List<AssignedContextEntity> assignedContextEntities = new ArrayList<>();
+        assignedContextEntities.add(createAssignedContextEntityMock());
+
+        when(contextRepository.findAssignedContextsByProfileId(any(UUID.class))).thenReturn(assignedContextEntities);
+
+        List<AssignedContextEntity> result = contextService.findAssignedContexts(profileId);
+
+        verify(contextRepository, times(1)).findAssignedContextsByProfileId(any(UUID.class));
+
+        assertEquals("Wrong size", 1, result.size());
+        assertEquals("Wrong context id", assignedContextEntities.get(0).getContextId(), result.get(0).getContextId());
     }
-    */
+
+    @Test
+    public void findAssignedContext() throws Exception {
+        AssignedContextEntity assignedContextEntity = createAssignedContextEntityMock();
+
+        when(contextRepository.findAssignedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(assignedContextEntity);
+
+        AssignedContextEntity result = contextService.findAssignedContext(contextId, profileId);
+
+        verify(contextRepository, times(1))
+                .findAssignedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+
+        assertEquals("Wrong context id", assignedContextEntity.getContextId(), result.getContextId());
+    }
+
+    @Test(expected = ContentNotFoundException.class)
+    public void findAssignedContextWhenThrowsContentNotFoundException() throws Exception {
+        when(contextRepository.findAssignedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(null);
+        contextService.findAssignedContext(contextId, profileId);
+    }
+
+    @Ignore
+    @Test
+    public void removeIdFromProfileDto() throws Exception {
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setId(UUID.randomUUID().toString());
+        profileDto.setFirstName("Keylor");
+        profileDto.setLastName("Navas");
+        profileDto.setUsername("knavas");
+
+        JsonObject jsonObject = WhiteboxImpl.invokeMethod(contextService, "removeIdFromProfileDto", profileDto);
+
+        assertEquals(jsonObject.size(), 3);
+        assertEquals("Wrong first name", "Keylor", jsonObject.get("firstName").getAsString());
+        assertEquals("wrong last name", "Navas", jsonObject.get("lastName").getAsString());
+        assertEquals("Wrong username", "knavas", jsonObject.get("username").getAsString());
+        assertNull(jsonObject.get("id"));
+
+    }
+
+    @Ignore
+    @Test
+    public void mapContextOwnerEntityToContextAssignedDto() throws Exception {
+        /*
+        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
+        ContextGetResponseDto contextAssignedDto =
+                WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
+                        contextOwnerEntity);
+
+        assertEquals("Wrong context id", contextId, contextAssignedDto.getId());
+        assertEquals("Wrong collection id", collectionId.toString(), contextAssignedDto.getCollection().getId());
+        assertEquals("Wrong owner profile id", ownerProfileId, contextAssignedDto.getOwner().getId());
+        assertEquals("Wrong createdDate value", createdAt.getTime(), contextAssignedDto.getCreatedDate());
+        assertEquals("Wrong metadata value", 1, contextAssignedDto.getContextData().getMetadata().getStartDate());
+        assertTrue("Wrong hasStarted value", contextAssignedDto.getHasStarted());
+        */
+    }
 
     @Ignore
     @Test
@@ -549,215 +498,8 @@ public class ContextServiceTest {
         contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto());
     }
     */
-    @Ignore
-    @Test
-    public void getAssignedContexts() throws Exception {
-        /*
-        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
 
 
-        List<ContextOwnerEntity> list = new ArrayList<>();
-        list.add(contextOwnerEntity);
-
-        when(contextRepository.findContextOwnerByAssigneeIdAndFilters(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class))).thenReturn(list);
-
-        List<ContextGetResponseDto> result = contextService.getAssignedContexts(UUID.randomUUID(), null, null, null);
-
-        verify(contextRepository, times(1)).findContextOwnerByAssigneeIdAndFilters(any(UUID.class), any(Boolean.class), any(Long.class), any(Long.class));
-
-        ContextGetResponseDto resultEntity = result.get(0);
-        assertEquals("Wrong size", 1, result.size());
-
-        assertEquals("Wrong context id", contextId, resultEntity.getId());
-        assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
-        assertEquals("Wrong owner profile id", ownerProfileId, resultEntity.getOwner().getId());
-        assertEquals("Wrong hasStarted value", true, resultEntity.getHasStarted());
-        assertEquals("Wrong created date value", createdAt.getTime(), resultEntity.getCreatedDate());
-
-        assertEquals("Wrong class id", "class-id-1", resultEntity.getContextData().getContextMap().get("classId"));
-
-        MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
-        assertEquals("Wrong metadata title", "metadata title", metadataResult.getTitle());
-        assertEquals("Wrong metadata description", "metadata description", metadataResult.getDescription());
-        assertEquals("Wrong metadata start date", 1, metadataResult.getStartDate());
-        */
-    }
-
-    @Ignore
-    @Test
-    public void getAssignedContextByContextIdAndAssigneeId() throws Exception {
-        /*
-        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
-        when(contextRepository.findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
-                .thenReturn(contextOwnerEntity);
-
-        ContextGetResponseDto resultEntity =
-                contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
-
-        verify(contextRepository, times(1)).findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class));
-
-        assertEquals("Wrong context id", contextId, resultEntity.getId());
-        assertEquals("Wrong collection id", collectionId.toString(), resultEntity.getCollection().getId());
-        assertEquals("Wrong owner profile id", ownerProfileId, resultEntity.getOwner().getId());
-        assertEquals("Wrong hasStarted value", true, resultEntity.getHasStarted());
-        assertEquals("Wrong created date value", createdAt.getTime(), resultEntity.getCreatedDate());
-
-        assertEquals("Wrong class id", "class-id-1", resultEntity.getContextData().getContextMap().get("classId"));
-
-        MetadataDto metadataResult = resultEntity.getContextData().getMetadata();
-        assertEquals("Wrong metadata title", "metadata title", metadataResult.getTitle());
-        assertEquals("Wrong metadata description", "metadata description", metadataResult.getDescription());
-        assertEquals("Wrong metadata start date", 1, metadataResult.getStartDate());
-        */
-    }
-
-    @Test(expected = ContentNotFoundException.class)
-    public void getAssignedContextByContextIdAndAssigneeIdThrowsContentNotFoundException() {
-        when(contextRepository.findContextOwnerByContextIdAndAssigneeId(any(UUID.class), any(UUID.class)))
-                .thenReturn(null);
-        contextService.getAssignedContextByContextIdAndAssigneeId(UUID.randomUUID(), UUID.randomUUID());
-    }
-
-    @Ignore
-    @Test
-    public void findCreatedContexts() {
-        Map<UUID, List<ContextAssigneeEntity>> contextsMap = new HashMap<>();
-
-        ContextAssigneeEntity row1 = mock(ContextAssigneeEntity.class);
-        when(row1.getContextId()).thenReturn(contextId);
-        when(row1.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(row1.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
-        when(row1.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
-                "\"classId\": \"155c951b-c2c9-435a-815d-81e455e681f0\"}}");
-        when(row1.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
-        List<ContextAssigneeEntity> contextAssigneeEntityList1 = new ArrayList<>();
-        contextAssigneeEntityList1.add(row1);
-        contextsMap.put(contextId, contextAssigneeEntityList1);
-
-        UUID groupId = UUID.randomUUID();
-        contextId = UUID.randomUUID();
-        ContextAssigneeEntity row2 = mock(ContextAssigneeEntity.class);
-        when(row2.getContextId()).thenReturn(contextId);
-        when(row2.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(row2.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
-        when(row2.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
-                "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
-        when(row2.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
-        List<ContextAssigneeEntity> contextAssigneeEntityList2 = new ArrayList<>();
-        contextAssigneeEntityList2.add(row2);
-
-        ContextAssigneeEntity row3 = mock(ContextAssigneeEntity.class);
-        when(row3.getContextId()).thenReturn(contextId);
-        when(row3.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(row3.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
-        when(row3.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                "\"title\": \"Math 2nd Grade\"}, \"contextMap\": {" +
-                "\"classId\": \"9e8f32bd-04fd-42c2-97f9-36addd23d850\"}}");
-        when(row3.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
-        contextAssigneeEntityList2.add(row3);
-        contextsMap.put(contextId, contextAssigneeEntityList2);
-
-        when(contextRepository.findContextAssigneeByOwnerId(any(UUID.class))).thenReturn(contextsMap);
-
-        //List<ContextGetResponseDto> result = contextService.findCreatedContexts(UUID.randomUUID());
-        verify(contextRepository, times(1)).findContextAssigneeByOwnerId(any(UUID.class));
-
-        //assertNotNull("Created contexts list in null", result);
-        //assertEquals("Created contexts doesn't match", 2, result.size());
-        //assertNotNull("Context has no Collection", result.get(0).getCollection());
-        //assertNotNull("Context has no assignees", result.get(0).getAssignees());
-    }
-
-    @Ignore
-    @Test
-    public void findCreatedContextByContextIdAndOwnerId() {
-        Map<UUID, List<ContextAssigneeEntity>> contextsMap = new HashMap<>();
-        UUID ownerId = UUID.randomUUID();
-        UUID classId = UUID.randomUUID();
-
-        ContextAssigneeEntity contextAssigneeEntity = mock(ContextAssigneeEntity.class);
-        when(contextAssigneeEntity.getContextId()).thenReturn(contextId);
-        when(contextAssigneeEntity.getCollectionId()).thenReturn(UUID.randomUUID());
-        when(contextAssigneeEntity.getAssigneeProfileId()).thenReturn(UUID.randomUUID());
-        when(contextAssigneeEntity.getContextData()).thenReturn("{\"metadata\": {\"description\": \"First Partial\"," +
-                "\"title\": \"Math 1st Grade\"}, \"contextMap\": {" +
-                "\"classId\": \"" + classId + "\"}}");
-        when(contextAssigneeEntity.getCreatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
-        when(contextAssigneeEntity.getUpdatedAt()).thenReturn(new Timestamp(System.currentTimeMillis()));
-
-        List<ContextAssigneeEntity> contextAssigneeEntityList = new ArrayList<>();
-        contextAssigneeEntityList.add(contextAssigneeEntity);
-        contextsMap.put(contextId, contextAssigneeEntityList);
-
-        when(contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId))
-                .thenReturn(contextsMap);
-
-        //ContextGetResponseDto result =
-        //        contextService.findCreatedContextByContextIdAndOwnerId(contextId, ownerId);
-        verify(contextRepository, times(1)).findContextAssigneeByContextIdAndOwnerId(contextId, ownerId);
-
-        //assertNotNull("Context is null", result);
-        //assertNotNull("Wrong collection Id", result.getCollection().getId());
-        //assertNotNull("Is is null", result.getId());
-        //assertEquals("Context has no assignees", 1, result.getAssignees().size());
-
-        //Map<String, String> contextDataResult = result.getContextData().getContextMap();
-        //assertEquals("Wrong context data value", classId.toString(), contextDataResult.get("classId"));
-
-        //MetadataDto metadataResult = result.getContextData().getMetadata();
-        //assertEquals("Context has no assignees", "First Partial", metadataResult.getDescription());
-        //assertEquals("Context has no assignees", "Math 1st Grade", metadataResult.getTitle());
-    }
-
-    @Ignore
-    @Test(expected = ContentNotFoundException.class)
-    public void findCreatedContextByContextIdAndOwnerIdNoContentFoundResponse() {
-        UUID ownerId = UUID.randomUUID();
-
-        when(contextRepository.findContextAssigneeByContextIdAndOwnerId(contextId, ownerId))
-                .thenReturn(new HashMap());
-
-        //contextService.findCreatedContextByContextIdAndOwnerId(contextId, ownerId);
-    }
-
-    @Ignore
-    @Test
-    public void removeIdFromProfileDto() throws Exception {
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setId(UUID.randomUUID().toString());
-        profileDto.setFirstName("Keylor");
-        profileDto.setLastName("Navas");
-        profileDto.setUsername("knavas");
-
-        JsonObject jsonObject = WhiteboxImpl.invokeMethod(contextService, "removeIdFromProfileDto", profileDto);
-
-        assertEquals(jsonObject.size(), 3);
-        assertEquals("Wrong first name", "Keylor", jsonObject.get("firstName").getAsString());
-        assertEquals("wrong last name", "Navas", jsonObject.get("lastName").getAsString());
-        assertEquals("Wrong username", "knavas", jsonObject.get("username").getAsString());
-        assertNull(jsonObject.get("id"));
-
-    }
-
-    @Ignore
-    @Test
-    public void mapContextOwnerEntityToContextAssignedDto() throws Exception {
-        /*
-        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
-        ContextGetResponseDto contextAssignedDto =
-                WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
-                        contextOwnerEntity);
-
-        assertEquals("Wrong context id", contextId, contextAssignedDto.getId());
-        assertEquals("Wrong collection id", collectionId.toString(), contextAssignedDto.getCollection().getId());
-        assertEquals("Wrong owner profile id", ownerProfileId, contextAssignedDto.getOwner().getId());
-        assertEquals("Wrong createdDate value", createdAt.getTime(), contextAssignedDto.getCreatedDate());
-        assertEquals("Wrong metadata value", 1, contextAssignedDto.getContextData().getMetadata().getStartDate());
-        assertTrue("Wrong hasStarted value", contextAssignedDto.getHasStarted());
-        */
-    }
 
     private Context createContextMock() {
         Context context = new Context();
@@ -790,7 +532,7 @@ public class ContextServiceTest {
 
     private ClassMemberContentDto createClassMember() {
         ClassMemberContentDto classMember = new ClassMemberContentDto();
-        classMember.setMemberIds(Arrays.asList(memberId));
+        classMember.setMemberIds(new ArrayList<>(Arrays.asList(memberId)));
         return classMember;
     }
 
@@ -826,15 +568,62 @@ public class ContextServiceTest {
         return contextPostRequestDto;
     }
 
-    private ContextProfileWithContextEntity createContextProfileContextEntity() {
-        ContextProfileWithContextEntity entityMock = mock(ContextProfileWithContextEntity.class);
+    private ContextEntity createContextEntityMock() {
+        ContextEntity contextEntity = mock(ContextEntity.class);
+        String contextData = "{" +
+                "  'contextMap': {" +
+                "    'courseId': 'course-id-1'" +
+                "  }," +
+                "  'metadata': {" +
+                "    'title': 'metadata title'," +
+                "    'description': 'metadata description'" +
+                "  }" +
+                "}";
+        Mockito.when(contextEntity.getContextId()).thenReturn(contextId);
+        Mockito.when(contextEntity.getCollectionId()).thenReturn(collectionId);
+        Mockito.when(contextEntity.getClassId()).thenReturn(classId);
+        Mockito.when(contextEntity.getProfileId()).thenReturn(profileId);
+        Mockito.when(contextEntity.getContextData()).thenReturn(contextData);
+        Mockito.when(contextEntity.getCreatedAt()).thenReturn(createdAt);
+        Mockito.when(contextEntity.getUpdatedAt()).thenReturn(updatedAt);
+        return contextEntity;
+    }
 
-        when(entityMock.getIsComplete()).thenReturn(true);
-        when(entityMock.getContextProfileId()).thenReturn(contextProfileId);
-        when(entityMock.getContextId()).thenReturn(contextId);
-        when(entityMock.getCollectionId()).thenReturn(collectionId);
-        when(entityMock.getProfileId()).thenReturn(profileId);
-        return entityMock;
+    private AssignedContextEntity createAssignedContextEntityMock() {
+        AssignedContextEntity contextEntity = mock(AssignedContextEntity.class);
+        String contextData = "{" +
+                "  'contextMap': {" +
+                "    'courseId': 'course-id-1'" +
+                "  }," +
+                "  'metadata': {" +
+                "    'title': 'metadata title'," +
+                "    'description': 'metadata description'" +
+                "  }" +
+                "}";
+        Mockito.when(contextEntity.getContextProfileId()).thenReturn(contextProfileId);
+        Mockito.when(contextEntity.getCurrentContextProfileId()).thenReturn(currentContextProfileId);
+        Mockito.when(contextEntity.getContextId()).thenReturn(contextId);
+        Mockito.when(contextEntity.getCollectionId()).thenReturn(collectionId);
+        Mockito.when(contextEntity.getClassId()).thenReturn(classId);
+        Mockito.when(contextEntity.getProfileId()).thenReturn(profileId);
+        Mockito.when(contextEntity.getContextData()).thenReturn(contextData);
+        Mockito.when(contextEntity.getCreatedAt()).thenReturn(createdAt);
+        Mockito.when(contextEntity.getUpdatedAt()).thenReturn(updatedAt);
+        return contextEntity;
+    }
+
+    private CollectionDto createCollectionDto() {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setIsCollection(true);
+        collectionDto.setId(collectionId.toString());
+        collectionDto.setOwnerId(profileId);
+        return collectionDto;
+    }
+
+    private CollectionDto createAssessmentDto() {
+        CollectionDto assessmentDto = createCollectionDto();
+        assessmentDto.setIsCollection(false);
+        return assessmentDto;
     }
 
 }

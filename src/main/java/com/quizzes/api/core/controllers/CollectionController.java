@@ -18,14 +18,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
 import java.util.UUID;
-
 
 @CrossOrigin
 @RestController
 @RequestMapping("/quizzes/api/v1")
 public class CollectionController {
+
+    private static final String COLLECTION_TYPE = "collection";
+    private static final String ASSESSMENT_TYPE = "assessment";
 
     @Autowired
     private CollectionService collectionService;
@@ -46,18 +47,32 @@ public class CollectionController {
             @PathVariable UUID collectionId,
             @ApiParam(value = "Collection type. Valid types: 'collection' or 'assessment'",
                     required = true, name = "Type")
-            @RequestParam String type) {
-        switch (type) {
-            case "collection":
-                return new ResponseEntity<>(
-                        collectionService.getCollection(collectionId.toString()), HttpStatus.OK);
-            case "assessment":
-                return new ResponseEntity<>(
-                        collectionService.getAssessment(collectionId.toString()), HttpStatus.OK);
-            default:
-                throw new InvalidRequestException("Wrong collection type");
+            @RequestParam String type,
+            @RequestParam(required = false) boolean refresh) {
+
+        return prepareResponse(getCollectionDto(collectionId, type, refresh));
+    }
+
+    private CollectionDto getCollectionDto(UUID collectionId, String type, boolean refresh) {
+        if (COLLECTION_TYPE.equalsIgnoreCase(type)) {
+            return refresh ?
+                    collectionService.getCollectionWithCacheRefresh(collectionId) :
+                    collectionService.getCollection(collectionId);
+        } else if (ASSESSMENT_TYPE.equalsIgnoreCase(type)) {
+            return refresh ?
+                    collectionService.getAssessmentWithCacheRefresh(collectionId) :
+                    collectionService.getAssessment(collectionId);
+        } else {
+            throw new InvalidRequestException("Invalid 'type' parameter: " + type);
         }
     }
 
+    private ResponseEntity<CollectionDto> prepareResponse(CollectionDto collectionDto) {
+        collectionDto.setOwnerId(null);
+        if (collectionDto.getResources() != null && !collectionDto.getResources().isEmpty()) {
+            collectionDto.getResources().forEach(resourceDto -> resourceDto.getMetadata().setCorrectAnswer(null));
+        }
+        return new ResponseEntity<>(collectionDto, HttpStatus.OK);
+    }
 
 }

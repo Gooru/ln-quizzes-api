@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
@@ -50,19 +51,19 @@ public class AssessmentRestClientTest {
     private GooruHelper gooruHelper;
 
     private String userToken;
-    private String assessmentId;
+    private UUID assessmentId;
 
     @Before
     public void before() throws Exception {
         userToken = "user-token";
-        assessmentId = UUID.randomUUID().toString();
+        assessmentId = UUID.randomUUID();
     }
 
 
     @Test
     public void getAssessment() throws Exception {
         AssessmentContentDto assessmentDto = new AssessmentContentDto();
-        assessmentDto.setId(assessmentId);
+        assessmentDto.setId(assessmentId.toString());
 
         String url = "http://www.gooru.org";
         doReturn(url).when(configurationService).getContentApiUrl();
@@ -71,27 +72,13 @@ public class AssessmentRestClientTest {
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
 
-        assessmentRestClient.getAssessment(assessmentDto.getId(), userToken);
+        AssessmentContentDto result = assessmentRestClient.getAssessment(assessmentId, userToken);
 
         verify(restTemplate, times(1))
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
         verify(configurationService, times(1)).getContentApiUrl();
         verify(gooruHelper, times(1)).setupHttpHeaders(userToken);
-    }
-
-    @Test
-    public void getCollectionResources() throws Exception {
-        AssessmentContentDto assessmentContentDto = new AssessmentContentDto();
-        assessmentContentDto.setId(assessmentId);
-        assessmentContentDto.setQuestions(Arrays.asList(new ResourceContentDto()));
-
-        doReturn(assessmentContentDto).when(assessmentRestClient).getAssessment(assessmentId, userToken);
-
-        List<ResourceContentDto> result =
-                assessmentRestClient.getAssessmentQuestions(assessmentId, userToken);
-
-        verify(assessmentRestClient, times(1)).getAssessmentQuestions(assessmentId, userToken);
-        assertEquals("Wrong resources size", 1, result.size());
+        assertFalse("Collection is true", result.getIsCollection());
     }
 
 }

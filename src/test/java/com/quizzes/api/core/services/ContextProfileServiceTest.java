@@ -1,6 +1,5 @@
 package com.quizzes.api.core.services;
 
-import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextProfileRepository;
@@ -64,19 +63,15 @@ public class ContextProfileServiceTest {
         List<UUID> contextProfileIds = new ArrayList<>();
         contextProfileIds.add(UUID.randomUUID());
         contextProfileIds.add(UUID.randomUUID());
-        contextProfileIds.add(UUID.randomUUID());
 
         when(contextProfileRepository.findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class))).
                 thenReturn(contextProfileIds);
 
-        AttemptIdsResponseDto result = contextProfileService.findContextProfileAttemptIds(any(UUID.class),
+        List<UUID> result = contextProfileService.findContextProfileIdsByContextIdAndProfileId(any(UUID.class),
                 any(UUID.class));
 
         verify(contextProfileRepository, times(1)).
                 findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-
-        assertNotNull("Result is null", result);
-        assertEquals("Attempts size is incorrect", 3, result.getAttempts().size());
     }
 
 }

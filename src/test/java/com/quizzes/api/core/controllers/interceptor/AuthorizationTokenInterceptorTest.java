@@ -1,7 +1,6 @@
 package com.quizzes.api.core.controllers.interceptor;
 
-import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
-import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
@@ -33,19 +32,31 @@ public class AuthorizationTokenInterceptorTest {
 
     private String authorization;
     private String token;
+    private String tokenAnonymous;
+    private String authorizationAnonymous;
     private MockHttpServletRequest request;
 
 
     @Before
     public void beforeEachTest() {
-        token = "MTQ4NTUzMzM2MDA1Nzphbm9ueW1vdXM6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
+        tokenAnonymous = "MjoxNDg3MDAxNzc5MDg5OmFub255bW91czo6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
+        token = "MjoxNDg2NzY5NTgwNzcxOjk4NDJkNDQ5LWYyNDQtNDhmZC1iYWU2LThhNWM5MTNjMjM1ZDo6YmE5NTZhOTctYWUxNS0xMWU1LWEzMDItZjhhOTYzMDY1OTc2";
+        authorizationAnonymous = "Token " + tokenAnonymous;
         authorization = "Token " + token;
+        authorizationAnonymous = "Token " + tokenAnonymous;
         request = new MockHttpServletRequest();
     }
 
     @Test
-    public void preHandle() throws Exception {
+    public void preHandleAuthorizationForAnonymous() throws Exception {
+        request.addHeader("Authorization", authorizationAnonymous);
+
+        doNothing().when(authenticationRestClient).verifyAccessToken(any(String.class));
+
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
+
+        verify(authenticationRestClient, times(1)).verifyAccessToken(any(String.class));
+
         assertTrue("Result is false", result);
     }
 
@@ -53,44 +64,35 @@ public class AuthorizationTokenInterceptorTest {
     public void preHandleAuthorization() throws Exception {
         request.addHeader("Authorization", authorization);
 
-        AccessTokenResponseDto accessTokenResponseDto = new AccessTokenResponseDto();
-        accessTokenResponseDto.setClientId(UUID.randomUUID().toString());
-        accessTokenResponseDto.setUserId(UUID.randomUUID().toString());
-
-        when(authenticationRestClient.verifyUserToken(any(String.class))).thenReturn(accessTokenResponseDto);
+        doNothing().when(authenticationRestClient).verifyAccessToken(any(String.class));
 
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
 
-        verify(authenticationRestClient, times(1)).verifyUserToken(any(String.class));
+        verify(authenticationRestClient, times(1)).verifyAccessToken(any(String.class));
 
         assertTrue("Result is false", result);
     }
 
-    @Test(expected = InvalidSessionException.class)
+    @Test(expected = InvalidRequestException.class)
     public void preHandleAuthorizationInvalidSession() throws Exception {
         request.addHeader("Authorization", token);
-
-        boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
+        sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
     }
 
     @Test
     public void getToken() throws Exception {
-        String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", authorization);
-
+        String result = WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", authorization);
         assertEquals("Wrong session value", token, result);
     }
 
-    @Test(expected = InvalidSessionException.class)
+    @Test(expected = InvalidRequestException.class)
     public void getTokenExceptionWhenNull() throws Exception {
-        String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", "");
+        WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", "");
     }
 
-    @Test(expected = InvalidSessionException.class)
+    @Test(expected = InvalidRequestException.class)
     public void getTokenExceptionWhenWrongData() throws Exception {
-        String result =
-                WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", UUID.randomUUID().toString());
+        WhiteboxImpl.invokeMethod(sessionInterceptor, "getToken", UUID.randomUUID().toString());
     }
 
 }

@@ -1,14 +1,8 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
-import com.quizzes.api.core.dtos.ContextEventsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
-import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.services.ContextEventService;
-import com.quizzes.api.core.services.ContextProfileService;
-import com.quizzes.api.core.services.ContextService;
-import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -21,7 +15,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,12 +28,6 @@ public class ContextEventController {
 
     @Autowired
     private ContextEventService contextEventService;
-
-    @Autowired
-    private ContextService contextService;
-
-    @Autowired
-    private ContextProfileService contextProfileService;
 
     @ApiOperation(
             value = "Start collection attempt",
@@ -74,8 +61,7 @@ public class ContextEventController {
                                                 @PathVariable UUID contextId,
                                                 @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true, name = "Body")
                                                 @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
-                                                @RequestHeader(value = "lms-id", defaultValue = "quizzes") String lmsId,
-                                                @RequestHeader(value = "profile-id") UUID profileId) {
+                                                @RequestAttribute(value = "profileId") UUID profileId) {
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, onResourceEventPostRequestDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -96,58 +82,6 @@ public class ContextEventController {
             @RequestAttribute(value = "token") String token) {
         contextEventService.processFinishContextEvent(contextId, profileId, token);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @ApiOperation(value = "Get All Student Events by Context ID",
-            notes = "Returns the whole list of student events assigned to for the provided Context ID. The profile-id " +
-                    "passed in the request header corresponds to the context owner Profile ID.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class),
-            @ApiResponse(code = 404, message = "Provided contextId does not exist"),
-            @ApiResponse(code = 403, message = "Invalid owner"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
-    })
-    @RequestMapping(path = "/context/{contextId}/events",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ContextEventsResponseDto> getContextEvents(
-            @ApiParam(value = "Context ID", required = true, name = "contextId")
-            @PathVariable UUID contextId,
-            @ApiParam(value = "Client LMS ID", required = false, name = "lms-id")
-            @RequestHeader(value = "client-id", defaultValue = "quizzes") String lmsId,
-            @ApiParam(value = "Context owner Profile ID", required = true, name = "profile-id")
-            @RequestHeader(value = "profile-id") UUID profileId) {
-        ContextEventsResponseDto contextEvents = contextEventService.getContextEvents(contextId, profileId);
-        return new ResponseEntity<>(contextEvents, HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Get all the student event attempts",
-            notes = "Returns the list of student events attempts IDs")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "OK", response = ContextEventsResponseDto.class),
-            @ApiResponse(code = 404, message = "Provided contextId does not exist"),
-            @ApiResponse(code = 403, message = "Invalid assignee"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
-    })
-    @RequestMapping(path = "contexts/{contextId}/profiles/{profileId}/attempts",
-            method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AttemptIdsResponseDto> getContextProfileAttempIds(
-            @ApiParam(value = "Context ID", required = true, name = "contextId")
-            @PathVariable UUID contextId,
-            @ApiParam(value = "Assignee Profile ID", required = true, name = "profileId")
-            @PathVariable(name = "profileId") UUID assigneeProfileId,
-            @RequestAttribute(value = "profileId") String authorizationProfileId) {
-        QuizzesUtils.rejectAnonymous(authorizationProfileId);
-        UUID authorizationProfileUUID = UUID.fromString(authorizationProfileId);
-        if (assigneeProfileId != authorizationProfileUUID) {
-            //this means that an authorized user is requesting for an assignee attempts
-            //we need to verify that this user is the owner of the context
-            contextService.findCreatedContext(contextId, authorizationProfileUUID);
-        }
-
-        AttemptIdsResponseDto attemptIdsDto = contextProfileService.findContextProfileAttemptIds(contextId, assigneeProfileId);
-        return new ResponseEntity<>(attemptIdsDto, HttpStatus.OK);
     }
 }
 

@@ -1,12 +1,10 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.dtos.content.TokenRequestDto;
 import com.quizzes.api.core.dtos.content.TokenResponseDto;
-import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.slf4j.Logger;
@@ -15,19 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class AuthenticationRestClient {
-    private static final String CLIENT_KEY = "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==";
-    private static final String CLIENT_ID = "ba956a97-ae15-11e5-a302-f8a963065976";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
-    private static final String AUTH_API_URL = "/api/nucleus-auth/v1/";
-    private static final String ANONYMOUS_AUTH_API_URL = AUTH_API_URL.concat("token");
+    private static final String AUTH_URL = "/api/nucleus-auth/v2/";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -43,9 +36,8 @@ public class AuthenticationRestClient {
     @Autowired
     private GooruHelper gooruHelper;
 
-    public AccessTokenResponseDto verifyUserToken(String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
-
+    public void verifyAccessToken(String token) {
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "token";
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
@@ -55,19 +47,8 @@ public class AuthenticationRestClient {
         try {
             HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
             HttpEntity entity = new HttpEntity(headers);
-            ResponseEntity<AccessTokenResponseDto> responseEntity =
-                    restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AccessTokenResponseDto.class);
-            AccessTokenResponseDto accessTokenResponseDto = responseEntity.getBody();
+            restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, Void.class);
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Response from: " + endpointUrl);
-                logger.debug("Body: " + gsonPretty.toJson(accessTokenResponseDto));
-            }
-
-            return accessTokenResponseDto;
-        } catch (HttpClientErrorException hcee) {
-            logger.error("Gooru Token '" + token + "' is not valid.", hcee);
-            throw new InvalidSessionException("Unauthorized Token " + token, hcee);
         } catch (RestClientException rce) {
             logger.error("Gooru Token '" + token + "' is not valid.", rce);
             throw new ContentProviderException("Gooru Token " + token + " is not valid.", rce);
@@ -78,10 +59,10 @@ public class AuthenticationRestClient {
     }
 
     public String generateAnonymousToken() {
-        String endpointUrl = configurationService.getContentApiUrl() + ANONYMOUS_AUTH_API_URL;
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "signin";
         TokenRequestDto tokenRequest = new TokenRequestDto();
-        tokenRequest.setClientId(CLIENT_ID);
-        tokenRequest.setClientKey(CLIENT_KEY);
+        tokenRequest.setClientId(configurationService.getClientId());
+        tokenRequest.setClientKey(configurationService.getClientKey());
         tokenRequest.setGrantType(ANONYMOUS_GRANT_TYPE);
 
         if (logger.isDebugEnabled()) {
