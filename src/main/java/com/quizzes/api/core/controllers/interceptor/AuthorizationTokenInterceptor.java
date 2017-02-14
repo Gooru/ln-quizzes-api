@@ -1,6 +1,5 @@
 package com.quizzes.api.core.controllers.interceptor;
 
-import com.quizzes.api.core.dtos.content.AccessTokenResponseDto;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Base64;
 
 @Component
 public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
@@ -26,16 +26,19 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
         String authorization = request.getHeader("Authorization");
         String token = getToken(authorization);
-        AccessTokenResponseDto accessTokenResponseDto = authenticationRestClient.verifyUserToken(token);
+        String[] decodedTokenValues = new String(Base64.getDecoder().decode(token)).split(":");
 
-        request.setAttribute("profileId", accessTokenResponseDto.getUserId());
-        request.setAttribute("clientId", accessTokenResponseDto.getClientId());
+        authenticationRestClient.verifyAccessToken(token);
+
+        request.setAttribute("profileId", decodedTokenValues[2]);
+        request.setAttribute("clientId", decodedTokenValues[4]);
         request.setAttribute("token", token);
         return true;
+
     }
 
     private String getToken(String authorization) throws InvalidRequestException {
-        if(authorization == null){
+        if (authorization == null) {
             throw new InvalidRequestException("Authorization header is required");
         }
 
