@@ -8,7 +8,8 @@ var SINGLE_CHOICE = "single_choice",
     HOT_TEXT_SENTENCE = "hot_text_sentence",
     TRUE_FALSE = "true_false",
     TEXT_ENTRY = "text_entry",
-    MULTIPLE_SELECT_IMAGE = "multiple_choice_image";
+    MULTIPLE_SELECT_IMAGE = "multiple_choice_image",
+    MULTIPLE_SELECT_TEXT = "multiple_choice_text";
 
 var getResourcesByQuestionType = function(resources, questionType) {
     return resources.filter(x => x.metadata.type == questionType)
@@ -187,6 +188,37 @@ var checkMultipleSelectImageQuestion = function (resources) {
     });
 };
 
+var checkMultipleSelectTextQuestion = function (resources) {
+    resources = getResourcesByQuestionType(resources, MULTIPLE_SELECT_TEXT);
+
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Multiple Select Text Question");
+    expect(resources[0].metadata.body).toEqual("Multiple Select Text Question");
+    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.interaction.shuffle).toBeDefined();
+    expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
+    expect(resources[0].metadata.interaction.prompt).toBeDefined();
+    expect(resources[0].metadata.interaction.choices.length).toEqual(3);
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "One",
+        "isFixed": true,
+        "value": "T25l",
+        "sequence": 1
+    });
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "Two",
+        "isFixed": true,
+        "value": "VHdv",
+        "sequence": 2
+    });
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "Three",
+        "isFixed": true,
+        "value": "VGhyZWU=",
+        "sequence": 3
+    });
+};
+
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
     QuizzesCommon.getAssessmentById(QuizzesCommon.questionTypeDemoAssessment, function(json) {
 
@@ -198,5 +230,6 @@ QuizzesCommon.startTest("Get an assessment and check all the question types", fu
         checkTrueFalseQuestion(json.resources);
         checkTextEntryQuestion(json.resources);
         checkMultipleSelectImageQuestion(json.resources);
+        checkMultipleSelectTextQuestion(json.resources);
     });
 });
