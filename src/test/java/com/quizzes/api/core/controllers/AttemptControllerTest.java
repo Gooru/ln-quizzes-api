@@ -1,6 +1,7 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.AttemptGetResponseDto;
 import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
@@ -11,6 +12,7 @@ import com.quizzes.api.core.services.AttemptService;
 import com.quizzes.api.core.services.ContextEventService;
 import com.quizzes.api.core.services.ContextProfileService;
 import com.quizzes.api.core.services.ContextService;
+import com.quizzes.api.util.QuizzesUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -177,6 +179,29 @@ public class AttemptControllerTest {
 
         verify(contextProfileService, times(1)).findContextProfileIdsByContextIdAndProfileId(any(UUID.class),
                 any(UUID.class));
+    }
+
+    @Test
+    public void getAttempt() throws Exception {
+        UUID attemptId = UUID.randomUUID();
+
+        when(attemptService.getAttempt(attemptId, profileId)).thenReturn(new AttemptGetResponseDto());
+
+        ResponseEntity<AttemptGetResponseDto> response = controller.getAttempt(attemptId, profileId.toString());
+
+        verify(attemptService, times(1)).getAttempt(attemptId, profileId);
+    }
+
+    @Test
+    public void getAttemptWhenAnonymous() throws Exception {
+        UUID attemptId = UUID.randomUUID();
+        UUID anonymousId = QuizzesUtils.getAnonymousId();
+
+        when(attemptService.getAttempt(attemptId, anonymousId)).thenReturn(new AttemptGetResponseDto());
+
+        ResponseEntity<AttemptGetResponseDto> response = controller.getAttempt(attemptId, "anonymous");
+
+        verify(attemptService, times(1)).getAttempt(attemptId, anonymousId);
     }
 
     private PostResponseResourceDto createPostResponseResourceDto(int score, int reaction, UUID resourceId,

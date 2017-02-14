@@ -18,7 +18,7 @@ import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
-import com.quizzes.api.core.repositories.ContextRepository;
+import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +45,6 @@ public class ContextEventService {
     private ContextService contextService;
 
     @Autowired
-    private ContextRepository contextRepository;
-
-    @Autowired
     private CurrentContextProfileService currentContextProfileService;
 
     @Autowired
@@ -57,6 +54,8 @@ public class ContextEventService {
     private CollectionService collectionService;
 
     @Autowired
+    ContextProfileEventRepository contextProfileEventRepository;
+
     private Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {

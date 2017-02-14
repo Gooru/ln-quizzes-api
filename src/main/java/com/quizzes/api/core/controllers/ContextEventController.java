@@ -1,13 +1,8 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
-import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.services.ContextEventService;
-import com.quizzes.api.core.services.ContextProfileService;
-import com.quizzes.api.core.services.ContextService;
-import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -33,12 +28,6 @@ public class ContextEventController {
 
     @Autowired
     private ContextEventService contextEventService;
-
-    @Autowired
-    private ContextService contextService;
-
-    @Autowired
-    private ContextProfileService contextProfileService;
 
     @ApiOperation(
             value = "Start collection attempt",

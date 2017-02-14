@@ -3,14 +3,17 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
-import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
+import com.quizzes.api.core.dtos.AttemptGetResponseDto;
 import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
+
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEventEntity;
+import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
@@ -184,6 +187,119 @@ public class AttemptServiceTest {
 
     }
 
+    @Test
+    public void getAttempt() throws Exception {
+
+        UUID attemptId = UUID.randomUUID();
+        UUID contextId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+
+        EventSummaryDataDto eventEntity1Summary = new EventSummaryDataDto();
+        eventEntity1Summary.setAverageScore((short)50);
+        eventEntity1Summary.setTotalCorrect((short)1);
+        eventEntity1Summary.setAverageReaction((short)2);
+        eventEntity1Summary.setTotalAnswered((short)1);
+        eventEntity1Summary.setTotalTimeSpent(2500);
+        String eventSummary1 = gson.toJson(eventEntity1Summary);
+
+        PostResponseResourceDto eventEntity1Data = new PostResponseResourceDto();
+        eventEntity1Data.setResourceId(UUID.randomUUID());
+        eventEntity1Data.setIsSkipped(false);
+        eventEntity1Data.setScore(100);
+        AnswerDto answerDto1 = new AnswerDto();
+        answerDto1.setValue("A");
+        List<AnswerDto> answers1 = new ArrayList<>();
+        answers1.add(answerDto1);
+        eventEntity1Data.setAnswer(answers1);
+        eventEntity1Data.setReaction(1);
+        eventEntity1Data.setTimeSpent(1000);
+        String eventData1 = gson.toJson(eventEntity1Data);
+        ContextProfileEventEntity eventEntity1 = createContextProfileEventEntity(attemptId, contextId, profileId,
+                collectionId, eventData1, eventSummary1);
+
+        PostResponseResourceDto eventEntity2Data = new PostResponseResourceDto();
+        eventEntity2Data.setResourceId(UUID.randomUUID());
+        eventEntity2Data.setIsSkipped(false);
+        eventEntity2Data.setScore(0);
+        AnswerDto answerDto2 = new AnswerDto();
+        answerDto2.setValue("B");
+        List<AnswerDto> answers2 = new ArrayList<>();
+        answers2.add(answerDto2);
+        eventEntity2Data.setAnswer(answers1);
+        eventEntity2Data.setReaction(3);
+        eventEntity2Data.setTimeSpent(1500);
+        String eventData2 = gson.toJson(eventEntity1Data);
+        ContextProfileEventEntity eventEntity2 = createContextProfileEventEntity(attemptId, contextId, profileId,
+                collectionId, eventData2, eventSummary1);
+
+        List<ContextProfileEventEntity> contextProfileEvents = new ArrayList<>();
+        contextProfileEvents.add(eventEntity1);
+        contextProfileEvents.add(eventEntity2);
+
+        when(contextProfileEventService.findByContextProfileIdAndProfileId(attemptId, profileId)).
+                thenReturn(contextProfileEvents);
+
+        AttemptGetResponseDto result = attemptService.getAttempt(attemptId, profileId);
+
+        verify(contextProfileEventService, times(1)).
+                findByContextProfileIdAndProfileId(attemptId, profileId);
+
+        assertEquals("Average not equal", eventEntity1Summary.getAverageReaction(),
+                result.getEventSummary().getAverageReaction());
+        assertEquals("Score not equal", eventEntity1Summary.getAverageScore(),
+                result.getEventSummary().getAverageScore());
+        assertEquals("Average not equal", eventEntity1Summary.getAverageScore(),
+                result.getEventSummary().getAverageScore());
+        assertEquals("Number of events is wrong", 2, result.getEvents().size());
+        assertTrue("Wrong score", result.getEvents().get(0).getScore() == 0 ||
+                result.getEvents().get(0).getScore() == 100);
+        assertTrue("Wrong score", result.getEvents().get(1).getScore() == 0 ||
+                result.getEvents().get(0).getScore() == 100);
+    }
+
+    /**
+     * Because we can create a {@link Context} with a Collection with no Resources
+     * then the attempts will have no Resources.
+     * @throws Exception
+     */
+    @Test
+    public void getAttemptWithoutResource() throws Exception {
+
+        UUID attemptId = UUID.randomUUID();
+        UUID contextId = UUID.randomUUID();
+        UUID collectionId = UUID.randomUUID();
+
+        EventSummaryDataDto eventEntity1Summary = new EventSummaryDataDto();
+        eventEntity1Summary.setAverageScore((short)0);
+        eventEntity1Summary.setTotalCorrect((short)0);
+        eventEntity1Summary.setAverageReaction((short)0);
+        eventEntity1Summary.setTotalAnswered((short)0);
+        eventEntity1Summary.setTotalTimeSpent(0);
+        String eventSummary1 = gson.toJson(eventEntity1Summary);
+
+        ContextProfileEventEntity eventEntity1 = createContextProfileEventEntity(attemptId, contextId, profileId,
+                collectionId, null, eventSummary1);
+
+        List<ContextProfileEventEntity> contextProfileEvents = new ArrayList<>();
+        contextProfileEvents.add(eventEntity1);
+
+        when(contextProfileEventService.findByContextProfileIdAndProfileId(attemptId, profileId)).
+                thenReturn(contextProfileEvents);
+
+        AttemptGetResponseDto result = attemptService.getAttempt(attemptId, profileId);
+
+        verify(contextProfileEventService, times(1)).
+                findByContextProfileIdAndProfileId(attemptId, profileId);
+
+        assertEquals("Average not equal", eventEntity1Summary.getAverageReaction(),
+                result.getEventSummary().getAverageReaction());
+        assertEquals("Score not equal", eventEntity1Summary.getAverageScore(),
+                result.getEventSummary().getAverageScore());
+        assertEquals("Average not equal", eventEntity1Summary.getAverageScore(),
+                result.getEventSummary().getAverageScore());
+        assertEquals("Number of events is wrong", 0, result.getEvents().size());
+    }
+
     private AssignedContextEntity createAssignedContextEntity() {
         AssignedContextEntity assignedContextEntity = mock(AssignedContextEntity.class);
 
@@ -218,6 +334,20 @@ public class AttemptServiceTest {
                 score, reaction, timeSpent, createAnswerList(answerValue), isSkipped)));
 
         return entity;
+    }
+
+    private ContextProfileEventEntity createContextProfileEventEntity(UUID attemptIdP, UUID contextIdP, UUID profileIdP,
+                                                                      UUID collectionIdP, String dataP, String summaryP) {
+        ContextProfileEventEntity result = mock(ContextProfileEventEntity.class);
+        when(result.getContextProfileId()).thenReturn(attemptIdP);
+        when(result.getContextId()).thenReturn(contextIdP);
+        when(result.getProfileId()).thenReturn(profileIdP);
+        when(result.getCollectionId()).thenReturn(collectionIdP);
+        when(result.getResourceId()).thenReturn(UUID.randomUUID());
+        when(result.getCurrentResourceId()).thenReturn(UUID.randomUUID());
+        when(result.getEventData()).thenReturn(dataP);
+        when(result.getEventsSummary()).thenReturn(summaryP);
+        return result;
     }
 
     private PostResponseResourceDto createResponseResourceDto(UUID resourceId, int score, int reaction, long timeSpent,

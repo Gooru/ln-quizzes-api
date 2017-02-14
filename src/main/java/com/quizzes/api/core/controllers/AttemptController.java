@@ -1,5 +1,6 @@
 package com.quizzes.api.core.controllers;
 
+import com.quizzes.api.core.dtos.AttemptGetResponseDto;
 import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
 import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.services.AttemptService;
@@ -86,5 +87,24 @@ public class AttemptController {
         attemptIdsDto.setAttempts(contextProfileService
                 .findContextProfileIdsByContextIdAndProfileId(contextId, assigneeProfileId));
         return new ResponseEntity<>(attemptIdsDto, HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get the attempt information",
+            notes = "Returns the information for a given student event attempt.")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK", response = AttemptGetResponseDto.class),
+            @ApiResponse(code = 404, message = "Provided attempt does not exist"),
+            @ApiResponse(code = 403, message = "Invalid profile"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
+    })
+    @RequestMapping(path = "/attempts/{attemptId}",
+            method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AttemptGetResponseDto> getAttempt(
+            @ApiParam(value = "Event attempt ID", required = true, name = "attemptId")
+            @PathVariable UUID attemptId,
+            @RequestAttribute(value = "profileId") String profileId) {
+        AttemptGetResponseDto attemptDto = attemptService.getAttempt(attemptId, QuizzesUtils.resolveProfileId(profileId));
+        return new ResponseEntity<>(attemptDto, HttpStatus.OK);
     }
 }

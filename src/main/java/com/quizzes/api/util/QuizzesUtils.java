@@ -28,4 +28,13 @@ public class QuizzesUtils {
     public static UUID getAnonymousId(){
         return ANONYMOUS_ID;
     }
+
+    public static UUID resolveProfileId(String profileId) {
+        if (isAnonymous(profileId)) {
+            return QuizzesUtils.getAnonymousId();
+        }
+        else {
+            return UUID.fromString(profileId);
+        }
+    }
 }

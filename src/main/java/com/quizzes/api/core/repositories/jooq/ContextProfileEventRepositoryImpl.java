@@ -1,6 +1,7 @@
 package com.quizzes.api.core.repositories.jooq;
 
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEventEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import org.jooq.DSLContext;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.quizzes.api.core.model.jooq.tables.Context.CONTEXT;
 import static com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
 import static com.quizzes.api.core.model.jooq.tables.ContextProfileEvent.CONTEXT_PROFILE_EVENT;
 import static com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
@@ -40,7 +42,34 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
                 .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
                 .where(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
                 .fetchGroups(CURRENT_CONTEXT_PROFILE.PROFILE_ID.as("assigneeProfileId"), AssigneeEventEntity.class);
+    }
 
+    @Override
+    public List<AssigneeEventEntity> findByContextIdAndProfileId(UUID contextId, UUID assigneeProfileId) {
+        return jooq.select(CURRENT_CONTEXT_PROFILE.PROFILE_ID.as("AssigneeProfileId"),
+                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE_EVENT.EVENT_DATA,
+                CONTEXT_PROFILE.EVENT_SUMMARY_DATA.as("EventsSummary"))
+                .from(CURRENT_CONTEXT_PROFILE)
+                .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.ID.eq(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID))
+                .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
+                .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
+                .and(CONTEXT_PROFILE.PROFILE_ID.eq(assigneeProfileId))
+                .fetchInto(AssigneeEventEntity.class);
+    }
+
+    @Override
+    public List<ContextProfileEventEntity> findByContextProfileIdAndProfileId(UUID contextProfileId, UUID profileId) {
+        return jooq.select(CONTEXT_PROFILE.ID.as("ContextProfileId"), CONTEXT_PROFILE.CONTEXT_ID, CONTEXT.COLLECTION_ID, CONTEXT_PROFILE.PROFILE_ID,
+                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE_EVENT.RESOURCE_ID, CONTEXT_PROFILE_EVENT.EVENT_DATA,
+                CONTEXT_PROFILE.EVENT_SUMMARY_DATA.as("EventsSummary"))
+                .from(CONTEXT_PROFILE)
+                .join(CONTEXT).on(CONTEXT.ID.eq(CONTEXT_PROFILE.CONTEXT_ID))
+                .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
+                .where(CONTEXT_PROFILE.ID.eq(contextProfileId))
+                .and(CONTEXT.PROFILE_ID.eq(profileId))
+                .or(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .and(CONTEXT.IS_DELETED.eq(false))
+                .fetchInto(ContextProfileEventEntity.class);
     }
 
     @Override

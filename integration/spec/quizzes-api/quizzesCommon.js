@@ -4,6 +4,7 @@ const frisby = require('frisby');
 
 var testUsers = {};
     testUsers["TestAcc01"] = {"firstname": "Test", "lastname": "Acc", "identityId": "acc01@test.com"};
+    testUsers["TestAcc04"] = {"firstname": "Acc", "lastname": "Test", "identityId": "acc04@test.com"};
 
 var quizzesCommon = {
 
@@ -63,6 +64,7 @@ var quizzesCommon = {
             frisby.create('Test context creation for TestAcc01')
                 .post(QuizzesApiUrl + '/v1/contexts', {
                     'collectionId': '3c843308-8864-4ecd-a1c8-75ab423336f2',
+                    'classId': '5d22f953-121c-485b-8043-9a96ff3ec89c',
                     'isCollection': false,
                     'contextData': {
                         'contextMap': {

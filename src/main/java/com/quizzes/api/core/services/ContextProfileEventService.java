@@ -1,6 +1,7 @@
 package com.quizzes.api.core.services;
 
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
+import com.quizzes.api.core.model.entities.ContextProfileEventEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,10 @@ public class ContextProfileEventService {
 
     public Map<UUID, List<AssigneeEventEntity>> findByContextId(UUID contextId) {
         return contextProfileEventRepository.findByContextIdGroupByProfileId(contextId);
+    }
+
+    public List<ContextProfileEventEntity> findByContextProfileIdAndProfileId(UUID contextProfileId, UUID profileId) {
+        return contextProfileEventRepository.findByContextProfileIdAndProfileId(contextProfileId,profileId);
     }
 
     void deleteByContextProfileId(UUID contextProfileId) {
