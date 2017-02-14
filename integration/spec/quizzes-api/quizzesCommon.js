@@ -144,15 +144,18 @@ var quizzesCommon = {
     },
 
     getCollectionByIdAndType: function (collectionId, type, afterJsonFunction) {
-        frisby.create('Get the ' + type + ' information')
-            .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
-            .inspectRequest()
-            .expectStatus(200)
-            .inspectJSON()
-            .afterJSON(function (collection) {
-                afterJsonFunction(collection);
-            })
-            .toss()
+        this.getAuthorizationToken("TestAcc01", function (authResponse) {
+            frisby.create('Get the ' + type + ' information')
+                .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
+                .addHeader('Authorization', 'Token ' + authResponse.access_token)
+                .inspectRequest()
+                .expectStatus(200)
+                .inspectJSON()
+                .afterJSON(function (collection) {
+                    afterJsonFunction(collection);
+                })
+                .toss()
+        })
     },
 
     startContext: function (contextId, assigneeProfileId, afterJsonFunction) {
