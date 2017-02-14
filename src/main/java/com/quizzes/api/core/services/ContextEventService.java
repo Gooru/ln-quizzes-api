@@ -56,6 +56,7 @@ public class ContextEventService {
     @Autowired
     ContextProfileEventRepository contextProfileEventRepository;
 
+    @Autowired
     private Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {

@@ -19,8 +19,9 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class AuthenticationRestClient {
+
+    private static final String AUTH_API_URL = "/api/nucleus-auth/v2";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
-    private static final String AUTH_URL = "/api/nucleus-auth/v2/";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -28,20 +29,19 @@ public class AuthenticationRestClient {
     private RestTemplate restTemplate;
 
     @Autowired
-    private Gson gsonPretty;
-
-    @Autowired
     private ConfigurationService configurationService;
 
     @Autowired
     private GooruHelper gooruHelper;
 
+    @Autowired
+    private Gson gson;
+
     public void verifyAccessToken(String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "token";
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_API_URL + "/token";
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
-            logger.debug("Header: Authorization Token " + token);
         }
 
         try {
@@ -49,17 +49,21 @@ public class AuthenticationRestClient {
             HttpEntity entity = new HttpEntity(headers);
             restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, Void.class);
 
+            if (logger.isDebugEnabled()) {
+                logger.debug("Response from: " + endpointUrl);
+                logger.debug("Status: OK");
+            }
         } catch (RestClientException rce) {
-            logger.error("Gooru Token '" + token + "' is not valid.", rce);
-            throw new ContentProviderException("Gooru Token " + token + " is not valid.", rce);
+            logger.error("Session Token '" + token + "' is not valid in Gooru.", rce);
+            throw new ContentProviderException("Session Token " + token + " is not valid in Gooru.", rce);
         } catch (Exception e) {
-            logger.error("Gooru Token validation '" + token + "' could not be processed.", e);
-            throw new InternalServerException("Gooru Token validation " + token + " could not be processed.", e);
+            logger.error("Session Token validation '" + token + "' could not be processed.", e);
+            throw new InternalServerException("Session Token validation " + token + " could not be processed.", e);
         }
     }
 
     public String generateAnonymousToken() {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_URL + "signin";
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_API_URL + "/signin";
         TokenRequestDto tokenRequest = new TokenRequestDto();
         tokenRequest.setClientId(configurationService.getClientId());
         tokenRequest.setClientKey(configurationService.getClientKey());
@@ -67,7 +71,7 @@ public class AuthenticationRestClient {
 
         if (logger.isDebugEnabled()) {
             logger.debug("POST Request to: " + endpointUrl);
-            logger.debug("Body: " + gsonPretty.toJson(tokenRequest));
+            logger.debug("Body: " + gson.toJson(tokenRequest));
         }
 
         try {
@@ -76,16 +80,17 @@ public class AuthenticationRestClient {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);
-                logger.debug("Body: " + gsonPretty.toJson(tokenResponse));
+                logger.debug("Body: " + gson.toJson(tokenResponse));
             }
 
             return tokenResponse.getToken();
         } catch (RestClientException rce) {
-            logger.error("Anonymous token could not be generated.", rce);
-            throw new ContentProviderException("Anonymous token could not be generated.", rce);
+            logger.error("Anonymous Token generation failed in Gooru.", rce);
+            throw new ContentProviderException("Anonymous Token generation failed in Gooru.", rce);
         } catch (Exception e) {
-            logger.error("Anonymous token could not be generated.", e);
-            throw new InternalServerException("Anonymous token could not be generated.", e);
+            logger.error("Anonymous Token generation could not be processed.", e);
+            throw new InternalServerException("Anonymous Token generation could not be processed.", e);
         }
     }
+
 }

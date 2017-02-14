@@ -1,7 +1,6 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.junit.Before;
@@ -18,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
@@ -27,9 +24,8 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.powermock.api.mockito.PowerMockito.spy;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({AssessmentRestClient.class})
@@ -40,9 +36,6 @@ public class AssessmentRestClientTest {
 
     @Mock
     private RestTemplate restTemplate;
-
-    @Mock
-    private AuthenticationRestClient authenticationRestClient;
 
     @Mock
     private ConfigurationService configurationService;
@@ -59,16 +52,13 @@ public class AssessmentRestClientTest {
         assessmentId = UUID.randomUUID();
     }
 
-
     @Test
     public void getAssessment() throws Exception {
         AssessmentContentDto assessmentDto = new AssessmentContentDto();
         assessmentDto.setId(assessmentId.toString());
 
-        String url = "http://www.gooru.org";
-        doReturn(url).when(configurationService).getContentApiUrl();
+        doReturn("http://nile.gooru.org").when(configurationService).getContentApiUrl();
         doReturn(new HttpHeaders()).when(gooruHelper).setupHttpHeaders(userToken);
-
         doReturn(new ResponseEntity<>(assessmentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
 

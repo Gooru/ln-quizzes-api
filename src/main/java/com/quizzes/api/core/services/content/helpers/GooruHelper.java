@@ -13,18 +13,20 @@ import java.util.Arrays;
 @Component
 public class GooruHelper {
 
+    private static final String TOKEN_TYPE = "Token";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private Gson gsonPretty;
+    private Gson gson;
 
     public HttpHeaders setupHttpHeaders(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        headers.set("Authorization", "Token " + token);
+        headers.set(HttpHeaders.AUTHORIZATION, TOKEN_TYPE + " " + token);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Headers: " + gsonPretty.toJson(headers));
+            logger.debug("Request Headers: " + gson.toJson(headers));
         }
 
         return headers;

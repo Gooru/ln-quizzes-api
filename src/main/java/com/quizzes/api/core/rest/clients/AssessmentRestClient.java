@@ -2,7 +2,6 @@ package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
@@ -20,15 +19,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
 import java.util.UUID;
 
 @Component
 public class AssessmentRestClient {
 
-    private static final String API_URL = "/api/nucleus/v1/";
-    private static final String ASSESSMENTS_PATH = API_URL.concat("assessments/");
-    private static final String ASSESSMENTS_COPIER_PATH = API_URL.concat("copier/assessments/{assessmentId}");
+    private static final String NUCLEUS_API_URL = "/api/nucleus/v1";
+    private static final String ASSESSMENTS_PATH = NUCLEUS_API_URL.concat("/assessments/%s");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -39,16 +36,13 @@ public class AssessmentRestClient {
     private ConfigurationService configurationService;
 
     @Autowired
-    private Gson gsonPretty;
+    private GooruHelper gooruHelper;
 
     @Autowired
-    GooruHelper gooruHelper;
-
-    @Autowired
-    AuthenticationRestClient authenticationRestClient;
+    private Gson gson;
 
     public AssessmentContentDto getAssessment(UUID assessmentId, String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + ASSESSMENTS_PATH + assessmentId;
+        String endpointUrl = configurationService.getContentApiUrl() + String.format(ASSESSMENTS_PATH, assessmentId);
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
@@ -56,27 +50,29 @@ public class AssessmentRestClient {
 
         try {
             HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
-            HttpEntity entity = new HttpEntity(headers);
+            HttpEntity requestEntity = new HttpEntity(headers);
             ResponseEntity<AssessmentContentDto> responseEntity =
-                    restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, AssessmentContentDto.class);
+                    restTemplate.exchange(endpointUrl, HttpMethod.GET, requestEntity, AssessmentContentDto.class);
             AssessmentContentDto assessment = responseEntity.getBody();
             assessment.setIsCollection(false);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);
-                logger.debug("Body: " + gsonPretty.toJson(assessment));
+                logger.debug("Body: " + gson.toJson(assessment));
             }
 
             return assessment;
         } catch (HttpClientErrorException hcee) {
-            logger.error("Gooru Assessment '" + assessmentId + "' could not be retrieved.", hcee);
-            if(hcee.getStatusCode().equals(HttpStatus.NOT_FOUND)){
-                throw new ContentNotFoundException("Assessment " + assessmentId + " could not be found.");
+            if (hcee.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+                logger.error("Assessment " + assessmentId + " not found in Gooru.", hcee);
+                throw new ContentNotFoundException("Assessment " + assessmentId + " not found in Gooru.");
+            } else {
+                logger.error("Assessment " + assessmentId + " could not be retrieved.", hcee);
+                throw new ContentProviderException("Assessment " + assessmentId + " could not be retrieved.", hcee);
             }
-            throw new ContentProviderException("Assessment " + assessmentId + " could not be retrieved.", hcee);
         } catch (Exception e) {
-            logger.error("Gooru Assessment '" + assessmentId + "' could not be processed.", e);
-            throw new InternalServerException("Assessment " + assessmentId + " could not be processed.", e);
+            logger.error("Getting Assessment " + assessmentId + " process failed.", e);
+            throw new InternalServerException("Getting Assessment " + assessmentId + " process failed.", e);
         }
     }
 
