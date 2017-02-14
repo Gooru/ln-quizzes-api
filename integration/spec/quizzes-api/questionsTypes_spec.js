@@ -10,7 +10,6 @@ var checkSingleChoiceQuestion = function (resources) {
     expect(resources.length).toEqual(1);
     expect(resources[0].metadata.title).toEqual("Multiple Choice Question");
     expect(resources[0].metadata.body).toEqual("Multiple Choice Question");
-    expect(resources[0].metadata.correctAnswer).toEqual([{"value": "QQ=="}]);
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
@@ -33,7 +32,6 @@ var checkMultipleChoiceQuestion = function (resources) {
     expect(resources.length).toEqual(1);
     expect(resources[0].metadata.title).toEqual("Multiple Answer Question");
     expect(resources[0].metadata.body).toEqual("Multiple Answer Question");
-    expect(resources[0].metadata.correctAnswer).toEqual([{"value": "QQ=="}]);
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
@@ -56,7 +54,6 @@ var checkTrueFalseQuestion = function (resources) {
     expect(resources.length).toEqual(1);
     expect(resources[0].metadata.title).toEqual("True False Question");
     expect(resources[0].metadata.body).toEqual("True False Question");
-    expect(resources[0].metadata.correctAnswer).toEqual([{"value": "VHJ1ZQ=="}]);
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
@@ -75,6 +72,34 @@ var checkTrueFalseQuestion = function (resources) {
     });
 };
 
+var checkDragAndDropQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Drag and Drop Question");
+    expect(resources[0].metadata.body).toEqual("Drag and Drop Question");
+    expect(resources[0].metadata.interaction.shuffle).toBeDefined();
+    expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
+    expect(resources[0].metadata.interaction.prompt).toBeDefined();
+    expect(resources[0].metadata.interaction.choices.length).toEqual(3);
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "One",
+        "isFixed": true,
+        "value": "T25l",
+        "sequence": 1
+    });
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "Two",
+        "isFixed": true,
+        "value": "VHdv",
+        "sequence": 2
+    });
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "Three",
+        "isFixed": true,
+        "value": "VGhyZWU=",
+        "sequence": 3
+    });
+};
+
 
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
     QuizzesCommon.getAssessmentById(QuizzesCommon.questionTypeDemoAssessment, function(json) {
@@ -82,6 +107,7 @@ QuizzesCommon.startTest("Get an assessment and check all the question types", fu
 
         checkSingleChoiceQuestion(getResourceByQuestionType(resources, "single_choice"));
         checkMultipleChoiceQuestion(getResourceByQuestionType(resources, "multiple_choice"));
+        checkDragAndDropQuestion(getResourceByQuestionType(resources, "drag_and_drop"));
         checkTrueFalseQuestion(getResourceByQuestionType(resources, "true_false"));
     });
 });
