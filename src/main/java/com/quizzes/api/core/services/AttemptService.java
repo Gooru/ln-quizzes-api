@@ -93,9 +93,14 @@ public class AttemptService {
         if (contextProfileEvents.isEmpty()) {
             throw new ContentNotFoundException("Attempt: " + attemptId + " not found for profile: " + profileId);
         }
+        AttemptGetResponseDto result = mapContextProfileEventListToAttempt(contextProfileEvents);
+        return result;
+    }
+
+    private AttemptGetResponseDto mapContextProfileEventListToAttempt(List<ContextProfileEventEntity> contextProfileEvents) {
+        AttemptGetResponseDto result = new AttemptGetResponseDto();
 
         ContextProfileEventEntity firstEvent = contextProfileEvents.get(0);
-        AttemptGetResponseDto result = new AttemptGetResponseDto();
         result.setAttemptId(firstEvent.getContextProfileId());
         result.setContextId(firstEvent.getContextId());
         result.setCollectionId(firstEvent.getCollectionId());
@@ -111,7 +116,6 @@ public class AttemptService {
                     return event;
                 }).collect(Collectors.toList());
         result.setEvents(events);
-
         return result;
     }
 }
