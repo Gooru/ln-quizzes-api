@@ -100,6 +100,19 @@ var checkDragAndDropQuestion = function (resources) {
     });
 };
 
+var checkHotTextWordQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Highlight Word Question");
+    expect(resources[0].metadata.body).toEqual("The big bad wolf blew down the house.");
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
+
+var checkHotTextSentenceQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Highlight Sentence Question");
+    expect(resources[0].metadata.body).toEqual("The first little pig built his house of straw. The big bad wolf blew down the house. The second pig built his house of wood.");
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
 
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
     QuizzesCommon.getAssessmentById(QuizzesCommon.questionTypeDemoAssessment, function(json) {
@@ -108,6 +121,8 @@ QuizzesCommon.startTest("Get an assessment and check all the question types", fu
         checkSingleChoiceQuestion(getResourceByQuestionType(resources, "single_choice"));
         checkMultipleChoiceQuestion(getResourceByQuestionType(resources, "multiple_choice"));
         checkDragAndDropQuestion(getResourceByQuestionType(resources, "drag_and_drop"));
+        checkHotTextWordQuestion(getResourceByQuestionType(resources, "hot_text_word"));
+        checkHotTextSentenceQuestion(getResourceByQuestionType(resources, "hot_text_sentence"));
         checkTrueFalseQuestion(getResourceByQuestionType(resources, "true_false"));
     });
 });
