@@ -114,6 +114,13 @@ var checkHotTextSentenceQuestion = function (resources) {
     expect(resources[0].metadata.interaction).not.toBeDefined();
 };
 
+var checkTextEntryQuestion = function (resources) {
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("Fill in the Blank Question");
+    expect(resources[0].metadata.body).toEqual("<span style=\"background-color: rgb(255, 255, 255);\">The big bad [] blew down the [].</span><br>");
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
+
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
     QuizzesCommon.getAssessmentById(QuizzesCommon.questionTypeDemoAssessment, function(json) {
         var resources = json.resources;
@@ -124,5 +131,6 @@ QuizzesCommon.startTest("Get an assessment and check all the question types", fu
         checkHotTextWordQuestion(getResourceByQuestionType(resources, "hot_text_word"));
         checkHotTextSentenceQuestion(getResourceByQuestionType(resources, "hot_text_sentence"));
         checkTrueFalseQuestion(getResourceByQuestionType(resources, "true_false"));
+        checkTextEntryQuestion(getResourceByQuestionType(resources, "text_entry"));
     });
 });
