@@ -1,10 +1,7 @@
 const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
-const ContentProviderApiUrl = require('./quizzesTestConfiguration.js').contentProviderApiUrl;
+const config = require('./quizzesTestConfiguration.js');
+const ContentProviderUtils = require('./contentProviderUtils.js');
 const frisby = require('frisby');
-
-var testUsers = {};
-    testUsers["TestAcc01"] = {"firstname": "Test", "lastname": "Acc", "identityId": "acc01@test.com"};
-    testUsers["TestAcc04"] = {"firstname": "Acc", "lastname": "Test", "identityId": "acc04@test.com"};
 
 var quizzesCommon = {
 
@@ -21,36 +18,8 @@ var quizzesCommon = {
         return uuid;
     },
 
-    getTestUser: function (userId) {
-        return testUsers[userId];
-    },
-
-    getAuthorizationToken : function(userId, afterJsonFunction) {
-        var authorizationUser = this.getTestUser(userId);
-        console.log("Autorization user " + authorizationUser.identityId);
-        frisby.create('Gets the authorization token for ' + userId)
-            .post(ContentProviderApiUrl + '/v2/authorize', {
-                "client_key": "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==",
-                "client_id": "ba956a97-ae15-11e5-a302-f8a963065976",
-                "grant_type": "google",
-                "user": {
-                    "firstname": authorizationUser.firstname,
-                    "lastname": authorizationUser.lastname,
-                    "identity_id": authorizationUser.identityId
-                }
-            }, {json: true})
-            .inspectRequest()
-            .expectStatus(201)
-            .expectHeaderContains('content-type', 'application/json')
-            .inspectJSON()
-            .afterJSON(function (authorizationResponse) {
-                afterJsonFunction(authorizationResponse);
-            })
-            .toss();
-    },
-
     getProfileIdFromToken : function(token) {
-        return Buffer(token, 'base64').toString().split(":")[1];
+        return Buffer(token, 'base64').toString().split(":")[2];
     },
 
     startTest: function (title, functionalTest) {
@@ -59,15 +28,16 @@ var quizzesCommon = {
     },
 
     createContext: function (afterJsonFunction) {
-        this.getAuthorizationToken("TestAcc01", function (authResponse) {
+        var contextClass = config.getClass("TestClass01");
+        var assessment = config.getAssessment("TestAssessment01")
+        ContentProviderUtils.getAuthorizationToken(contextClass.owner, function (authResponse) {
             frisby.create('Test context creation for TestAcc01')
                 .post(QuizzesApiUrl + '/v1/contexts', {
-                    'collectionId': '3c843308-8864-4ecd-a1c8-75ab423336f2',
-                    'classId': '5d22f953-121c-485b-8043-9a96ff3ec89c',
+                    'collectionId': assessment.id,
+                    'classId': contextClass.id,
                     'isCollection': false,
                     'contextData': {
                         'contextMap': {
-                            'classId': 'class-id-1'
                         },
                         'metadata': {}
                     }
@@ -93,7 +63,8 @@ var quizzesCommon = {
      * @param afterJsonFunction function to call on afterJSON
      */
     createContextWithParams: function (body, afterJsonFunction) {
-        this.getAuthorizationToken("TestAcc", function (authResponse) {
+        var contextClass = config.getClass("TestClass01");
+        ContentProviderUtils.getAuthorizationToken(contextClass.owner, function (authResponse) {
             frisby.create('Test context creation using body ' + body)
                 .post(QuizzesApiUrl + '/v1/contexts', body, {json: true})
                 .addHeader('Authorization', 'Token ' + authResponse.access_token)
