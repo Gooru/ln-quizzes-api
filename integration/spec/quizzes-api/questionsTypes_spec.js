@@ -9,7 +9,8 @@ var SINGLE_CHOICE = "single_choice",
     TRUE_FALSE = "true_false",
     TEXT_ENTRY = "text_entry",
     MULTIPLE_SELECT_IMAGE = "multiple_choice_image",
-    MULTIPLE_SELECT_TEXT = "multiple_choice_text";
+    MULTIPLE_SELECT_TEXT = "multiple_choice_text",
+    EXTENDED_TEXT = "extended_text";
 
 var getResourcesByQuestionType = function(resources, questionType) {
     return resources.filter(x => x.metadata.type == questionType)
@@ -207,6 +208,16 @@ var checkMultipleSelectTextQuestion = function (resources) {
     });
 };
 
+var checkExtendedTextQuestion = function (resources) {
+    resources = getResourcesByQuestionType(resources, EXTENDED_TEXT);
+
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("FR- Please describe your learning objectives");
+    expect(resources[0].metadata.body).toEqual("FR- Please describe your learning objectives");
+    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
+
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
     QuizzesCommon.getCollectionById(QuizzesCommon.questionTypeDemoCollection, function(json) {
 
@@ -219,5 +230,6 @@ QuizzesCommon.startTest("Get an assessment and check all the question types", fu
         checkTextEntryQuestion(json.resources);
         checkMultipleSelectImageQuestion(json.resources);
         checkMultipleSelectTextQuestion(json.resources);
+        checkExtendedTextQuestion(json.resources);
     });
 });
