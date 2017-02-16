@@ -182,43 +182,39 @@ var quizzesCommon = {
             .toss()
     },
 
-    verifyContentNotFound: function(url, title) {
-        this.getAuthorizationToken("TestAcc01", function (authResponse) {
-            frisby.create(title + ' throws ContentNotFoundException')
-                .get(QuizzesApiUrl + url)
-                .addHeader('Authorization', 'Token ' + authResponse.access_token)
-                .inspectRequest()
-                .expectStatus(404)
-                .inspectJSON()
-                .expectJSON({
-                    "status": 404
-                })
-                .expectJSONTypes({
-                    message: String,
-                    status: Number,
-                    exception: String
-                })
-                .toss();
-        });
+    verifyContentNotFound: function(url, title, authToken) {
+        frisby.create(title + ' throws ContentNotFoundException')
+            .get(QuizzesApiUrl + url)
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(404)
+            .inspectJSON()
+            .expectJSON({
+                "status": 404
+            })
+            .expectJSONTypes({
+                message: String,
+                status: Number,
+                exception: String
+            })
+            .toss();
     },
 
-    verifyBadRequest: function(url, title) {
-        this.getAuthorizationToken("TestAcc01", function (authResponse) {
-            frisby.create(title + ' throws InvalidRequestException')
-                .get(QuizzesApiUrl + url)
-                .addHeader('Authorization', 'Token ' + authResponse.access_token)
-                .inspectRequest()
-                .expectStatus(400)
-                .inspectJSON()
-                .expectJSON({
-                    "status": 400
-                })
-                .expectJSONTypes({
-                    message: String,
-                    status: Number,
-                    exception: String
-                }).toss();
-        });
+    verifyBadRequest: function(url, title, authToken) {
+        frisby.create(title + ' throws InvalidRequestException')
+            .get(QuizzesApiUrl + url)
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(400)
+            .inspectJSON()
+            .expectJSON({
+                "status": 400
+            })
+            .expectJSONTypes({
+                message: String,
+                status: Number,
+                exception: String
+            }).toss();
     },
 
     verifyInternalServerError: function(url, title){
@@ -250,11 +246,7 @@ var quizzesCommon = {
             })
             .toss()
 
-    },
-
-    questionTypeDemoAssessment: '3579c0d5-5d41-4ce2-b957-b44e00cf8148',
-
-    questionTypeDemoCollection: 'ca13e08c-6e2d-4c10-93cf-7b8111f3b705'
+    }
 };
 
 module.exports = quizzesCommon;
