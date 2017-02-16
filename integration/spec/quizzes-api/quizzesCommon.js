@@ -1,10 +1,7 @@
-const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
-const ContentProviderApiUrl = require('./quizzesTestConfiguration.js').contentProviderApiUrl;
-const frisby = require('frisby');
-
-var testUsers = {};
-    testUsers["TestAcc01"] = {"firstname": "Test", "lastname": "Acc", "identityId": "acc01@test.com"};
-    testUsers["TestAcc04"] = {"firstname": "Acc", "lastname": "Test", "identityId": "acc04@test.com"};
+const Config = require('./quizzesTestConfiguration.js');
+const QuizzesApiUrl = Config.quizzesApiUrl;
+const ContentProviderApiUrl = Config.contentProviderApiUrl;
+const Frisby = require('Frisby');
 
 var quizzesCommon = {
 
@@ -26,9 +23,9 @@ var quizzesCommon = {
     },
 
     getAuthorizationToken : function(userId, afterJsonFunction) {
-        var authorizationUser = this.getTestUser(userId);
+        var authorizationUser = Config.getUser(userId);
         console.log("Autorization user " + authorizationUser.identityId);
-        frisby.create('Gets the authorization token for ' + userId)
+        Frisby.create('Gets the authorization token for ' + userId)
             .post(ContentProviderApiUrl + '/v2/authorize', {
                 "client_key": "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==",
                 "client_id": "ba956a97-ae15-11e5-a302-f8a963065976",
@@ -43,14 +40,16 @@ var quizzesCommon = {
             .expectStatus(201)
             .expectHeaderContains('content-type', 'application/json')
             .inspectJSON()
-            .afterJSON(function (authorizationResponse) {
-                afterJsonFunction(authorizationResponse);
-            })
+            .afterJSON(afterJsonFunction)
             .toss();
     },
 
     getProfileIdFromToken : function(token) {
         return Buffer(token, 'base64').toString().split(":")[1];
+    },
+
+    resolveAccessToken: function(authorizationResponse) {
+        return authorizationResponse.access_token;
     },
 
     startTest: function (title, functionalTest) {
@@ -60,7 +59,7 @@ var quizzesCommon = {
 
     createContext: function (afterJsonFunction) {
         this.getAuthorizationToken("TestAcc01", function (authResponse) {
-            frisby.create('Test context creation for TestAcc01')
+            Frisby.create('Test context creation for TestAcc01')
                 .post(QuizzesApiUrl + '/v1/contexts', {
                     'collectionId': '3c843308-8864-4ecd-a1c8-75ab423336f2',
                     'classId': '5d22f953-121c-485b-8043-9a96ff3ec89c',
@@ -94,7 +93,7 @@ var quizzesCommon = {
      */
     createContextWithParams: function (body, afterJsonFunction) {
         this.getAuthorizationToken("TestAcc", function (authResponse) {
-            frisby.create('Test context creation using body ' + body)
+            Frisby.create('Test context creation using body ' + body)
                 .post(QuizzesApiUrl + '/v1/contexts', body, {json: true})
                 .addHeader('Authorization', 'Token ' + authResponse.access_token)
                 .inspectRequest()
@@ -109,7 +108,7 @@ var quizzesCommon = {
     },
 
     getProfileByExternalId: function (externalId, afterJsonFunction) {
-        frisby.create('Get the profile information in Quizzes')
+        Frisby.create('Get the profile information in Quizzes')
             .get(QuizzesApiUrl + '/v1/profile-by-external-id/' + externalId)
             .addHeader('client-id', 'quizzes')
             .inspectRequest()
@@ -123,7 +122,7 @@ var quizzesCommon = {
     },
 
     getAssignedContextByContextId: function (contextId, assigneeProfileId, afterJsonFunction) {
-        frisby.create('Get assigned context information')
+        Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/assigned')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
@@ -146,7 +145,7 @@ var quizzesCommon = {
 
     getCollectionByIdAndType: function (collectionId, type, afterJsonFunction) {
         this.getAuthorizationToken("TestAcc01", function (authResponse) {
-            frisby.create('Get the ' + type + ' information')
+            Frisby.create('Get the ' + type + ' information')
                 .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
                 .addHeader('Authorization', 'Token ' + authResponse.access_token)
                 .inspectRequest()
@@ -160,7 +159,7 @@ var quizzesCommon = {
     },
 
     startContext: function (contextId, assigneeProfileId, afterJsonFunction) {
-        frisby.create('Start Context')
+        Frisby.create('Start Context')
             .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/start')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
@@ -174,7 +173,7 @@ var quizzesCommon = {
     },
 
     onResourceEvent: function (contextId, assigneeProfileId, resourceId, previousResource, afterJsonFunction) {
-        frisby.create('On Resource Event')
+        Frisby.create('On Resource Event')
             .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/onResource/' +
                 resourceId, previousResource, {json: true})
             .addHeader('profile-id', assigneeProfileId)
@@ -188,7 +187,7 @@ var quizzesCommon = {
     },
 
     finishContext: function (contextId, assigneeProfileId, afterJsonFunction) {
-        frisby.create('Finish Context')
+        Frisby.create('Finish Context')
             .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/finish')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
@@ -201,7 +200,7 @@ var quizzesCommon = {
     },
 
     verifyGetContextEvents: function (contextId, ownerProfileId, result, afterJsonFunction) {
-        frisby.create('Get the context Events as an owner')
+        Frisby.create('Get the context Events as an owner')
             .get(QuizzesApiUrl + '/v1/context/' + contextId + '/events')
             .addHeader('profile-id', ownerProfileId)
             .addHeader('lms-id', 'quizzes')
@@ -216,7 +215,7 @@ var quizzesCommon = {
     },
 
     verifyContentNotFound: function(url, title){
-        frisby.create(title + ' throws ContentNotFoundException')
+        Frisby.create(title + ' throws ContentNotFoundException')
             .get(QuizzesApiUrl + url)
             .inspectRequest()
             .expectStatus(404)
@@ -233,7 +232,7 @@ var quizzesCommon = {
     },
 
     verifyInvalidRequest: function(url, title){
-        frisby.create(title + ' throws InvalidRequestException')
+        Frisby.create(title + ' throws InvalidRequestException')
             .get(QuizzesApiUrl + url)
             .inspectRequest()
             .expectStatus(400)
@@ -250,7 +249,7 @@ var quizzesCommon = {
     },
 
     verifyInternalServerError: function(url, title){
-        frisby.create(title + ' throws Internal Server Error')
+        Frisby.create(title + ' throws Internal Server Error')
             .get(QuizzesApiUrl + url)
             .inspectRequest()
             .expectStatus(500)
@@ -264,6 +263,18 @@ var quizzesCommon = {
                 exception: String
             })
             .toss();
+    },
+
+    doGet: function(description, url, sessionToken, afterJsonFunction) {
+        Frisby.create(description)
+            .get(url)
+            .addHeader('Authorization', 'Token ' + sessionToken)
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(afterJsonFunction)
+            .toss()
     },
 
     questionTypeDemoCollection: 'ca13e08c-6e2d-4c10-93cf-7b8111f3b705'

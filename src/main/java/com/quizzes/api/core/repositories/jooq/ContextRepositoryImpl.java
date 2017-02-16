@@ -75,7 +75,7 @@ public class ContextRepositoryImpl implements ContextRepository {
     public List<AssignedContextEntity> findAssignedContextsByProfileId(UUID profileId) {
         List<Field<?>> fields = getContextFields();
         fields.add(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("current_context_profile_id"));
-        return jooq.selectDistinct(CONTEXT_PROFILE.ID.as("context_profile_id")).select(fields)
+        return jooq.selectDistinct(CONTEXT.ID).select(fields)
                 .from(CONTEXT)
                 .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
                         .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
