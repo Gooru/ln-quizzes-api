@@ -29,13 +29,13 @@ var quizzesCommon = {
 
     createContext: function (afterJsonFunction) {
         var contextClass = config.getClass("TestClass01");
-        var assessment = config.getAssessment("TestAssessment01")
+        var collection = config.getCollection("TestCollection01")
         ContentProviderUtils.getAuthorizationToken(contextClass.owner, function (authResponse) {
             frisby.create('Test context creation for Teacher01')
                 .post(QuizzesApiUrl + '/v1/contexts', {
-                    'collectionId': assessment.id,
+                    'collectionId': collection.id,
                     'classId': contextClass.id,
-                    'isCollection': false,
+                    'isCollection': true,
                     'contextData': {
                         'contextMap': {
                         },

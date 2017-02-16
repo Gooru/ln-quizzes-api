@@ -1,17 +1,16 @@
 var testUsers = {};
-testUsers["Teacher01"] = {"firstname": "Test", "lastname": "Acc", "identityId": "acc01@test.com"};
-testUsers["Teacher02"] = {"firstname": "Acc", "lastname": "Test", "identityId": "acc04@test.com"};
-testUsers["Student01"] = {"firstname": "Test", "lastname": "Acc", "identityId": "acc02@test.com"};
-testUsers["Student02"] = {"firstname": "Acc Three", "lastname": "Test", "identityId": "acc03@test.com"};
+testUsers["Teacher01"] = {"firstname": "testuser", "lastname": "eigth", "identityId": "testuser08@edify.cr"};
+testUsers["Student01"] = {"firstname": "testuser", "lastname": "nine", "identityId": "testuser09@edify.cr"};
+testUsers["Student02"] = {"firstname": "testuser", "lastname": "ten", "identityId": "testuser10@edify.cr"};
 
 var testClasses = {};
-testClasses["TestClass01"] = {"id": "5d22f953-121c-485b-8043-9a96ff3ec89c", "owner": "Teacher01", "assignees": ["Student01"]};
+testClasses["TestClass01"] = {"id": "04805631-f43f-4364-9d40-7bdc7f1b7178", "owner": "Teacher01", "assignees": ["Student01"]};
 
 var testCollections = {};
-testCollections["TestCollection01"] = {"id": "b3d71a3a-e3e2-480e-96a6-da3a5097063a", "owner": "Teacher01"};
+testCollections["TestCollection01"] = {"id": "ca13e08c-6e2d-4c10-93cf-7b8111f3b705", "owner": "Teacher01"};
 
 var testAssessments = {};
-testAssessments["TestAssessment01"] = {"id": "13d2de39-581b-4222-8db7-d858a9ff54e3", "owner": "Teacher01"};
+testAssessments["TestAssessment01"] = {"id": "a5c5736d-cdcf-4430-8f65-10d61a2988f8", "owner": "Teacher01"};
 
 var quizzesTestConfiguration = {
     quizzesApiUrl : (process.env['QUIZZES_SERVER_URL'] || 'http://localhost:8080') + '/quizzes/api',
