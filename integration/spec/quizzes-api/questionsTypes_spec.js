@@ -8,7 +8,9 @@ var SINGLE_CHOICE = "single_choice",
     HOT_TEXT_SENTENCE = "hot_text_sentence",
     TRUE_FALSE = "true_false",
     TEXT_ENTRY = "text_entry",
-    MULTIPLE_SELECT_IMAGE = "multiple_choice_image";
+    MULTIPLE_SELECT_IMAGE = "multiple_choice_image",
+    MULTIPLE_SELECT_TEXT = "multiple_choice_text",
+    EXTENDED_TEXT = "extended_text";
 
 var getResourcesByQuestionType = function(resources, questionType) {
     return resources.filter(x => x.metadata.type == questionType)
@@ -18,23 +20,24 @@ var checkSingleChoiceQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, SINGLE_CHOICE);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("Multiple Choice Question");
-    expect(resources[0].metadata.body).toEqual("Multiple Choice Question");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.title).toEqual("MC - Select the correct operation result");
+    expect(resources[0].metadata.body).toEqual("MC - Select the correct operation result");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(1);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "MTAwIC0gMTAgPSDCoDkwwqA="});
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
-    expect(resources[0].metadata.interaction.choices.length).toEqual(4);
+    expect(resources[0].metadata.interaction.choices.length).toEqual(2);
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "A",
+        "text": "100 - 10 =  90 ",
         "isFixed": true,
-        "value": "QQ==",
+        "value": "MTAwIC0gMTAgPSDCoDkwwqA=",
         "sequence": 1
     });
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "B",
+        "text": "50 + 40 = 80 ",
         "isFixed": true,
-        "value": "Qg==",
+        "value": "NTAgKyA0MCA9IDgwwqA=",
         "sequence": 2
     });
 };
@@ -43,23 +46,24 @@ var checkMultipleChoiceQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, MULTIPLE_CHOICE);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("Multiple Answer Question");
-    expect(resources[0].metadata.body).toEqual("Multiple Answer Question");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.title).toEqual("MA - Select all the correct results");
+    expect(resources[0].metadata.body).toEqual("MA - Select all the correct results");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(1);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "NTAwICogMiA9IDEwMDAw"});
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
-    expect(resources[0].metadata.interaction.choices.length).toEqual(4);
+    expect(resources[0].metadata.interaction.choices.length).toEqual(2);
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "A",
+        "text": "100 * 2 = 200 ",
         "isFixed": true,
-        "value": "QQ==",
+        "value": "MTAwICogMiA9IDIwMMKg",
         "sequence": 1
     });
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "B",
+        "text": "500 * 2 = 10000",
         "isFixed": true,
-        "value": "Qg==",
+        "value": "NTAwICogMiA9IDEwMDAw",
         "sequence": 2
     });
 };
@@ -68,30 +72,26 @@ var checkDragAndDropQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, DRAG_AND_DROP);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("Drag and Drop Question");
-    expect(resources[0].metadata.body).toEqual("Drag and Drop Question");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.title).toEqual("DD - Order the number from lowest to highest");
+    expect(resources[0].metadata.body).toEqual("DD - Order the number from lowest to highest");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(2);
+    expect(resources[0].metadata.correctAnswer[0]).toEqual({"value": "MTAw"});
+    expect(resources[0].metadata.correctAnswer[1]).toEqual({"value": "NTAw"});
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
-    expect(resources[0].metadata.interaction.choices.length).toEqual(3);
+    expect(resources[0].metadata.interaction.choices.length).toEqual(2);
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "One",
+        "text": "100",
         "isFixed": true,
-        "value": "T25l",
+        "value": "MTAw",
         "sequence": 1
     });
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "Two",
+        "text": "500",
         "isFixed": true,
-        "value": "VHdv",
+        "value": "NTAw",
         "sequence": 2
-    });
-    expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "Three",
-        "isFixed": true,
-        "value": "VGhyZWU=",
-        "sequence": 3
     });
 };
 
@@ -99,9 +99,11 @@ var checkHotTextWordQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, HOT_TEXT_WORD);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("Highlight Word Question");
+    expect(resources[0].metadata.title).toEqual("HT - Highlight Text sample (Word)");
     expect(resources[0].metadata.body).toEqual("The big bad wolf blew down the house.");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.correctAnswer.length).toEqual(2);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "big,4"});
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "down,22"});
     expect(resources[0].metadata.interaction).not.toBeDefined();
 };
 
@@ -109,9 +111,10 @@ var checkHotTextSentenceQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, HOT_TEXT_SENTENCE);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("Highlight Sentence Question");
-    expect(resources[0].metadata.body).toEqual("The first little pig built his house of straw. The big bad wolf blew down the house. The second pig built his house of wood.");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.title).toEqual("HT - Highlight Text sample (Sentence)");
+    expect(resources[0].metadata.body).toEqual("The first little pig built his house of straw. The big bad wolf blew down the house.");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(1);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "The big bad wolf blew down the house.,47"});
     expect(resources[0].metadata.interaction).not.toBeDefined();
 };
 
@@ -119,9 +122,10 @@ var checkTrueFalseQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, TRUE_FALSE);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("True False Question");
-    expect(resources[0].metadata.body).toEqual("True False Question");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.title).toEqual("TF -  Select the correct value");
+    expect(resources[0].metadata.body).toEqual("TF -  Select the correct value");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(1);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "VHJ1ZQ=="});
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
@@ -144,9 +148,11 @@ var checkTextEntryQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, TEXT_ENTRY);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("Fill in the Blank Question");
+    expect(resources[0].metadata.title).toEqual("FIB - Complete the sentence with the correct words");
     expect(resources[0].metadata.body).toEqual("<span style=\"background-color: rgb(255, 255, 255);\">The big bad [] blew down the [].</span><br>");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.correctAnswer.length).toEqual(2);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "wolf"});
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "house"});
     expect(resources[0].metadata.interaction).not.toBeDefined();
 };
 
@@ -154,41 +160,66 @@ var checkMultipleSelectImageQuestion = function (resources) {
     resources = getResourcesByQuestionType(resources, MULTIPLE_SELECT_IMAGE);
 
     expect(resources.length).toEqual(1);
-    expect(resources[0].metadata.title).toEqual("Multiple Select Image Question");
-    expect(resources[0].metadata.body).toEqual("Multiple Select Image Question");
-    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.title).toEqual("MSI - Select the animals");
+    expect(resources[0].metadata.body).toEqual("MSI - Select the animals");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(1);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "NThiMTcwNzYtMTRiNC00MmU3LTk3NzMtZmIzMTQ5MWMyZTRkLmpwZWc="});
     expect(resources[0].metadata.interaction.shuffle).toBeDefined();
     expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
     expect(resources[0].metadata.interaction.prompt).toBeDefined();
-    expect(resources[0].metadata.interaction.choices.length).toEqual(4);
+    expect(resources[0].metadata.interaction.choices.length).toEqual(2);
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "6504c43d-952d-476f-bc83-a3633ee3827e.png",
+        "text": "01921eb6-a4fa-4754-876e-e014ef3bba8c.png",
         "isFixed": true,
-        "value": "NjUwNGM0M2QtOTUyZC00NzZmLWJjODMtYTM2MzNlZTM4MjdlLnBuZw==",
+        "value": "MDE5MjFlYjYtYTRmYS00NzU0LTg3NmUtZTAxNGVmM2JiYThjLnBuZw==",
         "sequence": 1
     });
     expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "eb324b9b-1c11-4c48-99fa-969b6e571ddf.jpg",
+        "text": "58b17076-14b4-42e7-9773-fb31491c2e4d.jpeg",
         "isFixed": true,
-        "value": "ZWIzMjRiOWItMWMxMS00YzQ4LTk5ZmEtOTY5YjZlNTcxZGRmLmpwZw==",
+        "value": "NThiMTcwNzYtMTRiNC00MmU3LTk3NzMtZmIzMTQ5MWMyZTRkLmpwZWc=",
         "sequence": 2
-    });
-    expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "beb9e145-e0aa-4d7c-8169-1c3cd113b61f.png",
-        "isFixed": true,
-        "value": "YmViOWUxNDUtZTBhYS00ZDdjLTgxNjktMWMzY2QxMTNiNjFmLnBuZw==",
-        "sequence": 3
-    });
-    expect(resources[0].metadata.interaction.choices).toContain({
-        "text": "372028c8-b58b-4f0b-a609-fabfb02628dc.jpg",
-        "isFixed": true,
-        "value": "MzcyMDI4YzgtYjU4Yi00ZjBiLWE2MDktZmFiZmIwMjYyOGRjLmpwZw==",
-        "sequence": 4
     });
 };
 
+var checkMultipleSelectTextQuestion = function (resources) {
+    resources = getResourcesByQuestionType(resources, MULTIPLE_SELECT_TEXT);
+
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("MST - Select the correct definition");
+    expect(resources[0].metadata.body).toEqual("MST - Select the correct definition");
+    expect(resources[0].metadata.correctAnswer.length).toEqual(1);
+    expect(resources[0].metadata.correctAnswer).toContain({"value": "PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogMTVweDsiPlJ1bjwvc3Bhbj4="});
+    expect(resources[0].metadata.interaction.shuffle).toBeDefined();
+    expect(resources[0].metadata.interaction.maxChoices).toBeDefined();
+    expect(resources[0].metadata.interaction.prompt).toBeDefined();
+    expect(resources[0].metadata.interaction.choices.length).toEqual(2);
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "<span style=\"font-size: 15px;\">Run</span>",
+        "isFixed": true,
+        "value": "PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogMTVweDsiPlJ1bjwvc3Bhbj4=",
+        "sequence": 1
+    });
+    expect(resources[0].metadata.interaction.choices).toContain({
+        "text": "<span style=\"font-size: 15px;\">Dog</span>",
+        "isFixed": true,
+        "value": "PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogMTVweDsiPkRvZzwvc3Bhbj4=",
+        "sequence": 2
+    });
+};
+
+var checkExtendedTextQuestion = function (resources) {
+    resources = getResourcesByQuestionType(resources, EXTENDED_TEXT);
+
+    expect(resources.length).toEqual(1);
+    expect(resources[0].metadata.title).toEqual("FR- Please describe your learning objectives");
+    expect(resources[0].metadata.body).toEqual("FR- Please describe your learning objectives");
+    expect(resources[0].metadata.correctAnswer).not.toBeDefined();
+    expect(resources[0].metadata.interaction).not.toBeDefined();
+};
+
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
-    QuizzesCommon.getAssessmentById(QuizzesCommon.questionTypeDemoAssessment, function(json) {
+    QuizzesCommon.getCollectionById(QuizzesCommon.questionTypeDemoCollection, function(json) {
 
         checkSingleChoiceQuestion(json.resources);
         checkMultipleChoiceQuestion(json.resources);
@@ -198,5 +229,7 @@ QuizzesCommon.startTest("Get an assessment and check all the question types", fu
         checkTrueFalseQuestion(json.resources);
         checkTextEntryQuestion(json.resources);
         checkMultipleSelectImageQuestion(json.resources);
+        checkMultipleSelectTextQuestion(json.resources);
+        checkExtendedTextQuestion(json.resources);
     });
 });

@@ -249,7 +249,9 @@ var quizzesCommon = {
 
     },
 
-    questionTypeDemoAssessment: '3579c0d5-5d41-4ce2-b957-b44e00cf8148'
+    questionTypeDemoAssessment: '3579c0d5-5d41-4ce2-b957-b44e00cf8148',
+
+    questionTypeDemoCollection: 'ca13e08c-6e2d-4c10-93cf-7b8111f3b705'
 };
 
 module.exports = quizzesCommon;

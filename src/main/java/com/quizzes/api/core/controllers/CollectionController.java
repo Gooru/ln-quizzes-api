@@ -69,9 +69,6 @@ public class CollectionController {
 
     private ResponseEntity<CollectionDto> prepareResponse(CollectionDto collectionDto) {
         collectionDto.setOwnerId(null);
-        if (collectionDto.getResources() != null && !collectionDto.getResources().isEmpty()) {
-            collectionDto.getResources().forEach(resourceDto -> resourceDto.getMetadata().setCorrectAnswer(null));
-        }
         return new ResponseEntity<>(collectionDto, HttpStatus.OK);
     }
 
