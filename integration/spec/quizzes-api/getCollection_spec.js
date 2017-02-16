@@ -10,7 +10,7 @@ QuizzesCommon.startTest("Get collection with invalid parameter type", function (
 });
 
 QuizzesCommon.startTest("Get not existing collection", function () {
-    QuizzesCommon.verifyContentNotFound('/v1/collections/' + QuizzesCommon.generateUUID() + '?type=collection', "Get Collection Endpoint Type Assessment Content Not Found");
+    QuizzesCommon.verifyContentNotFound('/v1/collections/' + QuizzesCommon.generateUUID() + '?type=collection', "Get not existing collection");
 });
 
 QuizzesCommon.startTest("Get collection endpoint", function () {
