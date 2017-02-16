@@ -219,17 +219,18 @@ var checkExtendedTextQuestion = function (resources) {
 };
 
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
-    QuizzesCommon.getCollectionById(QuizzesCommon.questionTypeDemoCollection, function(json) {
-
-        checkSingleChoiceQuestion(json.resources);
-        checkMultipleChoiceQuestion(json.resources);
-        checkDragAndDropQuestion(json.resources);
-        checkHotTextWordQuestion(json.resources);
-        checkHotTextSentenceQuestion(json.resources);
-        checkTrueFalseQuestion(json.resources);
-        checkTextEntryQuestion(json.resources);
-        checkMultipleSelectImageQuestion(json.resources);
-        checkMultipleSelectTextQuestion(json.resources);
-        checkExtendedTextQuestion(json.resources);
+    QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
+        QuizzesCommon.getCollectionById(QuizzesCommon.questionTypeDemoCollection, authResponse.access_token, function(json) {
+            checkSingleChoiceQuestion(json.resources);
+            checkMultipleChoiceQuestion(json.resources);
+            checkDragAndDropQuestion(json.resources);
+            checkHotTextWordQuestion(json.resources);
+            checkHotTextSentenceQuestion(json.resources);
+            checkTrueFalseQuestion(json.resources);
+            checkTextEntryQuestion(json.resources);
+            checkMultipleSelectImageQuestion(json.resources);
+            checkMultipleSelectTextQuestion(json.resources);
+            checkExtendedTextQuestion(json.resources);
+        });
     });
 });

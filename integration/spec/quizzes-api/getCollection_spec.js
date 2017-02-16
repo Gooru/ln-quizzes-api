@@ -14,10 +14,12 @@ QuizzesCommon.startTest("Get not existing collection", function () {
 });
 
 QuizzesCommon.startTest("Get collection endpoint", function () {
-    QuizzesCommon.getCollectionById(QuizzesCommon.questionTypeDemoCollection, function(json) {
-        expect(json.id).toEqual(QuizzesCommon.questionTypeDemoCollection);
-        expect(json.metadata.title).toEqual("Questions types collection [DO NOT CHANGE]");
-        expect(json.isCollection).toEqual(true);
-        expect(json.resources.length).toEqual(10);
+    QuizzesCommon.getAuthorizationToken("TestAcc01", function (authResponse) {
+        QuizzesCommon.getCollectionById(QuizzesCommon.questionTypeDemoCollection, authResponse.access_token, function(json) {
+            expect(json.id).toEqual(QuizzesCommon.questionTypeDemoCollection);
+            expect(json.metadata.title).toEqual("Questions types collection [DO NOT CHANGE]");
+            expect(json.isCollection).toEqual(true);
+            expect(json.resources.length).toEqual(10);
+        });
     });
 });

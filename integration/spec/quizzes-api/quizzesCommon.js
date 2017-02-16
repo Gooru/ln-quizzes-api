@@ -136,27 +136,25 @@ var quizzesCommon = {
             .toss()
     },
 
-    getCollectionById: function (collectionId, afterJsonFunction) {
-        this.getCollectionByIdAndType(collectionId, "collection", afterJsonFunction)
+    getCollectionById: function (collectionId, authToken, afterJsonFunction) {
+        this.getCollectionByIdAndType(collectionId, "collection", authToken, afterJsonFunction)
     },
 
-    getAssessmentById: function (collectionId, afterJsonFunction) {
-        this.getCollectionByIdAndType(collectionId, "assessment", afterJsonFunction)
+    getAssessmentById: function (collectionId, authToken, afterJsonFunction) {
+        this.getCollectionByIdAndType(collectionId, "assessment", authToken, afterJsonFunction)
     },
 
-    getCollectionByIdAndType: function (collectionId, type, afterJsonFunction) {
-        this.getAuthorizationToken("TestAcc01", function (authResponse) {
-            frisby.create('Get the ' + type + ' information')
-                .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
-                .addHeader('Authorization', 'Token ' + authResponse.access_token)
-                .inspectRequest()
-                .expectStatus(200)
-                .inspectJSON()
-                .afterJSON(function (collection) {
-                    afterJsonFunction(collection);
-                })
-                .toss()
-        })
+    getCollectionByIdAndType: function (collectionId, type, authToken, afterJsonFunction) {
+        frisby.create('Get the ' + type + ' information')
+            .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(200)
+            .inspectJSON()
+            .afterJSON(function (collection) {
+                afterJsonFunction(collection);
+            })
+            .toss();
     },
 
     startContext: function (contextId, assigneeProfileId, afterJsonFunction) {
