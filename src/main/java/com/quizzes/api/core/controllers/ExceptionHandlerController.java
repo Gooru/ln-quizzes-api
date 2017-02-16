@@ -32,7 +32,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = MissingJsonPropertiesException.class)
     public ExceptionMessageDto handleInvalidJsonPropertiesException(MissingJsonPropertiesException e) {
-        return getExceptionMessageDto("Bad request. Invalid JSON", e, HttpStatus.BAD_REQUEST);
+        return getExceptionMessageDto("Invalid JSON", e, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -76,7 +76,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(value = InvalidOwnerException.class)
     public ExceptionMessageDto handleInvalidOwnerException(InvalidOwnerException e) {
-        return getExceptionMessageDto("The Owner is invalid", e, HttpStatus.INTERNAL_SERVER_ERROR);
+        return getExceptionMessageDto("The Owner is invalid", e, HttpStatus.FORBIDDEN);
     }
 
     /**
