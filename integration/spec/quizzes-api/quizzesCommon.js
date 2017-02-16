@@ -107,27 +107,25 @@ var quizzesCommon = {
             .toss()
     },
 
-    getCollectionById: function (collectionId, afterJsonFunction) {
-        this.getCollectionByIdAndType(collectionId, "collection", afterJsonFunction)
+    getCollectionById: function (collectionId, authToken, afterJsonFunction) {
+        this.getCollectionByIdAndType(collectionId, "collection", authToken, afterJsonFunction)
     },
 
-    getAssessmentById: function (collectionId, afterJsonFunction) {
-        this.getCollectionByIdAndType(collectionId, "assessment", afterJsonFunction)
+    getAssessmentById: function (collectionId, authToken, afterJsonFunction) {
+        this.getCollectionByIdAndType(collectionId, "assessment", authToken, afterJsonFunction)
     },
 
-    getCollectionByIdAndType: function (collectionId, type, afterJsonFunction) {
-        this.getAuthorizationToken("TestAcc01", function (authResponse) {
-            frisby.create('Get the ' + type + ' information')
-                .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
-                .addHeader('Authorization', 'Token ' + authResponse.access_token)
-                .inspectRequest()
-                .expectStatus(200)
-                .inspectJSON()
-                .afterJSON(function (collection) {
-                    afterJsonFunction(collection);
-                })
-                .toss()
-        })
+    getCollectionByIdAndType: function (collectionId, type, authToken, afterJsonFunction) {
+        frisby.create('Get the ' + type + ' information')
+            .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(200)
+            .inspectJSON()
+            .afterJSON(function (collection) {
+                afterJsonFunction(collection);
+            })
+            .toss();
     },
 
     startContext: function (contextId, authToken, afterJsonFunction) {
@@ -184,9 +182,10 @@ var quizzesCommon = {
             .toss()
     },
 
-    verifyContentNotFound: function(url, title){
+    verifyContentNotFound: function(url, title, authToken) {
         frisby.create(title + ' throws ContentNotFoundException')
             .get(QuizzesApiUrl + url)
+            .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
             .expectStatus(404)
             .inspectJSON()
@@ -201,9 +200,10 @@ var quizzesCommon = {
             .toss();
     },
 
-    verifyInvalidRequest: function(url, title){
+    verifyBadRequest: function(url, title, authToken) {
         frisby.create(title + ' throws InvalidRequestException')
             .get(QuizzesApiUrl + url)
+            .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
             .expectStatus(400)
             .inspectJSON()
@@ -214,8 +214,7 @@ var quizzesCommon = {
                 message: String,
                 status: Number,
                 exception: String
-            })
-            .toss();
+            }).toss();
     },
 
     verifyInternalServerError: function(url, title){
@@ -247,11 +246,7 @@ var quizzesCommon = {
             })
             .toss()
 
-    },
-
-    questionTypeDemoAssessment: '3579c0d5-5d41-4ce2-b957-b44e00cf8148',
-
-    questionTypeDemoCollection: 'ca13e08c-6e2d-4c10-93cf-7b8111f3b705'
+    }
 };
 
 module.exports = quizzesCommon;

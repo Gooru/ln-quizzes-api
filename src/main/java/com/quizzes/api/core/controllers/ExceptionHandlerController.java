@@ -11,6 +11,7 @@ import com.quizzes.api.core.exceptions.MissingJsonPropertiesException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -31,8 +32,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = MissingJsonPropertiesException.class)
     public ExceptionMessageDto handleInvalidJsonPropertiesException(MissingJsonPropertiesException e) {
-        logger.error("Bad request. Invalid JSON", e);
-        return new ExceptionMessageDto("Invalid JSON", HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        return getExceptionMessageDto("Invalid JSON", HttpStatus.BAD_REQUEST, e);
     }
 
     /**
@@ -43,8 +43,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(value = ContentNotFoundException.class)
     public ExceptionMessageDto handleContentNotFoundException(ContentNotFoundException e) {
-        logger.error("Content not found", e);
-        return new ExceptionMessageDto("Content not found", HttpStatus.NOT_FOUND.value(), e.getMessage());
+        return getExceptionMessageDto("Content not found", HttpStatus.NOT_FOUND, e);
     }
 
     /**
@@ -55,8 +54,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(value = InvalidCredentialsException.class)
     public ExceptionMessageDto handleInvalidCredentialsException(InvalidCredentialsException e) {
-        logger.error("Invalid credentials", e);
-        return new ExceptionMessageDto("Invalid credentials", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+        return getExceptionMessageDto("Invalid credentials", HttpStatus.UNAUTHORIZED, e);
     }
 
     /**
@@ -67,8 +65,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(value = InvalidSessionException.class)
     public ExceptionMessageDto handleInvalidSessionException(InvalidSessionException e) {
-        logger.error("Invalid Session", e);
-        return new ExceptionMessageDto("Invalid Session", HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+        return getExceptionMessageDto("Invalid Session", HttpStatus.UNAUTHORIZED, e);
     }
 
     /**
@@ -79,8 +76,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(value = InvalidOwnerException.class)
     public ExceptionMessageDto handleInvalidOwnerException(InvalidOwnerException e) {
-        logger.error("The Owner is invalid", e);
-        return new ExceptionMessageDto("The Owner is invalid", HttpStatus.FORBIDDEN.value(), e.getMessage());
+        return getExceptionMessageDto("The Owner is invalid", HttpStatus.FORBIDDEN, e);
     }
 
     /**
@@ -91,8 +87,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(value = Exception.class)
     public ExceptionMessageDto handleException(Exception e) {
-        logger.error("Internal Server Error", e);
-        return new ExceptionMessageDto("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+        return getExceptionMessageDto("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, e);
     }
 
     /**
@@ -103,8 +98,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(value = InvalidAssigneeException.class)
     public ExceptionMessageDto handleInvalidAssigneeException(InvalidAssigneeException e) {
-        logger.error("Forbidden request", e);
-        return new ExceptionMessageDto("Forbidden request", HttpStatus.FORBIDDEN.value(), e.getMessage());
+        return getExceptionMessageDto("Forbidden request", HttpStatus.FORBIDDEN, e);
     }
 
     /**
@@ -115,8 +109,7 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = InvalidRequestException.class)
     public ExceptionMessageDto handleInvalidRequestException(InvalidRequestException e) {
-        logger.error("Invalid request", e);
-        return new ExceptionMessageDto("Invalid request", HttpStatus.BAD_REQUEST.value(), e.getMessage());
+        return getExceptionMessageDto("Invalid request", HttpStatus.BAD_REQUEST, e);
     }
 
     /**
@@ -126,9 +119,24 @@ public class ExceptionHandlerController {
      */
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
-    public ExceptionMessageDto handleInvalidRequestException(MethodArgumentTypeMismatchException e) {
-        logger.error("Bad Request", e);
-        return new ExceptionMessageDto("Bad Request", HttpStatus.BAD_REQUEST.value(), e.getMessage());
+    public ExceptionMessageDto handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        return getExceptionMessageDto("Bad Request", HttpStatus.BAD_REQUEST, e);
+    }
+
+    /**
+     * Handles Spring MissingServletRequestParameterException
+     *
+     * @return Bad Request with status 400
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = MissingServletRequestParameterException.class)
+    public ExceptionMessageDto handleMissingRequestParameterException(MissingServletRequestParameterException e) {
+        return getExceptionMessageDto("Bad Request", HttpStatus.BAD_REQUEST, e);
+    }
+
+    private ExceptionMessageDto getExceptionMessageDto(String message, HttpStatus status, Exception exception) {
+        logger.error(message, exception);
+        return new ExceptionMessageDto(message, status.value(), exception.getMessage());
     }
 
 }
