@@ -130,11 +130,10 @@ var quizzesCommon = {
         })
     },
 
-    startContext: function (contextId, assigneeProfileId, afterJsonFunction) {
+    startContext: function (contextId, authToken, afterJsonFunction) {
         frisby.create('Start Context')
             .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/start')
-            .addHeader('profile-id', assigneeProfileId)
-            .addHeader('client-id', 'quizzes')
+            .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
             .expectStatus(200)
             .inspectJSON()
@@ -158,15 +157,14 @@ var quizzesCommon = {
             .toss()
     },
 
-    finishContext: function (contextId, assigneeProfileId, afterJsonFunction) {
+    finishContext: function (contextId, authToken, afterJsonFunction) {
         frisby.create('Finish Context')
             .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/finish')
-            .addHeader('profile-id', assigneeProfileId)
-            .addHeader('client-id', 'quizzes')
+            .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
             .expectStatus(204)
             .after(function () {
-                afterJsonFunction(afterJsonFunction);
+                afterJsonFunction();
             })
             .toss()
     },
@@ -235,6 +233,20 @@ var quizzesCommon = {
                 exception: String
             })
             .toss();
+    },
+
+    getAttempts : function(contextId, profileId, authToken, afterJsonFunction) {
+        frisby.create("Get Attempts for context " + contextId + " and profile " + profileId)
+            .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextId + "/profiles/" + profileId)
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(200)
+            .inspectJSON()
+            .afterJSON(function(attemptsResponse) {
+                afterJsonFunction(attemptsResponse)
+            })
+            .toss()
+
     },
 
     questionTypeDemoAssessment: '3579c0d5-5d41-4ce2-b957-b44e00cf8148'
