@@ -32,14 +32,15 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
 
     @Override
     public ContextProfileEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
-        return jooq.select(CONTEXT.ID.as("ContextId"), CONTEXT.IS_COLLECTION, CONTEXT.COLLECTION_ID,
-                CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.PROFILE_ID, CONTEXT_PROFILE.ID.as("ContextProfileId"),
-                CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("CurrentContextProfileId"))
+        return jooq.select(CONTEXT.ID.as("context_id"), CONTEXT.IS_COLLECTION, CONTEXT.COLLECTION_ID,
+                CONTEXT_PROFILE.ID.as("context_profile_id"), CONTEXT_PROFILE.PROFILE_ID,
+                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE.IS_COMPLETE,
+                CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("current_context_profile_id"))
                 .from(CONTEXT)
-                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
-                .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
-                .leftJoin(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID))
-                .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
+                .leftJoin(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
+                        .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
                 .where(CONTEXT.ID.eq(contextId))
                 .and(CONTEXT.IS_ACTIVE.eq(true))
                 .and(CONTEXT.IS_DELETED.eq(false))
