@@ -44,6 +44,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -348,15 +350,20 @@ public class ContextEventServiceTest {
 
     @Test
     public void resumeStartContextEvent() throws Exception {
-        ContextProfileEntity entity = createContextProfileEntity();
+        ContextProfileEntity contextProfile = createContextProfileEntity();
 
-        doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
-                eq(entity), any(ArrayList.class));
+        doNothing().when(contextEventService, "sendStartEventMessage", any(UUID.class), any(UUID.class),
+                any(UUID.class), anyBoolean());
+        doReturn(createStartContextEventResponseDto()).when(contextEventService, "prepareStartContextEventResponse",
+                any(UUID.class), any(UUID.class), any(UUID.class), anyList());
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "resumeStartContextEvent", entity);
+                WhiteboxImpl.invokeMethod(contextEventService, "resumeStartContextEvent", contextProfile);
 
-        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class));
+        verifyPrivate(contextEventService, times(1)).invoke("sendStartEventMessage", any(UUID.class), any(UUID.class),
+                any(UUID.class), eq(false));
+        verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", any(UUID.class),
+                any(UUID.class), any(UUID.class), anyList());
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId, result.getCollectionId());

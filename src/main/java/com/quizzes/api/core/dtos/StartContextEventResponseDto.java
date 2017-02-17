@@ -47,4 +47,5 @@ public class StartContextEventResponseDto {
     public void setEvents(List<PostResponseResourceDto> events) {
         this.events = events;
     }
+
 }
