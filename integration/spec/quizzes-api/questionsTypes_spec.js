@@ -1,4 +1,6 @@
 const QuizzesCommon = require('./quizzesCommon.js');
+const Config = require('./quizzesTestConfiguration.js');
+const ContentProviderUtils = require('./contentProviderUtils.js');
 var frisby = require('frisby');
 
 var SINGLE_CHOICE = "single_choice",
@@ -219,17 +221,19 @@ var checkExtendedTextQuestion = function (resources) {
 };
 
 QuizzesCommon.startTest("Get an assessment and check all the question types", function () {
-    QuizzesCommon.getCollectionById(QuizzesCommon.questionTypeDemoCollection, function(json) {
-
-        checkSingleChoiceQuestion(json.resources);
-        checkMultipleChoiceQuestion(json.resources);
-        checkDragAndDropQuestion(json.resources);
-        checkHotTextWordQuestion(json.resources);
-        checkHotTextSentenceQuestion(json.resources);
-        checkTrueFalseQuestion(json.resources);
-        checkTextEntryQuestion(json.resources);
-        checkMultipleSelectImageQuestion(json.resources);
-        checkMultipleSelectTextQuestion(json.resources);
-        checkExtendedTextQuestion(json.resources);
+    ContentProviderUtils.getAuthorizationToken("Teacher01", function (authResponse) {
+        var collection = Config.getCollection("TestCollection01");
+        QuizzesCommon.getCollectionById(collection.id, authResponse.access_token, function(json) {
+            checkSingleChoiceQuestion(json.resources);
+            checkMultipleChoiceQuestion(json.resources);
+            checkDragAndDropQuestion(json.resources);
+            checkHotTextWordQuestion(json.resources);
+            checkHotTextSentenceQuestion(json.resources);
+            checkTrueFalseQuestion(json.resources);
+            checkTextEntryQuestion(json.resources);
+            checkMultipleSelectImageQuestion(json.resources);
+            checkMultipleSelectTextQuestion(json.resources);
+            checkExtendedTextQuestion(json.resources);
+        });
     });
 });
