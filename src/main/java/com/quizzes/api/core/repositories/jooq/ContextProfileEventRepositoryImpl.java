@@ -66,8 +66,7 @@ public class ContextProfileEventRepositoryImpl implements ContextProfileEventRep
                 .join(CONTEXT).on(CONTEXT.ID.eq(CONTEXT_PROFILE.CONTEXT_ID))
                 .leftJoin(CONTEXT_PROFILE_EVENT).on(CONTEXT_PROFILE_EVENT.CONTEXT_PROFILE_ID.eq(CONTEXT_PROFILE.ID))
                 .where(CONTEXT_PROFILE.ID.eq(contextProfileId))
-                .and(CONTEXT.PROFILE_ID.eq(profileId))
-                .or(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .and(CONTEXT.PROFILE_ID.eq(profileId).or(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
                 .and(CONTEXT.IS_DELETED.eq(false))
                 .fetchInto(ContextProfileEventEntity.class);
     }
