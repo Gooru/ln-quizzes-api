@@ -1,7 +1,7 @@
 const Config = require('./quizzesTestConfiguration.js');
 const QuizzesApiUrl = Config.quizzesApiUrl;
 const ContentProviderApiUrl = Config.contentProviderApiUrl;
-const Frisby = require('Frisby');
+const Frisby = require('frisby');
 
 var quizzesCommon = {
 
