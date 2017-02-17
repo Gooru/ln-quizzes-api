@@ -1,203 +1,181 @@
-const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
+const Config = require('./quizzesTestConfiguration.js');
 const QuizzesCommon = require('./quizzesCommon.js');
-const ContentProviderUtils = require('./contentProviderUtils.js');
-var frisby = require('frisby');
+const QuizzesApiUrl = Config.quizzesApiUrl;
+const Frisby = require('frisby');
 
-QuizzesCommon.startTest("Get Attempts with context not started", function () {
-    QuizzesCommon.createContext(function (contextResponse, authToken) {
-        var profileId = QuizzesCommon.getProfileIdFromToken(authToken.access_token);
-        frisby.create("Test context attempts with no attempts started")
-            .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + profileId)
-            .addHeader('Authorization', 'Token ' + authToken.access_token)
-            .inspectRequest()
-            .expectStatus(200)
-            .expectJSONLength( 'attempts', 0 )
-            .inspectJSON()
-            .toss();
+
+let testAttempts = function(description, contextId, profileId, attempts, authToken) {
+    Frisby.create(description)
+        .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}/profiles/${profileId}`)
+        .addHeader('Authorization', `Token ${authToken}`)
+        .inspectRequest()
+        .expectStatus(200)
+        .expectJSONLength('attempts', attempts)
+        .inspectJSON()
+        .toss();
+};
+
+QuizzesCommon.startTest('Get Attempts with context not started', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
+            testAttempts('Test context attempts with no attempts started', contextId, profileId, 0, authToken);
+        });
     });
 });
 
-QuizzesCommon.startTest("Get Attempts started but no finished", function () {
-    QuizzesCommon.createContext(function (contextResponse, authToken) {
-        var profileId = QuizzesCommon.getProfileIdFromToken(authToken.access_token);
-        ContentProviderUtils.getAuthorizationToken("Student01", function (assigneeAuthToken) {
-            QuizzesCommon.startContext(contextResponse.id, assigneeAuthToken.access_token, function (startResponse) {
-                frisby.create("Test context attempts with started context by owner (wrong profile ID)")
-                // The owner is ok but the owner doesn't have started contexts,
-                // so this is an empty attempts for a wrong profileId
-                    .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + profileId)
-                    .addHeader('Authorization', 'Token ' + authToken.access_token)
-                    .inspectRequest()
-                    .expectStatus(200)
-                    .expectJSONLength('attempts', 0)
-                    .inspectJSON()
-                    .toss();
-
-                var assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken.access_token);
-                frisby.create("Test context attempts with started context by assigneeId")
-                // The owner is ok and the profileId is the correct id of the assignee
-                    .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + assigneeProfileId)
-                    .addHeader('Authorization', 'Token ' + authToken.access_token)
-                    .inspectRequest()
-                    .expectStatus(200)
-                    .expectJSONLength('attempts', 0)
-                    .inspectJSON()
-                    .toss()
-
-                frisby.create("Test context attempts with started context with assignee token (wrong owner)")
-                // With a wrong token this is a content not found error
-                    .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + profileId)
-                    .addHeader('Authorization', 'Token ' + assigneeAuthToken.access_token)
-                    .inspectRequest()
-                    .expectStatus(404)
-                    .toss()
-
-            })
-        })
-    });
-});
-
-QuizzesCommon.startTest("Get Attempts started and finished", function () {
-    QuizzesCommon.createContext(function (contextResponse, authToken) {
-        var profileId = QuizzesCommon.getProfileIdFromToken(authToken.access_token);
-        ContentProviderUtils.getAuthorizationToken("Student01", function (assigneeAuthToken) {
-            QuizzesCommon.startContext(contextResponse.id, assigneeAuthToken.access_token, function (startResponse) {
-                QuizzesCommon.finishContext(contextResponse.id, assigneeAuthToken.access_token, function () {
-                    frisby.create("Test context attempts with finished context by owner (wrong profileId)")
+QuizzesCommon.startTest('Get Attempts started but no finished', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
                     // The owner is ok but the owner doesn't have started contexts,
                     // so this is an empty attempts for a wrong profileId
-                        .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + profileId)
-                        .addHeader('Authorization', 'Token ' + authToken.access_token)
-                        .inspectRequest()
-                        .expectStatus(200)
-                        .expectJSONLength('attempts', 0)
-                        .inspectJSON()
-                        .toss();
+                    testAttempts('Test context attempts with started context by owner (wrong profile ID)',
+                        contextId, profileId, 0, authToken);
 
-                    var assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken.access_token);
-                    frisby.create("Test context attempts with finished context by assigneeId")
+                    let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
                     // The owner is ok and the profileId is the correct id of the assignee
-                        .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + assigneeProfileId)
-                        .addHeader('Authorization', 'Token ' + authToken.access_token)
-                        .inspectRequest()
-                        .expectStatus(200)
-                        .expectJSONLength('attempts', 1)
-                        .inspectJSON()
-                        .toss()
+                    testAttempts('Test context attempts with started context by assigneeId',
+                        contextId, assigneeProfileId, 0, authToken);
 
-                    frisby.create("Test context attempts with finished context with assignee token (wrong owner)")
+                    Frisby.create('Test context attempts with started context with assignee token (wrong owner)')
                     // With a wrong token this is a content not found error
-                        .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + profileId)
-                        .addHeader('Authorization', 'Token ' + assigneeAuthToken.access_token)
+                        .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}/profiles/${profileId}`)
+                        .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                         .inspectRequest()
                         .expectStatus(404)
-                        .toss()
-
+                        .toss();
                 })
             })
+        });
+    });
+});
+
+QuizzesCommon.startTest('Get Attempts started and finished', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                    QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
+                        // The owner is ok but the owner doesn't have started contexts,
+                        // so this is an empty attempts for a wrong profileId
+                        testAttempts('Test context attempts with finished context by owner (wrong profileId)',
+                            contextId, profileId, 0, authToken);
+
+                        let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
+                        // The owner is ok and the profileId is the correct id of the assignee
+                        testAttempts('Test context attempts with started context by assigneeId',
+                            contextId, assigneeProfileId, 1, authToken);
+
+                        Frisby.create('Test context attempts with finished context with assignee token (wrong owner)')
+                        // With a wrong token this is a content not found error
+                            .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}/profiles/${profileId}`)
+                            .addHeader('Authorization', `Token ${assigneeAuthToken}`)
+                            .inspectRequest()
+                            .expectStatus(404)
+                            .toss();
+                    });
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest('Get Attempts started and finished for two assignees', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
+            QuizzesCommon.getAuthorizationToken('Student01', function (assignee1AuthToken) {
+                QuizzesCommon.startContext(contextId, assignee1AuthToken, function () {
+                    QuizzesCommon.finishContext(contextId, assignee1AuthToken, function () {
+                        QuizzesCommon.getAuthorizationToken('Student02', function (assignee2AuthToken) {
+                            QuizzesCommon.startContext(contextId, assignee2AuthToken, function () {
+                                QuizzesCommon.finishContext(contextId, assignee2AuthToken, function () {
+                                    // The owner is ok but the owner doesn't have started contexts,
+                                    // so this is an empty attempts for a wrong profileId
+                                    testAttempts('Test context attempts with finished context by owner ' +
+                                        '(wrong profileId)', contextId, profileId, 0, authToken);
+
+                                    let assignee1ProfileId = QuizzesCommon.getProfileIdFromToken(assignee1AuthToken);
+                                    // The owner is ok and the profileId is the correct id of the assignee
+                                    testAttempts('Test context attempts with finished context by assigneeId number 1',
+                                        contextId, assignee1ProfileId, 1, authToken);
+
+                                    let assignee2ProfileId = QuizzesCommon.getProfileIdFromToken(assignee2AuthToken);
+                                    // The owner is ok and the profileId is the correct id of the assignee
+                                    testAttempts('Test context attempts with finished context by assigneeId number 2',
+                                        contextId, assignee2ProfileId, 1, authToken);
+
+                                    Frisby.create('Test context attempts with finished context with assignee 2 ' +
+                                        'looking for assignee 1 attempts token (wrong owner)')
+                                    // With a wrong token this is a content not found error
+                                        .get(QuizzesApiUrl +
+                                            `/v1/attempts/contexts/${contextId}/profiles/${assignee1ProfileId}`)
+                                        .addHeader('Authorization', `Token ${assignee2AuthToken}`)
+                                        .inspectRequest()
+                                        .expectStatus(404)
+                                        .toss();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
         })
     });
 });
 
-QuizzesCommon.startTest("Get Attempts started and finished for two assignees", function () {
-    QuizzesCommon.createContext(function (contextResponse, authToken) {
-        var profileId = QuizzesCommon.getProfileIdFromToken(authToken.access_token);
-        ContentProviderUtils.getAuthorizationToken("Student01", function (assignee1AuthToken) {
-            QuizzesCommon.startContext(contextResponse.id, assignee1AuthToken.access_token, function (startResponse1) {
-                QuizzesCommon.finishContext(contextResponse.id, assignee1AuthToken.access_token, function () {
-                    ContentProviderUtils.getAuthorizationToken("Student02", function (assignee2AuthToken) {
-                        QuizzesCommon.startContext(contextResponse.id, assignee2AuthToken.access_token, function (startResponse2) {
-                            QuizzesCommon.finishContext(contextResponse.id, assignee2AuthToken.access_token, function () {
-                                frisby.create("Test context attempts with finished context by owner (wrong profileId)")
+QuizzesCommon.startTest('Get Attempts started and finished two times for the same assignee', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                    QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
+                        QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                            QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                                 // The owner is ok but the owner doesn't have started contexts,
                                 // so this is an empty attempts for a wrong profileId
-                                    .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + profileId)
-                                    .addHeader('Authorization', 'Token ' + authToken.access_token)
-                                    .inspectRequest()
-                                    .expectStatus(200)
-                                    .expectJSONLength('attempts', 0)
-                                    .inspectJSON()
-                                    .toss();
+                                testAttempts('Test context attempts with finished context by owner (wrong profileId)',
+                                    contextId, profileId, 0, authToken);
 
-                                var assignee1ProfileId = QuizzesCommon.getProfileIdFromToken(assignee1AuthToken.access_token);
-                                frisby.create("Test context attempts with finished context by assigneeId number 1")
+                                let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
                                 // The owner is ok and the profileId is the correct id of the assignee
-                                    .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + assignee1ProfileId)
-                                    .addHeader('Authorization', 'Token ' + authToken.access_token)
-                                    .inspectRequest()
-                                    .expectStatus(200)
-                                    .expectJSONLength('attempts', 1)
-                                    .inspectJSON()
-                                    .toss()
+                                testAttempts('Test context attempts with finished context by assigneeId number 1',
+                                    contextId, assigneeProfileId, 2, authToken);
 
-                                var assignee2ProfileId = QuizzesCommon.getProfileIdFromToken(assignee2AuthToken.access_token);
-                                frisby.create("Test context attempts with finished context by assigneeId number 2")
-                                // The owner is ok and the profileId is the correct id of the assignee
-                                    .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + assignee2ProfileId)
-                                    .addHeader('Authorization', 'Token ' + authToken.access_token)
-                                    .inspectRequest()
-                                    .expectStatus(200)
-                                    .expectJSONLength('attempts', 1)
-                                    .inspectJSON()
-                                    .toss()
-
-                                frisby.create("Test context attempts with finished context with assignee 2 looking for assignee 1 attempts token (wrong owner)")
+                                Frisby.create('Test context attempts with finished context with assignee 2 looking ' +
+                                    'for assignee 1 attempts token (wrong owner)')
                                 // With a wrong token this is a content not found error
-                                    .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + assignee1ProfileId)
-                                    .addHeader('Authorization', 'Token ' + assignee2AuthToken.access_token)
+                                    .get(QuizzesApiUrl +
+                                        `/v1/attempts/contexts/${contextId}/profiles/${assigneeProfileId}`)
+                                    .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                                     .inspectRequest()
                                     .expectStatus(404)
-                                    .toss()
-                            })
-                        })
-                    })
-                })
-            })
-        })
-    });
-});
-
-QuizzesCommon.startTest("Get Attempts started and finished two times for the same assignee", function () {
-    QuizzesCommon.createContext(function (contextResponse, authToken) {
-        var profileId = QuizzesCommon.getProfileIdFromToken(authToken.access_token);
-        ContentProviderUtils.getAuthorizationToken("Student01", function (assigneeAuthToken) {
-            QuizzesCommon.startContext(contextResponse.id, assigneeAuthToken.access_token, function (startResponse1) {
-                QuizzesCommon.finishContext(contextResponse.id, assigneeAuthToken.access_token, function () {
-                    QuizzesCommon.startContext(contextResponse.id, assigneeAuthToken.access_token, function (startResponse2) {
-                        QuizzesCommon.finishContext(contextResponse.id, assigneeAuthToken.access_token, function () {
-                            frisby.create("Test context attempts with finished context by owner (wrong profileId)")
-                            // The owner is ok but the owner doesn't have started contexts,
-                            // so this is an empty attempts for a wrong profileId
-                                .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + profileId)
-                                .addHeader('Authorization', 'Token ' + authToken.access_token)
-                                .inspectRequest()
-                                .expectStatus(200)
-                                .expectJSONLength('attempts', 0)
-                                .inspectJSON()
-                                .toss();
-
-                            var assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken.access_token);
-                            frisby.create("Test context attempts with finished context by assigneeId number 1")
-                            // The owner is ok and the profileId is the correct id of the assignee
-                                .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + assigneeProfileId)
-                                .addHeader('Authorization', 'Token ' + authToken.access_token)
-                                .inspectRequest()
-                                .expectStatus(200)
-                                .expectJSONLength('attempts', 2)
-                                .inspectJSON()
-                                .toss()
-
-                            frisby.create("Test context attempts with finished context with assignee 2 looking for assignee 1 attempts token (wrong owner)")
-                            // With a wrong token this is a content not found error
-                                .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextResponse.id + "/profiles/" + assigneeProfileId)
-                                .addHeader('Authorization', 'Token ' + assigneeAuthToken.access_token)
-                                .inspectRequest()
-                                .expectStatus(404)
-                                .toss()
-                        })
-                    })
-                })
-            })
-        })
+                                    .toss();
+                            });
+                        });
+                    });
+                });
+            });
+        });
     });
 });

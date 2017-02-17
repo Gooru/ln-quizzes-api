@@ -22,64 +22,55 @@ var quizzesCommon = {
         return Buffer(token, 'base64').toString().split(":")[2];
     },
 
-    resolveAccessToken: function(authorizationResponse) {
-        return authorizationResponse.access_token;
-    },
-
     startTest: function (title, functionalTest) {
         console.log("\n ****** Executing Functional Test: " + title + " ****** \n");
         functionalTest();
     },
 
-    getAuthorizationToken : function(userId, afterJsonFunction) {
-        var authorizationUser = Config.getUser(userId);
-        console.log("Autorization user " + authorizationUser.identityId);
+    getAuthorizationToken: function (userId, afterJsonFunction) {
+        let authorizationUser = Config.getUser(userId);
+        console.log('Autorization user ' + authorizationUser.identityId);
         Frisby.create('Gets the authorization token for ' + userId)
             .post(ContentProviderApiUrl + '/v2/authorize', {
-                "client_key": "c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==",
-                "client_id": "ba956a97-ae15-11e5-a302-f8a963065976",
-                "grant_type": "google",
-                "user": {
-                    "firstname": authorizationUser.firstname,
-                    "lastname": authorizationUser.lastname,
-                    "identity_id": authorizationUser.identityId
+                'client_key': 'c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==',
+                'client_id': 'ba956a97-ae15-11e5-a302-f8a963065976',
+                'grant_type': 'google',
+                'user': {
+                    'firstname': authorizationUser.firstname,
+                    'lastname': authorizationUser.lastname,
+                    'identity_id': authorizationUser.identityId
                 }
             }, {json: true})
             .inspectRequest()
             .expectStatus(201)
             .expectHeaderContains('content-type', 'application/json')
             .inspectJSON()
-            .afterJSON(afterJsonFunction)
+            .afterJSON(function (authorizationResponse) {
+                afterJsonFunction(authorizationResponse.access_token);
+            })
             .toss();
     },
 
-    createContext: function (afterJsonFunction) {
-        var contextClass = Config.getClass("TestClass01");
-        var collection = Config.getCollection("TestCollection01")
-        this.getAuthorizationToken(contextClass.owner, function (authResponse) {
-            Frisby.create('Test context creation for Teacher01')
-                .post(QuizzesApiUrl + '/v1/contexts', {
-                    'collectionId': collection.id,
-                    'classId': contextClass.id,
-                    'isCollection': true,
-                    'contextData': {
-                        'contextMap': {
-                        },
-                        'metadata': {}
-                    }
-                }, {json: true})
-                .addHeader('Authorization', 'Token ' + authResponse.access_token)
-                .inspectRequest()
-                .expectStatus(200)
-                //TODO: createContext is not fully working at this point, it is returning null
-                //TODO: once it is complete uncomment this two lines
-//                .expectHeaderContains('content-type', 'application/json')
-                .inspectJSON()
-                .afterJSON(function (context) {
-                    afterJsonFunction(context, authResponse);
-                })
-                .toss();
-        })
+    createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
+        Frisby.create(`Create Context for collectionId ${collectionId} and classId ${classId}`)
+            .post(QuizzesApiUrl + '/v1/contexts', {
+                'collectionId': collectionId,
+                'classId': classId,
+                'isCollection': isCollection,
+                'contextData': {
+                    'metadata': {
+                        'title': `Context for collectionId ${collectionId} and classId ${classId}`
+                    },
+                    'contextMap': contextMap
+                }
+            }, {json: true})
+            .addHeader('Authorization', `Token ${authToken}`)
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(afterJsonFunction)
+            .toss();
     },
 
     /**
