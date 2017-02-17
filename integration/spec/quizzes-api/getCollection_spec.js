@@ -1,34 +1,37 @@
 const QuizzesCommon = require('./quizzesCommon.js');
 const Config = require('./quizzesTestConfiguration.js');
-const ContentProviderUtils = require('./contentProviderUtils.js');
-var frisby = require('frisby');
 
-QuizzesCommon.startTest("Get collection without type parameter", function () {
-    ContentProviderUtils.getAuthorizationToken("Teacher01", function (authResponse) {
-        QuizzesCommon.verifyBadRequest('/v1/collections/' + QuizzesCommon.generateUUID(), "Get collection without type parameter", authResponse.access_token);
+let randomCollectionId = QuizzesCommon.generateUUID();
+
+QuizzesCommon.startTest('Get collection without type parameter', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        QuizzesCommon.verifyBadRequest(`/v1/collections/${randomCollectionId}`,
+            'Get collection without type parameter', authToken);
     });
 });
 
-QuizzesCommon.startTest("Get collection with invalid parameter type", function () {
-    ContentProviderUtils.getAuthorizationToken("Teacher01", function (authResponse) {
-        QuizzesCommon.verifyBadRequest('/v1/collections/' + QuizzesCommon.generateUUID() + '?type=wrong_type', "Get collection with invalid parameter type", authResponse.access_token);
+QuizzesCommon.startTest('Get collection with invalid parameter type', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        QuizzesCommon.verifyBadRequest(`/v1/collections/${randomCollectionId}?type=wrong_type`,
+            'Get collection with invalid parameter type', authToken);
     });
 });
 
-QuizzesCommon.startTest("Get not existing collection", function () {
-    ContentProviderUtils.getAuthorizationToken("Teacher01", function (authResponse) {
-        QuizzesCommon.verifyContentNotFound('/v1/collections/' + QuizzesCommon.generateUUID() + '?type=collection', "Get not existing collection", authResponse.access_token);
+QuizzesCommon.startTest('Get not existing collection', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        QuizzesCommon.verifyContentNotFound(`/v1/collections/${randomCollectionId}?type=collection`,
+            'Get not existing collection', authToken);
     });
 });
 
-QuizzesCommon.startTest("Get collection endpoint", function () {
-    ContentProviderUtils.getAuthorizationToken("Teacher01", function (authResponse) {
-        var collection = Config.getCollection("TestCollection01");
-        QuizzesCommon.getCollectionById(collection.id, authResponse.access_token, function(json) {
-            expect(json.id).toEqual(collection.id);
-            expect(json.metadata.title).toEqual("Questions types collection [DO NOT CHANGE]");
-            expect(json.isCollection).toEqual(true);
-            expect(json.resources.length).toEqual(10);
+QuizzesCommon.startTest('Get collection endpoint', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        QuizzesCommon.getCollectionById(collectionId, authToken, function (collection) {
+            expect(collection.id).toEqual(collectionId);
+            expect(collection.metadata.title).toEqual('Questions types collection [DO NOT CHANGE]');
+            expect(collection.isCollection).toEqual(true);
+            expect(collection.resources.length).toEqual(10);
         });
     });
 });

@@ -1,7 +1,7 @@
-const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
-const config = require('./quizzesTestConfiguration.js');
-const ContentProviderUtils = require('./contentProviderUtils.js');
-const frisby = require('frisby');
+const Config = require('./quizzesTestConfiguration.js');
+const QuizzesApiUrl = Config.quizzesApiUrl;
+const ContentProviderApiUrl = Config.contentProviderApiUrl;
+const Frisby = require('frisby');
 
 var quizzesCommon = {
 
@@ -27,33 +27,50 @@ var quizzesCommon = {
         functionalTest();
     },
 
-    createContext: function (afterJsonFunction) {
-        var contextClass = config.getClass("TestClass01");
-        var collection = config.getCollection("TestCollection01")
-        ContentProviderUtils.getAuthorizationToken(contextClass.owner, function (authResponse) {
-            frisby.create('Test context creation for Teacher01')
-                .post(QuizzesApiUrl + '/v1/contexts', {
-                    'collectionId': collection.id,
-                    'classId': contextClass.id,
-                    'isCollection': true,
-                    'contextData': {
-                        'contextMap': {
-                        },
-                        'metadata': {}
-                    }
-                }, {json: true})
-                .addHeader('Authorization', 'Token ' + authResponse.access_token)
-                .inspectRequest()
-                .expectStatus(200)
-                //TODO: createContext is not fully working at this point, it is returning null
-                //TODO: once it is complete uncomment this two lines
-//                .expectHeaderContains('content-type', 'application/json')
-                .inspectJSON()
-                .afterJSON(function (context) {
-                    afterJsonFunction(context, authResponse);
-                })
-                .toss();
-        })
+    getAuthorizationToken: function (userId, afterJsonFunction) {
+        let authorizationUser = Config.getUser(userId);
+        console.log('Autorization user ' + authorizationUser.identityId);
+        Frisby.create('Gets the authorization token for ' + userId)
+            .post(ContentProviderApiUrl + '/v2/authorize', {
+                'client_key': 'c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==',
+                'client_id': 'ba956a97-ae15-11e5-a302-f8a963065976',
+                'grant_type': 'google',
+                'user': {
+                    'firstname': authorizationUser.firstname,
+                    'lastname': authorizationUser.lastname,
+                    'identity_id': authorizationUser.identityId
+                }
+            }, {json: true})
+            .inspectRequest()
+            .expectStatus(201)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(function (authorizationResponse) {
+                afterJsonFunction(authorizationResponse.access_token);
+            })
+            .toss();
+    },
+
+    createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
+        Frisby.create(`Create Context for collectionId ${collectionId} and classId ${classId}`)
+            .post(QuizzesApiUrl + '/v1/contexts', {
+                'collectionId': collectionId,
+                'classId': classId,
+                'isCollection': isCollection,
+                'contextData': {
+                    'metadata': {
+                        'title': `Context for collectionId ${collectionId} and classId ${classId}`
+                    },
+                    'contextMap': contextMap
+                }
+            }, {json: true})
+            .addHeader('Authorization', `Token ${authToken}`)
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(afterJsonFunction)
+            .toss();
     },
 
     /**
@@ -63,9 +80,9 @@ var quizzesCommon = {
      * @param afterJsonFunction function to call on afterJSON
      */
     createContextWithParams: function (body, afterJsonFunction) {
-        var contextClass = config.getClass("TestClass01");
-        ContentProviderUtils.getAuthorizationToken(contextClass.owner, function (authResponse) {
-            frisby.create('Test context creation using body ' + body)
+        var contextClass = Config.getClass("TestClass01");
+        this.getAuthorizationToken(contextClass.owner, function (authResponse) {
+            Frisby.create('Test context creation using body ' + body)
                 .post(QuizzesApiUrl + '/v1/contexts', body, {json: true})
                 .addHeader('Authorization', 'Token ' + authResponse.access_token)
                 .inspectRequest()
@@ -80,7 +97,7 @@ var quizzesCommon = {
     },
 
     getProfileByExternalId: function (externalId, afterJsonFunction) {
-        frisby.create('Get the profile information in Quizzes')
+        Frisby.create('Get the profile information in Quizzes')
             .get(QuizzesApiUrl + '/v1/profile-by-external-id/' + externalId)
             .addHeader('client-id', 'quizzes')
             .inspectRequest()
@@ -94,7 +111,7 @@ var quizzesCommon = {
     },
 
     getAssignedContextByContextId: function (contextId, assigneeProfileId, afterJsonFunction) {
-        frisby.create('Get assigned context information')
+        Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/assigned')
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('client-id', 'quizzes')
@@ -116,21 +133,13 @@ var quizzesCommon = {
     },
 
     getCollectionByIdAndType: function (collectionId, type, authToken, afterJsonFunction) {
-        frisby.create('Get the ' + type + ' information')
-            .get(QuizzesApiUrl + '/v1/collections/' + collectionId + '?type=' + type)
-            .addHeader('Authorization', 'Token ' + authToken)
-            .inspectRequest()
-            .expectStatus(200)
-            .inspectJSON()
-            .afterJSON(function (collection) {
-                afterJsonFunction(collection);
-            })
-            .toss();
+        this.doGet(`Get the ${type} information`,
+            `/v1/collections/${collectionId}?type=${type}`, 200, authToken, afterJsonFunction);
     },
 
     startContext: function (contextId, authToken, afterJsonFunction) {
-        frisby.create('Start Context')
-            .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/start')
+        Frisby.create('Start Context')
+            .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
             .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
             .expectStatus(200)
@@ -142,9 +151,8 @@ var quizzesCommon = {
     },
 
     onResourceEvent: function (contextId, assigneeProfileId, resourceId, previousResource, afterJsonFunction) {
-        frisby.create('On Resource Event')
-            .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/onResource/' +
-                resourceId, previousResource, {json: true})
+        Frisby.create('On Resource Event')
+            .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, previousResource, {json: true})
             .addHeader('profile-id', assigneeProfileId)
             .addHeader('lms-id', 'quizzes')
             .inspectRequest()
@@ -156,7 +164,7 @@ var quizzesCommon = {
     },
 
     finishContext: function (contextId, authToken, afterJsonFunction) {
-        frisby.create('Finish Context')
+        Frisby.create('Finish Context')
             .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/finish')
             .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
@@ -168,7 +176,7 @@ var quizzesCommon = {
     },
 
     verifyGetContextEvents: function (contextId, ownerProfileId, result, afterJsonFunction) {
-        frisby.create('Get the context Events as an owner')
+        Frisby.create('Get the context Events as an owner')
             .get(QuizzesApiUrl + '/v1/context/' + contextId + '/events')
             .addHeader('profile-id', ownerProfileId)
             .addHeader('lms-id', 'quizzes')
@@ -183,7 +191,7 @@ var quizzesCommon = {
     },
 
     verifyContentNotFound: function(url, title, authToken) {
-        frisby.create(title + ' throws ContentNotFoundException')
+        Frisby.create(title + ' throws ContentNotFoundException')
             .get(QuizzesApiUrl + url)
             .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
@@ -201,7 +209,7 @@ var quizzesCommon = {
     },
 
     verifyBadRequest: function(url, title, authToken) {
-        frisby.create(title + ' throws InvalidRequestException')
+        Frisby.create(title + ' throws InvalidRequestException')
             .get(QuizzesApiUrl + url)
             .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
@@ -218,7 +226,7 @@ var quizzesCommon = {
     },
 
     verifyInternalServerError: function(url, title){
-        frisby.create(title + ' throws Internal Server Error')
+        Frisby.create(title + ' throws Internal Server Error')
             .get(QuizzesApiUrl + url)
             .inspectRequest()
             .expectStatus(500)
@@ -235,17 +243,20 @@ var quizzesCommon = {
     },
 
     getAttempts : function(contextId, profileId, authToken, afterJsonFunction) {
-        frisby.create("Get Attempts for context " + contextId + " and profile " + profileId)
-            .get(QuizzesApiUrl + '/v1/attempts/contexts/' + contextId + "/profiles/" + profileId)
+        this.doGet(`Get Attempts for context ${contextId} and profile ${profileId}`,
+            `/v1/attempts/contexts/${contextId}/profiles/${profileId}`, 200, authToken, afterJsonFunction);
+    },
+
+    doGet: function(description, url, expectedStatus, authToken, afterJsonFunction) {
+        Frisby.create(description)
+            .get(QuizzesApiUrl + url)
             .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
-            .expectStatus(200)
+            .expectStatus(expectedStatus)
+            .expectHeaderContains('content-type', 'application/json')
             .inspectJSON()
-            .afterJSON(function(attemptsResponse) {
-                afterJsonFunction(attemptsResponse)
-            })
+            .afterJSON(afterJsonFunction)
             .toss()
-
     }
 };
 

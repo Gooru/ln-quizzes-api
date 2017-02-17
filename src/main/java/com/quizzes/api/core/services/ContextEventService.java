@@ -200,10 +200,13 @@ public class ContextEventService {
         return processStartContext(entity, new ArrayList<>());
     }
 
-    private StartContextEventResponseDto resumeStartContextEvent(ContextProfileEntity entity) {
+    private StartContextEventResponseDto resumeStartContextEvent(ContextProfileEntity contextProfile) {
         List<ContextProfileEvent> contextProfileEvents =
-                contextProfileEventService.findByContextProfileId(entity.getContextProfileId());
-        return processStartContext(entity, contextProfileEvents);
+                contextProfileEventService.findByContextProfileId(contextProfile.getContextProfileId());
+        sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(),
+                contextProfile.getCurrentResourceId(), false);
+        return prepareStartContextEventResponse(contextProfile.getContextId(), contextProfile.getCurrentResourceId(),
+                contextProfile.getCollectionId(), contextProfileEvents);
     }
 
     private CurrentContextProfile createCurrentContextProfileObject(UUID contextId,
@@ -241,8 +244,11 @@ public class ContextEventService {
         return evenData;
     }
 
-    private StartContextEventResponseDto prepareStartContextEventResponse(
-            UUID contextId, UUID currentResourceId, UUID collectionId, List<ContextProfileEvent> contextProfileEvents) {
+    private StartContextEventResponseDto prepareStartContextEventResponse(UUID contextId,
+                                                                          UUID currentResourceId,
+                                                                          UUID collectionId,
+                                                                          List<ContextProfileEvent>
+                                                                                  contextProfileEvents) {
         StartContextEventResponseDto response = new StartContextEventResponseDto();
         response.setContextId(contextId);
         response.setCurrentResourceId(currentResourceId);
@@ -250,7 +256,6 @@ public class ContextEventService {
         response.setEvents(contextProfileEvents.stream()
                 .map(event -> gson.fromJson(event.getEventData(), PostResponseResourceDto.class))
                 .collect(Collectors.toList()));
-
         return response;
     }
 
