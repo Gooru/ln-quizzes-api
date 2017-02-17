@@ -11,7 +11,7 @@ QuizzesCommon.startTest("Get Attempt started and finished info", function () {
                     var assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken.access_token);
                     QuizzesCommon.getAttempts(contextResponse.id, assigneeProfileId, authToken.access_token, function (attemptsResponse) {
 
-                        frisby.create("Test context attempt by ID by owner")
+                        frisby.create("Test context attempt by owner")
                             .get(QuizzesApiUrl + '/v1/attempts/' + attemptsResponse.attempts[0])
                             .addHeader('Authorization', 'Token ' + authToken.access_token)
                             .inspectRequest()
@@ -25,7 +25,7 @@ QuizzesCommon.startTest("Get Attempt started and finished info", function () {
                             .inspectJSON()
                             .toss();
 
-                        frisby.create("Test context attempt by ID by assignee")
+                        frisby.create("Test context attempt by assignee")
                             .get(QuizzesApiUrl + '/v1/attempts/' + attemptsResponse.attempts[0])
                             .addHeader('Authorization', 'Token ' + assigneeAuthToken.access_token)
                             .inspectRequest()
@@ -39,14 +39,14 @@ QuizzesCommon.startTest("Get Attempt started and finished info", function () {
                             .inspectJSON()
                             .toss();
 
-                        frisby.create("Test context attempt by ID with valid owner but random attempt (wrong attemp)")
+                        frisby.create("Test context attempt with valid owner but random attempt (wrong attemp)")
                             .get(QuizzesApiUrl + '/v1/attempts/' + QuizzesCommon.generateUUID())
                             .addHeader('Authorization', 'Token ' + authToken.access_token)
                             .inspectRequest()
                             .expectStatus(404)
                             .toss();
 
-                        frisby.create("Test context attempt by ID with valid assignee but random attempt (wrong attemp)")
+                        frisby.create("Test context attempt with valid assignee but random attempt (wrong attemp)")
                             .get(QuizzesApiUrl + '/v1/attempts/' + QuizzesCommon.generateUUID())
                             .addHeader('Authorization', 'Token ' + assigneeAuthToken.access_token)
                             .inspectRequest()
@@ -68,7 +68,7 @@ QuizzesCommon.startTest("Get Attempt started and finished info with a wrong user
                     QuizzesCommon.getAttempts(contextResponse.id, assigneeProfileId, authToken.access_token, function (attemptsResponse) {
                         ContentProviderUtils.getAuthorizationToken("Student02", function (assignee2AuthToken) {
 
-                            frisby.create("Test context attempt by ID by owner")
+                            frisby.create("Test context attempt by owner")
                                 .get(QuizzesApiUrl + '/v1/attempts/' + attemptsResponse.attempts[0])
                                 .addHeader('Authorization', 'Token ' + authToken.access_token)
                                 .inspectRequest()
@@ -86,7 +86,7 @@ QuizzesCommon.startTest("Get Attempt started and finished info with a wrong user
                                 .inspectJSON()
                                 .toss();
 
-                            frisby.create("Test context attempt by ID by assignee")
+                            frisby.create("Test context attempt by assignee")
                                 .get(QuizzesApiUrl + '/v1/attempts/' + attemptsResponse.attempts[0])
                                 .addHeader('Authorization', 'Token ' + assigneeAuthToken.access_token)
                                 .inspectRequest()
