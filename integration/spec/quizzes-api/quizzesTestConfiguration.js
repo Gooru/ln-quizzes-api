@@ -10,7 +10,7 @@ var testCollections = {};
 testCollections["TestCollection01"] = {"id": "ca13e08c-6e2d-4c10-93cf-7b8111f3b705", "owner": "Teacher01"};
 
 var testAssessments = {};
-testAssessments["TestAssessment01"] = {"id": "a5c5736d-cdcf-4430-8f65-10d61a2988f8", "owner": "Teacher01"};
+testAssessments["TestAssessment01"] = {"id": "95e0c189-e62a-4d32-9738-eac1fae6cf3e", "owner": "Teacher01"};
 
 var quizzesTestConfiguration = {
     quizzesApiUrl : (process.env['QUIZZES_SERVER_URL'] || 'http://localhost:8080') + '/quizzes/api',
