@@ -14,7 +14,7 @@ var testCollections = {
 };
 
 var testAssessments = {
-    TestAssessment01: { id: "a5c5736d-cdcf-4430-8f65-10d61a2988f8", owner: "Teacher01" }
+    TestAssessment01: { id: "95e0c189-e62a-4d32-9738-eac1fae6cf3e", owner: "Teacher01" }
 };
 
 var quizzesTestConfiguration = {
