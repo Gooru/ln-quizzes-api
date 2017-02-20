@@ -22,13 +22,7 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                                 .expectStatus(200)
                                 .expectJSON({
                                     'profileId': assigneeProfileId,
-                                    'contextId': contextResponse.id,
-                                    'eventSummary': function (summary) {
-                                        expect(summary.totalAnswered).toBe(10)
-                                    },
-                                    'events': function (eventList) {
-                                        expect(eventList.length).toBe(10)
-                                    }
+                                    'contextId': contextResponse.id
                                 })
                                 .inspectJSON()
                                 .toss();
@@ -40,13 +34,7 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                                 .expectStatus(200)
                                 .expectJSON({
                                     'profileId': assigneeProfileId,
-                                    'contextId': contextResponse.id,
-                                    'eventSummary': function (summary) {
-                                        expect(summary.totalAnswered).toBe(10)
-                                    },
-                                    'events': function (eventList) {
-                                        expect(eventList.length).toBe(10)
-                                    }
+                                    'contextId': contextResponse.id
                                 })
                                 .inspectJSON()
                                 .toss();
