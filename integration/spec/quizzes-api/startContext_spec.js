@@ -18,7 +18,7 @@ QuizzesCommon.startTest('Start context and validate response', function () {
                 }, function () {
                 });
 
-                Frisby.create('Test context attempt by assignee')
+                Frisby.create('Verify start context data')
                     .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
                     .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                     .inspectRequest()
@@ -65,7 +65,7 @@ QuizzesCommon.startTest('Start context twice', function () {
                         'profileId': profileId
                     }, function () {
                         QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
-                            Frisby.create('Test context attempt by assignee')
+                            Frisby.create('Start context twice')
                                 .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
                                 .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                                 .inspectRequest()
