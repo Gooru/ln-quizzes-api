@@ -51,6 +51,24 @@ var quizzesCommon = {
             .toss();
     },
 
+    getAnonymousToken: function (afterJsonFunction) {
+        console.log('Autorization anonymous user');
+        Frisby.create('Gets the authorization token for an anonymous user')
+            .post(ContentProviderApiUrl + '/v2/signin', {
+                'client_key': 'c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==',
+                'client_id': 'ba956a97-ae15-11e5-a302-f8a963065976',
+                'grant_type': 'anonymous'
+            }, {json: true})
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(function (authorizationResponse) {
+                afterJsonFunction(authorizationResponse.access_token);
+            })
+            .toss();
+    },
+
     createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
         Frisby.create(`Create Context for collectionId ${collectionId} and classId ${classId}`)
             .post(QuizzesApiUrl + '/v1/contexts', {
@@ -110,14 +128,14 @@ var quizzesCommon = {
             .toss()
     },
 
-    getAssignedContextByContextId: function (contextId, assigneeProfileId, afterJsonFunction) {
+    getAssignedContextByContextId: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
         Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/assigned')
-            .addHeader('profile-id', assigneeProfileId)
-            .addHeader('client-id', 'quizzes')
+            .addHeader('Authorization', `Token ${assigneeAuthToken}`)
             .inspectRequest()
             .expectStatus(200)
             .inspectJSON()
+            .expectJSON(expectedJson)
             .afterJSON(function (context) {
                 afterJsonFunction(context);
             })
