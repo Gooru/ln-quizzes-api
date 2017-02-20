@@ -3,6 +3,7 @@ package com.quizzes.api.core.controllers;
 import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
+import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
@@ -51,7 +52,7 @@ public class ContextController {
             notes = "Creates an Assignment of a Collection or Assessment to specified Context," +
                     " returning a generated Context ID.")
     @ApiResponses({@ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
-            @ApiResponse(code = 500, message = "Bad request")})
+            @ApiResponse(code = 400, message = "Bad request")})
     @RequestMapping(path = "/contexts",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -68,15 +69,14 @@ public class ContextController {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations = validator.validate(contextPostRequestDto);
+        Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations =
+                validator.validate(contextPostRequestDto);
 
         if (!constraintViolations.isEmpty()) {
-            List<String> constraintErrors = constraintViolations
-                    .stream().map(violation -> String.format("Error in %s: %s", violation.getPropertyPath(),
-                            violation.getMessage())).collect(Collectors.toList());
-            Map<String, Object> errors = new HashMap<>();
-            errors.put("Errors", constraintErrors);
-            return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
+            String invalidPropertiesMessage =  constraintViolations.stream()
+                    .map(violation -> "['" + violation.getPropertyPath() + "': " + violation.getMessage() + "]")
+                    .collect(Collectors.joining(", "));
+            throw new InvalidRequestBodyException("Invalid JSON properties: " + invalidPropertiesMessage);
         }
 
         UUID contextId = contextService.createContext(contextPostRequestDto, UUID.fromString(profileId), token);

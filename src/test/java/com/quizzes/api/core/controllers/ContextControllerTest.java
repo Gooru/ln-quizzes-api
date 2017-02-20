@@ -2,8 +2,10 @@ package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
+import com.quizzes.api.core.dtos.ExceptionMessageDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
+import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
@@ -112,18 +114,21 @@ public class ContextControllerTest {
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
     }
 
-    @Test
+    @Test(expected = InvalidRequestBodyException.class)
     public void assignContextEmptyAssignment() throws Exception {
         when(contextService.createContext(any(ContextPostRequestDto.class), eq(profileId), eq(token))).thenReturn(null);
 
         ResponseEntity<?> result = controller.createContext(new ContextPostRequestDto(), profileId.toString(), token);
+        ExceptionMessageDto exception = (ExceptionMessageDto) result.getBody();
+
         assertNotNull("Response is null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), containsString("Error in collectionId"));
-        assertThat(result.getBody().toString(), containsString("Error in contextData"));
+        assertEquals("Invalid status code:", HttpStatus.BAD_REQUEST.value(), result.getStatusCode().value());
+        assertTrue("Wrong exception", exception.getException().startsWith("Invalid JSON properties: "));
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), exception.getStatus());
+        assertEquals("Wrong message exception", "Bad Request", exception.getMessage());
     }
 
-    @Test
+    @Test(expected = InvalidRequestBodyException.class)
     public void assignContextCollectionValidation() throws Exception {
         ContextPostRequestDto assignment = new ContextPostRequestDto();
         assignment.setContextData(new ContextDataDto());
@@ -133,11 +138,13 @@ public class ContextControllerTest {
 
         //Testing no collection
         ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
+        ExceptionMessageDto exception = (ExceptionMessageDto) result.getBody();
+
         assertNotNull("Response is null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in contextData")));
-        assertThat(result.getBody().toString(), containsString("Error in collectionId"));
-        assertThat(result.getBody().toString(), containsString("A Collection ID is required"));
+        assertEquals("Invalid status code:", HttpStatus.BAD_REQUEST.value(), result.getStatusCode().value());
+        assertTrue("Wrong exception", exception.getException().startsWith("Invalid JSON properties: "));
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), exception.getStatus());
+        assertEquals("Wrong message exception", "Bad Request", exception.getMessage());
 
         assignment.setCollectionId(UUID.randomUUID());
 
@@ -147,7 +154,7 @@ public class ContextControllerTest {
         assertNotNull("Response body is null", result.getBody());
     }
 
-    @Test
+    @Test(expected = InvalidRequestBodyException.class)
     public void assignContextContextDataValidation() throws Exception {
         ContextPostRequestDto assignment = new ContextPostRequestDto();
         assignment.setCollectionId(UUID.randomUUID());
@@ -157,11 +164,13 @@ public class ContextControllerTest {
 
         //Testing no context
         ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
+        ExceptionMessageDto exception = (ExceptionMessageDto) result.getBody();
+
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NOT_ACCEPTABLE.value(), result.getStatusCode().value());
-        assertThat(result.getBody().toString(), not(containsString("Error in collection")));
-        assertThat(result.getBody().toString(), containsString("Error in context"));
-        assertThat(result.getBody().toString(), containsString("A ContextData is required"));
+        assertEquals("Invalid status code:", HttpStatus.BAD_REQUEST.value(), result.getStatusCode().value());
+        assertTrue("Wrong exception", exception.getException().startsWith("Invalid JSON properties: "));
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), exception.getStatus());
+        assertEquals("Wrong message exception", "Bad Request", exception.getMessage());
 
         ContextDataDto contextData = new ContextDataDto();
         assignment.setContextData(contextData);
