@@ -1,7 +1,14 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.exceptions.*;
 import com.quizzes.api.core.dtos.ExceptionMessageDto;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
+import com.quizzes.api.core.exceptions.InvalidCredentialsException;
+import com.quizzes.api.core.exceptions.InvalidOwnerException;
+import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
+import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.exceptions.MissingJsonPropertiesException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
