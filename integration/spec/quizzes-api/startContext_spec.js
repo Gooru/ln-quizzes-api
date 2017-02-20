@@ -51,18 +51,12 @@ QuizzesCommon.startTest('Start context twice', function () {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                Frisby.create('Test context attempt by assignee')
-                    .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
-                    .addHeader('Authorization', `Token ${assigneeAuthToken}`)
-                    .inspectRequest()
-                    .expectStatus(200)
-                    .expectJSON({
-                        'contextId': contextResponse.id,
-                        'hasStarted': false,
-                        'profileId': profileId
-                    })
-                    .inspectJSON()
-                    .toss();
+                QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                    'contextId': contextResponse.id,
+                    'hasStarted': false,
+                    'profileId': profileId
+                }, function () {
+                });
 
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
                     QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
