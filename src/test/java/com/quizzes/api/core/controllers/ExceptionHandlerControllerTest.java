@@ -1,7 +1,14 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.exceptions.*;
 import com.quizzes.api.core.dtos.ExceptionMessageDto;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
+import com.quizzes.api.core.exceptions.InvalidCredentialsException;
+import com.quizzes.api.core.exceptions.InvalidOwnerException;
+import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
+import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.exceptions.MissingJsonPropertiesException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -11,9 +18,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExceptionHandlerControllerTest {
