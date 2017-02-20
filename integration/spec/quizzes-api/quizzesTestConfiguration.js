@@ -2,7 +2,7 @@
 var testUsers = {
     Teacher01: { firstname: "testuser", lastname: "eigth", identityId: "testuser08@edify.cr" },
     Student01: { firstname: "testuser", lastname: "nine", identityId: "testuser09@edify.cr" },
-    Student02: { firstname: "testuser", lastname: "nine", identityId: "testuser09@edify.cr" },
+    Student02: { firstname: "testuser", lastname: "ten", identityId: "testuser10@edify.cr" },
     StudentNotInClass: { firstname: "testuser", lastname: "twelve", identityId: "testuser12@edify.cr" }
 };
 
