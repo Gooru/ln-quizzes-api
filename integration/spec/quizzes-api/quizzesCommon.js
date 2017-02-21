@@ -130,7 +130,7 @@ var quizzesCommon = {
 
     getAssignedContextByContextId: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
         Frisby.create('Get assigned context information')
-            .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/assigned')
+            .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
             .addHeader('Authorization', `Token ${assigneeAuthToken}`)
             .inspectRequest()
             .expectStatus(200)
@@ -275,6 +275,37 @@ var quizzesCommon = {
             .inspectJSON()
             .afterJSON(afterJsonFunction)
             .toss()
+    },
+
+    doPost: function(description, url, body, expectedStatus, authToken, afterJsonFunction) {
+        Frisby.create(description)
+            .post(QuizzesApiUrl + url, body, { json: true })
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(expectedStatus)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(afterJsonFunction)
+            .toss()
+    },
+
+    verifyHttpError: function (description, url, expectedStatus, authToken) {
+        this.doGet(description, url, expectedStatus, authToken, function(json) {
+            expect(json.message).toBeType(String);
+        });
+    },
+
+    verifyHttpErrorPost: function (description, url, body, expectedStatus, authToken) {
+        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken, function(error) {
+            expect(typeof error.message).toBe('string');
+            expect(typeof error.status).toBe('number');
+            expect(typeof error.exception).toBe('string');
+        });
+    },
+
+    httpErrorCodes: {
+        BAD_REQUEST: 400,
+        NOT_FOUND: 404
     }
 };
 

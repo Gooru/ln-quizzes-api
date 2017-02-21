@@ -1,10 +1,11 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.dtos.ExceptionMessageDto;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidCredentialsException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
+import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.exceptions.MissingJsonPropertiesException;
@@ -13,12 +14,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExceptionHandlerControllerTest {
@@ -107,6 +108,16 @@ public class ExceptionHandlerControllerTest {
     }
 
     @Test
+    public void handleMissingRequestParameterException() throws Exception {
+        MissingServletRequestParameterException exceptionMock = new MissingServletRequestParameterException("type", "String");
+        ExceptionMessageDto result = controller.handleMissingRequestParameterException(exceptionMock);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong message exception", "Bad Request", result.getMessage());
+    }
+
+    @Test
     public void handleInvalidRequestException() throws Exception {
         InvalidRequestException exceptionMock = new InvalidRequestException("Invalid request arguments");
         ExceptionMessageDto result = controller.handleInvalidRequestException(exceptionMock);
@@ -115,5 +126,16 @@ public class ExceptionHandlerControllerTest {
         assertEquals("Wrong exception", "Invalid request arguments", result.getException());
         assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
         assertEquals("Wrong message exception", "Invalid request", result.getMessage());
+    }
+
+    @Test
+    public void handleInvalidRequestBodyException() throws Exception {
+        InvalidRequestBodyException exceptionMock = new InvalidRequestBodyException("Invalid request body arguments");
+        ExceptionMessageDto result = controller.handleInvalidRequestBodyException(exceptionMock);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Wrong exception", "Invalid request body arguments", result.getException());
+        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), result.getStatus());
+        assertEquals("Wrong message exception", "Invalid request body", result.getMessage());
     }
 }
