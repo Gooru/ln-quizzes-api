@@ -51,6 +51,24 @@ var quizzesCommon = {
             .toss();
     },
 
+    getAnonymousToken: function (afterJsonFunction) {
+        console.log('Autorization anonymous user');
+        Frisby.create('Gets the authorization token for an anonymous user')
+            .post(ContentProviderApiUrl + '/v2/signin', {
+                'client_key': 'c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==',
+                'client_id': 'ba956a97-ae15-11e5-a302-f8a963065976',
+                'grant_type': 'anonymous'
+            }, {json: true})
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(function (authorizationResponse) {
+                afterJsonFunction(authorizationResponse.access_token);
+            })
+            .toss();
+    },
+
     createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
         Frisby.create(`Create Context for collectionId ${collectionId} and classId ${classId}`)
             .post(QuizzesApiUrl + '/v1/contexts', {
@@ -257,6 +275,37 @@ var quizzesCommon = {
             .inspectJSON()
             .afterJSON(afterJsonFunction)
             .toss()
+    },
+
+    doPost: function(description, url, body, expectedStatus, authToken, afterJsonFunction) {
+        Frisby.create(description)
+            .post(QuizzesApiUrl + url, body, { json: true })
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(expectedStatus)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(afterJsonFunction)
+            .toss()
+    },
+
+    verifyHttpError: function (description, url, expectedStatus, authToken) {
+        this.doGet(description, url, expectedStatus, authToken, function(json) {
+            expect(json.message).toBeType(String);
+        });
+    },
+
+    verifyHttpErrorPost: function (description, url, body, expectedStatus, authToken) {
+        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken, function(error) {
+            expect(typeof error.message).toBe('string');
+            expect(typeof error.status).toBe('number');
+            expect(typeof error.exception).toBe('string');
+        });
+    },
+
+    httpErrorCodes: {
+        BAD_REQUEST: 400,
+        NOT_FOUND: 404
     }
 };
 
