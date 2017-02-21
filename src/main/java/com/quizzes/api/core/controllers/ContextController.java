@@ -60,11 +60,6 @@ public class ContextController {
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
                                            @RequestAttribute(value = "profileId") String profileId,
                                            @RequestAttribute(value = "token") String token) {
-        if(QuizzesUtils.isAnonymous(profileId)){
-            return new ResponseEntity<>(
-                    new IdResponseDto(contextService.createContextForAnonymous(contextPostRequestDto.getCollectionId(),
-                            QuizzesUtils.getAnonymousId())), HttpStatus.OK);
-        }
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -79,8 +74,14 @@ public class ContextController {
             return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
         }
 
-        UUID contextId = contextService.createContext(contextPostRequestDto, UUID.fromString(profileId), token);
-        return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);
+        if (contextPostRequestDto.getClassId() == null) {
+            return new ResponseEntity<>(
+                    new IdResponseDto(contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(),
+                            QuizzesUtils.getAnonymousId())), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(new IdResponseDto(
+                contextService.createContext(contextPostRequestDto, UUID.fromString(profileId), token)), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Created Contexts",

@@ -141,28 +141,48 @@ QuizzesCommon.startTest('Start context with teacher token', function () {
     });
 });
 
-//TODO: implement anonymous functionality for start context
-// QuizzesCommon.startTest('Start context for anonymous', function () {
-//     QuizzesCommon.getAnonymousToken(function (authToken) {
-//         let collectionId = Config.getCollection('TestCollection01').id;
-//         let classId = Config.getClass('TestClass01').id;
-//         QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
-//             let contextId = contextResponse.id;
-//             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
-//             QuizzesCommon.startContext(contextId, authToken, function () {
-//                 Frisby.create('Test context attempt by assignee')
-//                     .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
-//                     .addHeader('Authorization', `Token ${authToken}`)
-//                     .inspectRequest()
-//                     .expectStatus(200)
-//                     .expectJSON({
-//                         'contextId': contextResponse.id,
-//                         'hasStarted': true,
-//                         'profileId': profileId
-//                     })
-//                     .inspectJSON()
-//                     .toss();
-//             })
-//         })
-//     });
-// });
+QuizzesCommon.startTest('Start context for anonymous', function () {
+    QuizzesCommon.getAnonymousToken(function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            Frisby.create('Verify start context data')
+                .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
+                .addHeader('Authorization', `Token ${authToken}`)
+                .inspectRequest()
+                .expectStatus(200)
+                .expectJSON({
+                    'contextId': contextResponse.id,
+                    'collectionId': collectionId,
+                    'events': []
+                })
+                .inspectJSON()
+                .toss();
+        })
+    });
+});
+
+QuizzesCommon.startTest('Start context for anonymous with class should throw error', function () {
+    QuizzesCommon.getAnonymousToken(function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+            let classId = Config.getClass('TestClass01').id;
+            Frisby.create(`Create Context for collectionId ${collectionId} and classId ${classId}`)
+                .post(QuizzesApiUrl + '/v1/contexts', {
+                    'collectionId': collectionId,
+                    'classId': classId,
+                    'isCollection': true,
+                    'contextData': {
+                        'metadata': {
+                            'title': `Context for collectionId ${collectionId} and classId ${classId}`
+                        },
+                        'contextMap': {}
+                    }
+                }, {json: true})
+                .addHeader('Authorization', `Token ${authToken}`)
+                .inspectRequest()
+                .expectStatus(500)
+                .expectHeaderContains('content-type', 'application/json')
+                .inspectJSON()
+                .toss();
+    });
+});

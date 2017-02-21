@@ -443,7 +443,8 @@ public class ContextEventServiceTest {
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
     }
 
-    public void processOnResourceEventWithoutEventWithoutAnswer() throws Exception {
+    @Test
+    public void processOnResourceEventWithEventWithoutAnswer() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
         when(currentContextProfile.getIsCollection()).thenReturn(true);
 
@@ -501,7 +502,8 @@ public class ContextEventServiceTest {
 
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent", contextProfileId,
                 previousResourceId);
-        verifyPrivate(contextEventService, times(0)).invoke("calculateScore", any(), any());
+        verifyPrivate(contextEventService, times(1)).invoke("calculateScore", previousResource,
+                body.getPreviousResource().getAnswer());
 
         verifyPrivate(contextEventService, times(0)).invoke("updateExistingResourceDto", any(), any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);

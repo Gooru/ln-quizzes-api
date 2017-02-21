@@ -8,8 +8,6 @@ import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.MetadataDto;
 import com.quizzes.api.core.dtos.ProfileDto;
-import com.quizzes.api.core.dtos.content.AssessmentContentDto;
-import com.quizzes.api.core.dtos.content.CollectionContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
@@ -18,9 +16,7 @@ import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.rest.clients.AssessmentRestClient;
 import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
-import com.quizzes.api.core.rest.clients.CollectionRestClient;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -209,7 +205,7 @@ public class ContextServiceTest {
         doReturn(context).when(contextRepository).save(any(Context.class));
         doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
 
-        UUID result = contextService.createContextForAnonymous(collectionId, profileId);
+        UUID result = contextService.createContextWithoutClassId(collectionId, profileId);
 
         verifyPrivate(contextService, times(1)).invoke("createContextProfileObject", any(UUID.class), any(UUID.class));
         verify(collectionService, times(1)).getCollectionOrAssessment(collectionId);
