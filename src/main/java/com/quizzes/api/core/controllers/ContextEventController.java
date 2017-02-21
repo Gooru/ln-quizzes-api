@@ -71,7 +71,7 @@ public class ContextEventController {
             notes = "Sends event to finish the current collection attempt.")
     @ApiResponses({
             @ApiResponse(code = 204, message = "Finish the current attempt"),
-            @ApiResponse(code = 500, message = "Bad request")
+            @ApiResponse(code = 400, message = "Bad request")
     })
     @RequestMapping(path = "/contexts/{contextId}/finish", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
