@@ -89,7 +89,7 @@ public class ContextControllerTest {
         ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
 
         verify(contextService, times(1)).createContext(assignment, profileId, token);
-        verify(contextService, times(0)).createContextForAnonymous(any(UUID.class), any(UUID.class));
+        verify(contextService, times(0)).createContextWithoutClassId(any(UUID.class), any(UUID.class));
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
@@ -99,13 +99,14 @@ public class ContextControllerTest {
     public void createContextForAnonymous() throws Exception {
         ContextPostRequestDto assignment = new ContextPostRequestDto();
         assignment.setCollectionId(collectionId);
+        assignment.setContextData(new ContextDataDto());
 
-        when(contextService.createContextForAnonymous(collectionId, anonymousId)).thenReturn(contextId);
+        when(contextService.createContextWithoutClassId(collectionId, anonymousId)).thenReturn(contextId);
 
         ResponseEntity<?> result = controller.createContext(assignment, "anonymous", token);
 
         verify(contextService, times(0)).createContext(any(ContextPostRequestDto.class), any(UUID.class), anyString());
-        verify(contextService, times(1)).createContextForAnonymous(collectionId, anonymousId);
+        verify(contextService, times(1)).createContextWithoutClassId(collectionId, anonymousId);
         assertNotNull("Response is null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());

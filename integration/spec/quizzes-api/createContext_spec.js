@@ -67,10 +67,17 @@ QuizzesCommon.startTest('Create context', function () {
 QuizzesCommon.startTest('Create context with anonymous user', function () {
     QuizzesCommon.getAnonymousToken(function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
-        let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
             expect(contextResponse).not.toBe(null);
             expect(contextResponse.id).toBeDefined();
         });
+    });
+});
+
+QuizzesCommon.startTest('Create context with anonymous user should throw error', function () {
+    QuizzesCommon.getAnonymousToken(function (authToken) {
+        let context = baseContext;
+        QuizzesCommon.verifyHttpErrorPost('Create context without contextData',
+            '/v1/contexts', context, HttpErrorCodes.BAD_REQUEST, authToken);
     });
 });
