@@ -739,7 +739,7 @@ public class ContextEventServiceTest {
                 .thenReturn(currentContextProfile);
         when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
 
-        contextEventService.processFinishContextEvent(contextId, profileId, token);
+        contextEventService.processFinishContextEvent(contextId, profileId);
 
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
@@ -760,7 +760,7 @@ public class ContextEventServiceTest {
         when(contextService.findById(contextId)).thenReturn(context);
         doNothing().when(contextEventService, "finishContextEvent", context, contextProfile);
 
-        contextEventService.processFinishContextEvent(contextId, profileId, token);
+        contextEventService.processFinishContextEvent(contextId, profileId);
 
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);

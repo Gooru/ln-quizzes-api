@@ -123,7 +123,7 @@ public class ContextEventService {
     }
 
 
-    public void processFinishContextEvent(UUID contextId, UUID profileId, String token) {
+    public void processFinishContextEvent(UUID contextId, UUID profileId) {
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
         ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
