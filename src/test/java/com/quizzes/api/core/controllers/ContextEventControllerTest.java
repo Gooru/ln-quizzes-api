@@ -59,7 +59,7 @@ public class ContextEventControllerTest {
     private UUID collectionId;
     private UUID resourceId;
     private UUID profileId;
-    private String token;
+    private UUID anonymousId;
 
     @Before
     public void before() throws Exception {
@@ -67,7 +67,7 @@ public class ContextEventControllerTest {
         collectionId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
         profileId = UUID.randomUUID();
-        token = UUID.randomUUID().toString();
+        anonymousId = UUID.fromString("00000000-0000-0000-0000-000000000000");
     }
 
     @Test
@@ -132,8 +132,18 @@ public class ContextEventControllerTest {
 
     @Test
     public void processFinishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId, token);
-        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId, token);
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId.toString());
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
+        assertNull("Body is not null", result.getBody());
+    }
+
+    @Test
+    public void processFinishContextEventForAnonymous() throws Exception {
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, "anonymous");
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, anonymousId);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());

@@ -3,6 +3,7 @@ package com.quizzes.api.core.controllers;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.services.ContextEventService;
+import com.quizzes.api.util.QuizzesUtils;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -78,9 +79,9 @@ public class ContextEventController {
     public ResponseEntity<Void> finishContextEvent(
             @ApiParam(value = "ID of the context to have its attempt finished.", required = true, name = "ContextID")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") UUID profileId,
-            @RequestAttribute(value = "token") String token) {
-        contextEventService.processFinishContextEvent(contextId, profileId, token);
+            @RequestAttribute(value = "profileId") String profileId) {
+        contextEventService.processFinishContextEvent(contextId,
+                QuizzesUtils.isAnonymous(profileId) ? QuizzesUtils.getAnonymousId() : UUID.fromString(profileId));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
