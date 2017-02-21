@@ -27,7 +27,7 @@ QuizzesCommon.startTest('Finish a never started context', function () {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.verifyHttpErrorPost('Finish a never started context',
-                    `/v1/contexts/${contextId}/finish`, {}, HttpErrorCodes.NOT_FOUND,  assigneeAuthToken);
+                    `/v1/contexts/${contextId}/finish`, {}, HttpErrorCodes.NOT_FOUND, assigneeAuthToken);
             });
         });
     });
@@ -55,7 +55,7 @@ QuizzesCommon.startTest('Finish a context with wrong collection id', function ()
     QuizzesCommon.getAuthorizationToken('Student01', function (authToken) {
         let contextId = 'wrong-context-id';
         QuizzesCommon.verifyHttpErrorPost('Finish a context with wrong collection id',
-            `/v1/contexts/${contextId}/finish`, {}, HttpErrorCodes.BAD_REQUEST,  authToken);
+            `/v1/contexts/${contextId}/finish`, {}, HttpErrorCodes.BAD_REQUEST, authToken);
     });
 });
 
@@ -63,6 +63,21 @@ QuizzesCommon.startTest('Finish a context with not existing collection id', func
     QuizzesCommon.getAuthorizationToken('Student01', function (authToken) {
         let contextId = QuizzesCommon.generateUUID();
         QuizzesCommon.verifyHttpErrorPost('Finish a context with not existing collection id',
-            `/v1/contexts/${contextId}/finish`, {}, HttpErrorCodes.NOT_FOUND,  authToken);
+            `/v1/contexts/${contextId}/finish`, {}, HttpErrorCodes.NOT_FOUND, authToken);
     });
 });
+
+//TODO: Add this test once start context works for anonymous
+// QuizzesCommon.startTest('Start and finish context for anonymous', function () {
+//     QuizzesCommon.getAnonymousToken(function (authToken) {
+//         let collectionId = Config.getCollection('TestCollection01').id;
+//         QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
+//             let contextId = contextResponse.id;
+//             QuizzesCommon.startContext(contextId, authToken, function () {
+//                 QuizzesCommon.finishContext(contextId, authToken, function () {
+//
+//                 });
+//             });
+//         });
+//     });
+// });
