@@ -162,22 +162,3 @@ QuizzesCommon.startTest('Start context for anonymous', function () {
         })
     });
 });
-
-QuizzesCommon.startTest('Start context for anonymous with class should throw error', function () {
-    QuizzesCommon.getAnonymousToken(function (authToken) {
-        let collectionId = Config.getCollection('TestCollection01').id;
-        let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.verifyHttpErrorPost(`Create Context for collectionId ${collectionId} and classId ${classId}`,
-            '/v1/contexts', {
-                'collectionId': collectionId,
-                'classId': classId,
-                'isCollection': true,
-                'contextData': {
-                    'metadata': {
-                        'title': `Context for collectionId ${collectionId} and classId ${classId}`
-                    },
-                    'contextMap': {}
-                }
-            }, HttpErrorCodes.BAD_REQUEST, authToken);
-    });
-});
