@@ -120,7 +120,6 @@ QuizzesCommon.startTest('Get Current Attempts for two assignees, 1 complete, 1 n
                                     .addHeader('Authorization', `Token ${authToken}`)
                                     .inspectRequest()
                                     .expectStatus(200)
-                                    .expectJSONLength('profileAttempts', 2)
                                     .expectJSON({
                                         'profileAttempts': function (attempts) {
                                             expect(attempts.length).toBe(2);
