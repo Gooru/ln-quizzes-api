@@ -110,8 +110,7 @@ public class ContextController {
                     "The fields `profileId` and `hasStarted` will not be present on the response body.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
-            @ApiResponse(code = 404, message = "Content Not Found"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
+            @ApiResponse(code = 404, message = "Content Not Found")
     })
     @RequestMapping(path = "/contexts/{contextId}/created", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)

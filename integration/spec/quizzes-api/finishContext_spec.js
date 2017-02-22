@@ -10,9 +10,7 @@ QuizzesCommon.startTest('Start and finish context', function () {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
-                    QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
-
-                    });
+                    QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {});
                 });
             });
         });
@@ -67,17 +65,14 @@ QuizzesCommon.startTest('Finish a context with not existing collection id', func
     });
 });
 
-//TODO: Add this test once start context works for anonymous
-// QuizzesCommon.startTest('Start and finish context for anonymous', function () {
-//     QuizzesCommon.getAnonymousToken(function (authToken) {
-//         let collectionId = Config.getCollection('TestCollection01').id;
-//         QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
-//             let contextId = contextResponse.id;
-//             QuizzesCommon.startContext(contextId, authToken, function () {
-//                 QuizzesCommon.finishContext(contextId, authToken, function () {
-//
-//                 });
-//             });
-//         });
-//     });
-// });
+QuizzesCommon.startTest('Start and finish context for anonymous', function () {
+    QuizzesCommon.getAnonymousToken(function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            QuizzesCommon.startContext(contextId, authToken, function () {
+                QuizzesCommon.finishContext(contextId, authToken, function () {});
+            });
+        });
+    });
+});
