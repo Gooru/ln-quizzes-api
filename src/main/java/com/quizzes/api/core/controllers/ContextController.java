@@ -66,18 +66,17 @@ public class ContextController {
                 validator.validate(contextPostRequestDto);
 
         if (!constraintViolations.isEmpty()) {
-            String invalidPropertiesMessage =  constraintViolations.stream()
+            String invalidPropertiesMessage = constraintViolations.stream()
                     .map(violation -> "['" + violation.getPropertyPath() + "': " + violation.getMessage() + "]")
                     .collect(Collectors.joining(", "));
             throw new InvalidRequestBodyException("Invalid JSON properties: " + invalidPropertiesMessage);
         }
 
         if (contextPostRequestDto.getClassId() == null) {
-            UUID id = QuizzesUtils.isAnonymous(profileId) ? QuizzesUtils.getAnonymousId() : UUID.fromString(profileId);
             return new ResponseEntity<>(
                     new IdResponseDto(
-                            contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(), id)),
-                            HttpStatus.OK);
+                            contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(),
+                                    QuizzesUtils.resolveProfileId(profileId))), HttpStatus.OK);
         }
 
         return new ResponseEntity<>(new IdResponseDto(
