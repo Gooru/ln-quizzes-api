@@ -28,7 +28,6 @@ import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -398,7 +397,7 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void processOnResourceEventWithoutEventWithoutAnswer() throws Exception {
+    public void processOnResourceEventWithEventWithoutAnswer() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
         when(currentContextProfile.getCurrentContextProfileId()).thenReturn(UUID.randomUUID());
         when(currentContextProfile.getIsComplete()).thenReturn(false);
@@ -458,7 +457,8 @@ public class ContextEventServiceTest {
 
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileEvent", contextProfileId,
                 previousResourceId);
-        verifyPrivate(contextEventService, times(1)).invoke("calculateScore", any(), any());
+        verifyPrivate(contextEventService, times(1)).invoke("calculateScore", previousResource,
+                body.getPreviousResource().getAnswer());
 
         verifyPrivate(contextEventService, times(0)).invoke("updateExistingResourceDto", any(), any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
@@ -696,7 +696,7 @@ public class ContextEventServiceTest {
                 .thenReturn(currentContextProfile);
         when(contextProfileService.findById(contextProfileId)).thenReturn(contextProfile);
 
-        contextEventService.processFinishContextEvent(contextId, profileId, token);
+        contextEventService.processFinishContextEvent(contextId, profileId);
 
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
@@ -717,7 +717,7 @@ public class ContextEventServiceTest {
         when(contextService.findById(contextId)).thenReturn(context);
         doNothing().when(contextEventService, "finishContextEvent", context, contextProfile);
 
-        contextEventService.processFinishContextEvent(contextId, profileId, token);
+        contextEventService.processFinishContextEvent(contextId, profileId);
 
         verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
         verify(contextProfileService, times(1)).findById(contextProfileId);
