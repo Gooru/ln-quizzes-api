@@ -73,9 +73,11 @@ public class ContextController {
         }
 
         if (contextPostRequestDto.getClassId() == null) {
+            UUID id = QuizzesUtils.isAnonymous(profileId) ? QuizzesUtils.getAnonymousId() : UUID.fromString(profileId);
             return new ResponseEntity<>(
-                    new IdResponseDto(contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(),
-                            QuizzesUtils.getAnonymousId())), HttpStatus.OK);
+                    new IdResponseDto(
+                            contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(), id)),
+                            HttpStatus.OK);
         }
 
         return new ResponseEntity<>(new IdResponseDto(

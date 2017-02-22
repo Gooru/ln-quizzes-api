@@ -96,6 +96,23 @@ public class ContextControllerTest {
     }
 
     @Test
+    public void createContextForPreview() throws Exception {
+        ContextPostRequestDto assignment = new ContextPostRequestDto();
+        assignment.setCollectionId(collectionId);
+        assignment.setContextData(new ContextDataDto());
+
+        when(contextService.createContextWithoutClassId(collectionId, profileId)).thenReturn(contextId);
+
+        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString(), token);
+
+        verify(contextService, times(0)).createContext(any(), any(), any());
+        verify(contextService, times(1)).createContextWithoutClassId(collectionId, profileId);
+        assertNotNull("Response is null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
+    }
+
+    @Test
     public void createContextForAnonymous() throws Exception {
         ContextPostRequestDto assignment = new ContextPostRequestDto();
         assignment.setCollectionId(collectionId);

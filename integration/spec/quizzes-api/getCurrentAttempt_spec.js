@@ -121,14 +121,19 @@ QuizzesCommon.startTest('Get Current Attempts for two assignees, 1 complete, 1 n
                                     .inspectRequest()
                                     .expectStatus(200)
                                     .expectJSONLength('profileAttempts', 2)
-                                    .expectJSON('profileAttempts', [{
-                                        'profileId': assignee1ProfileId,
-                                        'isComplete': true
-                                    },
-                                        {
-                                            'profileId': assignee2ProfileId,
-                                            'isComplete': false
-                                        }])
+                                    .expectJSON({
+                                        'profileAttempts': function (attempts) {
+                                            expect(attempts.length).toBe(2);
+                                            expect(attempts).toContain(objectContaining({
+                                                'profileId': assignee1ProfileId,
+                                                'isComplete': true
+                                            }));
+                                            expect(attempts).toContain(objectContaining({
+                                                'profileId': assignee2ProfileId,
+                                                'isComplete': false
+                                            }));
+                                        }
+                                    })
                                     .inspectJSON()
                                     .toss();
 
