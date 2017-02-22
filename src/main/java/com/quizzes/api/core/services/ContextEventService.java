@@ -352,7 +352,7 @@ public class ContextEventService {
     /**
      * Compares user and correct answers, including the answer order
      * Values are trimmed and case is ignored
-     * <p>
+     * 
      * Works for text_entry
      *
      * @param userAnswers    Answers provided by the user
@@ -372,7 +372,7 @@ public class ContextEventService {
 
     /**
      * Compares user and correct answers, including the answer order
-     * <p>
+     *
      * Works for drag_and_drop
      *
      * @param userAnswers    Answers provided by the user
@@ -392,7 +392,7 @@ public class ContextEventService {
 
     /**
      * Compares user and correct answers, order is not important
-     * <p>
+     *
      * Works for multiple_choice, multiple_choice_image, multiple_choice_text, hot_text_word and
      * hot_text_sentence
      *
