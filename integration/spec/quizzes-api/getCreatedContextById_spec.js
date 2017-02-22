@@ -18,6 +18,19 @@ QuizzesCommon.startTest('Get a context with incorrect context id', function () {
     });
 });
 
+QuizzesCommon.startTest('Get a created context for anonymous', function () {
+    let collection = Config.getCollection('TestCollection01');
+    let classId = Config.getClass('TestClass01').id;
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
+            QuizzesCommon.getAnonymousToken(function (anonymousToken) {
+                QuizzesCommon.verifyHttpError('Get a context with incorrect context id',
+                    `/v1/contexts/${contextResponse.id}/created`, HttpErrorCodes.FORBIDDEN, anonymousToken);
+            });
+        });
+    });
+});
+
 QuizzesCommon.startTest('Get a created context', function () {
     let collection = Config.getCollection('TestCollection01');
     let classId = Config.getClass('TestClass01').id;

@@ -110,6 +110,7 @@ public class ContextController {
                     "The fields `profileId` and `hasStarted` will not be present on the response body.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 403, message = "Anonymous not allowed to run this service"),
             @ApiResponse(code = 404, message = "Content Not Found")
     })
     @RequestMapping(path = "/contexts/{contextId}/created", method = RequestMethod.GET,
@@ -118,11 +119,12 @@ public class ContextController {
             @ApiParam(name = "ContextID", required = true,
                     value = "The ID of the context you want to get from the set of created contexts.")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        return new ResponseEntity<>(
-                entityMapper.mapContextEntityToContextGetResponseDto(
-                        contextService.findCreatedContext(contextId, profileId))
-                , HttpStatus.OK);
+            @RequestAttribute(value = "profileId") String profileId) throws Exception {
+
+        QuizzesUtils.rejectAnonymous(profileId);
+        ContextEntity context = contextService.findCreatedContext(contextId, UUID.fromString(profileId));
+        return new ResponseEntity<>(entityMapper.mapContextEntityToContextGetResponseDto(context),
+                HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Assigned Contexts",

@@ -304,8 +304,10 @@ var quizzesCommon = {
     },
 
     verifyHttpError: function (description, url, expectedStatus, authToken) {
-        this.doGet(description, url, expectedStatus, authToken, function(json) {
-            expect(json.message).toBeType(String);
+        this.doGet(description, url, expectedStatus, authToken, function(error) {
+            expect(typeof error.message).toBe('string');
+            expect(typeof error.status).toBe('number');
+            expect(typeof error.exception).toBe('string');
         });
     },
 
@@ -319,6 +321,8 @@ var quizzesCommon = {
 
     httpErrorCodes: {
         BAD_REQUEST: 400,
+        UNAUTHORIZED: 401,
+        FORBIDDEN: 403,
         NOT_FOUND: 404
     }
 };
