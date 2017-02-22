@@ -100,3 +100,13 @@ QuizzesCommon.startTest('Create context with anonymous user should throw error',
             '/v1/contexts', context, HttpErrorCodes.BAD_REQUEST, authToken);
     });
 });
+
+QuizzesCommon.startTest('Create context with collection for preview', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
+            expect(contextResponse).not.toBe(null);
+            expect(contextResponse.id).toBeDefined();
+        });
+    });
+});

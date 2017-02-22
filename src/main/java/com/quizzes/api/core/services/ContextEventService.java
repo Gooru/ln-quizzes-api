@@ -65,7 +65,7 @@ public class ContextEventService {
 
         if (entity.getCurrentContextProfileId() == null) {
             return createCurrentContextProfile(entity);
-        } else if(entity.getIsComplete()) {
+        } else if (entity.getIsComplete()) {
             return createContextProfile(entity);
         }
 
@@ -156,7 +156,10 @@ public class ContextEventService {
 
         doFinishContextEventTransaction(contextProfile, contextProfileEventsToCreate);
 
-        sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
+        //If entity does not have class is an anonymous user or it's in preview mode
+        if (context.getClassId() != null) {
+            sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
+        }
     }
 
     @Transactional
@@ -189,7 +192,10 @@ public class ContextEventService {
 
     private StartContextEventResponseDto processStartContext(ContextProfileEntity entity,
                                                              List<ContextProfileEvent> contextProfileEvents) {
-        sendStartEventMessage(entity.getContextId(), entity.getProfileId(), entity.getCurrentResourceId(), true);
+        //If entity does not have class is an anonymous user or it's in preview mode
+        if (entity.getClassId() != null) {
+            sendStartEventMessage(entity.getContextId(), entity.getProfileId(), entity.getCurrentResourceId(), true);
+        }
         return prepareStartContextEventResponse(entity.getContextId(), entity.getCurrentResourceId(),
                 entity.getCollectionId(), contextProfileEvents);
     }
@@ -203,8 +209,12 @@ public class ContextEventService {
     private StartContextEventResponseDto resumeStartContextEvent(ContextProfileEntity contextProfile) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getContextProfileId());
-        sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(),
-                contextProfile.getCurrentResourceId(), false);
+
+        //If entity does not have class is an anonymous user or it's in preview mode
+        if (contextProfile.getClassId() != null) {
+            sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(),
+                    contextProfile.getCurrentResourceId(), false);
+        }
         return prepareStartContextEventResponse(contextProfile.getContextId(), contextProfile.getCurrentResourceId(),
                 contextProfile.getCollectionId(), contextProfileEvents);
     }
@@ -342,7 +352,7 @@ public class ContextEventService {
     /**
      * Compares user and correct answers, including the answer order
      * Values are trimmed and case is ignored
-     *
+     * 
      * Works for text_entry
      *
      * @param userAnswers    Answers provided by the user
