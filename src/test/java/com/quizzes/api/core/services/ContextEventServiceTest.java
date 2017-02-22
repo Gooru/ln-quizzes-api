@@ -98,6 +98,7 @@ public class ContextEventServiceTest {
     private UUID collectionId;
     private String token;
     private UUID contextId;
+    private UUID classId;
     private UUID resourceId;
     private UUID previousResourceId;
     private UUID contextProfileId;
@@ -110,6 +111,7 @@ public class ContextEventServiceTest {
         collectionId = UUID.randomUUID();
         token = UUID.randomUUID().toString();
         contextId = UUID.randomUUID();
+        classId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
         previousResourceId = UUID.randomUUID();
         contextProfileId = UUID.randomUUID();
@@ -270,6 +272,30 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void processStartContextForAnonymousOrPreview() throws Exception {
+        ContextProfileEntity entity = createContextProfileEntity();
+        when(entity.getClassId()).thenReturn(null);
+        when(entity.getCurrentResourceId()).thenReturn(resourceId);
+
+        doNothing().when(contextEventService, "sendStartEventMessage",
+                any(UUID.class), any(UUID.class), any(UUID.class), any(Boolean.class));
+        doReturn(createStartContextEventResponseDto()).when(contextEventService, "prepareStartContextEventResponse",
+                eq(contextId), eq(resourceId), eq(collectionId), any(ArrayList.class));
+
+        StartContextEventResponseDto result =
+                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>());
+
+        verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", eq(contextId),
+                eq(resourceId), eq(collectionId), any(ArrayList.class));
+        verifyPrivate(contextEventService, times(0)).invoke("sendStartEventMessage",
+                any(UUID.class), any(UUID.class), any(UUID.class), any(Boolean.class));
+        assertEquals("Wrong context ID", contextId, result.getContextId());
+        assertNull("CurrentResource is not null", result.getCurrentResourceId());
+        assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
+        assertEquals("Wrong number of events", 0, result.getEvents().size());
+    }
+
+    @Test
     public void createCurrentContextProfileObject() throws Exception {
         CurrentContextProfile result = WhiteboxImpl.invokeMethod(contextEventService,
                 "createCurrentContextProfileObject", contextId, profileId, contextProfileId);
@@ -362,6 +388,29 @@ public class ContextEventServiceTest {
 
         verifyPrivate(contextEventService, times(1)).invoke("sendStartEventMessage", any(UUID.class), any(UUID.class),
                 any(UUID.class), eq(false));
+        verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", any(UUID.class),
+                any(UUID.class), any(UUID.class), anyList());
+        assertEquals("Wrong context ID", contextId, result.getContextId());
+        assertNull("CurrentResource is not null", result.getCurrentResourceId());
+        assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
+        assertEquals("Wrong number of events", 0, result.getEvents().size());
+    }
+
+    @Test
+    public void resumeStartContextEventForAnonymousOrPreview() throws Exception {
+        ContextProfileEntity contextProfile = createContextProfileEntity();
+        when(contextProfile.getClassId()).thenReturn(null);
+
+        doNothing().when(contextEventService, "sendStartEventMessage", any(UUID.class), any(UUID.class),
+                any(UUID.class), anyBoolean());
+        doReturn(createStartContextEventResponseDto()).when(contextEventService, "prepareStartContextEventResponse",
+                any(UUID.class), any(UUID.class), any(UUID.class), anyList());
+
+        StartContextEventResponseDto result =
+                WhiteboxImpl.invokeMethod(contextEventService, "resumeStartContextEvent", contextProfile);
+
+        verifyPrivate(contextEventService, times(0)).invoke("sendStartEventMessage", any(UUID.class), any(UUID.class),
+                any(UUID.class), anyBoolean());
         verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", any(UUID.class),
                 any(UUID.class), any(UUID.class), anyList());
         assertEquals("Wrong context ID", contextId, result.getContextId());
@@ -808,6 +857,46 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void finishContextEventForAnonymousOrPreview() throws Exception {
+        CurrentContextProfile currentContextProfile = createCurrentContextProfile();
+        Context context = createContext();
+        context.setClassId(null);
+        ContextProfile contextProfile = createContextProfile();
+
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        contextProfileEvents.add(contextProfileEvent);
+        EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
+
+        List<ResourceContentDto> resources = new ArrayList<>();
+
+        when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
+        doReturn(resources).when(contextEventService, "getCollectionResources",
+                collectionId, true);
+        doReturn(resources).when(contextEventService, "getResourcesToCreate", contextProfileEvents, resources);
+        doReturn(contextProfileEvents).when(contextEventService, "createSkippedContextProfileEvents",
+                contextProfileId, resources);
+        doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, true);
+        doNothing().when(contextEventService, "doFinishContextEventTransaction",
+                contextProfile, contextProfileEvents);
+        doNothing().when(contextEventService, "sendFinishContextEventMessage",
+                any(), any(), any());
+
+        WhiteboxImpl.invokeMethod(contextEventService, "finishContextEvent", context, contextProfile);
+
+        verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
+        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verifyPrivate(contextEventService, times(1)).invoke("getResourcesToCreate", contextProfileEvents, resources);
+        verifyPrivate(contextEventService, times(1)).invoke("createSkippedContextProfileEvents",
+                contextProfileId, resources);
+        verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, true);
+        verifyPrivate(contextEventService, times(1)).invoke("doFinishContextEventTransaction",
+                contextProfile, contextProfileEvents);
+        verifyPrivate(contextEventService, times(0)).invoke("sendFinishContextEventMessage",
+                any(), any(), any());
+    }
+
+    @Test
     public void createSkippedContextProfileEvents() throws Exception {
         ResourceDto resource1 = new ResourceDto();
         resource1.setId(resourceId);
@@ -1197,6 +1286,7 @@ public class ContextEventServiceTest {
     private Context createContext() {
         Context context = new Context();
         context.setId(contextId);
+        context.setClassId(classId);
         context.setCollectionId(collectionId);
         context.setIsCollection(true);
         context.setContextData("{}");
@@ -1317,6 +1407,7 @@ public class ContextEventServiceTest {
         when(entity.getCollectionId()).thenReturn(collectionId);
         when(entity.getProfileId()).thenReturn(profileId);
         when(entity.getContextProfileId()).thenReturn(contextProfileId);
+        when(entity.getClassId()).thenReturn(classId);
 
         return entity;
     }
