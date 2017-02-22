@@ -80,3 +80,17 @@ QuizzesCommon.startTest('Start and finish context for anonymous', function () {
         });
     });
 });
+
+QuizzesCommon.startTest('Start and finish context for preview', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+                QuizzesCommon.startContext(contextId, authToken, function () {
+                    QuizzesCommon.finishContext(contextId, authToken, function () {
+
+                    });
+                });
+        });
+    });
+});
