@@ -2,7 +2,7 @@ const Config = require('./quizzesTestConfiguration.js');
 const QuizzesCommon = require('./quizzesCommon.js');
 const QuizzesApiUrl = Config.quizzesApiUrl;
 const Frisby = require('frisby');
-/*
+
 QuizzesCommon.startTest('OnResource on started context', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
@@ -112,7 +112,7 @@ QuizzesCommon.startTest('OnResource on started context', function () {
         });
     });
 });
-*/
+
 QuizzesCommon.startTest('OnResource with anonymous user', function () {
     QuizzesCommon.getAnonymousToken(function (authToken) {
         let collection = Config.getCollection('TestCollection01');
@@ -139,7 +139,7 @@ QuizzesCommon.startTest('OnResource with anonymous user', function () {
         });
     });
 });
-/*
+
 QuizzesCommon.startTest('OnResource on a context not started', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
@@ -199,4 +199,3 @@ QuizzesCommon.startTest('OnResource on started and finished context', function (
         });
     });
 });
-*/
