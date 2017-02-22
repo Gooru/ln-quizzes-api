@@ -116,7 +116,7 @@ QuizzesCommon.startTest('OnResource on started context', function () {
 QuizzesCommon.startTest('OnResource with anonymous user', function () {
     QuizzesCommon.getAnonymousToken(function (authToken) {
         let collection = Config.getCollection('TestCollection01');
-        QuizzesCommon.createContext(collection.id, "", true, {}, authToken, function (contextResponse) {
+        QuizzesCommon.createContext(collection.id, null, true, {}, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.startContext(contextId, authToken, function () {
                 let previousResource = collection.resources[0];
