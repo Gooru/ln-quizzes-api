@@ -2,7 +2,7 @@ const Config = require('./quizzesTestConfiguration.js');
 const QuizzesCommon = require('./quizzesCommon.js');
 const QuizzesApiUrl = Config.quizzesApiUrl;
 const Frisby = require('frisby');
-
+/*
 QuizzesCommon.startTest('OnResource on started context', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
@@ -112,7 +112,34 @@ QuizzesCommon.startTest('OnResource on started context', function () {
         });
     });
 });
+*/
+QuizzesCommon.startTest('OnResource with anonymous user', function () {
+    QuizzesCommon.getAnonymousToken(function (authToken) {
+        let collection = Config.getCollection('TestCollection01');
+        QuizzesCommon.createContext(collection.id, "", true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            QuizzesCommon.startContext(contextId, authToken, function () {
+                let previousResource = collection.resources[0];
+                let resourceId = collection.resources[1].id;
+                Frisby.create('onResource call with anonymous user')
+                    .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
+                        {"previousResource": {
+                            "answer": previousResource.correctAnswer,
+                            "reaction": 2,
+                            "resourceId": previousResource.id,
+                            "timeSpent": 1500
+                        }
+                        }, {json: true})
+                    .addHeader('Authorization', `Token ${authToken}`)
+                    .inspectRequest()
+                    .expectStatus(204)
+                    .toss();
 
+            });
+        });
+    });
+});
+/*
 QuizzesCommon.startTest('OnResource on a context not started', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
@@ -172,3 +199,4 @@ QuizzesCommon.startTest('OnResource on started and finished context', function (
         });
     });
 });
+*/

@@ -65,8 +65,7 @@ public class ContextEventController {
                                                 @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true, name = "Body")
                                                 @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
                                                 @RequestAttribute(value = "profileId") String profileId) {
-        UUID id = QuizzesUtils.resolveProfileId(profileId);
-        contextEventService.processOnResourceEvent(contextId, id, resourceId, onResourceEventPostRequestDto);
+        contextEventService.processOnResourceEvent(contextId, QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
