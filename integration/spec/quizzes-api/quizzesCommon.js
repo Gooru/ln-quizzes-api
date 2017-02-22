@@ -150,11 +150,10 @@ var quizzesCommon = {
             .toss()
     },
 
-    onResourceEvent: function (contextId, assigneeProfileId, resourceId, previousResource, afterJsonFunction) {
+    onResourceEvent: function (contextId, resourceId, previousResource, authToken, afterJsonFunction) {
         Frisby.create('On Resource Event')
             .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, previousResource, {json: true})
-            .addHeader('profile-id', assigneeProfileId)
-            .addHeader('lms-id', 'quizzes')
+            .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
             .expectStatus(204)
             .after(function () {
