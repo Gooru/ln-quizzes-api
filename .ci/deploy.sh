@@ -42,7 +42,7 @@ function wait_for_deployment() {
         return 1
       fi
 
-      sleep 1m
+      sleep 30
     else
       error "Fail to assert deployment status after $n attempts."
       return 1
