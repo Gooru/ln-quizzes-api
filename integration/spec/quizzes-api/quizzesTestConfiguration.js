@@ -11,7 +11,28 @@ var testClasses = {
 };
 
 var testCollections = {
-    TestCollection01: { id: "ca13e08c-6e2d-4c10-93cf-7b8111f3b705", owner: "Teacher01" }
+    TestCollection01: {
+        id: "ca13e08c-6e2d-4c10-93cf-7b8111f3b705",
+        owner: "Teacher01",
+        resources: [
+            {
+                id: "6025d1ec-ef23-4fd9-a8d7-6fa95ef96b84",
+                correctAnswer: [
+                    {
+                        "value": "VHJ1ZQ=="
+                    }
+                ]
+            },
+            {
+                id: "faac0bc8-57f8-475c-9f90-804cabd53658",
+                correctAnswer: [
+                    {
+                        "value": "The big bad wolf blew down the house.,47"
+                    }
+                ]
+            },
+        ]
+    }
 };
 
 var testAssessments = {

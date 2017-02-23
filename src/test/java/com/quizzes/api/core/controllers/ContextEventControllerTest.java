@@ -198,7 +198,15 @@ public class ContextEventControllerTest {
     public void addEvent() throws Exception {
         OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
         ResponseEntity<?> result = controller.onResourceEvent(resourceId, contextId,
-                body, profileId);
+                body, profileId.toString());
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
+        assertNull("Body is not null", result.getBody());
+
+        //AddEvent using Anonymous user
+        result = controller.onResourceEvent(resourceId, contextId,
+                body, anonymousId.toString());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());

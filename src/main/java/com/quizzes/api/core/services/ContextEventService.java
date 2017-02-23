@@ -13,6 +13,7 @@ import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
@@ -76,6 +77,11 @@ public class ContextEventService {
                                        OnResourceEventPostRequestDto body) {
         ContextProfileEntity context =
                 currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
+
+        if (context.getCurrentContextProfileId() == null || (context.getCurrentContextProfileId() != null && context.getIsComplete())) {
+            throw new InvalidRequestException("Context " + contextId + " not started on resource " + resourceId);
+        }
+
         PostRequestResourceDto resourceDto = getPreviousResource(body);
 
         List<ResourceDto> collectionResources =
