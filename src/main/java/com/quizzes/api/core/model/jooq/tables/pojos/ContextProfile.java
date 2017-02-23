@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile implements java.io.Serializable {
 
-	private static final long serialVersionUID = 1126484461;
+	private static final long serialVersionUID = 816518205;
 
 	private java.util.UUID     id;
 	private java.util.UUID     contextId;
@@ -17,6 +17,7 @@ public class ContextProfile implements java.io.Serializable {
 	private java.util.UUID     currentResourceId;
 	private java.lang.Boolean  isComplete;
 	private java.lang.String   eventSummaryData;
+	private java.lang.String   taxonomySumaryData;
 	private java.sql.Timestamp createdAt;
 	private java.sql.Timestamp updatedAt;
 
@@ -29,6 +30,7 @@ public class ContextProfile implements java.io.Serializable {
 		java.util.UUID     currentResourceId,
 		java.lang.Boolean  isComplete,
 		java.lang.String   eventSummaryData,
+		java.lang.String   taxonomySumaryData,
 		java.sql.Timestamp createdAt,
 		java.sql.Timestamp updatedAt
 	) {
@@ -38,6 +40,7 @@ public class ContextProfile implements java.io.Serializable {
 		this.currentResourceId = currentResourceId;
 		this.isComplete = isComplete;
 		this.eventSummaryData = eventSummaryData;
+		this.taxonomySumaryData = taxonomySumaryData;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
@@ -88,6 +91,14 @@ public class ContextProfile implements java.io.Serializable {
 
 	public void setEventSummaryData(java.lang.String eventSummaryData) {
 		this.eventSummaryData = eventSummaryData;
+	}
+
+	public java.lang.String getTaxonomySumaryData() {
+		return this.taxonomySumaryData;
+	}
+
+	public void setTaxonomySumaryData(java.lang.String taxonomySumaryData) {
+		this.taxonomySumaryData = taxonomySumaryData;
 	}
 
 	public java.sql.Timestamp getCreatedAt() {

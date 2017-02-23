@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ContextProfile extends org.jooq.impl.TableImpl<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord> {
 
-	private static final long serialVersionUID = 1449192874;
+	private static final long serialVersionUID = 108758228;
 
 	/**
 	 * The singleton instance of <code>public.context_profile</code>
@@ -53,6 +53,11 @@ public class ContextProfile extends org.jooq.impl.TableImpl<com.quizzes.api.core
 	 * The column <code>public.context_profile.event_summary_data</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.lang.String> EVENT_SUMMARY_DATA = createField("event_summary_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.core.model.binding.PostgresJsonbStringBinding());
+
+	/**
+	 * The column <code>public.context_profile.taxonomy_sumary_data</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextProfileRecord, java.lang.String> TAXONOMY_SUMARY_DATA = createField("taxonomy_sumary_data", org.jooq.impl.DefaultDataType.getDefaultDataType("jsonb"), this, "", new com.quizzes.api.core.model.binding.PostgresJsonbStringBinding());
 
 	/**
 	 * The column <code>public.context_profile.created_at</code>.
