@@ -3,6 +3,7 @@ package com.quizzes.api.core.dtos.content;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class CollectionContentDto {
@@ -17,6 +18,10 @@ public class CollectionContentDto {
     private Boolean isCollection;
 
     private List<ResourceContentDto> content;
+
+    private Map<String, Object> setting;
+
+    private Map<String, Object> taxonomy;
 
     public CollectionContentDto() {
     }
@@ -59,5 +64,21 @@ public class CollectionContentDto {
 
     public void setContent(List<ResourceContentDto> content) {
         this.content = content;
+    }
+
+    public Map<String, Object> getSetting() {
+        return setting;
+    }
+
+    public void setSetting(Map<String, Object> setting) {
+        this.setting = setting;
+    }
+
+    public Map<String, Object> getTaxonomy() {
+        return taxonomy;
+    }
+
+    public void setTaxonomy(Map<String, Object> taxonomy) {
+        this.taxonomy = taxonomy;
     }
 }

@@ -2,6 +2,7 @@ package com.quizzes.api.core.dtos;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class ResourceMetadataDto implements Serializable {
 
@@ -11,6 +12,7 @@ public class ResourceMetadataDto implements Serializable {
     private String body;
     private List<AnswerDto> correctAnswer;
     private InteractionDto interaction;
+    private Map<String, Object> taxonomy;
 
     public ResourceMetadataDto() {
     }
@@ -61,6 +63,14 @@ public class ResourceMetadataDto implements Serializable {
 
     public void setCorrectAnswer(List<AnswerDto> correctAnswer) {
         this.correctAnswer = correctAnswer;
+    }
+
+    public Map<String, Object> getTaxonomy() {
+        return taxonomy;
+    }
+
+    public void setTaxonomy(Map<String, Object> taxonomy) {
+        this.taxonomy = taxonomy;
     }
 
 }
