@@ -4,7 +4,7 @@ set -e
 
 source .ci/common.sh
 
-GIT_BRANCH=$(echo ${bamboo_repository_branch_name} | sed 's/\//-/')
+GIT_BRANCH=$(echo ${bamboo_planRepository_branchName} | sed 's/\//-/')
 VERSION=$(cat gradle.properties | grep version | cut -d "=" -f2)
 GIT_COMMIT_HASH="${bamboo_planRepository_revision}"
 
