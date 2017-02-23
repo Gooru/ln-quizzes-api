@@ -1,15 +1,5 @@
 #!/bin/bash
 
-# This script is not going to be run from the source code since Bamboo deployments don't contain the source code only artifacts.
-# But it would be the reference script to be copy&paste into Bamboo.
-
-#Ensure that we run in bash not sh
-if [ "$(ps -p "$$" -o comm=)" != "bash" ]; then
-  # Taken from http://unix-linux.questionfor.info/q_unix-linux-programming_85038.html
-  bash "$0" "$@"
-  exit "$?"
-fi
-
 set -e
 
 RED="\e[31m"
