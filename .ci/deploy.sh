@@ -109,7 +109,7 @@ info "Rebooting ElasiCache cluster \"${CACHE_CLUSTER_ID}\""
 
 aws elasticache reboot-cache-cluster \
   --cache-cluster-id ${CACHE_CLUSTER_ID} \
-  --cache-node-ids-to-reboot ${CACHE_CLUSTER_NODE_IDS}
+  --cache-node-ids-to-reboot ${CACHE_CLUSTER_NODE_IDS} > /dev/null
 
 wait_for_cache_cluster ${CACHE_CLUSTER_ID}
 
