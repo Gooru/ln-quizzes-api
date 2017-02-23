@@ -3,6 +3,7 @@ package com.quizzes.api.core.dtos.content;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class ResourceContentDto {
@@ -27,6 +28,7 @@ public class ResourceContentDto {
     @SerializedName("answer")
     private List<AnswerContentDto> answers;
 
+    private Map<String, Object> taxonomy;
 
     public ResourceContentDto() {
     }
@@ -93,5 +95,13 @@ public class ResourceContentDto {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Map<String, Object> getTaxonomy() {
+        return taxonomy;
+    }
+
+    public void setTaxonomy(Map<String, Object> taxonomy) {
+        this.taxonomy = taxonomy;
     }
 }

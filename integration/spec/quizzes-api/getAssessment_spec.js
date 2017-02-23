@@ -15,11 +15,13 @@ QuizzesCommon.startTest('Get not existing assessment', function () {
 QuizzesCommon.startTest('Get assessment endpoint', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let assessmentId = Config.getAssessment('TestAssessment01').id;
-        QuizzesCommon.getAssessmentById(assessmentId, authToken, function(json) {
-            expect(json.id).toEqual(assessmentId);
-            expect(json.metadata.title).toEqual('Assessment Test # 1');
-            expect(json.isCollection).toEqual(false);
-            expect(json.resources.length).toEqual(9);
+        QuizzesCommon.getAssessmentById(assessmentId, authToken, function(assessment) {
+            expect(assessment.id).toEqual(assessmentId);
+            expect(assessment.metadata.title).toEqual('Assessment Test # 1');
+            expect(assessment.metadata.setting).toBeDefined();
+            expect(assessment.metadata.taxonomy).toBeDefined();
+            expect(assessment.isCollection).toEqual(false);
+            expect(assessment.resources.length).toEqual(9);
         });
     });
 });

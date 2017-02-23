@@ -27,7 +27,9 @@ import org.powermock.reflect.internal.WhiteboxImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -70,6 +72,8 @@ public class CollectionServiceTest {
     private String token;
     private String url;
     private String imageResource;
+    private Map<String, Object> setting;
+    private Map<String, Object> taxonomy;
 
     @Before
     public void before() throws Exception {
@@ -84,6 +88,11 @@ public class CollectionServiceTest {
         token = "token-id";
         url = "www.url.com";
         imageResource = "www.image.com";
+        setting = new HashMap<>();
+        setting.put("key", "value");
+        taxonomy = new HashMap<>();
+        taxonomy.put("A", new Object());
+
     }
 
     @Test
@@ -105,6 +114,8 @@ public class CollectionServiceTest {
 
         assertEquals("Wrong assessment ID", assessmentId.toString(), result.getId());
         assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
+        assertNotNull("Setting is null", result.getMetadata().getSetting());
+        assertNotNull("Taxonomy is null", result.getMetadata().getTaxonomy());
         assertEquals("Wrong number of resources", 1, result.getResources().size());
 
         ResourceDto resourceResult = result.getResources().get(0);
@@ -118,6 +129,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong body text", questionTitle, metadataResource.getBody());
         assertEquals("Wrong number of correct answers", 1, metadataResource.getCorrectAnswer().size());
         assertNull("Url is not null", metadataResource.getUrl());
+        assertNotNull("Taxonomy is null", metadataResource.getTaxonomy());
 
         InteractionDto interactionResult = metadataResource.getInteraction();
         assertEquals("Wrong number of maxChoices", 0, interactionResult.getMaxChoices());
@@ -145,6 +157,8 @@ public class CollectionServiceTest {
 
         assertEquals("Wrong assessment ID", collectionId.toString(), result.getId());
         assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
+        assertNotNull("Setting is null", result.getMetadata().getSetting());
+        assertNotNull("Taxonomy is null", result.getMetadata().getTaxonomy());
         assertEquals("Wrong number of resources", 1, result.getResources().size());
 
         ResourceDto resourceResult = result.getResources().get(0);
@@ -159,6 +173,7 @@ public class CollectionServiceTest {
         assertNull("Body is not null", metadataResource.getBody());
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
         assertNull("Interaction is not null", metadataResource.getInteraction());
+        assertNotNull("Taxonomy is not null", metadataResource.getTaxonomy());
     }
 
     @Test
@@ -166,6 +181,8 @@ public class CollectionServiceTest {
         AssessmentContentDto assessmentContentDto = new AssessmentContentDto();
         assessmentContentDto.setId(assessmentId.toString());
         assessmentContentDto.setTitle(collectionTitle);
+        assessmentContentDto.setSetting(setting);
+        assessmentContentDto.setTaxonomy(taxonomy);
         assessmentContentDto.setQuestions(Arrays.asList(createQuestionContentDto()));
 
         doReturn(Arrays.asList(createResourceDto(resourceId, false, 1, createResourceMetadataDtoForQuestion())))
@@ -179,6 +196,8 @@ public class CollectionServiceTest {
 
         assertEquals("Wrong assessment ID", assessmentId.toString(), result.getId());
         assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
+        assertEquals("Wrong assessment setting", setting, result.getMetadata().getSetting());
+        assertEquals("Wrong assessment taxonomy", taxonomy, result.getMetadata().getTaxonomy());
         assertEquals("Wrong number of resources", 1, result.getResources().size());
 
         ResourceDto resourceResult = result.getResources().get(0);
@@ -192,6 +211,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong body text", questionTitle, metadataResource.getBody());
         assertEquals("Wrong number of correct answers", 1, metadataResource.getCorrectAnswer().size());
         assertNull("Url is not null", metadataResource.getUrl());
+        assertEquals("Wrong assessment taxonomy", taxonomy, metadataResource.getTaxonomy());
 
         InteractionDto interactionResult = metadataResource.getInteraction();
         assertEquals("Wrong number of maxChoices", 0, interactionResult.getMaxChoices());
@@ -205,6 +225,8 @@ public class CollectionServiceTest {
         CollectionContentDto collectionContentDto = new CollectionContentDto();
         collectionContentDto.setId(collectionId.toString());
         collectionContentDto.setTitle(collectionTitle);
+        collectionContentDto.setTaxonomy(taxonomy);
+        collectionContentDto.setSetting(setting);
         collectionContentDto.setContent(Arrays.asList(createResourceContentDto()));
 
         doReturn(Arrays.asList(createResourceDto(resourceId, false, 1, createResourceMetadataDtoForResource())))
@@ -216,12 +238,14 @@ public class CollectionServiceTest {
 
         verifyPrivate(collectionService, times(1)).invoke("mapResources", collectionContentDto.getContent());
 
-        assertEquals("Wrong assessment ID", collectionId.toString(), result.getId());
-        assertEquals("Wrong assessment title", collectionTitle, result.getMetadata().getTitle());
+        assertEquals("Wrong collection ID", collectionId.toString(), result.getId());
+        assertEquals("Wrong collection title", collectionTitle, result.getMetadata().getTitle());
+        assertEquals("Wrong collection setting", setting, result.getMetadata().getSetting());
+        assertEquals("Wrong collection taxonomy", taxonomy, result.getMetadata().getTaxonomy());
         assertEquals("Wrong number of resources", 1, result.getResources().size());
 
         ResourceDto resourceResult = result.getResources().get(0);
-        assertEquals("Wrong assessment ID", resourceId, resourceResult.getId());
+        assertEquals("Wrong collection ID", resourceId, resourceResult.getId());
         assertFalse("IsResource is true ", resourceResult.getIsResource());
         assertEquals("Wrong sequence", 1, resourceResult.getSequence());
 
@@ -232,6 +256,7 @@ public class CollectionServiceTest {
         assertNull("Body is not null", metadataResource.getBody());
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
         assertNull("Interaction is not null", metadataResource.getInteraction());
+        assertEquals("Wrong collection taxonomy", taxonomy, metadataResource.getTaxonomy());
     }
 
     @Test
@@ -262,6 +287,7 @@ public class CollectionServiceTest {
         assertNull("Body is not null", metadataResource.getBody());
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
         assertNull("Interaction is not null", metadataResource.getInteraction());
+        assertEquals("Wrong taxonomy", taxonomy, metadataResource.getTaxonomy());
     }
 
     @Test
@@ -297,6 +323,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong prompt value", "", interactionResult.getPrompt());
         assertFalse("Shuffle is true", interactionResult.getIsShuffle());
         assertEquals("Wrong number of choices", 2, interactionResult.getChoices().size());
+        assertEquals("Wrong taxonomy", taxonomy, metadataResult.getTaxonomy());
     }
 
     @Test
@@ -312,6 +339,7 @@ public class CollectionServiceTest {
         assertNull("Body is not null", result.getBody());
         assertNull("Answer is not null", result.getCorrectAnswer());
         assertNull("Interaction is not null", result.getInteraction());
+        assertEquals("Wrong taxonomy", taxonomy, result.getTaxonomy());
     }
 
     @Test
@@ -336,6 +364,7 @@ public class CollectionServiceTest {
         assertEquals("Wrong type", trueFalseQuestion, result.getType());
         assertEquals("Wrong type", 1, result.getCorrectAnswer().size());
         assertNull("Url is not null", result.getUrl());
+        assertEquals("Wrong taxonomy", taxonomy, result.getTaxonomy());
 
         InteractionDto interactionResult = result.getInteraction();
         assertEquals("Wrong number of maxChoices", 0, interactionResult.getMaxChoices());
@@ -551,6 +580,7 @@ public class CollectionServiceTest {
         resourceContentDto.setTitle(questionTitle);
         resourceContentDto.setSequence(1);
         resourceContentDto.setContentSubformat(trueFalseQuestion);
+        resourceContentDto.setTaxonomy(taxonomy);
 
         AnswerContentDto answer = createAnswerContentDto("1", "1", 1, "text");
         resourceContentDto.setAnswers(Arrays.asList(answer));
@@ -565,6 +595,7 @@ public class CollectionServiceTest {
         resourceContentDto.setContentSubformat(imageResource);
         resourceContentDto.setContentFormat("resource");
         resourceContentDto.setUrl(url);
+        resourceContentDto.setTaxonomy(taxonomy);
 
         return resourceContentDto;
     }
@@ -618,7 +649,7 @@ public class CollectionServiceTest {
     private CollectionDto createCollectionDtoForAssessment() {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(assessmentId.toString());
-        collectionDto.setMetadata(new CollectionMetadataDto(collectionTitle));
+        collectionDto.setMetadata(createCollectionMetadata());
 
         List<ResourceDto> resources = new ArrayList<>();
         resources.add(createResourceDto(resourceId, false, 1, createResourceMetadataDtoForQuestion()));
@@ -631,7 +662,7 @@ public class CollectionServiceTest {
     private CollectionDto createCollectionDtoForCollection() {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
-        collectionDto.setMetadata(new CollectionMetadataDto(collectionTitle));
+        collectionDto.setMetadata(createCollectionMetadata());
 
         List<ResourceDto> resources = new ArrayList<>();
         resources.add(createResourceDto(resourceId, true, 1, createResourceMetadataDtoForResource()));
@@ -641,6 +672,15 @@ public class CollectionServiceTest {
         return collectionDto;
     }
 
+    private CollectionMetadataDto createCollectionMetadata() {
+        CollectionMetadataDto collectionMetadataDto = new CollectionMetadataDto();
+        collectionMetadataDto.setTitle(collectionTitle);
+        collectionMetadataDto.setSetting(setting);
+        collectionMetadataDto.setTaxonomy(taxonomy);
+
+        return collectionMetadataDto;
+    }
+
     private ResourceMetadataDto createResourceMetadataDtoForQuestion() {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(questionTitle);
@@ -648,6 +688,7 @@ public class CollectionServiceTest {
         metadata.setCorrectAnswer(Arrays.asList(new AnswerDto("A")));
         metadata.setInteraction(createInteractionDto());
         metadata.setBody(questionTitle);
+        metadata.setTaxonomy(taxonomy);
         return metadata;
     }
 
@@ -656,6 +697,7 @@ public class CollectionServiceTest {
         metadata.setTitle(resourceTitle);
         metadata.setType(imageResource);
         metadata.setUrl(url);
+        metadata.setTaxonomy(taxonomy);
         return metadata;
     }
 

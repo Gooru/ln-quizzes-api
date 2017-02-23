@@ -30,6 +30,7 @@ QuizzesCommon.startTest('Get collection endpoint', function () {
         QuizzesCommon.getCollectionById(collectionId, authToken, function (collection) {
             expect(collection.id).toEqual(collectionId);
             expect(collection.metadata.title).toEqual('Questions types collection [DO NOT CHANGE]');
+            expect(collection.metadata.taxonomy).toBeDefined();
             expect(collection.isCollection).toEqual(true);
             expect(collection.resources.length).toEqual(10);
         });
