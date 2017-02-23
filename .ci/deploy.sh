@@ -74,8 +74,6 @@ if [ -z "$DEPLOYMENT_GROUP" ] || [ -z "$CODE_DEPLOY_APP_NAME" ]; then
   exit 1
 fi
 
-S3_ARTIFACT_KEY=$(cat s3.artifact)
-
 DEPLOYMENT_ID=$(aws deploy create-deployment \
   --application-name "${CODE_DEPLOY_APP_NAME}" \
   --s3-location "bucket=${S3_BUCKET},key=${ARTIFACT_S3_KEY},bundleType=tar" \
