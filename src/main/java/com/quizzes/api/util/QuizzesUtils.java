@@ -10,9 +10,7 @@ public class QuizzesUtils {
     private static final UUID ANONYMOUS_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     public static void rejectAnonymous(String profileId) {
-        if (profileId.equals(ANONYMOUS_PROFILE)){
-            throw new InvalidOwnerException("Anonymous not allowed to run this service");
-        }
+        rejectAnonymous(profileId, "Anonymous not allowed to run this service");
     }
 
     public static void rejectAnonymous(String profileId, String message) {

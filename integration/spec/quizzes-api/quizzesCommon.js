@@ -142,6 +142,20 @@ var quizzesCommon = {
             .toss()
     },
 
+    getCreatedContextById: function (contextId, authToken, expectedJson, afterJsonFunction) {
+        Frisby.create('Get created context information')
+            .get(QuizzesApiUrl + `/v1/contexts/${contextId}/created`)
+            .addHeader('Authorization', `Token ${authToken}`)
+            .inspectRequest()
+            .expectStatus(200)
+            .inspectJSON()
+            .expectJSON(expectedJson)
+            .afterJSON(function (context) {
+                afterJsonFunction(context);
+            })
+            .toss()
+    },
+
     getCollectionById: function (collectionId, authToken, afterJsonFunction) {
         this.getCollectionByIdAndType(collectionId, "collection", authToken, afterJsonFunction)
     },
@@ -289,8 +303,10 @@ var quizzesCommon = {
     },
 
     verifyHttpError: function (description, url, expectedStatus, authToken) {
-        this.doGet(description, url, expectedStatus, authToken, function(json) {
-            expect(json.message).toBeType(String);
+        this.doGet(description, url, expectedStatus, authToken, function(error) {
+            expect(typeof error.message).toBe('string');
+            expect(typeof error.status).toBe('number');
+            expect(typeof error.exception).toBe('string');
         });
     },
 
@@ -304,6 +320,8 @@ var quizzesCommon = {
 
     httpErrorCodes: {
         BAD_REQUEST: 400,
+        UNAUTHORIZED: 401,
+        FORBIDDEN: 403,
         NOT_FOUND: 404
     }
 };

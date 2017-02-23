@@ -10,9 +10,7 @@ QuizzesCommon.startTest('Start and finish context', function () {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
-                    QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
-
-                    });
+                    QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {});
                 });
             });
         });
@@ -73,9 +71,7 @@ QuizzesCommon.startTest('Start and finish context for anonymous', function () {
         QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.startContext(contextId, authToken, function () {
-                QuizzesCommon.finishContext(contextId, authToken, function () {
-
-                });
+                QuizzesCommon.finishContext(contextId, authToken, function () {});
             });
         });
     });
