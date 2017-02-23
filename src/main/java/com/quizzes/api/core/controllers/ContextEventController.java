@@ -45,8 +45,7 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @RequestAttribute(value = "profileId") String profileId) {
         return new ResponseEntity<>(contextEventService.processStartContextEvent(contextId,
-                QuizzesUtils.isAnonymous(profileId) ? QuizzesUtils.getAnonymousId() : UUID.fromString(profileId)),
-                HttpStatus.OK);
+                QuizzesUtils.resolveProfileId(profileId)), HttpStatus.OK);
     }
 
     @ApiOperation(value = "On resource event",
@@ -82,8 +81,7 @@ public class ContextEventController {
             @ApiParam(value = "ID of the context to have its attempt finished.", required = true, name = "ContextID")
             @PathVariable UUID contextId,
             @RequestAttribute(value = "profileId") String profileId) {
-        contextEventService.processFinishContextEvent(contextId,
-                QuizzesUtils.isAnonymous(profileId) ? QuizzesUtils.getAnonymousId() : UUID.fromString(profileId));
+        contextEventService.processFinishContextEvent(contextId,QuizzesUtils.resolveProfileId(profileId));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

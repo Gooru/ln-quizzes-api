@@ -79,6 +79,9 @@ QuizzesCommon.startTest('Get Attempts started and finished', function () {
                         testAttempts('Test context attempts with started context by assigneeId',
                             contextId, assigneeProfileId, 1, authToken);
 
+                        testAttempts('Test context attempts with started context by assigneeId and assignee Token',
+                            contextId, assigneeProfileId, 1, assigneeAuthToken);
+
                         Frisby.create('Test context attempts with finished context with assignee token (wrong owner)')
                         // With a wrong token this is a content not found error
                             .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}/profiles/${profileId}`)
