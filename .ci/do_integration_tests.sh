@@ -40,5 +40,5 @@ if [ "$EXIT_CODE" -eq 1 ]; then
 fi
 
 info "Stoping the application..."
-${HOME}/.local/bin/docker-compose stop
+silent docker-compose stop
 
