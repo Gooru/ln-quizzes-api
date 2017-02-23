@@ -74,6 +74,17 @@ if [ -z "$DEPLOYMENT_GROUP" ] || [ -z "$CODE_DEPLOY_APP_NAME" ]; then
   exit 1
 fi
 
+if [ -z "$CACHE_CLUSTER_ID" ] || [ -z "${CACHE_CLUSTER_NODE_IDS}" ]; then
+  error "No ElasiCache cluster id or node ids provided"
+  exit 1
+fi
+
+info "Rebooting ElasiCache cluster \"${CACHE_CLUSTER_ID}\""
+
+aws elasticache reboot-cache-cluster \
+  --cache-cluster-id ${CACHE_CLUSTER_ID} \
+  --cache-node-ids-to-reboot ${CACHE_CLUSTER_NODE_IDS}
+
 DEPLOYMENT_ID=$(aws deploy create-deployment \
   --application-name "${CODE_DEPLOY_APP_NAME}" \
   --s3-location "bucket=${S3_BUCKET},key=${ARTIFACT_S3_KEY},bundleType=tar" \
