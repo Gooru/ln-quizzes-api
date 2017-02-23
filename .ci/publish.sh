@@ -4,11 +4,9 @@ set -e
 
 source .ci/common.sh
 
-./gradlew clean build -x test
-
+GIT_BRANCH=$(echo ${bamboo_repository_branch_name} | sed 's/\//-/')
 VERSION=$(cat gradle.properties | grep version | cut -d "=" -f2)
-GIT_COMMIT_HASH=$(git rev-parse HEAD)
-GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD | sed 's/\//-/')
+GIT_COMMIT_HASH="${bamboo_planRepository_revision}"
 
 if [ -z "$S3_BUCKET" ]; then
   error "No S3 bucket specified."
@@ -34,8 +32,4 @@ info "Publishing version $FULL_ARTIFACT_VERSION to S3..."
 aws s3 cp quizzes-api-${FULL_ARTIFACT_VERSION}.tar.gz s3://${S3_BUCKET}/quizzes-api/${VERSION}/${GIT_BRANCH}/quizzes-api-${FULL_ARTIFACT_VERSION}.tar.gz
 
 info "Done publishing."
-
-info "Creating S3 artifact for Bamboo deployments..."
-
-echo "quizzes-api/${VERSION}/${GIT_BRANCH}/quizzes-api-${FULL_ARTIFACT_VERSION}.tar.gz" > s3.artifact
 

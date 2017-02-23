@@ -2,6 +2,9 @@
 
 source .ci/common.sh
 
+info "Login into Edify's docker registry..."
+silent docker login -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_PASSWORD edify-dkr.jfrog.io
+
 info "Installing virtualenv..."
 silent pip install --user -U virtualenv
 
