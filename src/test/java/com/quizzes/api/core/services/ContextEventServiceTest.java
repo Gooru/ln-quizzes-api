@@ -591,6 +591,76 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void processOnResourceEventExistingEventForAnonymousOrPreview() throws Exception {
+        ContextProfileEntity currentContextProfile = createContextProfileEntity();
+        when(currentContextProfile.getCurrentContextProfileId()).thenReturn(UUID.randomUUID());
+        when(currentContextProfile.getIsComplete()).thenReturn(false);
+        when(currentContextProfile.getIsCollection()).thenReturn(true);
+        when(currentContextProfile.getClassId()).thenReturn(null);
+
+        ResourceDto resource = createResourceDto();
+        ResourceDto previousResource = createResourceDto();
+        previousResource.setId(previousResourceId);
+
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(createAnswerDto("A"));
+
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, QuestionTypeEnum.TrueFalse.getLiteral());
+        previousResource.setMetadata(resourceMetadataDto);
+
+        EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
+
+        ContextProfile contextProfile = createContextProfile();
+        OnResourceEventPostRequestDto body = createOnResourceEventPostRequestDto();
+
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
+        List<ContextProfileEvent> contextProfileEvents = Arrays.asList(contextProfileEvent);
+        List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
+
+        when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
+        doReturn(body.getPreviousResource()).when(contextEventService, "getPreviousResource", body);
+        doReturn(collectionResources).when(contextEventService, "getCollectionResources", collectionId, true);
+        doReturn(resource).when(contextEventService, "findResourceInContext", collectionResources,
+                resourceId, contextId);
+        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionResources,
+                previousResourceId, contextId);
+        when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
+
+        doReturn(body.getPreviousResource()).when(contextEventService, "updateExistingResourceDto",
+                eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
+        doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
+        doReturn(contextProfile).when(contextEventService, "updateContextProfile", contextProfileId, resourceId,
+                gson.toJson(eventSummaryDataDto));
+        doNothing().when(contextEventService, "doOnResourceEventTransaction",
+                eq(contextProfile), any(ContextProfileEvent.class));
+        doNothing().when(contextEventService, "sendOnResourceEventMessage", any(), any(), any());
+
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+
+        verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
+                contextId, profileId);
+        verifyPrivate(contextEventService, times(1)).invoke("getPreviousResource", body);
+        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionResources,
+                resourceId, contextId);
+        verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionResources,
+                previousResourceId, contextId);
+
+        verifyPrivate(contextEventService, times(0)).invoke("createContextProfileEvent", any(), any());
+        verifyPrivate(contextEventService, times(0)).invoke("calculateScore", any(), any());
+
+        verifyPrivate(contextEventService, times(1)).invoke("updateExistingResourceDto",
+                eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
+        verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
+        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", contextProfileId, resourceId,
+                gson.toJson(eventSummaryDataDto));
+        verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
+                eq(contextProfile), any(ContextProfileEvent.class));
+        verifyPrivate(contextEventService, times(0)).invoke("sendOnResourceEventMessage", any(), any(), any());
+    }
+
+    @Test
     public void createContextProfileEventPrivateMethod() throws Exception {
         ContextProfileEvent result =
                 WhiteboxImpl.invokeMethod(contextEventService, "createContextProfileEvent", contextProfileId, resourceId);
