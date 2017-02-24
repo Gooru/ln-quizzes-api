@@ -124,6 +124,7 @@ dependencies {
     compile("io.springfox:springfox-swagger-ui:2.4.0")
     compile("com.google.code.simple-spring-memcached:spring-cache:3.6.0")
     compile("com.google.code.simple-spring-memcached:aws-elasticache-provider:3.6.0")
+    compileOnly('org.projectlombok:lombok:1.16.12')
 
     testCompile("junit:junit")
     testCompile("org.springframework:spring-test");

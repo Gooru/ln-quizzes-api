@@ -171,10 +171,18 @@ public class CollectionRestClient {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionContentDto.getId());
         collectionDto.setOwnerId(collectionContentDto.getOwnerId());
-        collectionDto.setMetadata(new CollectionMetadataDto(collectionContentDto.getTitle()));
+        collectionDto.setMetadata(mapCollectionMetadata(collectionContentDto));
         collectionDto.setResources(mapResources(collectionContentDto.getContent()));
         collectionDto.setIsCollection(collectionContentDto.getIsCollection());
         return collectionDto;
+    }
+
+    private CollectionMetadataDto mapCollectionMetadata(CollectionContentDto collectionContentDto) {
+        CollectionMetadataDto collectionMetadataDto = new CollectionMetadataDto();
+        collectionMetadataDto.setTitle(collectionContentDto.getTitle());
+        collectionMetadataDto.setSetting(collectionContentDto.getSetting());
+        collectionMetadataDto.setTaxonomy(collectionContentDto.getTaxonomy());
+        return collectionMetadataDto;
     }
 
     private CollectionDto createCollectionDtoFromAssessmentContentDto(AssessmentContentDto assessmentContentDto) {
@@ -217,6 +225,7 @@ public class CollectionRestClient {
         metadata.setTitle(resourceContentDto.getTitle());
         metadata.setType(resourceContentDto.getContentSubformat());
         metadata.setUrl(resourceContentDto.getUrl());
+        metadata.setTaxonomy(resourceContentDto.getTaxonomy());
         return metadata;
     }
 
@@ -229,6 +238,7 @@ public class CollectionRestClient {
             metadata.setInteraction(createInteraction(resourceContentDto));
         }
         metadata.setBody(getBody(resourceContentDto));
+        metadata.setTaxonomy(resourceContentDto.getTaxonomy());
         return metadata;
     }
 

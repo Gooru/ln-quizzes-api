@@ -1,21 +1,15 @@
 package com.quizzes.api.core.dtos;
 
-import java.io.Serializable;
+import lombok.Data;
 
+import java.io.Serializable;
+import java.util.Map;
+
+@Data
 public class CollectionMetadataDto implements Serializable {
 
     private String title;
-
-    public CollectionMetadataDto(String title) {
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    private Map<String, Object> setting;
+    private Map<String, Object> taxonomy;
 
 }
