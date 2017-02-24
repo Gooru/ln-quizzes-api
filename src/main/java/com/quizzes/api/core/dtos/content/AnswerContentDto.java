@@ -2,7 +2,9 @@ package com.quizzes.api.core.dtos.content;
 
 import com.google.gson.annotations.SerializedName;
 
-public class AnswerContentDto {
+import java.io.Serializable;
+
+public class AnswerContentDto implements Serializable {
 
     @SerializedName("answer_text")
     private String answerText;
