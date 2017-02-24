@@ -2,10 +2,11 @@ package com.quizzes.api.core.dtos.content;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-public class CollectionContentDto {
+public class CollectionContentDto implements Serializable {
 
     private String id;
 
@@ -60,4 +61,5 @@ public class CollectionContentDto {
     public void setContent(List<ResourceContentDto> content) {
         this.content = content;
     }
+
 }
