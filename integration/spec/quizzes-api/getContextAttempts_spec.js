@@ -79,6 +79,9 @@ QuizzesCommon.startTest('Get Attempts started and finished', function () {
                         testAttempts('Test context attempts with started context by assigneeId',
                             contextId, assigneeProfileId, 1, authToken);
 
+                        testAttempts('Test context attempts with started context by assigneeId and assignee Token',
+                            contextId, assigneeProfileId, 1, assigneeAuthToken);
+
                         Frisby.create('Test context attempts with finished context with assignee token (wrong owner)')
                         // With a wrong token this is a content not found error
                             .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}/profiles/${profileId}`)
@@ -162,15 +165,17 @@ QuizzesCommon.startTest('Get Attempts started and finished two times for the sam
                                 testAttempts('Test context attempts with finished context by assigneeId number 1',
                                     contextId, assigneeProfileId, 2, authToken);
 
-                                Frisby.create('Test context attempts with finished context with assignee 2 looking ' +
-                                    'for assignee 1 attempts token (wrong owner)')
-                                // With a wrong token this is a content not found error
-                                    .get(QuizzesApiUrl +
-                                        `/v1/attempts/contexts/${contextId}/profiles/${assigneeProfileId}`)
-                                    .addHeader('Authorization', `Token ${assigneeAuthToken}`)
-                                    .inspectRequest()
-                                    .expectStatus(404)
-                                    .toss();
+                                QuizzesCommon.getAuthorizationToken('Student02', function (assignee2AuthToken) {
+                                    Frisby.create('Test context attempts with finished context with assignee 2 looking ' +
+                                        'for assignee 1 attempts token (wrong owner)')
+                                    // With a wrong token this is a content not found error
+                                        .get(QuizzesApiUrl +
+                                            `/v1/attempts/contexts/${contextId}/profiles/${assigneeProfileId}`)
+                                        .addHeader('Authorization', `Token ${assignee2AuthToken}`)
+                                        .inspectRequest()
+                                        .expectStatus(404)
+                                        .toss();
+                                });
                             });
                         });
                     });

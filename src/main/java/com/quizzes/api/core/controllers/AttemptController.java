@@ -77,7 +77,7 @@ public class AttemptController {
             @RequestAttribute(value = "profileId") String authorizationProfileId) {
         QuizzesUtils.rejectAnonymous(authorizationProfileId);
         UUID authorizationProfileUUID = UUID.fromString(authorizationProfileId);
-        if (assigneeProfileId != authorizationProfileUUID) {
+        if (!assigneeProfileId.equals(authorizationProfileUUID)) {
             //this means that an authorized user is requesting for an assignee attempts
             //we need to verify that this user is the owner of the context
             contextService.findCreatedContext(contextId, authorizationProfileUUID);

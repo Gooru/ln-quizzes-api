@@ -59,6 +59,7 @@ public class ContextEventControllerTest {
     private UUID collectionId;
     private UUID resourceId;
     private UUID profileId;
+    private UUID anonymousId;
     private String token;
 
     @Before
@@ -67,19 +68,13 @@ public class ContextEventControllerTest {
         collectionId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
         profileId = UUID.randomUUID();
+        anonymousId = UUID.fromString("00000000-0000-0000-0000-000000000000");
         token = UUID.randomUUID().toString();
     }
 
     @Test
     public void startContextEvent() throws Exception {
-        CollectionDto collection = new CollectionDto();
-        collection.setId(String.valueOf(collectionId));
-
-        //Setting Answers
-        AnswerDto answerDto = new AnswerDto();
-        answerDto.setValue("A");
-        List<AnswerDto> answers = new ArrayList<>();
-        answers.add(answerDto);
+        List<AnswerDto> answers = Arrays.asList(new AnswerDto("A"));
 
         //Setting Events
         UUID resource1 = UUID.randomUUID();
@@ -88,9 +83,7 @@ public class ContextEventControllerTest {
         UUID resource2 = UUID.randomUUID();
         PostResponseResourceDto event2 = createPostResponseResourceDto(0, 0, resource2, new ArrayList<>(), 1234, true);
 
-        List<PostResponseResourceDto> events = new ArrayList<>();
-        events.add(event1);
-        events.add(event2);
+        List<PostResponseResourceDto> events = Arrays.asList(event1, event2);
 
         StartContextEventResponseDto startContext = new StartContextEventResponseDto();
         startContext.setContextId(contextId);
@@ -101,7 +94,8 @@ public class ContextEventControllerTest {
 
         when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
 
-        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(contextId, profileId);
+        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(contextId,
+                profileId.toString());
 
         verify(contextEventService, times(1)).processStartContextEvent(contextId, profileId);
 
@@ -131,9 +125,69 @@ public class ContextEventControllerTest {
     }
 
     @Test
+    public void startContextEventForAnonymous() throws Exception {
+        List<AnswerDto> answers = Arrays.asList(new AnswerDto("A"));
+
+        UUID resource1 = UUID.randomUUID();
+        PostResponseResourceDto event1 = createPostResponseResourceDto(0, 0, resource1, answers, 1234, false);
+
+        UUID resource2 = UUID.randomUUID();
+        PostResponseResourceDto event2 = createPostResponseResourceDto(0, 0, resource2, new ArrayList<>(), 1234, true);
+
+        List<PostResponseResourceDto> events = Arrays.asList(event1, event2);
+
+        StartContextEventResponseDto startContext = new StartContextEventResponseDto();
+        startContext.setContextId(contextId);
+        startContext.setCurrentResourceId(resourceId);
+        startContext.setCollectionId(collectionId);
+        startContext.setEvents(events);
+
+        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
+
+        ResponseEntity<StartContextEventResponseDto> result =
+                controller.startContextEvent(contextId, anonymousId.toString());
+
+        verify(contextEventService, times(1)).processStartContextEvent(contextId, anonymousId);
+
+        StartContextEventResponseDto resultBody = result.getBody();
+        assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
+        assertEquals("Wrong resource id is null", resourceId, resultBody.getCurrentResourceId());
+        assertEquals("Wrong id", contextId, resultBody.getContextId());
+        assertEquals("Wrong collection id", collectionId, resultBody.getCollectionId());
+        assertEquals("Wrong collection id", 2, resultBody.getEvents().size());
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+
+        PostResponseResourceDto result1 = resultBody.getEvents().get(0);
+        assertEquals("Wrong result1 resource1 ID", resource1, result1.getResourceId());
+        assertEquals("Wrong score for result1", 0, result1.getScore());
+        assertEquals("Wrong reaction for result1", 0, result1.getReaction());
+        assertEquals("Wrong timeSpent for result1", 1234, result1.getTimeSpent());
+        assertEquals("Wrong timeSpent for result1", "A", result1.getAnswer().get(0).getValue());
+        assertFalse("IsSkipped is true in result1", result1.getIsSkipped());
+
+        PostResponseResourceDto result2 = resultBody.getEvents().get(1);
+        assertEquals("Wrong result1 resource2 ID", resource2, result2.getResourceId());
+        assertEquals("Wrong score for result2", 0, result2.getScore());
+        assertEquals("Wrong reaction for result2", 0, result2.getReaction());
+        assertEquals("Wrong timeSpent for result2", 1234, result2.getTimeSpent());
+        assertTrue("Answer list is not empty for result2", result2.getAnswer().isEmpty());
+        assertTrue("IsSkipped is true in result2", result2.getIsSkipped());
+    }
+
+    @Test
     public void processFinishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId, token);
-        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId, token);
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId.toString());
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId);
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
+        assertNull("Body is not null", result.getBody());
+    }
+
+    @Test
+    public void processFinishContextEventForAnonymous() throws Exception {
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, "anonymous");
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, anonymousId);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
@@ -144,7 +198,15 @@ public class ContextEventControllerTest {
     public void addEvent() throws Exception {
         OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
         ResponseEntity<?> result = controller.onResourceEvent(resourceId, contextId,
-                body, profileId);
+                body, profileId.toString());
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
+        assertNull("Body is not null", result.getBody());
+
+        //AddEvent using Anonymous user
+        result = controller.onResourceEvent(resourceId, contextId,
+                body, anonymousId.toString());
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());

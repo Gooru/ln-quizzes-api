@@ -3,6 +3,7 @@ package com.quizzes.api.core.controllers;
 import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
+import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
@@ -28,9 +29,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -51,7 +50,7 @@ public class ContextController {
             notes = "Creates an Assignment of a Collection or Assessment to specified Context," +
                     " returning a generated Context ID.")
     @ApiResponses({@ApiResponse(code = 200, message = "Returns the Context ID", response = IdResponseDto.class),
-            @ApiResponse(code = 500, message = "Bad request")})
+            @ApiResponse(code = 400, message = "Bad request")})
     @RequestMapping(path = "/contexts",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -60,27 +59,28 @@ public class ContextController {
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
                                            @RequestAttribute(value = "profileId") String profileId,
                                            @RequestAttribute(value = "token") String token) {
-        if(QuizzesUtils.isAnonymous(profileId)){
-            return new ResponseEntity<>(
-                    new IdResponseDto(contextService.createContextForAnonymous(contextPostRequestDto.getCollectionId(),
-                            QuizzesUtils.getAnonymousId())), HttpStatus.OK);
-        }
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations = validator.validate(contextPostRequestDto);
+        Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations =
+                validator.validate(contextPostRequestDto);
 
         if (!constraintViolations.isEmpty()) {
-            List<String> constraintErrors = constraintViolations
-                    .stream().map(violation -> String.format("Error in %s: %s", violation.getPropertyPath(),
-                            violation.getMessage())).collect(Collectors.toList());
-            Map<String, Object> errors = new HashMap<>();
-            errors.put("Errors", constraintErrors);
-            return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
+            String invalidPropertiesMessage = constraintViolations.stream()
+                    .map(violation -> "['" + violation.getPropertyPath() + "': " + violation.getMessage() + "]")
+                    .collect(Collectors.joining(", "));
+            throw new InvalidRequestBodyException("Invalid JSON properties: " + invalidPropertiesMessage);
         }
 
-        UUID contextId = contextService.createContext(contextPostRequestDto, UUID.fromString(profileId), token);
-        return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);
+        if (contextPostRequestDto.getClassId() == null) {
+            return new ResponseEntity<>(
+                    new IdResponseDto(
+                            contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(),
+                                    QuizzesUtils.resolveProfileId(profileId))), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(new IdResponseDto(
+                contextService.createContext(contextPostRequestDto, UUID.fromString(profileId), token)), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Created Contexts",
@@ -111,8 +111,8 @@ public class ContextController {
                     "The fields `profileId` and `hasStarted` will not be present on the response body.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
-            @ApiResponse(code = 404, message = "Content Not Found"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
+            @ApiResponse(code = 403, message = "Anonymous not allowed to run this service"),
+            @ApiResponse(code = 404, message = "Content Not Found")
     })
     @RequestMapping(path = "/contexts/{contextId}/created", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -120,11 +120,12 @@ public class ContextController {
             @ApiParam(name = "ContextID", required = true,
                     value = "The ID of the context you want to get from the set of created contexts.")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        return new ResponseEntity<>(
-                entityMapper.mapContextEntityToContextGetResponseDto(
-                        contextService.findCreatedContext(contextId, profileId))
-                , HttpStatus.OK);
+            @RequestAttribute(value = "profileId") String profileId) throws Exception {
+
+        QuizzesUtils.rejectAnonymous(profileId);
+        ContextEntity context = contextService.findCreatedContext(contextId, UUID.fromString(profileId));
+        return new ResponseEntity<>(entityMapper.mapContextEntityToContextGetResponseDto(context),
+                HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Assigned Contexts",

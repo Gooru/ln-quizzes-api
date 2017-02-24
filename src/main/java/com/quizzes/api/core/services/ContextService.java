@@ -70,7 +70,7 @@ public class ContextService {
      * @return the context ID
      */
     @Transactional
-    public UUID createContextForAnonymous(UUID collectionId, UUID profileId) {
+    public UUID createContextWithoutClassId(UUID collectionId, UUID profileId) {
         CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId);
         Context context = new Context();
         context.setCollectionId(collectionId);

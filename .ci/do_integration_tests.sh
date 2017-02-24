@@ -2,6 +2,9 @@
 
 source .ci/common.sh
 
+info "Login into Edify's docker registry..."
+silent docker login -u $ARTIFACTORY_USERNAME -p $ARTIFACTORY_PASSWORD edify-dkr.jfrog.io
+
 info "Installing virtualenv..."
 silent pip install --user -U virtualenv
 
@@ -40,5 +43,5 @@ if [ "$EXIT_CODE" -eq 1 ]; then
 fi
 
 info "Stoping the application..."
-${HOME}/.local/bin/docker-compose stop
+silent docker-compose stop
 

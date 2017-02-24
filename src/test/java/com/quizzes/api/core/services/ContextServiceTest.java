@@ -193,7 +193,7 @@ public class ContextServiceTest {
     }
 
     @Test
-    public void createContextForAnonymous() throws Exception {
+    public void createContextWithoutClassId() throws Exception {
         CollectionDto collectionDto = createCollectionDto();
         Context context = new Context();
         context.setId(contextId);
@@ -204,7 +204,7 @@ public class ContextServiceTest {
         doReturn(context).when(contextRepository).save(any(Context.class));
         doReturn(new ContextProfile()).when(contextProfileService).save(any(ContextProfile.class));
 
-        UUID result = contextService.createContextForAnonymous(collectionId, profileId);
+        UUID result = contextService.createContextWithoutClassId(collectionId, profileId);
 
         verifyPrivate(contextService, times(1)).invoke("createContextProfileObject", any(UUID.class), any(UUID.class));
         verify(collectionService, times(1)).getCollectionOrAssessment(collectionId);
@@ -240,17 +240,6 @@ public class ContextServiceTest {
         assertNotNull("Response is null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result);
     }
-
-//    private void validateCollectionOwnerInContext(UUID profileId, UUID collectionId, boolean isCollection, String token)
-//            throws InvalidOwnerException {
-//        UUID ownerId = isCollection ? collectionRestClient.getCollection(collectionId, token).getOwnerId() :
-//                assessmentRestClient.getAssessment(collectionId, token).getOwnerId();
-//
-//        if (!ownerId.equals(profileId)) {
-//            throw new InvalidOwnerException("Profile ID: " + profileId + " is not the owner of the collection ID: " +
-//                    collectionId);
-//        }
-//    }
 
     @Test
     public void validateCollectionOwnerInContextForAssessment() throws Exception {

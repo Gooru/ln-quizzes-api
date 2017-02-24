@@ -1,11 +1,12 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.dtos.ExceptionMessageDto;
+import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidCredentialsException;
-import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
+import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.exceptions.MissingJsonPropertiesException;
 import org.slf4j.Logger;
@@ -132,6 +133,28 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = MissingServletRequestParameterException.class)
     public ExceptionMessageDto handleMissingRequestParameterException(MissingServletRequestParameterException e) {
         return getExceptionMessageDto("Bad Request", HttpStatus.BAD_REQUEST, e);
+    }
+
+    /**
+     * Handles Spring IllegalArgumentException
+     *
+     * @return Bad Request with status 400
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = IllegalArgumentException.class)
+    public ExceptionMessageDto handleIllegalArgumentException(IllegalArgumentException e) {
+        return getExceptionMessageDto("Bad Request", HttpStatus.BAD_REQUEST, e);
+    }
+
+    /**
+     * Handles InvalidRequestBodyException
+     *
+     * @return Bad Request with status 400
+     */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(value = InvalidRequestBodyException.class)
+    public ExceptionMessageDto handleInvalidRequestBodyException(InvalidRequestBodyException e) {
+        return getExceptionMessageDto("Invalid request body", HttpStatus.BAD_REQUEST, e);
     }
 
     private ExceptionMessageDto getExceptionMessageDto(String message, HttpStatus status, Exception exception) {

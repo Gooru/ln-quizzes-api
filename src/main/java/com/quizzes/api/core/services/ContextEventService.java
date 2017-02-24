@@ -13,6 +13,7 @@ import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
@@ -65,7 +66,7 @@ public class ContextEventService {
 
         if (entity.getCurrentContextProfileId() == null) {
             return createCurrentContextProfile(entity);
-        } else if(entity.getIsComplete()) {
+        } else if (entity.getIsComplete()) {
             return createContextProfile(entity);
         }
 
@@ -76,6 +77,11 @@ public class ContextEventService {
                                        OnResourceEventPostRequestDto body) {
         ContextProfileEntity context =
                 currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
+
+        if (context.getCurrentContextProfileId() == null || (context.getCurrentContextProfileId() != null && context.getIsComplete())) {
+            throw new InvalidRequestException("Context " + contextId + " not started on resource " + resourceId);
+        }
+
         PostRequestResourceDto resourceDto = getPreviousResource(body);
 
         List<ResourceDto> collectionResources =
@@ -106,7 +112,9 @@ public class ContextEventService {
                 currentResource.getId(), gson.toJson(eventSummary));
 
         doOnResourceEventTransaction(contextProfile, contextProfileEvent);
-        sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
+        if (context.getClassId() != null) {
+            sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
+        }
     }
 
     private PostRequestResourceDto getPreviousResource(OnResourceEventPostRequestDto body) {
@@ -123,7 +131,7 @@ public class ContextEventService {
     }
 
 
-    public void processFinishContextEvent(UUID contextId, UUID profileId, String token) {
+    public void processFinishContextEvent(UUID contextId, UUID profileId) {
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
         ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
@@ -156,7 +164,10 @@ public class ContextEventService {
 
         doFinishContextEventTransaction(contextProfile, contextProfileEventsToCreate);
 
-        sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
+        //If entity does not have class is an anonymous user or it's in preview mode
+        if (context.getClassId() != null) {
+            sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
+        }
     }
 
     @Transactional
@@ -189,7 +200,10 @@ public class ContextEventService {
 
     private StartContextEventResponseDto processStartContext(ContextProfileEntity entity,
                                                              List<ContextProfileEvent> contextProfileEvents) {
-        sendStartEventMessage(entity.getContextId(), entity.getProfileId(), entity.getCurrentResourceId(), true);
+        //If entity does not have class is an anonymous user or it's in preview mode
+        if (entity.getClassId() != null) {
+            sendStartEventMessage(entity.getContextId(), entity.getProfileId(), entity.getCurrentResourceId(), true);
+        }
         return prepareStartContextEventResponse(entity.getContextId(), entity.getCurrentResourceId(),
                 entity.getCollectionId(), contextProfileEvents);
     }
@@ -203,8 +217,12 @@ public class ContextEventService {
     private StartContextEventResponseDto resumeStartContextEvent(ContextProfileEntity contextProfile) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getContextProfileId());
-        sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(),
-                contextProfile.getCurrentResourceId(), false);
+
+        //If entity does not have class is an anonymous user or it's in preview mode
+        if (contextProfile.getClassId() != null) {
+            sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(),
+                    contextProfile.getCurrentResourceId(), false);
+        }
         return prepareStartContextEventResponse(contextProfile.getContextId(), contextProfile.getCurrentResourceId(),
                 contextProfile.getCollectionId(), contextProfileEvents);
     }
@@ -342,7 +360,7 @@ public class ContextEventService {
     /**
      * Compares user and correct answers, including the answer order
      * Values are trimmed and case is ignored
-     *
+     * <p>
      * Works for text_entry
      *
      * @param userAnswers    Answers provided by the user
@@ -362,7 +380,7 @@ public class ContextEventService {
 
     /**
      * Compares user and correct answers, including the answer order
-     *
+     * <p>
      * Works for drag_and_drop
      *
      * @param userAnswers    Answers provided by the user
@@ -382,7 +400,7 @@ public class ContextEventService {
 
     /**
      * Compares user and correct answers, order is not important
-     *
+     * <p>
      * Works for multiple_choice, multiple_choice_image, multiple_choice_text, hot_text_word and
      * hot_text_sentence
      *
