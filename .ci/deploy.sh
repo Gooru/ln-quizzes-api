@@ -46,8 +46,7 @@ function wait_for_deployment() {
   local deployment_status_cmd="aws deploy get-deployment --deployment-id ${deployment_id} --query deploymentInfo.status"
   local deployment_status=$($deployment_status_cmd | tr -d '"')
   local n=1
-  local max=10
-  local delay=10
+  local max=20
 
   info "Checking status of deployment \"$deployment_id\""
 
