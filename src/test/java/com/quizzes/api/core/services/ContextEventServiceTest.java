@@ -1147,6 +1147,7 @@ public class ContextEventServiceTest {
         assertEquals("Score should be 100", 100, result);
     }
 
+    @Test
     public void calculateScoreForTextEntryWrongAnswers() throws Exception {
         calculateScoreForOrderedMultipleChoiceWrongAnswers(QuestionTypeEnum.TextEntry);
     }
@@ -1478,6 +1479,17 @@ public class ContextEventServiceTest {
     private void calculateScoreForOrderedMultipleChoiceWrongAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
         List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("A"), createAnswerDto("B"), createAnswerDto("B"));
         List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("B"), createAnswerDto("A"), createAnswerDto("B"));
+
+        int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
+                questionTypeEnum.getLiteral(), userAnswers, correctAnswers);
+        assertEquals("Score should be 0", 0, result);
+
+        calculateScoreForOrderedMultipleChoiceButOneElementWrongAnswers(questionTypeEnum);
+    }
+
+    private void calculateScoreForOrderedMultipleChoiceButOneElementWrongAnswers(QuestionTypeEnum questionTypeEnum) throws Exception {
+        List<AnswerDto> userAnswers = Arrays.asList(createAnswerDto("5"));
+        List<AnswerDto> correctAnswers = Arrays.asList(createAnswerDto("11"));
 
         int result = WhiteboxImpl.invokeMethod(contextEventService, "calculateScoreByQuestionType",
                 questionTypeEnum.getLiteral(), userAnswers, correctAnswers);

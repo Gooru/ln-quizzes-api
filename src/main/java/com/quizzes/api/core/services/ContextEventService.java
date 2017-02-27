@@ -371,11 +371,11 @@ public class ContextEventService {
         if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
-        boolean isAnswerCorrect = IntStream.range(0, correctAnswers.size() - 1)
+        boolean isCorrect = IntStream.rangeClosed(0, correctAnswers.size() - 1)
                 .allMatch(i -> correctAnswers.get(i).getValue().trim()
                         .equalsIgnoreCase(userAnswers.get(i).getValue().trim()));
 
-        return isAnswerCorrect ? 100 : 0;
+        return isCorrect ? 100 : 0;
     }
 
     /**
@@ -391,11 +391,10 @@ public class ContextEventService {
         if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
-        boolean isAnswerCorrect =
-                IntStream.range(0, correctAnswers.size() - 1)
-                        .allMatch(i -> correctAnswers.get(i).getValue().equals(userAnswers.get(i).getValue()));
+        boolean isCorrect = IntStream.rangeClosed(0, correctAnswers.size() - 1)
+                .allMatch(i -> correctAnswers.get(i).getValue().equals(userAnswers.get(i).getValue()));
 
-        return isAnswerCorrect ? 100 : 0;
+        return isCorrect ? 100 : 0;
     }
 
     /**
