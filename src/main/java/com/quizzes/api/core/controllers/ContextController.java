@@ -23,13 +23,16 @@ import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.annotation.RequestScope;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -124,8 +127,7 @@ public class ContextController {
 
         QuizzesUtils.rejectAnonymous(profileId);
         ContextEntity context = contextService.findCreatedContext(contextId, UUID.fromString(profileId));
-        return new ResponseEntity<>(entityMapper.mapContextEntityToContextGetResponseDto(context),
-                HttpStatus.OK);
+        return new ResponseEntity<>(entityMapper.mapContextEntityToContextGetResponseDto(context), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Assigned Contexts",
@@ -168,8 +170,20 @@ public class ContextController {
             @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
         return new ResponseEntity<>(
                 entityMapper.mapAssignedContextEntityToContextGetResponseDto(
-                        contextService.findAssignedContext(contextId, profileId))
-                , HttpStatus.OK);
+                        contextService.findAssignedContext(contextId, profileId)),
+                HttpStatus.OK);
+    }
+
+    @RequestMapping(path = "/contexts/mapped/collections/{collectionId}/classes/{classId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ContextGetResponseDto>> getMappedContext(
+            @PathVariable(value = "collectionId") UUID collectionId,
+            @PathVariable(value = "classId") UUID classId,
+            @RequestParam(required = false) Map<String, String> contextMap) throws Exception {
+        List<AssignedContextEntity> contexts = contextService.findMappedContext(collectionId, classId, contextMap);
+        return new ResponseEntity<>(
+                contexts.stream().map(context -> entityMapper.mapAssignedContextEntityToContextGetResponseDto(context))
+                        .collect(Collectors.toList()),
+                HttpStatus.OK);
     }
 
     // TODO We need to clarify how will be integrated the Update for Contexts in Nile

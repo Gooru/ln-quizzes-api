@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -179,6 +180,15 @@ public class ContextService {
                     + " and Assignee Profile ID: " + profileId);
         }
         return context;
+    }
+
+    public UUID findMappedContext(UUID classId, Map<String, String> contextMap) {
+        UUID contextId = contextRepository.findByClassIdAndContextMap(classId, contextMap);
+        if (contextId == null) {
+            throw new ContentNotFoundException("Context not found for Class ID: " + classId
+                    + " and Context Map: " + contextMap.toString());
+        }
+        return contextId;
     }
 
     private void validateCollectionOwnerInContext(UUID profileId, UUID collectionId, boolean isCollection)

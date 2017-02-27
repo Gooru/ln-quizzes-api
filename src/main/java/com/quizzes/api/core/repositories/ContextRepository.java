@@ -44,4 +44,7 @@ public interface ContextRepository {
     List<ContextOwnerEntity> findContextOwnerByAssigneeIdAndFilters(UUID assigneeId, Boolean isActive, Long startDate, Long dueDate);
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
+
+    UUID findByClassIdAndContextMap(UUID classId, Map<String, String> contextMap);
+
 }

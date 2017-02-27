@@ -6,6 +6,7 @@ import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -179,6 +180,31 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .and(CONTEXT.IS_ACTIVE.eq(true))
                 .fetchOneInto(ContextOwnerEntity.class);
         */
+    }
+
+    @Override
+    public UUID findByClassIdAndContextMap(UUID classId, Map<String, String> contextMap) {
+        Condition condition = CONTEXT.CLASS_ID.eq(classId)
+                .and(CONTEXT.IS_ACTIVE.eq(true))
+                .and(CONTEXT.IS_DELETED.eq(false));
+
+        for (String key : contextMap.keySet()) {
+            condition = condition
+                    .and(String.format("CONTEXT.CONTEXT_DATA -> 'contextMap' -> '%s' = '%s'", key,
+                            contextMap.get(key)));
+        }
+
+        //select * from context
+        //where class_id = '04805631-f43f-4364-9d40-7bdc7f1b7178'
+        //and collection_id = 'ca13e08c-6e2d-4c10-93cf-7b8111f3b705'
+        //and context_data -> 'contextMap' ->> 'unitId' = 'db09f7f7-ae00-4ee0-8160-ff7480928d06'
+        //and context_data -> 'contextMap' ->> 'courseId' = 'd95adfc6-c303-437a-b267-9106f2435568'
+
+        return jooq.select(CONTEXT.ID)
+                .from(CONTEXT)
+                .where(condition)
+                .limit(1)
+                .fetchOneInto(UUID.class);
     }
 
     @Override

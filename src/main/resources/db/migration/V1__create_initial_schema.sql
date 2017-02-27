@@ -24,7 +24,7 @@ CREATE TABLE context
     updated_at          TIMESTAMP   NOT NULL DEFAULT current_timestamp
 );
 CREATE INDEX context_profile_id_idx ON context (profile_id);
-CREATE INDEX context_class_id_idx ON context (class_id);
+CREATE INDEX context_class_id_collection_id_idx ON context (class_id, collection_id);
 CREATE TRIGGER context_updated_at_trigger
     BEFORE UPDATE
     ON context
