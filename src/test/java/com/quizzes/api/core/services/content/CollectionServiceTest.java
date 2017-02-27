@@ -19,6 +19,8 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -46,7 +48,37 @@ public class CollectionServiceTest {
     }
 
     @Test
-    public void getAssessment() throws Exception {
+    public void getAssessmentWithCacheRefresh() throws Exception {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(assessmentId.toString());
+        collectionDto.setIsCollection(false);
+
+        doReturn(collectionDto).when(collectionRestClient).getAssessmentWithCacheRefresh(any(UUID.class));
+
+        CollectionDto result = collectionService.getAssessment(assessmentId, true);
+
+        verify(collectionRestClient, times(1)).getAssessmentWithCacheRefresh(any(UUID.class));
+        assertEquals("Wrong Assessment ID", assessmentId.toString(), result.getId());
+        assertFalse("Wrong IsCollection value", result.getIsCollection());
+    }
+
+    @Test
+    public void getCollectionWithCacheRefresh() throws Exception {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId.toString());
+        collectionDto.setIsCollection(true);
+
+        doReturn(collectionDto).when(collectionRestClient).getCollectionWithCacheRefresh(any(UUID.class));
+
+        CollectionDto result = collectionService.getCollection(collectionId, true);
+
+        verify(collectionRestClient, times(1)).getCollectionWithCacheRefresh(any(UUID.class));
+        assertEquals("Wrong Collection ID", collectionId.toString(), result.getId());
+        assertTrue("Wrong IsCollection value", result.getIsCollection());
+    }
+
+    @Test
+    public void getAssessmentWithNoCacheRefresh() {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(assessmentId.toString());
         collectionDto.setIsCollection(false);
@@ -55,13 +87,14 @@ public class CollectionServiceTest {
 
         CollectionDto result = collectionService.getAssessment(assessmentId);
 
-        verify(collectionRestClient, times(1)).getAssessment(assessmentId);
+        verify(collectionService, times(1)).getAssessment(any(UUID.class), eq(false));
+        verify(collectionRestClient, times(1)).getAssessment(any(UUID.class));
         assertEquals("Wrong Assessment ID", assessmentId.toString(), result.getId());
         assertFalse("Wrong IsCollection value", result.getIsCollection());
     }
 
     @Test
-    public void getCollection() throws Exception {
+    public void getCollectionWithNoCacheRefresh() {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
         collectionDto.setIsCollection(true);
@@ -70,37 +103,8 @@ public class CollectionServiceTest {
 
         CollectionDto result = collectionService.getCollection(collectionId);
 
-        verify(collectionRestClient, times(1)).getCollection(collectionId);
-        assertEquals("Wrong Collection ID", collectionId.toString(), result.getId());
-        assertTrue("Wrong IsCollection value", result.getIsCollection());
-    }
-
-    @Test
-    public void getAssessmentWithCacheRefresh() {
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(assessmentId.toString());
-        collectionDto.setIsCollection(false);
-
-        doReturn(collectionDto).when(collectionService).getAssessment(any(UUID.class));
-
-        CollectionDto result = collectionService.getAssessmentWithCacheRefresh(assessmentId);
-
-        verify(collectionService, times(1)).getAssessment(any(UUID.class));
-        assertEquals("Wrong Assessment ID", assessmentId.toString(), result.getId());
-        assertFalse("Wrong IsCollection value", result.getIsCollection());
-    }
-
-    @Test
-    public void getCollectionWithCacheRefresh() {
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setId(collectionId.toString());
-        collectionDto.setIsCollection(true);
-
-        doReturn(collectionDto).when(collectionService).getCollection(any(UUID.class));
-
-        CollectionDto result = collectionService.getCollectionWithCacheRefresh(collectionId);
-
         verify(collectionService, times(1)).getCollection(any(UUID.class));
+        verify(collectionRestClient, times(1)).getCollection(any(UUID.class));
         assertEquals("Wrong Assessment ID", collectionId.toString(), result.getId());
         assertTrue("Wrong IsCollection value", result.getIsCollection());
     }

@@ -2,6 +2,8 @@ package com.quizzes.api.core.rest.clients;
 
 import com.google.code.ssm.api.ParameterValueKeyProvider;
 import com.google.code.ssm.api.ReadThroughSingleCache;
+import com.google.code.ssm.api.ReturnDataUpdateContent;
+import com.google.code.ssm.api.UpdateSingleCache;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.ChoiceDto;
@@ -130,6 +132,12 @@ public class CollectionRestClient {
         }
     }
 
+    @ReturnDataUpdateContent
+    @UpdateSingleCache(namespace = "Collections")
+    public CollectionDto getCollectionWithCacheRefresh(@ParameterValueKeyProvider UUID collectionId) {
+        return getCollection(collectionId);
+    }
+
     @ReadThroughSingleCache(namespace = "Assessments")
     public CollectionDto getAssessment(@ParameterValueKeyProvider UUID assessmentId) {
         String token = authenticationRestClient.generateAnonymousToken();
@@ -165,6 +173,12 @@ public class CollectionRestClient {
             logger.error("Getting Assessment " + assessmentId + " process failed.", e);
             throw new InternalServerException("Getting Assessment " + assessmentId + " process failed.", e);
         }
+    }
+
+    @ReturnDataUpdateContent
+    @UpdateSingleCache(namespace = "Assessments")
+    public CollectionDto getAssessmentWithCacheRefresh(@ParameterValueKeyProvider UUID assessmentId) {
+        return getAssessment(assessmentId);
     }
 
     private CollectionDto createCollectionDtoFromCollectionContentDto(CollectionContentDto collectionContentDto) {

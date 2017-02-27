@@ -1,8 +1,5 @@
 package com.quizzes.api.core.services.content;
 
-import com.google.code.ssm.api.ParameterValueKeyProvider;
-import com.google.code.ssm.api.ReturnDataUpdateContent;
-import com.google.code.ssm.api.UpdateSingleCache;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
@@ -19,30 +16,30 @@ public class CollectionService {
     @Autowired
     private CollectionRestClient collectionRestClient;
 
-    public CollectionDto getAssessment(UUID assessmentId) {
-        return collectionRestClient.getAssessment(assessmentId);
+    public CollectionDto getAssessment(UUID assessmentId, boolean withCacheRefresh) {
+        return withCacheRefresh ?
+                collectionRestClient.getAssessmentWithCacheRefresh(assessmentId) :
+                collectionRestClient.getAssessment(assessmentId);
     }
 
-    @ReturnDataUpdateContent
-    @UpdateSingleCache(namespace = "Assessments")
-    public CollectionDto getAssessmentWithCacheRefresh(@ParameterValueKeyProvider UUID assessmentId) {
-        return getAssessment(assessmentId);
+    public CollectionDto getAssessment(UUID assessmentId) {
+        return getAssessment(assessmentId, false);
+    }
+
+    public CollectionDto getCollection(UUID collectionId, boolean withCacheRefresh) {
+        return withCacheRefresh ?
+                collectionRestClient.getCollectionWithCacheRefresh(collectionId) :
+                collectionRestClient.getCollection(collectionId);
     }
 
     public CollectionDto getCollection(UUID collectionId) {
-        return collectionRestClient.getCollection(collectionId);
-    }
-
-    @ReturnDataUpdateContent
-    @UpdateSingleCache(namespace = "Collections")
-    public CollectionDto getCollectionWithCacheRefresh(@ParameterValueKeyProvider UUID collectionId) {
-        return getCollection(collectionId);
+        return getCollection(collectionId, false);
     }
 
     public CollectionDto getCollectionOrAssessment(UUID collectionId) {
         try {
             return getCollection(collectionId);
-        } catch (ContentNotFoundException e){
+        } catch (ContentNotFoundException e) {
             return getAssessment(collectionId);
         }
     }
