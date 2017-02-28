@@ -2,8 +2,10 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
@@ -11,7 +13,9 @@ import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
+import com.quizzes.api.core.enums.CollectionSetting;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
@@ -73,10 +77,10 @@ public class ContextEventService {
         return resumeStartContextEvent(entity);
     }
 
-    public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
-                                       OnResourceEventPostRequestDto body) {
-        ContextProfileEntity context =
-                currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
+    public OnResourceEventResponseDto processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
+                                                             OnResourceEventPostRequestDto body) {
+        ContextProfileEntity context = currentContextProfileService
+                .findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
 
         if (context.getCurrentContextProfileId() == null || (context.getCurrentContextProfileId() != null && context.getIsComplete())) {
             throw new InvalidRequestException("Context " + contextId + " not started on resource " + resourceId);
@@ -84,8 +88,7 @@ public class ContextEventService {
 
         PostRequestResourceDto resourceDto = getPreviousResource(body);
 
-        List<ResourceDto> collectionResources =
-                getCollectionResources(context.getCollectionId(), context.getIsCollection());
+        List<ResourceDto> collectionResources = getCollectionResources(context.getCollectionId(), context.getIsCollection());
         ResourceDto currentResource = findResourceInContext(collectionResources, resourceId, contextId);
         ResourceDto previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(),
                 contextId);
@@ -115,6 +118,21 @@ public class ContextEventService {
         if (context.getClassId() != null) {
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
         }
+
+        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId());
+        if (collectionDto.getMetadata().getSetting() == null) {
+            return null;
+        }
+
+        ShowFeedbackOptions showFeedback = ShowFeedbackOptions.fromValue(
+                collectionDto.getMetadata().getSetting(CollectionSetting.ShowFeedback.getLiteral(),
+                        ShowFeedbackOptions.Never.getLiteral()).toString()
+        );
+
+        if (!showFeedback.equals(ShowFeedbackOptions.Immediate)) {
+            return null;
+        }
+        return new OnResourceEventResponseDto(resourceDto.getScore());
     }
 
     private PostRequestResourceDto getPreviousResource(OnResourceEventPostRequestDto body) {
