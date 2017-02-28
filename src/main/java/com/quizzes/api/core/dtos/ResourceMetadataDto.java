@@ -1,5 +1,6 @@
 package com.quizzes.api.core.dtos;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -16,5 +17,7 @@ public class ResourceMetadataDto implements Serializable {
     private List<AnswerDto> correctAnswer;
     private InteractionDto interaction;
     private Map<String, Object> taxonomy;
+    @SerializedName("display_guide")
+    private Map<String, Object> displayGuide;
 
 }
