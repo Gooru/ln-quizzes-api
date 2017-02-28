@@ -472,16 +472,20 @@ public class ContextEventService {
 
         // Calculating the collection taxonomy summary
         Map<String, TaxonomySummaryDto> collectionTaxonomyMap = new HashMap<>();
-        List<UUID> allEventResourceIds = contextProfileEvents.stream()
-                .map(ContextProfileEvent::getResourceId)
-                .collect(Collectors.toList());
-        collectionTaxonomyMap.putAll(collectionDto.getMetadata().getTaxonomy().keySet().stream()
-                .map(key -> {TaxonomySummaryDto taxonomySummaryDto = mapEventSummaryToTaxonomySummary(eventSummary);
-                    taxonomySummaryDto.setTaxonomyId(key);
-                    taxonomySummaryDto.setResources(allEventResourceIds);
-                    return taxonomySummaryDto;})
-                .collect(Collectors.toMap(TaxonomySummaryDto::getTaxonomyId, Function.identity())));
-
+        if (collectionDto.getMetadata() != null && collectionDto.getMetadata().getTaxonomy() != null &&
+                !collectionDto.getMetadata().getTaxonomy().isEmpty()) {
+            List<UUID> allEventResourceIds = contextProfileEvents.stream()
+                    .map(ContextProfileEvent::getResourceId)
+                    .collect(Collectors.toList());
+            collectionTaxonomyMap.putAll(collectionDto.getMetadata().getTaxonomy().keySet().stream()
+                    .map(key -> {
+                        TaxonomySummaryDto taxonomySummaryDto = mapEventSummaryToTaxonomySummary(eventSummary);
+                        taxonomySummaryDto.setTaxonomyId(key);
+                        taxonomySummaryDto.setResources(allEventResourceIds);
+                        return taxonomySummaryDto;
+                    })
+                    .collect(Collectors.toMap(TaxonomySummaryDto::getTaxonomyId, Function.identity())));
+        }
         // Calculating additional resource's taxonomy
         Map<UUID, Set<String>> resourcesNotInCollectionTaxonomy = collectionDto.getResources().stream()
                 .filter(resource -> (resource.getMetadata() != null)
@@ -556,12 +560,6 @@ public class ContextEventService {
         return resources.stream()
                 .filter(resource -> !contextProfileEventResourceIds.contains(resource.getId()))
                 .collect(Collectors.toList());
-    }
-
-    private List<ResourceDto> getCollectionResources(UUID collectionId, boolean isCollection) {
-        return isCollection ?
-                collectionService.getCollectionResources(collectionId) :
-                collectionService.getAssessmentQuestions(collectionId);
     }
 
     private PostRequestResourceDto updateExistingResourceDto(ContextProfileEvent contextProfileEvent,
