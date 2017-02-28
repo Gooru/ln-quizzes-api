@@ -121,7 +121,7 @@ public class ContextEventService {
 
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId());
         if (collectionDto.getMetadata().getSetting() == null) {
-            return null;
+            return new OnResourceEventResponseDto();
         }
 
         ShowFeedbackOptions showFeedback = ShowFeedbackOptions.fromValue(
@@ -130,7 +130,7 @@ public class ContextEventService {
         );
 
         if (!showFeedback.equals(ShowFeedbackOptions.Immediate)) {
-            return null;
+            return new OnResourceEventResponseDto();
         }
         return new OnResourceEventResponseDto(resourceDto.getScore());
     }

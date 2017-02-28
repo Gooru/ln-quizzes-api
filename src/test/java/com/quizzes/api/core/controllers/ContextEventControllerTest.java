@@ -1,15 +1,10 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
-import com.quizzes.api.core.dtos.AttemptIdsResponseDto;
-import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
-import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
-import com.quizzes.api.core.dtos.controller.CollectionDto;
-import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.services.ContextEventService;
 import com.quizzes.api.core.services.ContextProfileService;
 import com.quizzes.api.core.services.ContextService;
@@ -33,9 +28,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -197,11 +190,11 @@ public class ContextEventControllerTest {
     @Test
     public void addEvent() throws Exception {
         OnResourceEventPostRequestDto body = new OnResourceEventPostRequestDto();
-        ResponseEntity<?> result = controller.onResourceEvent(resourceId, contextId,
+        ResponseEntity<OnResourceEventResponseDto> result = controller.onResourceEvent(resourceId, contextId,
                 body, profileId.toString());
 
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
 
         //AddEvent using Anonymous user
@@ -209,8 +202,19 @@ public class ContextEventControllerTest {
                 body, anonymousId.toString());
 
         assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNull("Body is not null", result.getBody());
+
+        // add event with feedback
+        OnResourceEventResponseDto responseDto = new OnResourceEventResponseDto(100);
+        when(contextEventService.processOnResourceEvent(any(), any(),any(), any())).thenReturn(responseDto);
+        result = controller.onResourceEvent(resourceId, contextId,
+                body, anonymousId.toString());
+
+        assertNotNull("Response is Null", result);
+        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
+        assertNotNull("Body is null", result.getBody());
+        assertNotNull("Score is not present", result.getBody().getScore());
     }
 
     private PostResponseResourceDto createPostResponseResourceDto(int score, int reaction, UUID resourceId,

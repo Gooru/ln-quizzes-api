@@ -24,7 +24,7 @@ QuizzesCommon.startTest('OnResource on started context', function () {
                         }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                         .inspectRequest()
-                        .expectStatus(204)
+                        .expectStatus(200)
                         .toss();
 
                     Frisby.create('onResource call with resourceId === previous resource ID')
@@ -38,7 +38,7 @@ QuizzesCommon.startTest('OnResource on started context', function () {
                             }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                         .inspectRequest()
-                        .expectStatus(204)
+                        .expectStatus(200)
                         .toss();
 
                     Frisby.create('onResource call without previous resource')
@@ -132,7 +132,7 @@ QuizzesCommon.startTest('OnResource with anonymous user', function () {
                         }, {json: true})
                     .addHeader('Authorization', `Token ${authToken}`)
                     .inspectRequest()
-                    .expectStatus(204)
+                    .expectStatus(200)
                     .toss();
 
             });
@@ -222,7 +222,8 @@ QuizzesCommon.startTest('OnResource with no feedback because of no setting', fun
                             }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                         .inspectRequest()
-                        .expectStatus(204)
+                        .expectStatus(200)
+                        .expectJSON({})
                         .toss();
                 });
             });
@@ -283,7 +284,8 @@ QuizzesCommon.startTest('OnResource with no feedback by setting', function () {
                             }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                         .inspectRequest()
-                        .expectStatus(204)
+                        .expectStatus(200)
+                        .expectJSON({})
                         .toss();
                 });
             });

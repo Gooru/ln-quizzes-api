@@ -134,7 +134,8 @@ public class ContextController {
                     "Anonymous session token will be rejected by this endpoint.\n\n" +
                     "The fields `isActive` and `modifiedDate` will not be present on the response body.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Successful Response Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 200, message = "Successful Response Body", responseContainer = "List"
+                    , response = ContextGetResponseDto.class),
             @ApiResponse(code = 404, message = "Content Not Found"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })

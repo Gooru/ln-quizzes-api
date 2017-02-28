@@ -704,7 +704,8 @@ public class ContextEventServiceTest {
 
         OnResourceEventPostRequestDto body = processOnResourceEvent();
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
-        assertNull(response);
+        assertNotNull(response);
+        assertNull(response.getScore());
     }
 
     @Test
@@ -715,7 +716,8 @@ public class ContextEventServiceTest {
 
         OnResourceEventPostRequestDto body = processOnResourceEvent();
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
-        assertNull(response);
+        assertNotNull(response);
+        assertNull(response.getScore());
     }
 
     private OnResourceEventPostRequestDto processOnResourceEvent() throws Exception {

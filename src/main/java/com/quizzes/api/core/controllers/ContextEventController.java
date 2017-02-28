@@ -59,7 +59,7 @@ public class ContextEventController {
     @RequestMapping(path = "/contexts/{contextId}/onResource/{resourceId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> onResourceEvent(
+    public ResponseEntity<OnResourceEventResponseDto> onResourceEvent(
             @ApiParam(value = "ID of the resource that we are sending data to", required = true, name = "Resource ID")
             @PathVariable UUID resourceId,
             @ApiParam(value = "ID of the context that the resource belongs to", required = true, name = "Context ID")
@@ -71,11 +71,7 @@ public class ContextEventController {
         OnResourceEventResponseDto response =  contextEventService.processOnResourceEvent(contextId,
                 QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto);
 
-        if (response == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation(
