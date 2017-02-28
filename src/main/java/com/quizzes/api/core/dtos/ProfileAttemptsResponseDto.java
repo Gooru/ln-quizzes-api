@@ -10,6 +10,7 @@ public class ProfileAttemptsResponseDto {
     private List<PostResponseResourceDto> events;
     private boolean isComplete;
     private EventSummaryDataDto eventSummary;
+    private List<TaxonomySummaryDto> taxonomySummary;
 
     public ProfileAttemptsResponseDto() {
     }
@@ -52,5 +53,13 @@ public class ProfileAttemptsResponseDto {
 
     public void setEventSummary(EventSummaryDataDto eventSummary) {
         this.eventSummary = eventSummary;
+    }
+
+    public List<TaxonomySummaryDto> getTaxonomySummary() {
+        return taxonomySummary;
+    }
+
+    public void setTaxonomySummary(List<TaxonomySummaryDto> taxonomySummary) {
+        this.taxonomySummary = taxonomySummary;
     }
 }
