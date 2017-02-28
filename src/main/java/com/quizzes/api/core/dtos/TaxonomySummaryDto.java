@@ -1,9 +1,13 @@
 package com.quizzes.api.core.dtos;
 
+import lombok.Data;
+
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
-public class TaxonomySummaryDto {
+@Data
+public class TaxonomySummaryDto implements Serializable {
 
     private String      taxonomyId = "";
     private long        totalTimeSpent = 0;
@@ -13,59 +17,4 @@ public class TaxonomySummaryDto {
     private short       totalAnswered = 0;
     private List<UUID>  resources = null;
 
-    public String getTaxonomyId() {
-        return taxonomyId;
-    }
-
-    public void setTaxonomyId(String taxonomyId) {
-        this.taxonomyId = taxonomyId;
-    }
-
-    public long getTotalTimeSpent() {
-        return totalTimeSpent;
-    }
-
-    public void setTotalTimeSpent(long totalTimeSpent) {
-        this.totalTimeSpent = totalTimeSpent;
-    }
-
-    public short getAverageReaction() {
-        return averageReaction;
-    }
-
-    public void setAverageReaction(short averageReaction) {
-        this.averageReaction = averageReaction;
-    }
-
-    public short getAverageScore() {
-        return averageScore;
-    }
-
-    public void setAverageScore(short averageScore) {
-        this.averageScore = averageScore;
-    }
-
-    public short getTotalCorrect() {
-        return totalCorrect;
-    }
-
-    public void setTotalCorrect(short totalCorrect) {
-        this.totalCorrect = totalCorrect;
-    }
-
-    public short getTotalAnswered() {
-        return totalAnswered;
-    }
-
-    public void setTotalAnswered(short totalAnswered) {
-        this.totalAnswered = totalAnswered;
-    }
-
-    public List<UUID> getResources() {
-        return resources;
-    }
-
-    public void setResources(List<UUID> resources) {
-        this.resources = resources;
-    }
 }
