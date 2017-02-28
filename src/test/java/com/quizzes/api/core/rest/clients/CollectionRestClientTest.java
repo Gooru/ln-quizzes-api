@@ -84,6 +84,7 @@ public class CollectionRestClientTest {
     private String imageResource;
     private Map<String, Object> setting;
     private Map<String, Object> taxonomy;
+    private Map<String, Object> displayGuide;
 
     @Before
     public void before() throws Exception {
@@ -104,6 +105,8 @@ public class CollectionRestClientTest {
         setting.put("key", "value");
         taxonomy = new HashMap<>();
         taxonomy.put("A", new Object());
+        displayGuide = new HashMap<>();
+        displayGuide.put("key", "value");
     }
 
     @Test
@@ -274,7 +277,8 @@ public class CollectionRestClientTest {
         assertNull("Body is not null", metadataResource.getBody());
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
         assertNull("Interaction is not null", metadataResource.getInteraction());
-        assertEquals("Wrong collection taxonomy", taxonomy, metadataResource.getTaxonomy());
+        assertEquals("Wrong resource taxonomy", taxonomy, metadataResource.getTaxonomy());
+        assertEquals("Wrong resource display guide", displayGuide, metadataResource.getDisplayGuide());
     }
 
     @Test
@@ -306,6 +310,7 @@ public class CollectionRestClientTest {
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
         assertNull("Interaction is not null", metadataResource.getInteraction());
         assertEquals("Wrong taxonomy", taxonomy, metadataResource.getTaxonomy());
+        assertEquals("Wrong display guide", displayGuide, metadataResource.getDisplayGuide());
     }
 
     @Test
@@ -714,6 +719,7 @@ public class CollectionRestClientTest {
         metadata.setType(imageResource);
         metadata.setUrl(url);
         metadata.setTaxonomy(taxonomy);
+        metadata.setDisplayGuide(displayGuide);
         return metadata;
     }
 
