@@ -13,6 +13,32 @@ function error() {
 function info() {
   echo -e "\n$GREEN-------> $1 $NORMAL"
 }
+function wait_for_cache_cluster() {
+  local cluster_id=$1
+  local cluster_status_cmd="aws elasticache describe-cache-clusters --cache-cluster-id ${cluster_id} --output text "
+  local cluster_status=$($cluster_status_cmd | head -1 | cut -f5)
+  local n=1
+  local max=20
+
+  info "Checking status of ElasiCache cluster \"$cluster_id\""
+
+  while true; do
+    if [[ $n -lt $max ]]; then
+      ((n++))
+      info "Current cluster status \"$cluster_status\""
+      if [ "$deployment_status" == "available" ]; then
+        info "Reboot successful"
+        return 0
+      fi
+
+      sleep 30
+    else
+      error "Fail to assert ElasiCache cluster status after $n attempts."
+      return 1
+    fi
+    deployment_status=$($cluster_status_cmd | head -1 | cut -f5)
+  done
+}
 
 function wait_for_deployment() {
 
@@ -20,8 +46,7 @@ function wait_for_deployment() {
   local deployment_status_cmd="aws deploy get-deployment --deployment-id ${deployment_id} --query deploymentInfo.status"
   local deployment_status=$($deployment_status_cmd | tr -d '"')
   local n=1
-  local max=10
-  local delay=10
+  local max=20
 
   info "Checking status of deployment \"$deployment_id\""
 
@@ -73,6 +98,19 @@ if [ -z "$DEPLOYMENT_GROUP" ] || [ -z "$CODE_DEPLOY_APP_NAME" ]; then
   error "No deployment group or application name provided"
   exit 1
 fi
+
+if [ -z "$CACHE_CLUSTER_ID" ] || [ -z "${CACHE_CLUSTER_NODE_IDS}" ]; then
+  error "No ElasiCache cluster id or node ids provided"
+  exit 1
+fi
+
+info "Rebooting ElasiCache cluster \"${CACHE_CLUSTER_ID}\""
+
+aws elasticache reboot-cache-cluster \
+  --cache-cluster-id ${CACHE_CLUSTER_ID} \
+  --cache-node-ids-to-reboot ${CACHE_CLUSTER_NODE_IDS} > /dev/null
+
+wait_for_cache_cluster ${CACHE_CLUSTER_ID}
 
 DEPLOYMENT_ID=$(aws deploy create-deployment \
   --application-name "${CODE_DEPLOY_APP_NAME}" \

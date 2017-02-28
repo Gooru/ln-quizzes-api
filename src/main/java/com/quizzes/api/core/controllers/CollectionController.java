@@ -55,13 +55,9 @@ public class CollectionController {
 
     private CollectionDto getCollectionDto(UUID collectionId, String type, boolean refresh) {
         if (COLLECTION_TYPE.equalsIgnoreCase(type)) {
-            return refresh ?
-                    collectionService.getCollectionWithCacheRefresh(collectionId) :
-                    collectionService.getCollection(collectionId);
+            return collectionService.getCollection(collectionId, refresh);
         } else if (ASSESSMENT_TYPE.equalsIgnoreCase(type)) {
-            return refresh ?
-                    collectionService.getAssessmentWithCacheRefresh(collectionId) :
-                    collectionService.getAssessment(collectionId);
+            return collectionService.getAssessment(collectionId, refresh);
         } else {
             throw new InvalidRequestException("Invalid 'type' parameter: " + type);
         }
