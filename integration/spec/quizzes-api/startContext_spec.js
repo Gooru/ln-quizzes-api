@@ -12,7 +12,7 @@ QuizzesCommon.startTest('Start context and validate response', function () {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                     'contextId': contextResponse.id,
                     'hasStarted': false,
                     'profileId': profileId
@@ -31,7 +31,7 @@ QuizzesCommon.startTest('Start context and validate response', function () {
                     })
                     .inspectJSON()
                     .afterJSON(function () {
-                        QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                        QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                             'contextId': contextResponse.id,
                             'hasStarted': true,
                             'profileId': profileId
@@ -52,7 +52,7 @@ QuizzesCommon.startTest('Start context twice', function () {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                     'contextId': contextResponse.id,
                     'hasStarted': false,
                     'profileId': profileId
@@ -60,7 +60,7 @@ QuizzesCommon.startTest('Start context twice', function () {
                 });
 
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
-                    QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                    QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                         'contextId': contextResponse.id,
                         'hasStarted': true,
                         'profileId': profileId
