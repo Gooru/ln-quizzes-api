@@ -67,6 +67,8 @@ public class ContextEventService {
         if (entity.getCurrentContextProfileId() == null) {
             return createCurrentContextProfile(entity);
         } else if (entity.getIsComplete()) {
+            //This is a start context for a NEW ATTEPMT so we reset the current Resource ID
+            entity.setCurrentResourceId(null);
             return createContextProfile(entity);
         }
 

@@ -27,6 +27,7 @@ QuizzesCommon.startTest('Start context and validate response', function () {
                     .expectJSON({
                         'contextId': contextResponse.id,
                         'collectionId': collectionId,
+                        'currentResourceId': undefined,
                         'events': []
                     })
                     .inspectJSON()
@@ -66,7 +67,7 @@ QuizzesCommon.startTest('Start context twice', function () {
                         'profileId': profileId
                     }, function () {
                         QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
-                            Frisby.create('Start context twice')
+                            Frisby.create('Start context twice, there is no current resource ID')
                                 .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
                                 .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                                 .inspectRequest()
@@ -74,6 +75,7 @@ QuizzesCommon.startTest('Start context twice', function () {
                                 .expectJSON({
                                     'contextId': contextResponse.id,
                                     'collectionId': collectionId,
+                                    'currentResourceId': undefined,
                                     'events': []
                                 })
                                 .inspectJSON()
@@ -155,6 +157,7 @@ QuizzesCommon.startTest('Start context for anonymous', function () {
                 .expectJSON({
                     'contextId': contextResponse.id,
                     'collectionId': collectionId,
+                    'currentResourceId': undefined,
                     'events': []
                 })
                 .inspectJSON()
