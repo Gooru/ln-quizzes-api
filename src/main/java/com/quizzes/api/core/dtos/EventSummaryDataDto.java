@@ -1,5 +1,9 @@
 package com.quizzes.api.core.dtos;
 
+import lombok.Data;
+
+import java.io.Serializable;
+
 /**
  * Summary data of all the {@link com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent}
  * totalTimeSpent:  sum of the time spent in all the questions.
@@ -8,7 +12,8 @@ package com.quizzes.api.core.dtos;
  * totalCorrect:    amount of correct Answers.
  * totalAnswered:   amount of answered questions, skipped questions doesn't count here.
  */
-public class EventSummaryDataDto {
+@Data
+public class EventSummaryDataDto implements Serializable {
 
     private long    totalTimeSpent = 0;
     private short   averageReaction = 0;
@@ -16,43 +21,4 @@ public class EventSummaryDataDto {
     private short   totalCorrect = 0;
     private short   totalAnswered = 0;
 
-    public long getTotalTimeSpent() {
-        return totalTimeSpent;
-    }
-
-    public void setTotalTimeSpent(long totalTimeSpent) {
-        this.totalTimeSpent = totalTimeSpent;
-    }
-
-    public short getAverageReaction() {
-        return averageReaction;
-    }
-
-    public void setAverageReaction(short averageReaction) {
-        this.averageReaction = averageReaction;
-    }
-
-    public short getAverageScore() {
-        return averageScore;
-    }
-
-    public void setAverageScore(short averageScore) {
-        this.averageScore = averageScore;
-    }
-
-    public short getTotalCorrect() {
-        return totalCorrect;
-    }
-
-    public void setTotalCorrect(short totalCorrect) {
-        this.totalCorrect = totalCorrect;
-    }
-
-    public short getTotalAnswered() {
-        return totalAnswered;
-    }
-
-    public void setTotalAnswered(short totalAnswered) {
-        this.totalAnswered = totalAnswered;
-    }
 }
