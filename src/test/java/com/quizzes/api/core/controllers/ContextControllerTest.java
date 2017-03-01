@@ -257,7 +257,7 @@ public class ContextControllerTest {
         when(contextService.findAssignedContext(any(UUID.class), any(UUID.class))).thenReturn(assignedContextEntity);
 
         ResponseEntity<ContextGetResponseDto> response =
-                controller.getAssignedContext(UUID.randomUUID(), UUID.randomUUID());
+                controller.getAssignedContext(UUID.randomUUID(), UUID.randomUUID().toString());
 
         verify(contextService, times(1)).findAssignedContext(any(UUID.class), any(UUID.class));
         assertNotNull("Response is null", response);

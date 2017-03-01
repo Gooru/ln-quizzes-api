@@ -24,7 +24,7 @@ QuizzesCommon.startTest('Get a created context for anonymous', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
             QuizzesCommon.getAnonymousToken(function (anonymousToken) {
-                QuizzesCommon.verifyHttpError('Get a context with incorrect context id',
+                QuizzesCommon.verifyHttpError('Get a created context using an anonymous token',
                     `/v1/contexts/${contextResponse.id}/created`, HttpErrorCodes.FORBIDDEN, anonymousToken);
             });
         });
@@ -51,7 +51,12 @@ QuizzesCommon.startTest('Get a created context', function () {
                     },
                     contextMap: {}
                 },
-
+                createdDate: function(value) {
+                    expect(value).toBeDefined();
+                },
+                modifiedDate: function(value) {
+                    expect(value).toBeDefined();
+                }
             }, function() {});
         });
     });

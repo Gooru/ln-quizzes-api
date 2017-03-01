@@ -15,30 +15,30 @@ QuizzesCommon.startTest('OnResource on started context', function () {
                     let resourceId = collection.resources[1].id;
                     Frisby.create('Test valid onResource call')
                         .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
-                            {"previousResource": {
-                                "answer": previousResource.correctAnswer,
-                                "reaction": 2,
-                                "resourceId": previousResource.id,
-                                "timeSpent": 1500
+                            {'previousResource': {
+                                'answer': previousResource.correctAnswer,
+                                'reaction': 2,
+                                'resourceId': previousResource.id,
+                                'timeSpent': 1500
                             }
                         }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                         .inspectRequest()
-                        .expectStatus(204)
+                        .expectStatus(200)
                         .toss();
 
                     Frisby.create('onResource call with resourceId === previous resource ID')
                         .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
-                            {"previousResource": {
-                                "answer": previousResource.correctAnswer,
-                                "reaction": 2,
-                                "resourceId": resourceId,
-                                "timeSpent": 1500
+                            {'previousResource': {
+                                'answer': previousResource.correctAnswer,
+                                'reaction': 2,
+                                'resourceId': resourceId,
+                                'timeSpent': 1500
                             }
                             }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                         .inspectRequest()
-                        .expectStatus(204)
+                        .expectStatus(200)
                         .toss();
 
                     Frisby.create('onResource call without previous resource')
@@ -52,11 +52,11 @@ QuizzesCommon.startTest('OnResource on started context', function () {
 
                     Frisby.create('onResource call as the teacher, the context is not found for the teacher')
                         .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
-                            {"previousResource": {
-                                "answer": previousResource.correctAnswer,
-                                "reaction": 2,
-                                "resourceId": previousResource.id,
-                                "timeSpent": 1500
+                            {'previousResource': {
+                                'answer': previousResource.correctAnswer,
+                                'reaction': 2,
+                                'resourceId': previousResource.id,
+                                'timeSpent': 1500
                             }
                             }, {json: true})
                         .addHeader('Authorization', `Token ${authToken}`)
@@ -67,11 +67,11 @@ QuizzesCommon.startTest('OnResource on started context', function () {
                     let randomUUID = QuizzesCommon.generateUUID();
                     Frisby.create('onResource call on a wrong previous resource, previous resource not found')
                         .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
-                            {"previousResource": {
-                                "answer": previousResource.correctAnswer,
-                                "reaction": 2,
-                                "resourceId": randomUUID,
-                                "timeSpent": 1500
+                            {'previousResource': {
+                                'answer': previousResource.correctAnswer,
+                                'reaction': 2,
+                                'resourceId': randomUUID,
+                                'timeSpent': 1500
                             }
                             }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
@@ -81,11 +81,11 @@ QuizzesCommon.startTest('OnResource on started context', function () {
 
                     Frisby.create('onResource call with context not found')
                         .post(QuizzesApiUrl + `/v1/contexts/${randomUUID}/onResource/${resourceId}`,
-                            {"previousResource": {
-                                "answer": previousResource.correctAnswer,
-                                "reaction": 2,
-                                "resourceId": previousResource.id,
-                                "timeSpent": 1500
+                            {'previousResource': {
+                                'answer': previousResource.correctAnswer,
+                                'reaction': 2,
+                                'resourceId': previousResource.id,
+                                'timeSpent': 1500
                             }
                             }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
@@ -95,11 +95,11 @@ QuizzesCommon.startTest('OnResource on started context', function () {
 
                     Frisby.create('onResource call with resource not found')
                         .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${randomUUID}`,
-                            {"previousResource": {
-                                "answer": previousResource.correctAnswer,
-                                "reaction": 2,
-                                "resourceId": previousResource.id,
-                                "timeSpent": 1500
+                            {'previousResource': {
+                                'answer': previousResource.correctAnswer,
+                                'reaction': 2,
+                                'resourceId': previousResource.id,
+                                'timeSpent': 1500
                             }
                             }, {json: true})
                         .addHeader('Authorization', `Token ${assigneeAuthToken}`)
@@ -123,16 +123,16 @@ QuizzesCommon.startTest('OnResource with anonymous user', function () {
                 let resourceId = collection.resources[1].id;
                 Frisby.create('onResource call with anonymous user')
                     .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
-                        {"previousResource": {
-                            "answer": previousResource.correctAnswer,
-                            "reaction": 2,
-                            "resourceId": previousResource.id,
-                            "timeSpent": 1500
+                        {'previousResource': {
+                            'answer': previousResource.correctAnswer,
+                            'reaction': 2,
+                            'resourceId': previousResource.id,
+                            'timeSpent': 1500
                         }
                         }, {json: true})
                     .addHeader('Authorization', `Token ${authToken}`)
                     .inspectRequest()
-                    .expectStatus(204)
+                    .expectStatus(200)
                     .toss();
 
             });
@@ -151,11 +151,11 @@ QuizzesCommon.startTest('OnResource on a context not started', function () {
                 let resourceId = collection.resources[1].id;
                 Frisby.create('onResource call, context not started')
                     .post(QuizzesApiUrl + `/v1/contexts/${contextResponseId}/onResource/${resourceId}`,
-                        {"previousResource": {
-                            "answer": previousResource.correctAnswer,
-                            "reaction": 2,
-                            "resourceId": previousResource.id,
-                            "timeSpent": 1500
+                        {'previousResource': {
+                            'answer': previousResource.correctAnswer,
+                            'reaction': 2,
+                            'resourceId': previousResource.id,
+                            'timeSpent': 1500
                         }
                         }, {json: true})
                     .addHeader('Authorization', `Token ${assigneeAuthToken}`)
@@ -182,11 +182,11 @@ QuizzesCommon.startTest('OnResource on started and finished context', function (
                         Frisby.create('onResource call with started and finished context')
                             .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
                                 {
-                                    "previousResource": {
-                                        "answer": previousResource.correctAnswer,
-                                        "reaction": 2,
-                                        "resourceId": previousResource.id,
-                                        "timeSpent": 1500
+                                    'previousResource': {
+                                        'answer': previousResource.correctAnswer,
+                                        'reaction': 2,
+                                        'resourceId': previousResource.id,
+                                        'timeSpent': 1500
                                     }
                                 }, {json: true})
                             .addHeader('Authorization', `Token ${assigneeAuthToken}`)
@@ -194,6 +194,99 @@ QuizzesCommon.startTest('OnResource on started and finished context', function (
                             .expectStatus(400)
                             .toss();
                     });
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest('OnResource with no feedback because of no setting', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collection = Config.getCollection('TestCollection01');
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                    let previousResource = collection.resources[0];
+                    let resourceId = collection.resources[1].id;
+                    Frisby.create('OnResource with no feedback because of no setting')
+                        .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
+                            {
+                                'previousResource': {
+                                    'answer': previousResource.correctAnswer,
+                                    'reaction': 2,
+                                    'resourceId': previousResource.id,
+                                    'timeSpent': 1500
+                                }
+                            }, {json: true})
+                        .addHeader('Authorization', `Token ${assigneeAuthToken}`)
+                        .inspectRequest()
+                        .expectStatus(200)
+                        .expectJSON({})
+                        .toss();
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest('OnResource with feedback by setting', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let assessment = Config.getAssessment('TestAssessment01');
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(assessment.id, classId, false, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                    let previousResource = assessment.resources[0];
+                    let resourceId = assessment.resources[1].id;
+                    Frisby.create('OnResource with showFeedback immediate')
+                        .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
+                            {
+                                'previousResource': {
+                                    'answer': previousResource.correctAnswer,
+                                    'reaction': 2,
+                                    'resourceId': previousResource.id,
+                                    'timeSpent': 1500
+                                }
+                            }, {json: true})
+                        .addHeader('Authorization', `Token ${assigneeAuthToken}`)
+                        .inspectRequest()
+                        .expectStatus(200)
+                        .expectJSON({ score: 100 })
+                        .toss();
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest('OnResource with no feedback by setting', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let assessment = Config.getAssessment('TestAssessment02');
+        let classId = Config.getClass('TestClass01').id;
+        QuizzesCommon.createContext(assessment.id, classId, false, {}, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                    let previousResource = assessment.resources[0];
+                    let resourceId = assessment.resources[1].id;
+                    Frisby.create('OnResource with showFeedback never')
+                        .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
+                            {
+                                'previousResource': {
+                                    'answer': previousResource.correctAnswer,
+                                    'reaction': 2,
+                                    'resourceId': previousResource.id,
+                                    'timeSpent': 1500
+                                }
+                            }, {json: true})
+                        .addHeader('Authorization', `Token ${assigneeAuthToken}`)
+                        .inspectRequest()
+                        .expectStatus(200)
+                        .expectJSON({})
+                        .toss();
                 });
             });
         });
