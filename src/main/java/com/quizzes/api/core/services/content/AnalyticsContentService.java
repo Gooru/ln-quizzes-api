@@ -30,7 +30,7 @@ public class AnalyticsContentService {
     @Autowired
     private QuizzesUtils quizzesUtils;
 
-    private final static String COLLECTION_PLAY = QuizzesUtils.getCollectionToString().concat(".play");
+    private final static String COLLECTION_PLAY = QuizzesUtils.COLLECTION.concat(".play");
     private final static String START = "start";
     private final static String STOP = "stop";
 
@@ -67,8 +67,8 @@ public class AnalyticsContentService {
     private ContextEventContentDto createContextEventDto(CollectionDto collection, UUID classId) {
         return ContextEventContentDto.builder()
                 .collectionId(UUID.fromString(collection.getId()))
-                .collectionType(collection.getIsCollection() ? QuizzesUtils.getCollectionToString() :
-                        QuizzesUtils.getAssessmentToString())
+                .collectionType(collection.getIsCollection() ? QuizzesUtils.COLLECTION :
+                        QuizzesUtils.ASSESSMENT)
                 .type(START)
                 .questionCount(collection.getResources().size())
                 .unitGooruId(collection.getUnitId())
