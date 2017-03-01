@@ -479,7 +479,7 @@ public class ContextEventService {
                     .collect(Collectors.toList());
             collectionTaxonomyMap.putAll(collectionDto.getMetadata().getTaxonomy().keySet().stream()
                     .map(key -> {
-                        TaxonomySummaryDto taxonomySummaryDto = mapEventSummaryToTaxonomySummary(eventSummary);
+                        TaxonomySummaryDto taxonomySummaryDto = (TaxonomySummaryDto)eventSummary;
                         taxonomySummaryDto.setTaxonomyId(key);
                         taxonomySummaryDto.setResources(allEventResourceIds);
                         return taxonomySummaryDto;
@@ -520,7 +520,7 @@ public class ContextEventService {
         List<TaxonomySummaryDto> eventTaxonomyList = new ArrayList<>();
         eventsByTaxonomy.entrySet().stream().forEach(entry -> {
             EventSummaryDataDto eventSummaryByTaxonomy = this.calculateEventSummary(entry.getValue(), calculateSkipped);
-            TaxonomySummaryDto taxonomySummaryDto = mapEventSummaryToTaxonomySummary(eventSummaryByTaxonomy);
+            TaxonomySummaryDto taxonomySummaryDto = (TaxonomySummaryDto)eventSummaryByTaxonomy;
             taxonomySummaryDto.setTaxonomyId(entry.getKey());
             List<UUID> resourceIdListByTaxonomy = entry.getValue().stream()
                     .map(event -> event.getResourceId())
@@ -537,16 +537,6 @@ public class ContextEventService {
         return result;
     }
 
-    private TaxonomySummaryDto mapEventSummaryToTaxonomySummary(EventSummaryDataDto eventSummaryDataDto) {
-        TaxonomySummaryDto result = new TaxonomySummaryDto();
-        result.setAverageReaction(eventSummaryDataDto.getAverageReaction());
-        result.setAverageScore(eventSummaryDataDto.getAverageScore());
-        result.setTotalTimeSpent(eventSummaryDataDto.getTotalTimeSpent());
-        result.setTotalCorrect(eventSummaryDataDto.getTotalCorrect());
-        result.setTotalAnswered(eventSummaryDataDto.getTotalAnswered());
-        return result;
-    }
-        @Transactional
     private void doCurrentContextEventTransaction(CurrentContextProfile currentContextProfile) {
         currentContextProfileService.delete(currentContextProfile);
         currentContextProfileService.create(currentContextProfile);
