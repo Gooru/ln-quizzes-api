@@ -122,7 +122,7 @@ public class CollectionRestClient {
             return createCollectionDtoFromCollectionContentDto(collection);
         } catch (HttpClientErrorException hcee) {
             logger.error("Gooru Collection '" + collectionId + "' could not be retrieved.", hcee);
-            if(hcee.getStatusCode().equals(HttpStatus.NOT_FOUND)){
+            if (hcee.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
                 throw new ContentNotFoundException("Collection " + collectionId + " could not be found.");
             }
             throw new ContentProviderException("Collection " + collectionId + " could not be retrieved.", hcee);
@@ -188,6 +188,9 @@ public class CollectionRestClient {
         collectionDto.setMetadata(mapCollectionMetadata(collectionContentDto));
         collectionDto.setResources(mapResources(collectionContentDto.getContent()));
         collectionDto.setIsCollection(collectionContentDto.getIsCollection());
+        collectionDto.setUnitId(collectionContentDto.getUnitId());
+        collectionDto.setLessonId(collectionContentDto.getLessonId());
+        collectionDto.setCourseId(collectionContentDto.getCourseId());
         return collectionDto;
     }
 
@@ -248,7 +251,7 @@ public class CollectionRestClient {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
         metadata.setType(mapQuestionType(resourceContentDto));
-        if(resourceContentDto.getAnswers() != null){
+        if (resourceContentDto.getAnswers() != null) {
             metadata.setCorrectAnswer(getCorrectAnswers(resourceContentDto));
             metadata.setInteraction(createInteraction(resourceContentDto));
         }

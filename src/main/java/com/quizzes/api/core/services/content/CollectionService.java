@@ -28,8 +28,8 @@ public class CollectionService {
 
     public CollectionDto getCollection(UUID collectionId, boolean withCacheRefresh) {
         return withCacheRefresh ?
-                collectionRestClient.getCollectionWithCacheRefresh(collectionId) :
-                collectionRestClient.getCollection(collectionId);
+               collectionRestClient.getCollectionWithCacheRefresh(collectionId) :
+               collectionRestClient.getCollection(collectionId);
     }
 
     public CollectionDto getCollection(UUID collectionId) {
