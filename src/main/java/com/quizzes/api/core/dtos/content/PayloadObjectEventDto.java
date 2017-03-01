@@ -7,6 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class PayloadObjectEventDto {
 
-    private boolean isStudent;
+    private Boolean isStudent;
 
 }

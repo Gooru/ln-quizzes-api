@@ -5,6 +5,7 @@ import com.quizzes.api.core.dtos.content.EventDto;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +16,11 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Collections;
 
 @Component
+@Slf4j
 public class AnalyticsRestClient {
 
     private static final String NUCLEUS_INSIGHTS_API_URL = "/api/nucleus-insights/v2";
     private static final String EVENTS_PATH = NUCLEUS_INSIGHTS_API_URL.concat("/event");
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private RestTemplate restTemplate;
@@ -35,19 +35,19 @@ public class AnalyticsRestClient {
         String endpointUrl = configurationService.getContentApiUrl() +
                 EVENTS_PATH + "?apiKey=" + configurationService.getApiKey();
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("POST Request to: " + endpointUrl);
+        if (log.isDebugEnabled()) {
+            log.debug("POST Request to: " + endpointUrl);
         }
 
         try {
-            logger.debug("Body: " + gsonPretty.toJson(Collections.singletonList(event)));
+            log.debug("Body: " + gsonPretty.toJson(Collections.singletonList(event)));
             restTemplate.postForObject(endpointUrl, Collections.singletonList(event), Void.class);
 
         } catch (HttpClientErrorException hcee) {
-            logger.error("There was problem saving the event: " + event.getEventName(), hcee);
+            log.error("There was problem saving the event: " + event.getEventName(), hcee);
             throw new ContentProviderException("There was problem saving the event: " + event.getEventName(), hcee);
         } catch (Exception e) {
-            logger.error("There was problem saving the event: " + event.getEventName(), e);
+            log.error("There was problem saving the event: " + event.getEventName(), e);
             throw new InternalServerException("There was problem saving the event: " + event.getEventName(), e);
         }
     }

@@ -15,6 +15,8 @@ public class QuizzesUtils {
 
     private static final String ANONYMOUS_PROFILE = "anonymous";
     private static final UUID ANONYMOUS_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+    private final static String ASSESSMENT = "assessment";
+    private final static String COLLECTION = "collection";
 
     @Autowired
     private UtilsRepository utilsRepository;
@@ -46,6 +48,14 @@ public class QuizzesUtils {
         } else {
             return UUID.fromString(profileId);
         }
+    }
+
+    public static String getCollectionToString(){
+        return COLLECTION;
+    }
+
+    public static String getAssessmentToString(){
+        return ASSESSMENT;
     }
 
     public long getCurrentTimestamp() {

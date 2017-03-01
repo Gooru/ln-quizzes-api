@@ -17,12 +17,6 @@ import java.util.UUID;
 
 @Service
 public class AnalyticsContentService {
-    private final static String VERSION = "3.1";
-    private final static String ASSESSMENT = "assessment";
-    private final static String COLLECTION = "collection";
-    private final static String START = "start";
-    private final static String STOP = "stop";
-    private final static String COLLECTION_PLAY = COLLECTION.concat(".play");
 
     @Autowired
     private AnalyticsRestClient analyticsRestClient;
@@ -35,6 +29,11 @@ public class AnalyticsContentService {
 
     @Autowired
     private QuizzesUtils quizzesUtils;
+
+    private final static String VERSION = "3.1";
+    private final static String COLLECTION_PLAY = QuizzesUtils.getCollectionToString().concat(".play");
+    private final static String START = "start";
+    private final static String STOP = "stop";
 
     public void collectionPlay(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                                boolean isCollection, String token) {
@@ -69,7 +68,8 @@ public class AnalyticsContentService {
     private ContextEventDto createContextEventDto(CollectionDto collection, UUID classId) {
         return ContextEventDto.builder()
                 .collectionId(UUID.fromString(collection.getId()))
-                .collectionType(collection.getIsCollection() ? COLLECTION : ASSESSMENT)
+                .collectionType(collection.getIsCollection() ? QuizzesUtils.getCollectionToString() :
+                        QuizzesUtils.getAssessmentToString())
                 .type(START)
                 .questionCount(collection.getResources().size())
                 .unitGooruId(collection.getUnitId())
