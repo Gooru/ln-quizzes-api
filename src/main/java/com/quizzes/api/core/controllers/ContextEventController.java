@@ -43,9 +43,10 @@ public class ContextEventController {
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
             @ApiParam(value = "Id of the context that will be started", required = true, name = "ContextID")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") String profileId) {
+            @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "token") String token) {
         return new ResponseEntity<>(contextEventService.processStartContextEvent(contextId,
-                QuizzesUtils.resolveProfileId(profileId)), HttpStatus.OK);
+                QuizzesUtils.resolveProfileId(profileId), token), HttpStatus.OK);
     }
 
     @ApiOperation(value = "On resource event",

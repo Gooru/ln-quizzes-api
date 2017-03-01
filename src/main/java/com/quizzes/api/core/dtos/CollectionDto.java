@@ -1,5 +1,7 @@
 package com.quizzes.api.core.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +13,13 @@ public class CollectionDto implements Serializable {
     private CollectionMetadataDto metadata;
     private Boolean isCollection;
     private List<ResourceDto> resources;
+
+    @JsonIgnore
+    private UUID unitId;
+    @JsonIgnore
+    private UUID lessonId;
+    @JsonIgnore
+    private UUID courseId;
 
     public CollectionDto() {
     }
@@ -55,4 +64,27 @@ public class CollectionDto implements Serializable {
         this.resources = resources;
     }
 
+    public UUID getUnitId() {
+        return unitId;
+    }
+
+    public void setUnitId(UUID unitId) {
+        this.unitId = unitId;
+    }
+
+    public UUID getLessonId() {
+        return lessonId;
+    }
+
+    public void setLessonId(UUID lessonId) {
+        this.lessonId = lessonId;
+    }
+
+    public UUID getCourseId() {
+        return courseId;
+    }
+
+    public void setCourseId(UUID courseId) {
+        this.courseId = courseId;
+    }
 }

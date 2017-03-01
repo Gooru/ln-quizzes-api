@@ -24,6 +24,7 @@ import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.CollectionService;
+import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -47,6 +48,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -89,6 +91,9 @@ public class ContextEventServiceTest {
 
     @Mock
     private CollectionService collectionService;
+
+    @Mock
+    private AnalyticsContentService analyticsContentService;
 
     @Mock
     private Gson gson = new Gson();
@@ -134,15 +139,15 @@ public class ContextEventServiceTest {
                 .thenReturn(entity);
 
         doReturn(startContextEventResponseDto)
-                .when(contextEventService, "createContextProfile", entity);
+                .when(contextEventService, "createContextProfile", entity, token);
 
-        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(contextId,
                 profileId);
-        verifyPrivate(contextEventService, times(1)).invoke("createContextProfile", entity);
+        verifyPrivate(contextEventService, times(1)).invoke("createContextProfile", entity, token);
         verifyPrivate(contextEventService, times(0)).invoke("resumeStartContextEvent", any());
-        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any());
+        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any(), any());
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
@@ -162,14 +167,14 @@ public class ContextEventServiceTest {
                 .thenReturn(entity);
 
         doReturn(startContextEventResponseDto)
-                .when(contextEventService, "createContextProfile", entity);
+                .when(contextEventService, "createContextProfile", entity, token);
 
-        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
-        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", entity);
+        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", entity, token);
         verifyPrivate(contextEventService, times(1)).invoke("resumeStartContextEvent", any());
-        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any());
+        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any(), any());
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
@@ -187,15 +192,15 @@ public class ContextEventServiceTest {
                 profileId)).thenReturn(entity);
 
         doReturn(startContextEventResponseDto)
-                .when(contextEventService, "createContextProfile", entity);
+                .when(contextEventService, "createContextProfile", entity, token);
 
-        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(contextId,
                 profileId);
-        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", entity);
+        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", any(), any());
         verifyPrivate(contextEventService, times(0)).invoke("resumeStartContextEvent", any());
-        verifyPrivate(contextEventService, times(1)).invoke("createCurrentContextProfile", any());
+        verifyPrivate(contextEventService, times(1)).invoke("createCurrentContextProfile", entity, token);
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
@@ -211,14 +216,15 @@ public class ContextEventServiceTest {
         doReturn(contextProfile).when(contextEventService, "createContextProfileObject", contextId, profileId);
         doNothing().when(contextEventService, "doCreateContextProfileTransaction", contextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
-                eq(entity), any(ArrayList.class));
+                eq(entity), any(ArrayList.class), eq(token));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "createContextProfile", entity);
+                WhiteboxImpl.invokeMethod(contextEventService, "createContextProfile", entity, token);
 
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileObject", contextId, profileId);
         verifyPrivate(contextEventService, times(1)).invoke("doCreateContextProfileTransaction", contextProfile);
-        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class));
+        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class),
+                eq(token));
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
@@ -234,15 +240,16 @@ public class ContextEventServiceTest {
                 contextId, profileId, contextProfileId);
         doNothing().when(contextEventService, "doCurrentContextEventTransaction", currentContextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
-                eq(entity), any(ArrayList.class));
+                eq(entity), any(ArrayList.class), eq(token));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "createCurrentContextProfile", entity);
+                WhiteboxImpl.invokeMethod(contextEventService, "createCurrentContextProfile", entity, token);
 
         verifyPrivate(contextEventService, times(1))
                 .invoke("createCurrentContextProfileObject", contextId, profileId, contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("doCurrentContextEventTransaction", currentContextProfile);
-        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class));
+        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class),
+                eq(token));
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
@@ -260,8 +267,10 @@ public class ContextEventServiceTest {
                 eq(contextId), eq(resourceId), eq(collectionId), any(ArrayList.class));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>());
+                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>(), token);
 
+        verify(analyticsContentService, times(1)).collectionPlay(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(UUID.class), anyBoolean(), anyString());
         verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", eq(contextId),
                 eq(resourceId), eq(collectionId), any(ArrayList.class));
         verifyPrivate(contextEventService, times(1)).invoke("sendStartEventMessage",
@@ -284,8 +293,10 @@ public class ContextEventServiceTest {
                 eq(contextId), eq(resourceId), eq(collectionId), any(ArrayList.class));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>());
+                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>(), token);
 
+        verify(analyticsContentService, times(0)).collectionPlay(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(UUID.class), anyBoolean(), anyString());
         verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", eq(contextId),
                 eq(resourceId), eq(collectionId), any(ArrayList.class));
         verifyPrivate(contextEventService, times(0)).invoke("sendStartEventMessage",
@@ -1436,6 +1447,7 @@ public class ContextEventServiceTest {
         when(entity.getProfileId()).thenReturn(profileId);
         when(entity.getContextProfileId()).thenReturn(contextProfileId);
         when(entity.getClassId()).thenReturn(classId);
+        when(entity.getIsCollection()).thenReturn(true);
 
         return entity;
     }

@@ -92,12 +92,13 @@ public class ContextEventControllerTest {
         startContext.setEvents(events);
 
 
-        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
+        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class), any(String.class)))
+                .thenReturn(startContext);
 
         ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(contextId,
-                profileId.toString());
+                profileId.toString(), token);
 
-        verify(contextEventService, times(1)).processStartContextEvent(contextId, profileId);
+        verify(contextEventService, times(1)).processStartContextEvent(contextId, profileId, token);
 
         StartContextEventResponseDto resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
@@ -142,12 +143,13 @@ public class ContextEventControllerTest {
         startContext.setCollectionId(collectionId);
         startContext.setEvents(events);
 
-        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class))).thenReturn(startContext);
+        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class), any(String.class)))
+                .thenReturn(startContext);
 
         ResponseEntity<StartContextEventResponseDto> result =
-                controller.startContextEvent(contextId, anonymousId.toString());
+                controller.startContextEvent(contextId, anonymousId.toString(), token);
 
-        verify(contextEventService, times(1)).processStartContextEvent(contextId, anonymousId);
+        verify(contextEventService, times(1)).processStartContextEvent(contextId, anonymousId, token);
 
         StartContextEventResponseDto resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
