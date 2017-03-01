@@ -1,6 +1,7 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.services.ContextEventService;
 import com.quizzes.api.util.QuizzesUtils;
@@ -52,20 +53,24 @@ public class ContextEventController {
             notes = "Sends event to indicate current resource position and provides the data generated" +
                     " in the previous resource (this value could be null in case there is not previous resource)")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "No Content")
+            @ApiResponse(code = 200, message = "Returns the resource score or empty object, according to settings")
     })
     @RequestMapping(path = "/contexts/{contextId}/onResource/{resourceId}",
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> onResourceEvent(@ApiParam(value = "ID of the resource that we are sending data to", required = true, name = "Resource ID")
-                                                @PathVariable UUID resourceId,
-                                                @ApiParam(value = "ID of the context that the resource belongs to", required = true, name = "Context ID")
-                                                @PathVariable UUID contextId,
-                                                @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true, name = "Body")
-                                                @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
-                                                @RequestAttribute(value = "profileId") String profileId) {
-        contextEventService.processOnResourceEvent(contextId, QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<OnResourceEventResponseDto> onResourceEvent(
+            @ApiParam(value = "ID of the resource that we are sending data to", required = true, name = "Resource ID")
+            @PathVariable UUID resourceId,
+            @ApiParam(value = "ID of the context that the resource belongs to", required = true, name = "Context ID")
+            @PathVariable UUID contextId,
+            @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true, name = "Body")
+            @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
+            @RequestAttribute(value = "profileId") String profileId) {
+
+        OnResourceEventResponseDto response =  contextEventService.processOnResourceEvent(contextId,
+                QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation(
