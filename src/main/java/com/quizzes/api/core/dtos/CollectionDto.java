@@ -1,6 +1,6 @@
 package com.quizzes.api.core.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -18,11 +18,11 @@ public class CollectionDto implements Serializable {
     private Boolean isCollection;
     private List<ResourceDto> resources;
 
-    @JsonIgnore
+    @ApiModelProperty(hidden = true)
     private UUID unitId;
-    @JsonIgnore
+    @ApiModelProperty(hidden = true)
     private UUID lessonId;
-    @JsonIgnore
+    @ApiModelProperty(hidden = true)
     private UUID courseId;
 
 }
