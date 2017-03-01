@@ -20,7 +20,7 @@ var verifyGetContextEvents = function (contextId, ownerProfileId, result, afterJ
 QuizzesCommon.startTest("Test finished context summary for 10 correctly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - correct
@@ -159,7 +159,7 @@ QuizzesCommon.startTest("Test finished context summary for 10 correctly answered
 QuizzesCommon.startTest("Test finished context summary for 10 incorrectly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - incorrect
@@ -298,7 +298,7 @@ QuizzesCommon.startTest("Test finished context summary for 10 incorrectly answer
 QuizzesCommon.startTest("Test finished context summary for 2 correct and 1 incorrect answered questions, the other 7 skipped", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - correct
@@ -367,7 +367,7 @@ QuizzesCommon.startTest("Test finished context summary for 2 correct and 1 incor
 QuizzesCommon.startTest("Test finished context summary spent time calculation for multiple visits of the same question", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - correct
@@ -448,7 +448,7 @@ QuizzesCommon.startTest("Test finished context summary spent time calculation fo
 QuizzesCommon.startTest("Test finished context summary with 2 answered questions and 8 skipped", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - correct
@@ -567,7 +567,7 @@ QuizzesCommon.startTest("Test finished context summary with 2 answered questions
 QuizzesCommon.startTest("Test finished context summary when a question answer and reaction are changed", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - incorrect
@@ -636,7 +636,7 @@ QuizzesCommon.startTest("Test finished context summary when a question answer an
 QuizzesCommon.startTest("Test an unfinished context summary with 3 questions answered correctly", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - correct
@@ -703,7 +703,7 @@ QuizzesCommon.startTest("Test an unfinished context summary with 3 questions ans
 QuizzesCommon.startTest("Test an unfinished context summary with 3 questions answered incorrectly", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - incorrect
@@ -770,7 +770,7 @@ QuizzesCommon.startTest("Test an unfinished context summary with 3 questions ans
 QuizzesCommon.startTest("Test context summary for 10 correctly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - correct

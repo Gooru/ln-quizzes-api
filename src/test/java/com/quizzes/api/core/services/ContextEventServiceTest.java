@@ -3,8 +3,10 @@ package com.quizzes.api.core.services;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.dtos.CollectionMetadataDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
@@ -14,7 +16,9 @@ import com.quizzes.api.core.dtos.TaxonomySummaryDto;
 import com.quizzes.api.core.dtos.content.ResourceContentDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
+import com.quizzes.api.core.enums.CollectionSetting;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
@@ -26,6 +30,7 @@ import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.CollectionService;
+import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +46,9 @@ import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertFalse;
@@ -50,6 +57,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -92,6 +100,9 @@ public class ContextEventServiceTest {
 
     @Mock
     private CollectionService collectionService;
+
+    @Mock
+    private AnalyticsContentService analyticsContentService;
 
     @Mock
     private Gson gson = new Gson();
@@ -137,15 +148,15 @@ public class ContextEventServiceTest {
                 .thenReturn(entity);
 
         doReturn(startContextEventResponseDto)
-                .when(contextEventService, "createContextProfile", entity);
+                .when(contextEventService, "createContextProfile", entity, token);
 
-        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(contextId,
                 profileId);
-        verifyPrivate(contextEventService, times(1)).invoke("createContextProfile", entity);
+        verifyPrivate(contextEventService, times(1)).invoke("createContextProfile", entity, token);
         verifyPrivate(contextEventService, times(0)).invoke("resumeStartContextEvent", any());
-        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any());
+        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any(), any());
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
@@ -165,14 +176,14 @@ public class ContextEventServiceTest {
                 .thenReturn(entity);
 
         doReturn(startContextEventResponseDto)
-                .when(contextEventService, "createContextProfile", entity);
+                .when(contextEventService, "createContextProfile", entity, token);
 
-        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
-        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", entity);
+        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", entity, token);
         verifyPrivate(contextEventService, times(1)).invoke("resumeStartContextEvent", any());
-        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any());
+        verifyPrivate(contextEventService, times(0)).invoke("createCurrentContextProfile", any(), any());
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
@@ -190,15 +201,15 @@ public class ContextEventServiceTest {
                 profileId)).thenReturn(entity);
 
         doReturn(startContextEventResponseDto)
-                .when(contextEventService, "createContextProfile", entity);
+                .when(contextEventService, "createContextProfile", entity, token);
 
-        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId);
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(contextId,
                 profileId);
-        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", entity);
+        verifyPrivate(contextEventService, times(0)).invoke("createContextProfile", any(), any());
         verifyPrivate(contextEventService, times(0)).invoke("resumeStartContextEvent", any());
-        verifyPrivate(contextEventService, times(1)).invoke("createCurrentContextProfile", any());
+        verifyPrivate(contextEventService, times(1)).invoke("createCurrentContextProfile", entity, token);
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
@@ -214,14 +225,15 @@ public class ContextEventServiceTest {
         doReturn(contextProfile).when(contextEventService, "createContextProfileObject", contextId, profileId);
         doNothing().when(contextEventService, "doCreateContextProfileTransaction", contextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
-                eq(entity), any(ArrayList.class));
+                eq(entity), any(ArrayList.class), eq(token));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "createContextProfile", entity);
+                WhiteboxImpl.invokeMethod(contextEventService, "createContextProfile", entity, token);
 
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileObject", contextId, profileId);
         verifyPrivate(contextEventService, times(1)).invoke("doCreateContextProfileTransaction", contextProfile);
-        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class));
+        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class),
+                eq(token));
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
@@ -237,15 +249,16 @@ public class ContextEventServiceTest {
                 contextId, profileId, contextProfileId);
         doNothing().when(contextEventService, "doCurrentContextEventTransaction", currentContextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
-                eq(entity), any(ArrayList.class));
+                eq(entity), any(ArrayList.class), eq(token));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "createCurrentContextProfile", entity);
+                WhiteboxImpl.invokeMethod(contextEventService, "createCurrentContextProfile", entity, token);
 
         verifyPrivate(contextEventService, times(1))
                 .invoke("createCurrentContextProfileObject", contextId, profileId, contextProfileId);
         verifyPrivate(contextEventService, times(1)).invoke("doCurrentContextEventTransaction", currentContextProfile);
-        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class));
+        verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(entity), any(ArrayList.class),
+                eq(token));
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
         assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
@@ -263,8 +276,10 @@ public class ContextEventServiceTest {
                 eq(contextId), eq(resourceId), eq(collectionId), any(ArrayList.class));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>());
+                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>(), token);
 
+        verify(analyticsContentService, times(1)).collectionPlay(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(UUID.class), anyBoolean(), anyString());
         verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", eq(contextId),
                 eq(resourceId), eq(collectionId), any(ArrayList.class));
         verifyPrivate(contextEventService, times(1)).invoke("sendStartEventMessage",
@@ -287,8 +302,10 @@ public class ContextEventServiceTest {
                 eq(contextId), eq(resourceId), eq(collectionId), any(ArrayList.class));
 
         StartContextEventResponseDto result =
-                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>());
+                WhiteboxImpl.invokeMethod(contextEventService, "processStartContext", entity, new ArrayList<>(), token);
 
+        verify(analyticsContentService, times(0)).collectionPlay(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(UUID.class), anyBoolean(), anyString());
         verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", eq(contextId),
                 eq(resourceId), eq(collectionId), any(ArrayList.class));
         verifyPrivate(contextEventService, times(0)).invoke("sendStartEventMessage",
@@ -452,6 +469,10 @@ public class ContextEventServiceTest {
     @Test
     public void processOnResourceEventWithEventWithoutAnswer() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
         when(currentContextProfile.getCurrentContextProfileId()).thenReturn(UUID.randomUUID());
         when(currentContextProfile.getIsComplete()).thenReturn(false);
         when(currentContextProfile.getIsCollection()).thenReturn(true);
@@ -475,7 +496,6 @@ public class ContextEventServiceTest {
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
-        CollectionDto collectionDto = new CollectionDto();
         collectionDto.setResources(Arrays.asList(resource, previousResource));
 
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
@@ -531,6 +551,10 @@ public class ContextEventServiceTest {
     @Test
     public void processOnResourceEventExistingEvent() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
         when(currentContextProfile.getCurrentContextProfileId()).thenReturn(UUID.randomUUID());
         when(currentContextProfile.getIsComplete()).thenReturn(false);
         when(currentContextProfile.getIsCollection()).thenReturn(true);
@@ -553,7 +577,6 @@ public class ContextEventServiceTest {
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = Arrays.asList(contextProfileEvent);
-        CollectionDto collectionDto = new CollectionDto();
         List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
         collectionDto.setResources(collectionResources);
 
@@ -606,6 +629,11 @@ public class ContextEventServiceTest {
     @Test
     public void processOnResourceEventExistingEventForAnonymousOrPreview() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
+
         when(currentContextProfile.getCurrentContextProfileId()).thenReturn(UUID.randomUUID());
         when(currentContextProfile.getIsComplete()).thenReturn(false);
         when(currentContextProfile.getIsCollection()).thenReturn(true);
@@ -629,7 +657,6 @@ public class ContextEventServiceTest {
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
         List<ContextProfileEvent> contextProfileEvents = Arrays.asList(contextProfileEvent);
-        CollectionDto collectionDto = new CollectionDto();
         List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
         collectionDto.setResources(collectionResources);
 
@@ -674,6 +701,95 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         verifyPrivate(contextEventService, times(0)).invoke("sendOnResourceEventMessage", any(), any(), any());
+    }
+
+    @Ignore
+    @Test
+    public void processOnResourceEventWithFeedback() throws Exception {
+
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
+
+        OnResourceEventPostRequestDto body = processOnResourceEvent();
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        assertNotNull(response);
+        assertNotNull(response.getScore());
+    }
+
+    @Ignore
+    @Test
+    public void processOnResourceEventWithNoFeedback() throws Exception {
+
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Never.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
+
+        OnResourceEventPostRequestDto body = processOnResourceEvent();
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        assertNotNull(response);
+        assertNull(response.getScore());
+    }
+
+    @Ignore
+    @Test
+    public void processOnResourceEventFeedbackWithNoSettings() throws Exception {
+
+        CollectionDto collectionDto = createCollectionDto(null);
+        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
+
+        OnResourceEventPostRequestDto body = processOnResourceEvent();
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        assertNotNull(response);
+        assertNull(response.getScore());
+    }
+
+    private OnResourceEventPostRequestDto processOnResourceEvent() throws Exception {
+        ContextProfileEntity currentContextProfile = createContextProfileEntity();
+        when(currentContextProfile.getCurrentContextProfileId()).thenReturn(UUID.randomUUID());
+        when(currentContextProfile.getIsComplete()).thenReturn(false);
+        when(currentContextProfile.getIsCollection()).thenReturn(true);
+        when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
+                .thenReturn(currentContextProfile);
+
+        ResourceDto previousResource = createResourceDto();
+        previousResource.setId(previousResourceId);
+        ResourceDto resource = createResourceDto();
+
+        EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
+        List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
+
+        ContextProfile contextProfile = createContextProfile();
+        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
+        List<ContextProfileEvent> contextProfileEvents = Arrays.asList(contextProfileEvent);
+
+        List<AnswerDto> answers = new ArrayList<>();
+        answers.add(createAnswerDto("A"));
+
+        OnResourceEventPostRequestDto body = createOnResourceEventPostRequestDto();
+        ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, QuestionTypeEnum.TrueFalse.getLiteral());
+        previousResource.setMetadata(resourceMetadataDto);
+
+        doReturn(collectionResources).when(contextEventService, "getCollectionResources", collectionId, true);
+        doReturn(resource).when(contextEventService, "findResourceInContext", collectionResources,
+                resourceId, contextId);
+        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionResources,
+                previousResourceId, contextId);
+        doReturn(body.getPreviousResource()).when(contextEventService, "getPreviousResource", body);
+        when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
+
+        doReturn(body.getPreviousResource()).when(contextEventService, "updateExistingResourceDto",
+                eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
+        doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
+        doReturn(contextProfile).when(contextEventService, "updateContextProfile", contextProfileId, resourceId,
+                gson.toJson(eventSummaryDataDto));
+        doNothing().when(contextEventService, "doOnResourceEventTransaction",
+                eq(contextProfile), any(ContextProfileEvent.class));
+        doNothing().when(contextEventService, "sendOnResourceEventMessage", any(), any(), any());
+
+        return body;
     }
 
     @Test
@@ -1362,6 +1478,15 @@ public class ContextEventServiceTest {
         return startContextDto;
     }
 
+    private CollectionDto createCollectionDto(Map<String, Object> setting) {
+        CollectionDto collectionDto = new CollectionDto();
+        CollectionMetadataDto metadata = new CollectionMetadataDto();
+        metadata.setSetting(setting);
+        collectionDto.setMetadata(metadata);
+
+        return collectionDto;
+    }
+
     private AnswerDto createAnswerDto(String answer) {
         AnswerDto answerDto = new AnswerDto(answer);
         answerDto.setValue(answer);
@@ -1432,6 +1557,7 @@ public class ContextEventServiceTest {
         when(entity.getProfileId()).thenReturn(profileId);
         when(entity.getContextProfileId()).thenReturn(contextProfileId);
         when(entity.getClassId()).thenReturn(classId);
+        when(entity.getIsCollection()).thenReturn(true);
 
         return entity;
     }

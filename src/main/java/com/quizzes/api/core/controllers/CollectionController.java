@@ -65,6 +65,9 @@ public class CollectionController {
 
     private ResponseEntity<CollectionDto> prepareResponse(CollectionDto collectionDto) {
         collectionDto.setOwnerId(null);
+        collectionDto.setUnitId(null);
+        collectionDto.setCourseId(null);
+        collectionDto.setLessonId(null);
         return new ResponseEntity<>(collectionDto, HttpStatus.OK);
     }
 

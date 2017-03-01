@@ -28,5 +28,7 @@ public class ResourceContentDto implements Serializable {
     @SerializedName("answer")
     private List<AnswerContentDto> answers;
     private Map<String, Object> taxonomy;
+    @SerializedName("display_guide")
+    private Map<String, Object> displayGuide;
 
 }

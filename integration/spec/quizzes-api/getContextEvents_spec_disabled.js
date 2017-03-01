@@ -375,7 +375,7 @@ frisby.create('Test context events for one assignee and owner for started contex
 QuizzesCommon.startTest("Support Multiple Attempts", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextByContextId(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
+            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
                 QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
                     QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[1].id,

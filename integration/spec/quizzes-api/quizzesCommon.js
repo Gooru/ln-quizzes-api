@@ -128,7 +128,7 @@ var quizzesCommon = {
             .toss()
     },
 
-    getAssignedContextByContextId: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
+    getAssignedContextById: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
         Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
             .addHeader('Authorization', `Token ${assigneeAuthToken}`)
