@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.UUID;
 
 /**
- * This Dto will work for play, stop and start/stop events
+ * This Dto will work for collection.play, collection.stop
  */
 @Data
 @Builder
