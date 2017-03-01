@@ -53,8 +53,7 @@ public class ContextEventController {
             notes = "Sends event to indicate current resource position and provides the data generated" +
                     " in the previous resource (this value could be null in case there is not previous resource)")
     @ApiResponses({
-            @ApiResponse(code = 204, message = "Returns the resource score"),
-            @ApiResponse(code = 204, message = "No Content")
+            @ApiResponse(code = 200, message = "Returns the resource score or empty object, according to settings")
     })
     @RequestMapping(path = "/contexts/{contextId}/onResource/{resourceId}",
             method = RequestMethod.POST,
