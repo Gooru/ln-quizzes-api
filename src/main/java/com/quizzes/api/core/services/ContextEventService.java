@@ -135,7 +135,7 @@ public class ContextEventService {
         ContextProfile contextProfile = contextProfileService.findById(contextProfileId);
         contextProfile.setCurrentResourceId(currentResourceId);
         contextProfile.setEventSummaryData(eventSummary);
-        contextProfile.setTaxonomySumaryData(taxonomySummary);
+        contextProfile.setTaxonomySummaryData(taxonomySummary);
         return contextProfile;
     }
 
@@ -172,7 +172,7 @@ public class ContextEventService {
         List<TaxonomySummaryDto> taxonomySummaryList = calculateTaxonomySummary(contextProfileEvents,
                 true, collectionDto, eventSummary);
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
-        contextProfile.setTaxonomySumaryData(gson.toJson(taxonomySummaryList));
+        contextProfile.setTaxonomySummaryData(gson.toJson(taxonomySummaryList));
         contextProfile.setIsComplete(true);
 
         doFinishContextEventTransaction(contextProfile, contextProfileEventsToCreate);

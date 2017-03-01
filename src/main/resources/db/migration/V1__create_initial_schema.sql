@@ -39,7 +39,7 @@ CREATE TABLE context_profile
     current_resource_id     UUID,
     is_complete             BOOLEAN     NOT NULL DEFAULT FALSE,
     event_summary_data      JSONB,
-    taxonomy_sumary_data    JSONB,
+    taxonomy_summary_data   JSONB,
     created_at              TIMESTAMP   NOT NULL DEFAULT current_timestamp,
     updated_at              TIMESTAMP   NOT NULL DEFAULT current_timestamp
 );
