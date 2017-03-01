@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class SessionEventDto {
+public class SessionEventContentDto {
     private UUID apiKey;
     private UUID sessionId;
     private String sessionToken;

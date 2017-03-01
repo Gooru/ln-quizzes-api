@@ -21,9 +21,6 @@ public class QuizzesUtils {
     @Autowired
     private UtilsRepository utilsRepository;
 
-    @Autowired
-    private ConfigurationService configurationService;
-
     public static void rejectAnonymous(String profileId) {
         rejectAnonymous(profileId, "Anonymous not allowed to run this service");
     }

@@ -1,13 +1,11 @@
 package com.quizzes.api.core.services.content;
 
-import com.google.gson.JsonObject;
 import com.quizzes.api.core.dtos.CollectionDto;
-import com.quizzes.api.core.dtos.content.ContextEventDto;
-import com.quizzes.api.core.dtos.content.EventDto;
-import com.quizzes.api.core.dtos.content.SessionEventDto;
-import com.quizzes.api.core.dtos.content.UserEventDto;
-import com.quizzes.api.core.dtos.content.VersionEventDto;
-import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
+import com.quizzes.api.core.dtos.content.ContextEventContentDto;
+import com.quizzes.api.core.dtos.content.EventContentDto;
+import com.quizzes.api.core.dtos.content.SessionEventContentDto;
+import com.quizzes.api.core.dtos.content.UserEventContentDto;
+import com.quizzes.api.core.dtos.content.VersionEventContentDto;
 import com.quizzes.api.core.rest.clients.AnalyticsRestClient;
 import com.quizzes.api.core.services.ConfigurationService;
 import org.junit.Before;
@@ -24,7 +22,6 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
@@ -73,23 +70,23 @@ public class AnalyticsContentServiceTest {
 
     @Test
     public void collectionPlay() throws Exception {
-        EventDto eventDto = createEventDtoObject();
-        doReturn(eventDto).when(analyticsContentService, "createEventDto", collectionId, classId,
+        EventContentDto eventContentDto = createEventDtoObject();
+        doReturn(eventContentDto).when(analyticsContentService, "createEventDto", collectionId, classId,
                 contextProfileId, profileId, true, token);
-        doNothing().when(analyticsRestClient).play(eventDto);
+        doNothing().when(analyticsRestClient).play(eventContentDto);
 
         analyticsContentService.collectionPlay(collectionId, classId, contextProfileId, profileId, true, token);
 
         verifyPrivate(analyticsContentService, times(1))
                 .invoke("createEventDto", collectionId, classId, contextProfileId, profileId, true, token);
-        verify(analyticsRestClient, times(1)).play(eventDto);
+        verify(analyticsRestClient, times(1)).play(eventContentDto);
     }
 
     @Test
     public void createSessionEventDto() throws Exception {
         doReturn(apiKey.toString()).when(configurationService).getApiKey();
 
-        SessionEventDto result = WhiteboxImpl.invokeMethod(analyticsContentService, "createSessionEventDto",
+        SessionEventContentDto result = WhiteboxImpl.invokeMethod(analyticsContentService, "createSessionEventDto",
                 contextProfileId, token);
 
         verify(configurationService, times(1)).getApiKey();
@@ -118,26 +115,26 @@ public class AnalyticsContentServiceTest {
         verify(collectionService, times(1)).getAssessment(any());
     }
 
-    private EventDto createEventDtoObject() {
-        return EventDto.builder()
+    private EventContentDto createEventDtoObject() {
+        return EventContentDto.builder()
                 .eventId(UUID.randomUUID())
                 .session(createSessionEventDtoObject())
-                .user(new UserEventDto(profileId))
+                .user(new UserEventContentDto(profileId))
                 .context(createContextEventDtoObject())
-                .version(new VersionEventDto("3.1"))
+                .version(new VersionEventContentDto("3.1"))
                 .startTime(1234)
                 .build();
     }
 
-    private SessionEventDto createSessionEventDtoObject() {
-        return SessionEventDto.builder()
+    private SessionEventContentDto createSessionEventDtoObject() {
+        return SessionEventContentDto.builder()
                 .apiKey(apiKey)
                 .sessionId(contextProfileId)
                 .sessionToken(token).build();
     }
 
-    private ContextEventDto createContextEventDtoObject() {
-        return ContextEventDto.builder()
+    private ContextEventContentDto createContextEventDtoObject() {
+        return ContextEventContentDto.builder()
                 .collectionId(collectionId)
                 .collectionType("collection")
                 .type("start")

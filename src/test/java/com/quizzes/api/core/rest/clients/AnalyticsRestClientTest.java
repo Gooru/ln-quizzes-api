@@ -1,7 +1,7 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.content.EventDto;
+import com.quizzes.api.core.dtos.content.EventContentDto;
 import com.quizzes.api.core.services.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,14 +51,14 @@ public class AnalyticsRestClientTest {
 
     @Test
     public void play() throws Exception {
-        EventDto eventDto = EventDto.builder().build();
+        EventContentDto eventContentDto = EventContentDto.builder().build();
 
-        doReturn(new ResponseEntity<>(eventDto, HttpStatus.OK)).when(restTemplate)
+        doReturn(new ResponseEntity<>(eventContentDto, HttpStatus.OK)).when(restTemplate)
                 .postForObject(any(String.class), any(Collections.class), eq(Void.class));
         doReturn(url).when(configurationService).getContentApiUrl();
         doReturn(apiKey).when(configurationService).getApiKey();
 
-        analyticsRestClient.play(eventDto);
+        analyticsRestClient.play(eventContentDto);
 
         verify(restTemplate, times(1))
                 .postForObject(any(String.class), any(Collections.class), eq(Void.class));

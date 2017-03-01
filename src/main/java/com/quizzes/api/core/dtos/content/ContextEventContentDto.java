@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class ContextEventDto {
+public class ContextEventContentDto {
     @SerializedName("contentGooruId")
     private UUID collectionId;
     private String type;

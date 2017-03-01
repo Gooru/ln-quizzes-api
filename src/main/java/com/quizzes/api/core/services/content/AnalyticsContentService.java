@@ -1,12 +1,12 @@
 package com.quizzes.api.core.services.content;
 
 import com.quizzes.api.core.dtos.CollectionDto;
-import com.quizzes.api.core.dtos.content.ContextEventDto;
-import com.quizzes.api.core.dtos.content.EventDto;
-import com.quizzes.api.core.dtos.content.PayloadObjectEventDto;
-import com.quizzes.api.core.dtos.content.SessionEventDto;
-import com.quizzes.api.core.dtos.content.UserEventDto;
-import com.quizzes.api.core.dtos.content.VersionEventDto;
+import com.quizzes.api.core.dtos.content.ContextEventContentDto;
+import com.quizzes.api.core.dtos.content.EventContentDto;
+import com.quizzes.api.core.dtos.content.PayloadObjectEventContentDto;
+import com.quizzes.api.core.dtos.content.SessionEventContentDto;
+import com.quizzes.api.core.dtos.content.UserEventContentDto;
+import com.quizzes.api.core.dtos.content.VersionEventContentDto;
 import com.quizzes.api.core.rest.clients.AnalyticsRestClient;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.util.QuizzesUtils;
@@ -30,7 +30,6 @@ public class AnalyticsContentService {
     @Autowired
     private QuizzesUtils quizzesUtils;
 
-    private final static String VERSION = "3.1";
     private final static String COLLECTION_PLAY = QuizzesUtils.getCollectionToString().concat(".play");
     private final static String START = "start";
     private final static String STOP = "stop";
@@ -38,24 +37,24 @@ public class AnalyticsContentService {
     public void collectionPlay(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                                boolean isCollection, String token) {
 
-        EventDto playEvent = createEventDto(collectionId, classId, contextProfileId, profileId, isCollection, token);
+        EventContentDto playEvent = createEventDto(collectionId, classId, contextProfileId, profileId, isCollection, token);
         playEvent.setEventName(COLLECTION_PLAY);
         analyticsRestClient.play(playEvent);
     }
 
-    private EventDto createEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID profileId,
-                                    boolean isCollection, String token) {
+    private EventContentDto createEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID profileId,
+                                           boolean isCollection, String token) {
         CollectionDto collection = getCollection(collectionId, isCollection);
-        SessionEventDto session = createSessionEventDto(sessionId, token);
-        ContextEventDto context = createContextEventDto(collection, classId);
+        SessionEventContentDto session = createSessionEventDto(sessionId, token);
+        ContextEventContentDto context = createContextEventDto(collection, classId);
 
-        return EventDto.builder()
+        return EventContentDto.builder()
                 .eventId(UUID.randomUUID())
                 .session(session)
-                .user(new UserEventDto(profileId))
+                .user(new UserEventContentDto(profileId))
                 .context(context)
-                .version(new VersionEventDto(VERSION))
-                .payLoadObject(new PayloadObjectEventDto(true))
+                .version(new VersionEventContentDto(configurationService.getAnalyticsVersion()))
+                .payLoadObject(new PayloadObjectEventContentDto(true))
                 .startTime(quizzesUtils.getCurrentTimestamp())
                 .build();
     }
@@ -65,8 +64,8 @@ public class AnalyticsContentService {
                 collectionService.getCollection(collectionId) : collectionService.getAssessment(collectionId);
     }
 
-    private ContextEventDto createContextEventDto(CollectionDto collection, UUID classId) {
-        return ContextEventDto.builder()
+    private ContextEventContentDto createContextEventDto(CollectionDto collection, UUID classId) {
+        return ContextEventContentDto.builder()
                 .collectionId(UUID.fromString(collection.getId()))
                 .collectionType(collection.getIsCollection() ? QuizzesUtils.getCollectionToString() :
                         QuizzesUtils.getAssessmentToString())
@@ -79,8 +78,8 @@ public class AnalyticsContentService {
                 .build();
     }
 
-    private SessionEventDto createSessionEventDto(UUID contextProfileId, String token) {
-        return SessionEventDto.builder()
+    private SessionEventContentDto createSessionEventDto(UUID contextProfileId, String token) {
+        return SessionEventContentDto.builder()
                 .apiKey(UUID.fromString(configurationService.getApiKey()))
                 .sessionId(contextProfileId)
                 .sessionToken(token).build();
