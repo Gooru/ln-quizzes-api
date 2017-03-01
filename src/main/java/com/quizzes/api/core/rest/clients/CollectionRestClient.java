@@ -243,6 +243,7 @@ public class CollectionRestClient {
         metadata.setType(resourceContentDto.getContentSubformat());
         metadata.setUrl(resourceContentDto.getUrl());
         metadata.setTaxonomy(resourceContentDto.getTaxonomy());
+        metadata.setDisplayGuide(resourceContentDto.getDisplayGuide());
         return metadata;
     }
 

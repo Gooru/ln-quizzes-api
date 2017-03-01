@@ -25,7 +25,7 @@ CLEAN_WORKING_DIR=$(basename "$PWD" | sed 's/-//g' | sed 's/\///g' | tr '[:upper
 docker kill runner
 docker rm runner
 docker run -t \
-  --network ${CLEAN_WORKING_DIR}_default \
+  --net ${CLEAN_WORKING_DIR}_default \
   --rm \
   --name runner \
   --link ${CLEAN_WORKING_DIR}_web_1:quizzes \
