@@ -171,8 +171,10 @@ public class ContextController {
             @RequestAttribute(value = "profileId") String profileId) throws Exception {
 
         QuizzesUtils.rejectAnonymous(profileId);
-        return new ResponseEntity<>(entityMapper.mapAssignedContextEntityToContextGetResponseDto(
-                contextService.findAssignedContext(contextId, UUID.fromString(profileId))), HttpStatus.OK);
+        return new ResponseEntity<>(
+                entityMapper.mapAssignedContextEntityToContextGetResponseDto(
+                    contextService.findAssignedContext(contextId, UUID.fromString(profileId))),
+                HttpStatus.OK);
     }
 
     @ApiOperation(value = "Finds the mapped Contexts",

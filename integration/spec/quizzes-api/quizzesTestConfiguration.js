@@ -35,7 +35,7 @@ let testCollections = {
     }
 };
 
-var testAssessments = {
+let testAssessments = {
     TestAssessment01: {
         id: '95e0c189-e62a-4d32-9738-eac1fae6cf3e',
         owner: 'Teacher01',
@@ -128,7 +128,6 @@ let quizzesTestConfiguration = {
     getLesson: function(lessonId) {
         return testLessons[lessonId];
     }
-
 };
 
 module.exports = quizzesTestConfiguration;
