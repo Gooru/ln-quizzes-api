@@ -65,6 +65,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .set(CONTEXT_PROFILE.PROFILE_ID, contextProfile.getProfileId())
                 .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
                 .set(CONTEXT_PROFILE.EVENT_SUMMARY_DATA, contextProfile.getEventSummaryData())
+                .set(CONTEXT_PROFILE.TAXONOMY_SUMMARY_DATA, contextProfile.getTaxonomySummaryData())
                 .returning()
                 .fetchOne()
                 .into(ContextProfile.class);
@@ -74,6 +75,7 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
         return jooq.update(CONTEXT_PROFILE)
                 .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
                 .set(CONTEXT_PROFILE.EVENT_SUMMARY_DATA, contextProfile.getEventSummaryData())
+                .set(CONTEXT_PROFILE.TAXONOMY_SUMMARY_DATA, contextProfile.getTaxonomySummaryData())
                 .set(CONTEXT_PROFILE.IS_COMPLETE, contextProfile.getIsComplete())
                 .where(CONTEXT_PROFILE.ID.eq(contextProfile.getId()))
                 .returning()

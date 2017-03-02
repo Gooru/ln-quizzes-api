@@ -24,4 +24,8 @@ public interface AssigneeEventEntity {
 
     void setEventsSummary(String eventsSummary);
 
+    String getTaxonomySummary();
+
+    void setTaxonomySummary(String taxonomySummary);
+
 }
