@@ -100,7 +100,8 @@ public class ContextEventService {
 
         PostRequestResourceDto resourceDto = getPreviousResource(body);
 
-        CollectionDto collectionDto = getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
+        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
+                context.getIsCollection());
         List<ResourceDto> collectionResources = collectionDto.getResources();
         ResourceDto currentResource = findResourceInContext(collectionResources, resourceId, contextId);
         ResourceDto previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(),
@@ -180,7 +181,8 @@ public class ContextEventService {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getId());
 
-        CollectionDto collectionDto = getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
+        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
+                context.getIsCollection());
 
         List<ResourceDto> resources = collectionDto.getResources();
         List<ResourceDto> resourcesToCreate = getResourcesToCreate(contextProfileEvents, resources);
@@ -225,12 +227,6 @@ public class ContextEventService {
                                                 List<ContextProfileEvent> eventsToCreate) {
         contextProfileService.save(contextProfile);
         eventsToCreate.stream().forEach(event -> contextProfileEventService.save(event));
-    }
-
-    private CollectionDto getCollectionOrAssessment(UUID id, boolean isCollection) {
-        return isCollection ?
-                collectionService.getCollection(id) :
-                collectionService.getAssessment(id);
     }
 
     private StartContextEventResponseDto createCurrentContextProfile(ContextProfileEntity entity, String token) {

@@ -44,6 +44,10 @@ public class CollectionService {
         }
     }
 
+    public CollectionDto getCollectionOrAssessment(UUID id, boolean isCollection) {
+        return isCollection ? getCollection(id) : getAssessment(id);
+    }
+
     public List<ResourceDto> getAssessmentQuestions(UUID assessmentId) {
         CollectionDto assessment = getAssessment(assessmentId);
         return assessment.getResources();
