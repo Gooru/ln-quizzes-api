@@ -136,7 +136,8 @@ public class ContextController {
                     "Anonymous session token will be rejected by this endpoint.\n\n" +
                     "The fields `isActive` and `modifiedDate` will not be present on the response body.")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Successful Response Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 200, message = "Successful Response Body", responseContainer = "List"
+                    , response = ContextGetResponseDto.class),
             @ApiResponse(code = 404, message = "Content Not Found"),
             @ApiResponse(code = 500, message = "Internal Server Error")
     })
@@ -158,8 +159,8 @@ public class ContextController {
                     "The fields `isActive` and `modifiedDate` will not be present on the response body.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
-            @ApiResponse(code = 404, message = "Content Not Found"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Content Not Found")
     })
     @RequestMapping(path = "/contexts/{contextId}/assigned",
             method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -167,11 +168,11 @@ public class ContextController {
             @ApiParam(name = "ContextID", required = true,
                     value = "The ID of the context you want to get from the set of assigned contexts.")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        return new ResponseEntity<>(
-                entityMapper.mapAssignedContextEntityToContextGetResponseDto(
-                        contextService.findAssignedContext(contextId, profileId)),
-                HttpStatus.OK);
+            @RequestAttribute(value = "profileId") String profileId) throws Exception {
+
+        QuizzesUtils.rejectAnonymous(profileId);
+        return new ResponseEntity<>(entityMapper.mapAssignedContextEntityToContextGetResponseDto(
+                contextService.findAssignedContext(contextId, UUID.fromString(profileId))), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Finds the mapped Contexts",

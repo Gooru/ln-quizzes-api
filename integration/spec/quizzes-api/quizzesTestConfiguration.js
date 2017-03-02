@@ -35,8 +35,52 @@ let testCollections = {
     }
 };
 
-let testAssessments = {
-    TestAssessment01: { id: '95e0c189-e62a-4d32-9738-eac1fae6cf3e', owner: 'Teacher01' }
+var testAssessments = {
+    TestAssessment01: {
+        id: '95e0c189-e62a-4d32-9738-eac1fae6cf3e',
+        owner: 'Teacher01',
+        resources: [
+            {
+                id: '4b937ce8-1989-4faf-99e3-79befaba3998',
+                correctAnswer: [
+                    {
+                        'value': 'MTAwIC0gMTAgPSDCoDkwwqA='
+                    }
+                ]
+            },
+            {
+                id: '73293fef-8312-4d20-8c55-0fde5740ae6a',
+                correctAnswer: [
+                    {
+                        'value': 'VHJ1ZQ=='
+                    }
+                ]
+            },
+        ]
+
+    },
+    TestAssessment02: {
+        id: 'de41f2ec-355a-4e4c-87e5-0eaf08625ae9',
+        owner: 'Teacher01',
+        resources: [
+            {
+                id: 'dddafcba-041d-41ee-83ad-bd622023df6a',
+                correctAnswer: [
+                    {
+                        'value': 'VHJ1ZQ=='
+                    }
+                ]
+            },
+            {
+                id: 'ad4d0fe0-4edc-4a47-982b-205c0f670bce',
+                correctAnswer: [
+                    {
+                        'value': 'VHJ1ZQ=='
+                    }
+                ]
+            }
+        ]
+    }
 };
 
 let testCourses = {

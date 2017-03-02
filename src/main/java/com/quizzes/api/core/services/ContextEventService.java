@@ -2,8 +2,10 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
@@ -11,7 +13,9 @@ import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
+import com.quizzes.api.core.enums.CollectionSetting;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
+import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
@@ -21,6 +25,7 @@ import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import com.quizzes.api.core.services.content.CollectionService;
+import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,28 +60,33 @@ public class ContextEventService {
     private CollectionService collectionService;
 
     @Autowired
+    private AnalyticsContentService analyticsContentService;
+
+    @Autowired
     ContextProfileEventRepository contextProfileEventRepository;
 
     @Autowired
     private Gson gson;
 
-    public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId) {
+    public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId, String token) {
         ContextProfileEntity entity =
                 currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
 
         if (entity.getCurrentContextProfileId() == null) {
-            return createCurrentContextProfile(entity);
+            return createCurrentContextProfile(entity, token);
         } else if (entity.getIsComplete()) {
-            return createContextProfile(entity);
+            //This is a start context for a NEW ATTEPMT so we reset the current Resource ID
+            entity.setCurrentResourceId(null);
+            return createContextProfile(entity, token);
         }
 
         return resumeStartContextEvent(entity);
     }
 
-    public void processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
-                                       OnResourceEventPostRequestDto body) {
-        ContextProfileEntity context =
-                currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
+    public OnResourceEventResponseDto processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
+                                                             OnResourceEventPostRequestDto body) {
+        ContextProfileEntity context = currentContextProfileService
+                .findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
 
         if (context.getCurrentContextProfileId() == null || (context.getCurrentContextProfileId() != null && context.getIsComplete())) {
             throw new InvalidRequestException("Context " + contextId + " not started on resource " + resourceId);
@@ -84,8 +94,7 @@ public class ContextEventService {
 
         PostRequestResourceDto resourceDto = getPreviousResource(body);
 
-        List<ResourceDto> collectionResources =
-                getCollectionResources(context.getCollectionId(), context.getIsCollection());
+        List<ResourceDto> collectionResources = getCollectionResources(context.getCollectionId(), context.getIsCollection());
         ResourceDto currentResource = findResourceInContext(collectionResources, resourceId, contextId);
         ResourceDto previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(),
                 contextId);
@@ -115,6 +124,21 @@ public class ContextEventService {
         if (context.getClassId() != null) {
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
         }
+
+        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId());
+        if (collectionDto.getMetadata().getSetting() == null) {
+            return new OnResourceEventResponseDto();
+        }
+
+        ShowFeedbackOptions showFeedback = ShowFeedbackOptions.fromValue(
+                collectionDto.getMetadata().getSetting(CollectionSetting.ShowFeedback.getLiteral(),
+                        ShowFeedbackOptions.Never.getLiteral()).toString()
+        );
+
+        if (!showFeedback.equals(ShowFeedbackOptions.Immediate)) {
+            return new OnResourceEventResponseDto();
+        }
+        return new OnResourceEventResponseDto(resourceDto.getScore());
     }
 
     private PostRequestResourceDto getPreviousResource(OnResourceEventPostRequestDto body) {
@@ -191,27 +215,30 @@ public class ContextEventService {
         eventsToCreate.stream().forEach(event -> contextProfileEventService.save(event));
     }
 
-    private StartContextEventResponseDto createCurrentContextProfile(ContextProfileEntity entity) {
+    private StartContextEventResponseDto createCurrentContextProfile(ContextProfileEntity entity, String token) {
         CurrentContextProfile currentContextProfile = createCurrentContextProfileObject(
                 entity.getContextId(), entity.getProfileId(), entity.getContextProfileId());
         doCurrentContextEventTransaction(currentContextProfile);
-        return processStartContext(entity, new ArrayList<>());
+        return processStartContext(entity, new ArrayList<>(), token);
     }
 
     private StartContextEventResponseDto processStartContext(ContextProfileEntity entity,
-                                                             List<ContextProfileEvent> contextProfileEvents) {
+                                                             List<ContextProfileEvent> contextProfileEvents,
+                                                             String token) {
         //If entity does not have class is an anonymous user or it's in preview mode
         if (entity.getClassId() != null) {
             sendStartEventMessage(entity.getContextId(), entity.getProfileId(), entity.getCurrentResourceId(), true);
+            analyticsContentService.collectionPlay(entity.getCollectionId(), entity.getClassId(), entity.getContextProfileId(),
+                    entity.getProfileId(), entity.getIsCollection(), token);
         }
         return prepareStartContextEventResponse(entity.getContextId(), entity.getCurrentResourceId(),
                 entity.getCollectionId(), contextProfileEvents);
     }
 
-    private StartContextEventResponseDto createContextProfile(ContextProfileEntity entity) {
+    private StartContextEventResponseDto createContextProfile(ContextProfileEntity entity, String token) {
         ContextProfile contextProfile = createContextProfileObject(entity.getContextId(), entity.getProfileId());
         doCreateContextProfileTransaction(contextProfile);
-        return processStartContext(entity, new ArrayList<>());
+        return processStartContext(entity, new ArrayList<>(), token);
     }
 
     private StartContextEventResponseDto resumeStartContextEvent(ContextProfileEntity contextProfile) {

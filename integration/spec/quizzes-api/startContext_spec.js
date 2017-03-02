@@ -12,7 +12,7 @@ QuizzesCommon.startTest('Start context and validate response', function () {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                     'contextId': contextResponse.id,
                     'hasStarted': false,
                     'profileId': profileId
@@ -27,11 +27,12 @@ QuizzesCommon.startTest('Start context and validate response', function () {
                     .expectJSON({
                         'contextId': contextResponse.id,
                         'collectionId': collectionId,
+                        'currentResourceId': undefined,
                         'events': []
                     })
                     .inspectJSON()
                     .afterJSON(function () {
-                        QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                        QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                             'contextId': contextResponse.id,
                             'hasStarted': true,
                             'profileId': profileId
@@ -52,7 +53,7 @@ QuizzesCommon.startTest('Start context twice', function () {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                     'contextId': contextResponse.id,
                     'hasStarted': false,
                     'profileId': profileId
@@ -60,13 +61,13 @@ QuizzesCommon.startTest('Start context twice', function () {
                 });
 
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
-                    QuizzesCommon.getAssignedContextByContextId(contextId, assigneeAuthToken, {
+                    QuizzesCommon.getAssignedContextById(contextId, assigneeAuthToken, {
                         'contextId': contextResponse.id,
                         'hasStarted': true,
                         'profileId': profileId
                     }, function () {
                         QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
-                            Frisby.create('Start context twice')
+                            Frisby.create('Start context twice, there is no current resource ID')
                                 .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
                                 .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                                 .inspectRequest()
@@ -74,6 +75,7 @@ QuizzesCommon.startTest('Start context twice', function () {
                                 .expectJSON({
                                     'contextId': contextResponse.id,
                                     'collectionId': collectionId,
+                                    'currentResourceId': undefined,
                                     'events': []
                                 })
                                 .inspectJSON()
@@ -155,6 +157,7 @@ QuizzesCommon.startTest('Start context for anonymous', function () {
                 .expectJSON({
                     'contextId': contextResponse.id,
                     'collectionId': collectionId,
+                    'currentResourceId': undefined,
                     'events': []
                 })
                 .inspectJSON()

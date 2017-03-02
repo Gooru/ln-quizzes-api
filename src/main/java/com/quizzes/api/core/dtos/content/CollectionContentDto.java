@@ -13,13 +13,18 @@ public class CollectionContentDto implements Serializable {
 
     private String id;
     private String title;
-
-    @SerializedName("owner_id")
-    private UUID ownerId;
     private Boolean isCollection;
     private List<ResourceContentDto> content;
     private Map<String, Object> setting;
     private Map<String, Object> taxonomy;
 
-
+    @SerializedName("owner_id")
+    private UUID ownerId;
+    @SerializedName("unit_id")
+    private UUID unitId;
+    @SerializedName("lesson_id")
+    private UUID lessonId;
+    @SerializedName("course_id")
+    private UUID courseId;
+    
 }
