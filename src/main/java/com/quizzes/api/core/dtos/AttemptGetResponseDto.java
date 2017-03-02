@@ -1,11 +1,13 @@
 package com.quizzes.api.core.dtos;
 
+import java.util.List;
 import java.util.UUID;
 
 public class AttemptGetResponseDto extends StartContextEventResponseDto {
     private UUID attemptId;
     private UUID profileId;
     private EventSummaryDataDto eventSummary;
+    private List<TaxonomySummaryDto> taxonomySummary;
 
     public UUID getAttemptId() {
         return attemptId;
@@ -29,5 +31,13 @@ public class AttemptGetResponseDto extends StartContextEventResponseDto {
 
     public void setEventSummary(EventSummaryDataDto eventSummary) {
         this.eventSummary = eventSummary;
+    }
+
+    public List<TaxonomySummaryDto> getTaxonomySummary() {
+        return taxonomySummary;
+    }
+
+    public void setTaxonomySummary(List<TaxonomySummaryDto> taxonomySummary) {
+        this.taxonomySummary = taxonomySummary;
     }
 }

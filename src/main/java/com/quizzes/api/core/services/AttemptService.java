@@ -6,6 +6,7 @@ import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ProfileAttemptsResponseDto;
+import com.quizzes.api.core.dtos.TaxonomySummaryDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
@@ -71,6 +72,9 @@ public class AttemptService {
             EventSummaryDataDto eventSummaryDataDto =
                     gson.fromJson(anyAssigneeEventEntity.getEventsSummary(), EventSummaryDataDto.class);
             profileEvent.setEventSummary(eventSummaryDataDto);
+            List<TaxonomySummaryDto> taxonomySummaryDtos =
+                    gson.fromJson(anyAssigneeEventEntity.getTaxonomySummary(), List.class);
+            profileEvent.setEventSummary(eventSummaryDataDto);
 
             return profileEvent;
 
@@ -107,6 +111,7 @@ public class AttemptService {
         result.setProfileId(firstEvent.getProfileId());
         result.setCurrentResourceId(firstEvent.getCurrentResourceId());
         result.setEventSummary(gson.fromJson(firstEvent.getEventsSummary(), EventSummaryDataDto.class));
+        result.setTaxonomySummary(gson.fromJson(firstEvent.getTaxonomySummary(), List.class));
         List<PostResponseResourceDto> events = contextProfileEvents.stream().
                 filter(contextProfileEvent -> contextProfileEvent.getEventData() != null).
                 map(contextProfileEvent -> {

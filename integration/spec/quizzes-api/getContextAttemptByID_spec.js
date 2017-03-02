@@ -20,9 +20,54 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                                 .addHeader('Authorization', `Token ${authToken}`)
                                 .inspectRequest()
                                 .expectStatus(200)
-                                .expectJSON({
-                                    'profileId': assigneeProfileId,
-                                    'contextId': contextResponse.id
+                                .expectJSONSchema({
+                                    "type": "object",
+                                    "properties": {
+                                        "profileId": {
+                                            "type": "string"
+                                        },
+                                        "contextId": {
+                                            "type": "string"
+                                        },
+                                        "collectionId": {
+                                            "type": "string"
+                                        },
+                                        "taxonomySummary": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "taxonomyId": {
+                                                        "type": "string"
+                                                    },
+                                                    "averageScore": {
+                                                        "type": "number"
+                                                    },
+                                                    "averageReaction": {
+                                                        "type": "number"
+                                                    },
+                                                    "totalAnswered": {
+                                                        "type": "number"
+                                                    },
+                                                    "totalCorrect": {
+                                                        "type": "number"
+                                                    },
+                                                    "totalTimeSpent": {
+                                                        "type": "number"
+                                                    },
+                                                    "resources": {
+                                                        "type": "array"
+                                                    }
+                                                },
+                                                "required": ["taxonomyId", "averageScore", "averageReaction",
+                                                    "totalAnswered", "totalCorrect", "totalTimeSpent", "resources"]
+                                            },
+                                            "minItems": 12,
+                                            "maxItems": 12,
+                                            "uniqueItems": false
+                                        }
+                                    },
+                                    "required": ["profileId", "contextId", "eventSummary", "taxonomySummary"]
                                 })
                                 .inspectJSON()
                                 .toss();
