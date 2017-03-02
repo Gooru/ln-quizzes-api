@@ -174,14 +174,25 @@ public class ContextController {
                 HttpStatus.OK);
     }
 
-    @RequestMapping(path = "/contexts/mapped/collections/{collectionId}/classes/{classId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ContextGetResponseDto>> getMappedContext(
-            @PathVariable(value = "collectionId") UUID collectionId,
+    @ApiOperation(value = "Finds the mapped Contexts",
+            notes = "Finds all the mapped Contexts that match the class-id, collection-id and contextMap criteria")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Body", response = ContextGetResponseDto.class),
+            @ApiResponse(code = 403, message = "Invalid Assignee"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
+    })
+    @RequestMapping(path = "/contexts/mapped/classes/{classId}/collections/{collectionId}",
+            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ContextGetResponseDto>> getMappedContexts(
             @PathVariable(value = "classId") UUID classId,
-            @RequestParam(required = false) Map<String, String> contextMap) throws Exception {
-        List<AssignedContextEntity> contexts = contextService.findMappedContext(collectionId, classId, contextMap);
+            @PathVariable(value = "collectionId") UUID collectionId,
+            @RequestParam(required = false) Map<String, String> contextMap,
+            @RequestAttribute(value = "profileId") UUID profileId,
+            @RequestAttribute(value = "token") String token) throws Exception {
+        List<ContextEntity> contexts =
+                contextService.findMappedContext(classId, collectionId, contextMap, profileId, token);
         return new ResponseEntity<>(
-                contexts.stream().map(context -> entityMapper.mapAssignedContextEntityToContextGetResponseDto(context))
+                contexts.stream().map(context -> entityMapper.mapContextEntityToContextGetResponseDto(context))
                         .collect(Collectors.toList()),
                 HttpStatus.OK);
     }

@@ -6,6 +6,7 @@ import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
@@ -182,13 +183,14 @@ public class ContextService {
         return context;
     }
 
-    public UUID findMappedContext(UUID classId, Map<String, String> contextMap) {
-        UUID contextId = contextRepository.findByClassIdAndContextMap(classId, contextMap);
-        if (contextId == null) {
-            throw new ContentNotFoundException("Context not found for Class ID: " + classId
-                    + " and Context Map: " + contextMap.toString());
+    public List<ContextEntity> findMappedContext(UUID classId, UUID collectionId, Map<String, String> contextMap,
+                                                 UUID profileId, String token) throws InvalidAssigneeException {
+        List<UUID> classMemberIds = classMemberRestClient.getClassMembers(classId, token).getMemberIds();
+        if (!classMemberIds.contains(profileId)) {
+            throw new InvalidAssigneeException("Profile Id: " + profileId + " is not a valid Assignee " +
+                    "(member of the Class Id: " + classId + ")");
         }
-        return contextId;
+        return contextRepository.findMappedContexts(classId, collectionId, contextMap);
     }
 
     private void validateCollectionOwnerInContext(UUID profileId, UUID collectionId, boolean isCollection)

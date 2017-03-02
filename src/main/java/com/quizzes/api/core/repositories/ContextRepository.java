@@ -41,10 +41,11 @@ public interface ContextRepository {
      * @param dueDate    if not null the query looks for records with dueDate <= than this param, can't be used with isActive
      * @return the list of {@link ContextAssigneeEntity} found
      */
-    List<ContextOwnerEntity> findContextOwnerByAssigneeIdAndFilters(UUID assigneeId, Boolean isActive, Long startDate, Long dueDate);
+    List<ContextOwnerEntity> findContextOwnerByAssigneeIdAndFilters(UUID assigneeId, Boolean isActive,
+                                                                    Long startDate, Long dueDate);
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 
-    UUID findByClassIdAndContextMap(UUID classId, Map<String, String> contextMap);
+    List<ContextEntity>  findMappedContexts(UUID classId, UUID collectionId, Map<String, String> contextMap);
 
 }

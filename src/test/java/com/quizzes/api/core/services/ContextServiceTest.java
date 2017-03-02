@@ -10,6 +10,7 @@ import com.quizzes.api.core.dtos.MetadataDto;
 import com.quizzes.api.core.dtos.ProfileDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
@@ -40,6 +41,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -397,6 +399,42 @@ public class ContextServiceTest {
         assertEquals("Wrong metadata value", 1, contextAssignedDto.getContextData().getMetadata().getStartDate());
         assertTrue("Wrong hasStarted value", contextAssignedDto.getHasStarted());
         */
+    }
+
+    @Test
+    public void findMappedContext() {
+        List<UUID> classMemberIds = new ArrayList<>();
+        classMemberIds.add(profileId);
+        ClassMemberContentDto classMemberContentDto = new ClassMemberContentDto();
+        classMemberContentDto.setMemberIds(classMemberIds);
+        List<ContextEntity> mappedContexts = new ArrayList<>();
+        ContextEntity contextEntity = createContextEntityMock();
+        mappedContexts.add(contextEntity);
+
+        doReturn(classMemberContentDto).when(classMemberRestClient).getClassMembers(any(UUID.class), anyString());
+        doReturn(mappedContexts).when(contextRepository).findMappedContexts(any(UUID.class), any(UUID.class), anyMap());
+
+        List<ContextEntity> result = contextService.findMappedContext(UUID.randomUUID(), UUID.randomUUID(),
+                new HashMap(), profileId, "token");
+
+        verify(classMemberRestClient, times(1)).getClassMembers(any(UUID.class), anyString());
+        verify(contextRepository, times(1)).findMappedContexts(any(UUID.class), any(UUID.class), anyMap());
+        assertEquals("Invalid number is results", 1, result.size());
+        assertEquals("Invalid Context ID for first element", contextEntity.getContextId(),
+                result.get(0).getContextId());
+    }
+
+    @Test(expected = InvalidAssigneeException.class)
+    public void findMappedContextWhenThrowsInvalidAssigneeException() {
+        List<UUID> classMemberIds = new ArrayList<>();
+        classMemberIds.add(profileId);
+        ClassMemberContentDto classMemberContentDto = new ClassMemberContentDto();
+        classMemberContentDto.setMemberIds(classMemberIds);
+
+        doReturn(classMemberContentDto).when(classMemberRestClient).getClassMembers(any(UUID.class), anyString());
+
+        contextService.findMappedContext(UUID.randomUUID(), UUID.randomUUID(), new HashMap(),
+                UUID.randomUUID(), "token");
     }
 
     @Ignore
