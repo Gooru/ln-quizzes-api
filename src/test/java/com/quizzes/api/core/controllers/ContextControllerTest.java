@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,8 +31,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -265,6 +268,27 @@ public class ContextControllerTest {
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Invalid context id", assignedContextEntity.getContextId(), response.getBody().getContextId());
         assertTrue("HasStarted is false", response.getBody().getHasStarted());
+    }
+
+    @Test
+    public void getMappedContexts() throws Exception {
+        List<ContextEntity> mappedContexts = new ArrayList<>();
+        ContextEntity contextEntity = createContextEntityMock();
+        mappedContexts.add(contextEntity);
+
+        doReturn(mappedContexts).when(contextService).findMappedContext(any(UUID.class), any(UUID.class), anyMap(),
+                any(UUID.class), anyString());
+
+        ResponseEntity<List<ContextGetResponseDto>> response =
+                controller.getMappedContexts(UUID.randomUUID(), UUID.randomUUID(), new HashMap<>(),
+                        UUID.randomUUID(), "token");
+
+        verify(contextService, times(1)).findMappedContext(any(UUID.class), any(UUID.class), anyMap(),
+                any(UUID.class), anyString());
+        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
+        assertEquals("Invalid number is results", 1, response.getBody().size());
+        assertEquals("Invalid Context ID for first element", contextEntity.getContextId(),
+                response.getBody().get(0).getContextId());
     }
 
     // TODO We need to clarify how will be integrated the Update for Contexts in Nile

@@ -14,6 +14,7 @@ import java.util.Arrays;
 public class GooruHelper {
 
     private static final String TOKEN_TYPE = "Token";
+    private static final String ANALYTICS_TOKEN = "access-token";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -24,6 +25,18 @@ public class GooruHelper {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         headers.set(HttpHeaders.AUTHORIZATION, TOKEN_TYPE + " " + token);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Request Headers: " + gson.toJson(headers));
+        }
+
+        return headers;
+    }
+
+    public HttpHeaders setupAnalyticsHttpHeaders(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+        headers.set(ANALYTICS_TOKEN, token);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Request Headers: " + gson.toJson(headers));
