@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -54,7 +55,7 @@ public class ClassMemberServiceTest {
     }
 
     @Test
-    public void containsMemberId() throws Exception {
+    public void containsMemberIdIsTrue() throws Exception {
         List<UUID> classMemberIds = new ArrayList<>();
         classMemberIds.add(UUID.randomUUID());
         classMemberIds.add(profileId);
@@ -68,6 +69,22 @@ public class ClassMemberServiceTest {
         verify(classMemberService, times(1)).getClassMemberIds(any(UUID.class), anyString());
         verify(classMemberRestClient, times(1)).getClassMembers(any(UUID.class), anyString());
         assertTrue("Wrong result value", result);
+    }
+
+    @Test
+    public void containsMemberIdIsFalse() throws Exception {
+        List<UUID> classMemberIds = new ArrayList<>();
+        classMemberIds.add(UUID.randomUUID());
+        ClassMemberContentDto classMemberContentDto = new ClassMemberContentDto();
+        classMemberContentDto.setMemberIds(classMemberIds);
+
+        doReturn(classMemberContentDto).when(classMemberRestClient).getClassMembers(any(UUID.class), anyString());
+
+        boolean result = classMemberService.containsMemberId(UUID.randomUUID(), profileId, "token");
+
+        verify(classMemberService, times(1)).getClassMemberIds(any(UUID.class), anyString());
+        verify(classMemberRestClient, times(1)).getClassMembers(any(UUID.class), anyString());
+        assertFalse("Wrong result value", result);
     }
 
 }
