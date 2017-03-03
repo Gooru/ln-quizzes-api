@@ -157,16 +157,11 @@ var quizzesCommon = {
     },
 
     getCreatedContexts: function (authToken, afterJsonFunction) {
-        Frisby.create('Get created contexts list')
-            .get(QuizzesApiUrl + `/v1/contexts/created`)
-            .addHeader('Authorization', `Token ${authToken}`)
-            .inspectRequest()
-            .expectStatus(200)
-            .inspectJSON()
-            .afterJSON(function (contexts) {
+        this.doGet('Get created contexts list', '/v1/contexts/created', 200, authToken,
+            function(contexts) {
                 afterJsonFunction(contexts);
-            })
-            .toss();
+            }
+        );
     },
 
     getCollectionById: function (collectionId, authToken, afterJsonFunction) {
