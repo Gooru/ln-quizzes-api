@@ -96,8 +96,10 @@ public class ContextController {
     @RequestMapping(path = "/contexts/created", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ContextGetResponseDto>> getCreatedContexts(
-            @RequestAttribute(value = "profileId") UUID profileId) throws Exception {
-        List<ContextEntity> contexts = contextService.findCreatedContexts(profileId);
+            @RequestAttribute(value = "profileId") String profileId) throws Exception {
+
+        QuizzesUtils.rejectAnonymous(profileId);
+        List<ContextEntity> contexts = contextService.findCreatedContexts(UUID.fromString(profileId));
         return new ResponseEntity<>(
                 contexts.stream().map(context -> entityMapper.mapContextEntityToContextGetResponseDto(context))
                         .collect(Collectors.toList()),
