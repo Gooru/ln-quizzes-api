@@ -20,7 +20,7 @@ let checkSingleChoiceQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MC - Select the correct operation result');
-    expect(metadata.body).toEqual('MC - Select the correct operation result');
+    expect(metadata.body).toEqual('Select the correct operation result');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'MTAwIC0gMTAgPSDCoDkwwqA='});
     expect(metadata.interaction.shuffle).toBeDefined();
@@ -46,7 +46,7 @@ let checkMultipleChoiceQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MA - Select all the correct results');
-    expect(metadata.body).toEqual('MA - Select all the correct results');
+    expect(metadata.body).toEqual('Select all the correct results');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'NTAwICogMiA9IDEwMDAw'});
     expect(metadata.interaction.shuffle).toBeDefined();
@@ -72,7 +72,7 @@ let checkDragAndDropQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('DD - Order the number from lowest to highest');
-    expect(metadata.body).toEqual('DD - Order the number from lowest to highest');
+    expect(metadata.body).toEqual('Order the number from lowest to highest ');
     expect(metadata.correctAnswer.length).toEqual(2);
     expect(metadata.correctAnswer[0]).toEqual({'value': 'MTAw'});
     expect(metadata.correctAnswer[1]).toEqual({'value': 'NTAw'});
@@ -122,7 +122,7 @@ let checkTrueFalseQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('TF -  Select the correct value');
-    expect(metadata.body).toEqual('TF -  Select the correct value');
+    expect(metadata.body).toEqual('Select the correct value<br><br>400 + 400 = 800 ?');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'VHJ1ZQ=='});
     expect(metadata.interaction.shuffle).toBeDefined();
@@ -161,7 +161,7 @@ let checkMultipleSelectImageQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MSI - Select the animals');
-    expect(metadata.body).toEqual('MSI - Select the animals');
+    expect(metadata.body).toEqual(' Select the animals');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'NThiMTcwNzYtMTRiNC00MmU3LTk3NzMtZmIzMTQ5MWMyZTRkLmpwZWc='});
     expect(metadata.interaction.shuffle).toBeDefined();
@@ -187,7 +187,7 @@ let checkMultipleSelectTextQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MST - Select the correct definition');
-    expect(metadata.body).toEqual('MST - Select the correct definition');
+    expect(metadata.body).toEqual('Select the verbs');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogMTVweDsiPlJ1bjwvc3Bhbj4='});
     expect(metadata.interaction.shuffle).toBeDefined();

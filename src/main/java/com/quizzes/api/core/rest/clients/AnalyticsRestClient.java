@@ -1,17 +1,24 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
+import com.quizzes.api.core.dtos.ClassMemberContentDto;
 import com.quizzes.api.core.dtos.content.EventContentDto;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
+import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -27,9 +34,12 @@ public class AnalyticsRestClient {
     private ConfigurationService configurationService;
 
     @Autowired
+    private GooruHelper gooruHelper;
+
+    @Autowired
     private Gson gsonPretty;
 
-    public void play(EventContentDto event) {
+    public void notifyEvent(EventContentDto event, String token) {
         String endpointUrl = configurationService.getContentApiUrl() +
                 EVENTS_PATH + "?apiKey=" + configurationService.getApiKey();
 
@@ -39,8 +49,10 @@ public class AnalyticsRestClient {
 
         try {
             log.debug("Body: " + gsonPretty.toJson(Collections.singletonList(event)));
-            restTemplate.postForObject(endpointUrl, Collections.singletonList(event), Void.class);
 
+            HttpHeaders headers = gooruHelper.setupAnalyticsHttpHeaders(token);
+            HttpEntity<List> entity = new HttpEntity<>(Collections.singletonList(event), headers);
+            restTemplate.postForObject(endpointUrl, entity, Void.class);
         } catch (HttpClientErrorException hcee) {
             log.error("There was problem saving the event: " + event.getEventName(), hcee);
             throw new ContentProviderException("There was problem saving the event: " + event.getEventName(), hcee);

@@ -85,6 +85,7 @@ var quizzesCommon = {
             .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
             .expectStatus(200)
+            .timeout(60000) //waits 60sec for response
             .expectHeaderContains('content-type', 'application/json')
             .inspectJSON()
             .afterJSON(afterJsonFunction)

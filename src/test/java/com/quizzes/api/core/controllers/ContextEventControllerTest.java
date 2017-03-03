@@ -171,8 +171,8 @@ public class ContextEventControllerTest {
 
     @Test
     public void processFinishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId.toString());
-        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId);
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId.toString(), token);
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId, token);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
@@ -181,8 +181,8 @@ public class ContextEventControllerTest {
 
     @Test
     public void processFinishContextEventForAnonymous() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(contextId, "anonymous");
-        verify(contextEventService, times(1)).processFinishContextEvent(contextId, anonymousId);
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, "anonymous", token);
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, anonymousId, token);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
