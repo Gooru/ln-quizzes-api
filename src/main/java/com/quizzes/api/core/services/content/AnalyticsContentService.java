@@ -40,8 +40,8 @@ public class AnalyticsContentService {
     public void collectionPlay(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                                boolean isCollection, String token) {
 
-        EventContentDto playEvent = createEventDto(collectionId, classId, contextProfileId, profileId, isCollection,
-                token, START);
+        EventContentDto playEvent = createEventDto(collectionId, classId, contextProfileId, contextProfileId,
+                profileId, isCollection, token, START);
         playEvent.setEventName(COLLECTION_PLAY);
         playEvent.setStartTime(quizzesUtils.getCurrentTimestamp());
         analyticsRestClient.notifyEvent(playEvent, token);
@@ -50,22 +50,22 @@ public class AnalyticsContentService {
     public void collectionStop(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                                boolean isCollection, String token, long startDate) {
 
-        EventContentDto stopEvent = createEventDto(collectionId, classId, contextProfileId, profileId, isCollection,
-                token, STOP);
+        EventContentDto stopEvent = createEventDto(collectionId, classId, contextProfileId, contextProfileId,
+                profileId, isCollection, token, STOP);
         stopEvent.setEventName(COLLECTION_STOP);
         stopEvent.setStartTime(startDate);
         stopEvent.setEndTime(quizzesUtils.getCurrentTimestamp());
         analyticsRestClient.notifyEvent(stopEvent, token);
     }
 
-    private EventContentDto createEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID profileId,
+    private EventContentDto createEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID eventId, UUID profileId,
                                            boolean isCollection, String token, String type) {
         CollectionDto collection = getCollection(collectionId, isCollection);
         SessionEventContentDto session = createSessionEventDto(sessionId, token);
         ContextEventContentDto context = createContextEventDto(collection, classId, type);
 
         return EventContentDto.builder()
-                .eventId(UUID.randomUUID())
+                .eventId(eventId)
                 .session(session)
                 .user(new UserEventContentDto(profileId))
                 .context(context)

@@ -83,13 +83,13 @@ public class AnalyticsContentServiceTest {
         EventContentDto eventContentDto = createEventDtoObject();
         doReturn(currentTime).when(quizzesUtils, "getCurrentTimestamp");
         doReturn(eventContentDto).when(analyticsContentService, "createEventDto", collectionId, classId,
-                contextProfileId, profileId, true, token, "start");
+                contextProfileId, contextProfileId, profileId, true, token, "start");
         doNothing().when(analyticsRestClient).notifyEvent(eventContentDto, token);
 
         analyticsContentService.collectionPlay(collectionId, classId, contextProfileId, profileId, true, token);
 
         verifyPrivate(analyticsContentService, times(1))
-                .invoke("createEventDto", collectionId, classId, contextProfileId, profileId, true, token, "start");
+                .invoke("createEventDto", collectionId, classId, contextProfileId, contextProfileId, profileId, true, token, "start");
         verify(analyticsRestClient, times(1)).notifyEvent(eventContentDto, token);
         verify(quizzesUtils, times(1)).getCurrentTimestamp();
     }
@@ -99,13 +99,13 @@ public class AnalyticsContentServiceTest {
         EventContentDto eventContentDto = createEventDtoObject();
         doReturn(currentTime).when(quizzesUtils, "getCurrentTimestamp");
         doReturn(eventContentDto).when(analyticsContentService, "createEventDto", collectionId, classId,
-                contextProfileId, profileId, true, token, "stop");
+                contextProfileId, contextProfileId, profileId, true, token, "stop");
         doNothing().when(analyticsRestClient).notifyEvent(eventContentDto, token);
 
         analyticsContentService.collectionStop(collectionId, classId, contextProfileId, profileId, true, token, 4567);
 
         verifyPrivate(analyticsContentService, times(1)).invoke(
-                "createEventDto", collectionId, classId, contextProfileId, profileId, true, token, "stop");
+                "createEventDto", collectionId, classId, contextProfileId, contextProfileId, profileId, true, token, "stop");
         verify(analyticsRestClient, times(1)).notifyEvent(eventContentDto, token);
         verify(quizzesUtils, times(1)).getCurrentTimestamp();
     }

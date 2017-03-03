@@ -70,10 +70,10 @@ public class ContextEventService {
     private AnalyticsContentService analyticsContentService;
 
     @Autowired
-    ContextProfileEventRepository contextProfileEventRepository;
+    private ContextProfileEventRepository contextProfileEventRepository;
 
     @Autowired
-    QuizzesUtils quizzesUtils;
+    private QuizzesUtils quizzesUtils;
 
     @Autowired
     private Gson gson;
