@@ -102,9 +102,8 @@ public class ContextEventService {
 
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
                 context.getIsCollection());
-        List<ResourceDto> collectionResources = collectionDto.getResources();
-        ResourceDto currentResource = findResourceInContext(collectionResources, resourceId, contextId);
-        ResourceDto previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(),
+        ResourceDto currentResource = findResourceInContext(collectionDto.getResources(), resourceId, contextId);
+        ResourceDto previousResource = findResourceInContext(collectionDto.getResources(), resourceDto.getResourceId(),
                 contextId);
 
         List<ContextProfileEvent> contextProfileEvents =

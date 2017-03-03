@@ -22,13 +22,11 @@ import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
-import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
-import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
@@ -42,7 +40,6 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
-import org.springframework.boot.json.JsonParser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,12 +84,6 @@ public class ContextEventServiceTest {
     private ContextService contextService;
 
     @Mock
-    private ContextRepository contextRepository;
-
-    @Mock
-    private AssigneeEventEntity assigneeEventEntity;
-
-    @Mock
     private CurrentContextProfileService currentContextProfileService;
 
     @Mock
@@ -106,9 +97,6 @@ public class ContextEventServiceTest {
 
     @Mock
     private Gson gson = new Gson();
-
-    @Mock
-    private JsonParser jsonParser;
 
     private UUID collectionId;
     private String token;
@@ -465,7 +453,6 @@ public class ContextEventServiceTest {
                 contextId, profileId);
     }
 
-    @Ignore
     @Test
     public void processOnResourceEventWithEventWithoutAnswer() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
@@ -501,7 +488,7 @@ public class ContextEventServiceTest {
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
         doReturn(body.getPreviousResource()).when(contextEventService, "getPreviousResource", body);
-        doReturn(collectionDto).when(collectionService, "getCollection", collectionId);
+        doReturn(collectionDto).when(collectionService, "getCollectionOrAssessment", collectionId, true);
         doReturn(resource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
                 resourceId, contextId);
         doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
@@ -526,7 +513,7 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
                 contextId, profileId);
         verifyPrivate(contextEventService, times(1)).invoke("getPreviousResource", body);
-        verifyPrivate(collectionService, times(1)).invoke("getCollection", collectionId);
+        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true);
         verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionDto.getResources(),
                 resourceId, contextId);
         verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionDto.getResources(),
@@ -539,15 +526,14 @@ public class ContextEventServiceTest {
 
         verifyPrivate(contextEventService, times(0)).invoke("updateExistingResourceDto", any(), any(), any());
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
-        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", contextProfileId, resourceId,
-                gson.toJson(eventSummaryDataDto), gson.toJson(taxonomySummaryDto));
+        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", any(UUID.class), any(UUID.class),
+                any(String.class), any(String.class));
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         verifyPrivate(contextEventService, times(1)).invoke("sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
     }
 
-    @Ignore
     @Test
     public void processOnResourceEventExistingEvent() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
@@ -583,18 +569,21 @@ public class ContextEventServiceTest {
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
         doReturn(body.getPreviousResource()).when(contextEventService, "getPreviousResource", body);
-        doReturn(collectionDto).when(collectionService, "getCollection", collectionId);
-        doReturn(resource).when(contextEventService, "findResourceInContext", collectionResources,
+        doReturn(collectionDto).when(collectionService, "getCollectionOrAssessment", collectionId, true);
+        doReturn(resource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
                 resourceId, contextId);
-        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionResources,
+        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
                 previousResourceId, contextId);
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
         doReturn(body.getPreviousResource()).when(contextEventService, "updateExistingResourceDto",
                 eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
-        doReturn(contextProfile).when(contextEventService, "updateContextProfile", contextProfileId, resourceId,
-                gson.toJson(eventSummaryDataDto), gson.toJson(taxonomySummaryDto));
+        List<TaxonomySummaryDto> taxonomySummaryDtoList = new ArrayList<>();
+        taxonomySummaryDtoList.add(taxonomySummaryDto);
+        doReturn(taxonomySummaryDtoList).when(contextEventService, "calculateTaxonomySummary", contextProfileEvents, false, collectionDto, eventSummaryDataDto);
+        doReturn(contextProfile).when(contextEventService, "updateContextProfile", any(UUID.class), any(UUID.class),
+                any(String.class), any(String.class));
         doNothing().when(contextEventService, "doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
@@ -605,7 +594,7 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
                 contextId, profileId);
         verifyPrivate(contextEventService, times(1)).invoke("getPreviousResource", body);
-        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true);
         verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionResources,
                 resourceId, contextId);
         verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionResources,
@@ -617,15 +606,14 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, times(1)).invoke("updateExistingResourceDto",
                 eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
-        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", contextProfileId, resourceId,
-                gson.toJson(eventSummaryDataDto));
+        verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", any(UUID.class), any(UUID.class),
+                any(String.class), any(String.class));
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         verifyPrivate(contextEventService, times(1)).invoke("sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
     }
 
-    @Ignore
     @Test
     public void processOnResourceEventExistingEventForAnonymousOrPreview() throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
@@ -663,18 +651,21 @@ public class ContextEventServiceTest {
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
         doReturn(body.getPreviousResource()).when(contextEventService, "getPreviousResource", body);
-        doReturn(collectionDto).when(collectionService, "getCollection", collectionId);
-        doReturn(resource).when(contextEventService, "findResourceInContext", collectionResources,
+        doReturn(collectionDto).when(collectionService, "getCollectionOrAssessment", collectionId, true);
+        doReturn(resource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
                 resourceId, contextId);
-        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionResources,
+        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
                 previousResourceId, contextId);
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
 
         doReturn(body.getPreviousResource()).when(contextEventService, "updateExistingResourceDto",
                 eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
+        List<TaxonomySummaryDto> taxonomySummaryDtoList = new ArrayList<>();
+        taxonomySummaryDtoList.add(taxonomySummaryDto);
+        doReturn(taxonomySummaryDtoList).when(contextEventService, "calculateTaxonomySummary", contextProfileEvents, false, collectionDto, eventSummaryDataDto);
         doReturn(contextProfile).when(contextEventService, "updateContextProfile", contextProfileId, resourceId,
-                gson.toJson(eventSummaryDataDto), gson.toJson(taxonomySummaryDto));
+                gson.toJson(eventSummaryDataDto), gson.toJson(taxonomySummaryDtoList));
         doNothing().when(contextEventService, "doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         doNothing().when(contextEventService, "sendOnResourceEventMessage", any(), any(), any());
@@ -684,7 +675,7 @@ public class ContextEventServiceTest {
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
                 contextId, profileId);
         verifyPrivate(contextEventService, times(1)).invoke("getPreviousResource", body);
-        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true);
         verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionResources,
                 resourceId, contextId);
         verifyPrivate(contextEventService, times(1)).invoke("findResourceInContext", collectionResources,
@@ -697,56 +688,46 @@ public class ContextEventServiceTest {
                 eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
         verifyPrivate(contextEventService, times(1)).invoke("calculateEventSummary", contextProfileEvents, false);
         verifyPrivate(contextEventService, times(1)).invoke("updateContextProfile", contextProfileId, resourceId,
-                gson.toJson(eventSummaryDataDto));
+                gson.toJson(eventSummaryDataDto), gson.toJson(taxonomySummaryDtoList));
         verifyPrivate(contextEventService, times(1)).invoke("doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         verifyPrivate(contextEventService, times(0)).invoke("sendOnResourceEventMessage", any(), any(), any());
     }
 
-    @Ignore
     @Test
     public void processOnResourceEventWithFeedback() throws Exception {
 
         Map<String, Object> setting = new HashMap();
         setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
-        CollectionDto collectionDto = createCollectionDto(setting);
-        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
 
-        OnResourceEventPostRequestDto body = processOnResourceEvent();
+        OnResourceEventPostRequestDto body = processOnResourceEventWithSetting(setting);
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
         assertNotNull(response);
         assertNotNull(response.getScore());
     }
 
-    @Ignore
     @Test
     public void processOnResourceEventWithNoFeedback() throws Exception {
 
         Map<String, Object> setting = new HashMap();
         setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Never.getLiteral());
-        CollectionDto collectionDto = createCollectionDto(setting);
-        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
 
-        OnResourceEventPostRequestDto body = processOnResourceEvent();
+        OnResourceEventPostRequestDto body = processOnResourceEventWithSetting(setting);
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
         assertNotNull(response);
         assertNull(response.getScore());
     }
 
-    @Ignore
     @Test
     public void processOnResourceEventFeedbackWithNoSettings() throws Exception {
 
-        CollectionDto collectionDto = createCollectionDto(null);
-        when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
-
-        OnResourceEventPostRequestDto body = processOnResourceEvent();
+        OnResourceEventPostRequestDto body = processOnResourceEventWithSetting(null);
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
         assertNotNull(response);
         assertNull(response.getScore());
     }
 
-    private OnResourceEventPostRequestDto processOnResourceEvent() throws Exception {
+    private OnResourceEventPostRequestDto processOnResourceEventWithSetting(Map<String, Object> setting) throws Exception {
         ContextProfileEntity currentContextProfile = createContextProfileEntity();
         when(currentContextProfile.getCurrentContextProfileId()).thenReturn(UUID.randomUUID());
         when(currentContextProfile.getIsComplete()).thenReturn(false);
@@ -759,7 +740,10 @@ public class ContextEventServiceTest {
         ResourceDto resource = createResourceDto();
 
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
+        TaxonomySummaryDto taxonomySummaryDto = new TaxonomySummaryDto();
+        CollectionDto collectionDto = createCollectionDto(setting);
         List<ResourceDto> collectionResources = Arrays.asList(resource, previousResource);
+        collectionDto.setResources(collectionResources);
 
         ContextProfile contextProfile = createContextProfile();
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, previousResourceId, "{}");
@@ -772,10 +756,11 @@ public class ContextEventServiceTest {
         ResourceMetadataDto resourceMetadataDto = createQuestionDataDto(answers, QuestionTypeEnum.TrueFalse.getLiteral());
         previousResource.setMetadata(resourceMetadataDto);
 
-        doReturn(collectionResources).when(contextEventService, "getCollectionResources", collectionId, true);
-        doReturn(resource).when(contextEventService, "findResourceInContext", collectionResources,
+        when(collectionService.getCollectionOrAssessment(collectionId, true)).thenReturn(collectionDto);
+
+        doReturn(resource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
                 resourceId, contextId);
-        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionResources,
+        doReturn(previousResource).when(contextEventService, "findResourceInContext", collectionDto.getResources(),
                 previousResourceId, contextId);
         doReturn(body.getPreviousResource()).when(contextEventService, "getPreviousResource", body);
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
@@ -783,8 +768,11 @@ public class ContextEventServiceTest {
         doReturn(body.getPreviousResource()).when(contextEventService, "updateExistingResourceDto",
                 eq(contextProfileEvent), eq(previousResource), any(PostRequestResourceDto.class));
         doReturn(eventSummaryDataDto).when(contextEventService, "calculateEventSummary", contextProfileEvents, false);
-        doReturn(contextProfile).when(contextEventService, "updateContextProfile", contextProfileId, resourceId,
-                gson.toJson(eventSummaryDataDto));
+        List<TaxonomySummaryDto> taxonomySummaryDtoList = new ArrayList<>();
+        taxonomySummaryDtoList.add(taxonomySummaryDto);
+        doReturn(taxonomySummaryDtoList).when(contextEventService, "calculateTaxonomySummary", contextProfileEvents, false, collectionDto, eventSummaryDataDto);
+        doReturn(contextProfile).when(contextEventService, "updateContextProfile", any(UUID.class), any(UUID.class),
+                any(String.class), any(String.class));
         doNothing().when(contextEventService, "doOnResourceEventTransaction",
                 eq(contextProfile), any(ContextProfileEvent.class));
         doNothing().when(contextEventService, "sendOnResourceEventMessage", any(), any(), any());
