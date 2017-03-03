@@ -153,7 +153,15 @@ var quizzesCommon = {
             .afterJSON(function (context) {
                 afterJsonFunction(context);
             })
-            .toss()
+            .toss();
+    },
+
+    getCreatedContexts: function (authToken, afterJsonFunction) {
+        this.doGet('Get created contexts list', '/v1/contexts/created', 200, authToken,
+            function(contexts) {
+                afterJsonFunction(contexts);
+            }
+        );
     },
 
     getCollectionById: function (collectionId, authToken, afterJsonFunction) {
