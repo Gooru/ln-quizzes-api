@@ -6,6 +6,7 @@ import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -179,6 +180,25 @@ public class ContextRepositoryImpl implements ContextRepository {
                 .and(CONTEXT.IS_ACTIVE.eq(true))
                 .fetchOneInto(ContextOwnerEntity.class);
         */
+    }
+
+    @Override
+    public List<ContextEntity> findMappedContexts(UUID classId, UUID collectionId, Map<String, String> contextMap) {
+        Condition condition = CONTEXT.CLASS_ID.eq(classId)
+                .and(CONTEXT.COLLECTION_ID.eq(collectionId))
+                .and(CONTEXT.IS_ACTIVE.eq(true))
+                .and(CONTEXT.IS_DELETED.eq(false));
+
+        for (String key : contextMap.keySet()) {
+            condition = condition
+                    .and(String.format("CONTEXT.CONTEXT_DATA -> 'contextMap' ->> '%s' = '%s'", key,
+                            contextMap.get(key)));
+        }
+
+        return jooq.select(getContextFields())
+                .from(CONTEXT)
+                .where(condition)
+                .fetchInto(ContextEntity.class);
     }
 
     @Override
