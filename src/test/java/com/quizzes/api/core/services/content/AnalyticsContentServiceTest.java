@@ -147,20 +147,6 @@ public class AnalyticsContentServiceTest {
         assertEquals("Wrong number of questions", 1, result);
     }
 
-//    private ContextEventContentDto createContextEventDto(CollectionDto collection, UUID classId, String type) {
-//        return ContextEventContentDto.builder()
-//                .collectionId(UUID.fromString(collection.getId()))
-//                .collectionType(collection.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
-//                .type(type)
-//                .questionCount(collection.getIsCollection() ?
-//                        getQuestionCount(collection.getResources()) : collection.getResources().size())
-//                .unitGooruId(collection.getUnitId())
-//                .classGooruId(classId)
-//                .lessonGooruId(collection.getLessonId())
-//                .courseGooruId(collection.getCourseId())
-//                .build();
-//    }
-
     @Test
     public void createContextEventDtoForCollection() throws Exception {
         ResourceDto resourceDto1 = new ResourceDto();
