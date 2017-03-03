@@ -156,6 +156,14 @@ var quizzesCommon = {
             .toss()
     },
 
+    getAssignedContexts: function (authToken, afterJsonFunction) {
+        this.doGet('Get assigned contexts list', '/v1/contexts/created', 200, authToken,
+            function(contexts) {
+                afterJsonFunction(contexts);
+            }
+        );
+    },
+
     getCollectionById: function (collectionId, authToken, afterJsonFunction) {
         this.getCollectionByIdAndType(collectionId, "collection", authToken, afterJsonFunction)
     },
@@ -219,58 +227,6 @@ var quizzesCommon = {
                 afterJsonFunction(afterJsonFunction);
             })
             .toss()
-    },
-
-    verifyContentNotFound: function(url, title, authToken) {
-        Frisby.create(title + ' throws ContentNotFoundException')
-            .get(QuizzesApiUrl + url)
-            .addHeader('Authorization', 'Token ' + authToken)
-            .inspectRequest()
-            .expectStatus(404)
-            .inspectJSON()
-            .expectJSON({
-                "status": 404
-            })
-            .expectJSONTypes({
-                message: String,
-                status: Number,
-                exception: String
-            })
-            .toss();
-    },
-
-    verifyBadRequest: function(url, title, authToken) {
-        Frisby.create(title + ' throws InvalidRequestException')
-            .get(QuizzesApiUrl + url)
-            .addHeader('Authorization', 'Token ' + authToken)
-            .inspectRequest()
-            .expectStatus(400)
-            .inspectJSON()
-            .expectJSON({
-                "status": 400
-            })
-            .expectJSONTypes({
-                message: String,
-                status: Number,
-                exception: String
-            }).toss();
-    },
-
-    verifyInternalServerError: function(url, title){
-        Frisby.create(title + ' throws Internal Server Error')
-            .get(QuizzesApiUrl + url)
-            .inspectRequest()
-            .expectStatus(500)
-            .inspectJSON()
-            .expectJSON({
-                "status": 500
-            })
-            .expectJSONTypes({
-                message: String,
-                status: Number,
-                exception: String
-            })
-            .toss();
     },
 
     getAttempts : function(contextId, profileId, authToken, afterJsonFunction) {
