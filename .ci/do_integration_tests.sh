@@ -33,7 +33,7 @@ docker run -t \
   -e bamboo_buildNumber=${bamboo_buildNumber} \
   -e bamboo_repository_branch_name=${bamboo_repository_branch_name} \
   -w /build \
-  node:4.6 .ci/integration_tests.sh
+  node:6 .ci/integration_tests.sh
 
 EXIT_CODE=$?
 
