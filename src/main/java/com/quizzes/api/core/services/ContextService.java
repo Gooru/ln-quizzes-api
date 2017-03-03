@@ -13,7 +13,7 @@ import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
+import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class ContextService {
     private ContextRepository contextRepository;
 
     @Autowired
-    private ClassMemberRestClient classMemberRestClient;
+    private ClassMemberService classMemberService;
 
     @Autowired
     private CollectionService collectionService;
@@ -51,7 +51,7 @@ public class ContextService {
         List<UUID> assigneeIds = new ArrayList<>();
 
         if (contextDto.getClassId() != null) {
-            assigneeIds.addAll(classMemberRestClient.getClassMembers(contextDto.getClassId(), token).getMemberIds());
+            assigneeIds.addAll(classMemberService.getClassMemberIds(contextDto.getClassId(), token));
         }
 
         // Saves all processed data
@@ -185,8 +185,7 @@ public class ContextService {
 
     public List<ContextEntity> findMappedContext(UUID classId, UUID collectionId, Map<String, String> contextMap,
                                                  UUID profileId, String token) throws InvalidAssigneeException {
-        List<UUID> classMemberIds = classMemberRestClient.getClassMembers(classId, token).getMemberIds();
-        if (!classMemberIds.contains(profileId)) {
+        if (!classMemberService.containsMemberId(classId, profileId, token)) {
             throw new InvalidAssigneeException("Profile Id: " + profileId + " is not a valid Assignee " +
                     "(member of the Class Id: " + classId + ")");
         }
