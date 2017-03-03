@@ -80,8 +80,10 @@ public class CollectionRestClientTest {
     private String assessmentTitle;
     private String resourceTitle;
     private String questionTitle;
+    private String resourceDescription;
     private String trueFalseQuestion;
     private String imageResource;
+    private String thumbnail;
     private Map<String, Object> setting;
     private Map<String, Object> taxonomy;
     private Map<String, Object> displayGuide;
@@ -99,8 +101,10 @@ public class CollectionRestClientTest {
         assessmentTitle = "Assessment Title";
         resourceTitle = "Resource title";
         questionTitle = "Question title";
+        resourceDescription = "Question description";
         trueFalseQuestion = "true_false_question";
         imageResource = "www.image.com";
+        thumbnail = "image.jpg";
         setting = new HashMap<>();
         setting.put("key", "value");
         taxonomy = new HashMap<>();
@@ -143,9 +147,10 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong title", resourceTitle, metadataResource.getTitle());
-        assertEquals("Wrong Resource type", imageResource, metadataResource.getType());
-        assertEquals("Wrong Resource url", url, metadataResource.getUrl());
         assertNull("Body is not null", metadataResource.getBody());
+        assertEquals("Wrong Resource type", imageResource, metadataResource.getType());
+        assertNull("Thumbnail is not null", metadataResource.getThumbnail());
+        assertEquals("Wrong Resource url", url, metadataResource.getUrl());
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
         assertNull("Interaction is not null", metadataResource.getInteraction());
         assertNotNull("Taxonomy is not null", metadataResource.getTaxonomy());
@@ -185,7 +190,8 @@ public class CollectionRestClientTest {
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong Question title", questionTitle, metadataResource.getTitle());
         assertEquals("Wrong Question type", QuestionTypeEnum.TrueFalse.getLiteral(), metadataResource.getType());
-        assertEquals("Wrong body text", questionTitle, metadataResource.getBody());
+        assertEquals("Wrong body text", resourceDescription, metadataResource.getBody());
+        assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
         assertEquals("Wrong number of correct answers", 1, metadataResource.getCorrectAnswer().size());
         assertNull("Url is not null", metadataResource.getUrl());
         assertNotNull("Taxonomy is null", metadataResource.getTaxonomy());
@@ -228,8 +234,9 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong title", questionTitle, metadataResource.getTitle());
+        assertEquals("Wrong body", resourceDescription, metadataResource.getBody());
+        assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
         assertEquals("Wrong question type", trueFalseQuestion, metadataResource.getType());
-        assertEquals("Wrong body text", questionTitle, metadataResource.getBody());
         assertEquals("Wrong number of correct answers", 1, metadataResource.getCorrectAnswer().size());
         assertNull("Url is not null", metadataResource.getUrl());
         assertEquals("Wrong assessment taxonomy", taxonomy, metadataResource.getTaxonomy());
@@ -273,6 +280,7 @@ public class CollectionRestClientTest {
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong title", resourceTitle, metadataResource.getTitle());
         assertEquals("Wrong resource type", imageResource, metadataResource.getType());
+        assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
         assertEquals("Wrong url", url, metadataResource.getUrl());
         assertNull("Body is not null", metadataResource.getBody());
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
@@ -304,9 +312,10 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong title", resourceTitle, metadataResource.getTitle());
-        assertEquals("Wrong resource type", imageResource, metadataResource.getType());
-        assertEquals("Wrong url", url, metadataResource.getUrl());
         assertNull("Body is not null", metadataResource.getBody());
+        assertEquals("Wrong resource type", imageResource, metadataResource.getType());
+        assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
+        assertEquals("Wrong url", url, metadataResource.getUrl());
         assertNull("Answer is not null", metadataResource.getCorrectAnswer());
         assertNull("Interaction is not null", metadataResource.getInteraction());
         assertEquals("Wrong taxonomy", taxonomy, metadataResource.getTaxonomy());
@@ -336,7 +345,8 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResult = resourceResult.getMetadata();
         assertEquals("Wrong title", questionTitle, metadataResult.getTitle());
-        assertEquals("Wrong body", questionTitle, metadataResult.getBody());
+        assertEquals("Wrong body", resourceDescription, metadataResult.getBody());
+        assertEquals("Wrong thumbnail", thumbnail, metadataResult.getThumbnail());
         assertEquals("Wrong type", trueFalseQuestion, metadataResult.getType());
         assertEquals("Wrong answer size", 1, metadataResult.getCorrectAnswer().size());
         assertNull("Url is not null", metadataResult.getUrl());
@@ -358,6 +368,7 @@ public class CollectionRestClientTest {
 
         assertEquals("Wrong title", resourceTitle, result.getTitle());
         assertEquals("Wrong resource type", imageResource, result.getType());
+        assertNull("Thumbnail is not null", result.getThumbnail());
         assertEquals("Wrong url", url, result.getUrl());
         assertNull("Body is not null", result.getBody());
         assertNull("Answer is not null", result.getCorrectAnswer());
@@ -383,7 +394,8 @@ public class CollectionRestClientTest {
         verifyPrivate(collectionRestClient, times(1)).invoke("createInteraction", resourceContentDto);
 
         assertEquals("Wrong title", questionTitle, result.getTitle());
-        assertEquals("Wrong body", questionTitle, result.getBody());
+        assertEquals("Wrong body", resourceDescription, result.getBody());
+        assertEquals("Wrong thumbnail", thumbnail, result.getThumbnail());
         assertEquals("Wrong type", trueFalseQuestion, result.getType());
         assertEquals("Wrong type", 1, result.getCorrectAnswer().size());
         assertNull("Url is not null", result.getUrl());
@@ -402,7 +414,7 @@ public class CollectionRestClientTest {
 
         String result = WhiteboxImpl.invokeMethod(collectionRestClient, "getBody", resourceContentDto);
 
-        assertEquals("Wrong body content", resourceContentDto.getTitle(), result);
+        assertEquals("Wrong body content", resourceContentDto.getDescription(), result);
     }
 
     @Test
@@ -607,6 +619,8 @@ public class CollectionRestClientTest {
         ResourceContentDto resourceContentDto = new ResourceContentDto();
         resourceContentDto.setId(questionId);
         resourceContentDto.setTitle(questionTitle);
+        resourceContentDto.setDescription(resourceDescription);
+        resourceContentDto.setThumbnail(thumbnail);
         resourceContentDto.setSequence(1);
         resourceContentDto.setContentSubformat(trueFalseQuestion);
         resourceContentDto.setTaxonomy(taxonomy);
@@ -708,7 +722,8 @@ public class CollectionRestClientTest {
         metadata.setType(trueFalseQuestion);
         metadata.setCorrectAnswer(Arrays.asList(new AnswerDto("A")));
         metadata.setInteraction(createInteractionDto());
-        metadata.setBody(questionTitle);
+        metadata.setBody(resourceDescription);
+        metadata.setThumbnail(thumbnail);
         metadata.setTaxonomy(taxonomy);
         return metadata;
     }
@@ -717,6 +732,7 @@ public class CollectionRestClientTest {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceTitle);
         metadata.setType(imageResource);
+        metadata.setThumbnail(thumbnail);
         metadata.setUrl(url);
         metadata.setTaxonomy(taxonomy);
         metadata.setDisplayGuide(displayGuide);
