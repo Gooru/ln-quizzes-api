@@ -15,14 +15,14 @@ QuizzesCommon.startTest('Get assigned contexts for anonymous', function () {
     });
 });
 
-QuizzesCommon.startTest('Get created contexts', function () {
+QuizzesCommon.startTest('Get assigned contexts', function () {
     let collection = Config.getCollection('TestCollection01');
     let classId = Config.getClass('TestClass01').id;
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                QuizzesCommon.getAssignedContexts(authToken, function (assignedContexts) {
-                    expect(assignedContexts).not.toBeLessThan(1);
+                QuizzesCommon.getAssignedContexts(assigneeAuthToken, function (assignedContexts) {
+                    expect(assignedContexts.length).not.toBeLessThan(1);
                 });
             });
         });

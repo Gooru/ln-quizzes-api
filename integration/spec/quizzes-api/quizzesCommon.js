@@ -157,7 +157,7 @@ var quizzesCommon = {
     },
 
     getAssignedContexts: function (authToken, afterJsonFunction) {
-        this.doGet('Get assigned contexts list', '/v1/contexts/created', 200, authToken,
+        this.doGet('Get assigned contexts list', '/v1/contexts/assigned', 200, authToken,
             function(contexts) {
                 afterJsonFunction(contexts);
             }
