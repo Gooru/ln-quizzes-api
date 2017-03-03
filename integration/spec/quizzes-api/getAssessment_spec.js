@@ -1,5 +1,6 @@
 const QuizzesCommon = require('./quizzesCommon.js');
 const Config = require('./quizzesTestConfiguration.js');
+const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
 
 // 'Get assessment without type parameter' and 'Get assessment with invalid parameter type'
 // are already covered on the getCollection_spec.js
@@ -7,8 +8,8 @@ const Config = require('./quizzesTestConfiguration.js');
 QuizzesCommon.startTest('Get not existing assessment', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let assessmentId = QuizzesCommon.generateUUID();
-        QuizzesCommon.verifyContentNotFound(`/v1/collections/${assessmentId}?type=assessment`,
-            'Get not existing assessment', authToken);
+        QuizzesCommon.verifyHttpError('Get not existing assessment',
+            `/v1/collections/${assessmentId}?type=assessment`, HttpErrorCodes.NOT_FOUND, authToken);
     });
 });
 
