@@ -14,6 +14,7 @@ public class ResourceMetadataDto implements Serializable {
     private String type;
     private String url;
     private String body;
+    private String thumbnail;
     private List<AnswerDto> correctAnswer;
     private InteractionDto interaction;
     private Map<String, Object> taxonomy;
