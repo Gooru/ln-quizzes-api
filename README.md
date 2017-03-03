@@ -49,6 +49,7 @@ To build the application you can do the following steps:
 ## How to generate JOOQ models?
 To use JOOQ code generator you can do this:
 * `gradle clean build -PgenerateJooq` to clean, build and generate JOOQ models.
+* `gradle generateQuizzesJooqSchemaSource -PgenerateJooq` to generate JOOQ models.
 
 ## Start up RESTful API server
 To start up the server there are several options:
