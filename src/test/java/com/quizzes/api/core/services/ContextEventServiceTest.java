@@ -463,7 +463,7 @@ public class ContextEventServiceTest {
         when(currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
 
-        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
                 contextId, profileId);
@@ -525,7 +525,7 @@ public class ContextEventServiceTest {
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
 
-        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
                 contextId, profileId);
@@ -604,7 +604,7 @@ public class ContextEventServiceTest {
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
 
-        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
                 contextId, profileId);
@@ -683,7 +683,7 @@ public class ContextEventServiceTest {
                 eq(contextProfile), any(ContextProfileEvent.class));
         doNothing().when(contextEventService, "sendOnResourceEventMessage", any(), any(), any());
 
-        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body, token);
 
         verify(currentContextProfileService, times(1)).findCurrentContextProfileByContextIdAndProfileId(
                 contextId, profileId);
@@ -717,7 +717,8 @@ public class ContextEventServiceTest {
         when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
 
         OnResourceEventPostRequestDto body = processOnResourceEvent();
-        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId,
+                resourceId, body, token);
         assertNotNull(response);
         assertNotNull(response.getScore());
     }
@@ -732,7 +733,8 @@ public class ContextEventServiceTest {
         when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
 
         OnResourceEventPostRequestDto body = processOnResourceEvent();
-        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId,
+                resourceId, body, token);
         assertNotNull(response);
         assertNull(response.getScore());
     }
@@ -745,7 +747,8 @@ public class ContextEventServiceTest {
         when(collectionService.getCollectionOrAssessment(any())).thenReturn(collectionDto);
 
         OnResourceEventPostRequestDto body = processOnResourceEvent();
-        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body);
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, profileId,
+                resourceId, body, token);
         assertNotNull(response);
         assertNull(response.getScore());
     }
@@ -916,18 +919,6 @@ public class ContextEventServiceTest {
 
         WhiteboxImpl.invokeMethod(contextEventService, "findResourceInContext",
                 collectionResources, previousResourceId, contextId);
-    }
-
-    @Test
-    public void doOnResourceEventTransaction() throws Exception {
-        ContextProfile contextProfile = createContextProfile();
-        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
-
-        WhiteboxImpl.invokeMethod(contextEventService, "doOnResourceEventTransaction",
-                contextProfile, contextProfileEvent);
-
-        verify(contextProfileService, times(1)).save(contextProfile);
-        verify(contextProfileEventService, times(1)).save(contextProfileEvent);
     }
 
     @Test

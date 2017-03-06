@@ -93,8 +93,9 @@ public class ContextEventService {
         return resumeStartContextEvent(entity);
     }
 
+    @Transactional
     public OnResourceEventResponseDto processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
-                                                             OnResourceEventPostRequestDto body) {
+                                                             OnResourceEventPostRequestDto body, String token) {
         ContextProfileEntity context = currentContextProfileService
                 .findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
 
@@ -133,9 +134,13 @@ public class ContextEventService {
         ContextProfile contextProfile = updateContextProfile(context.getContextProfileId(),
                 currentResource.getId(), gson.toJson(eventSummary), gson.toJson(collectionTaxonomy));
 
-        doOnResourceEventTransaction(contextProfile, contextProfileEvent);
+        ContextProfile updatedContextProfile = contextProfileService.save(contextProfile);
+        contextProfileEventService.save(contextProfileEvent);
+
         if (context.getClassId() != null) {
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
+            sendAnalyticsEvent(context, profileId, token, currentResource, updatedContextProfile.getUpdatedAt().getTime(),
+                    true);
         }
 
         if (collectionDto.getMetadata().getSetting() == null) {
@@ -151,6 +156,15 @@ public class ContextEventService {
             return new OnResourceEventResponseDto();
         }
         return new OnResourceEventResponseDto(resourceDto.getScore());
+    }
+
+    private void sendAnalyticsEvent(ContextProfileEntity context, UUID profileId, String token, ResourceDto resource,
+                                    long time, boolean isPlayEvent) {
+        if(isPlayEvent){
+            analyticsContentService.resourcePlay(context.getCollectionId(), context.getClassId(),
+                    context.getContextProfileId(), profileId, context.getIsCollection(), token, resource, time);
+        }
+        //TODO: Stop event with validation if it's not the last event
     }
 
     private PostRequestResourceDto getPreviousResource(OnResourceEventPostRequestDto body) {
@@ -220,12 +234,6 @@ public class ContextEventService {
         CurrentContextProfile currentContextProfile = createCurrentContextProfileObject(
                 savedContextProfile.getContextId(), contextProfile.getProfileId(), savedContextProfile.getId());
         doCurrentContextEventTransaction(currentContextProfile);
-    }
-
-    @Transactional
-    public void doOnResourceEventTransaction(ContextProfile contextProfile, ContextProfileEvent contextProfileEvent) {
-        contextProfileService.save(contextProfile);
-        contextProfileEventService.save(contextProfileEvent);
     }
 
     @Transactional

@@ -66,10 +66,11 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true, name = "Body")
             @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
-            @RequestAttribute(value = "profileId") String profileId) {
+            @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "token") String token) {
 
-        OnResourceEventResponseDto response =  contextEventService.processOnResourceEvent(contextId,
-                QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto);
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId,
+                QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto, token);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -88,7 +89,7 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @RequestAttribute(value = "profileId") String profileId,
             @RequestAttribute(value = "token") String token) {
-        contextEventService.processFinishContextEvent(contextId,QuizzesUtils.resolveProfileId(profileId), token);
+        contextEventService.processFinishContextEvent(contextId, QuizzesUtils.resolveProfileId(profileId), token);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
