@@ -14,6 +14,7 @@ public class ResourceContentDto implements Serializable {
     private UUID id;
     private String title;
     private String description;
+    private String thumbnail;
 
     @SerializedName("content_format")
     private String contentFormat;
