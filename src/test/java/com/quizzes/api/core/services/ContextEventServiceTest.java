@@ -21,6 +21,7 @@ import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
+import com.quizzes.api.core.exceptions.NoAttemptsLeftException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
@@ -29,8 +30,8 @@ import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.content.AnalyticsContentService;
+import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,7 +61,6 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -230,6 +230,11 @@ public class ContextEventServiceTest {
         doNothing().when(contextEventService, "doCreateContextProfileTransaction", contextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
                 eq(entity), any(ArrayList.class), eq(token));
+
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(10));
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any(), anyBoolean())).thenReturn(collectionDto);
 
         StartContextEventResponseDto result =
                 WhiteboxImpl.invokeMethod(contextEventService, "createContextProfile", entity, token);
@@ -1399,6 +1404,33 @@ public class ContextEventServiceTest {
         assertEquals(eventSummaryDataDto.getAverageReaction(), 0);
         assertEquals(eventSummaryDataDto.getTotalCorrect(), 0);
         assertEquals(eventSummaryDataDto.getTotalAnswered(), 0);
+    }
+
+    @Test
+    public void validateAttemptsValid() throws Exception {
+        validateAttemptsPrivateMethod(2, 1);
+    }
+
+    @Test(expected = NoAttemptsLeftException.class)
+    public void validateAttemptsNoAttemptsLeft() throws Exception {
+        validateAttemptsPrivateMethod(2, 2);
+    }
+
+    private void validateAttemptsPrivateMethod(int allowedAttemps, int currentAttempts) throws Exception {
+        ContextProfileEntity entity = createContextProfileEntity();
+
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(allowedAttemps));
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any(UUID.class), anyBoolean()))
+                .thenReturn(collectionDto);
+        when(contextProfileService.findCountByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(currentAttempts);
+
+        WhiteboxImpl.invokeMethod(contextEventService, "validateAttempts", entity);
+
+        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", entity.getCollectionId(), entity.getIsCollection());
+        verifyPrivate(contextProfileService, times(1)).invoke("findCountByContextIdAndProfileId", contextId, profileId);
     }
 
     private List<ContextProfileEvent> createContextProfileEvents() {

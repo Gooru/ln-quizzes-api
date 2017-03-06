@@ -44,4 +44,8 @@ public class ContextProfileService {
         return contextProfileRepository.save(contextProfile);
     }
 
+    public int findCountByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        return contextProfileRepository.findCountByContextIdAndProfileId(contextId, profileId);
+    }
+
 }

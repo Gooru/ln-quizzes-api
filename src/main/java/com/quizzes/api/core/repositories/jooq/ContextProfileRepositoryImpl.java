@@ -91,4 +91,13 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
         return ids;
     }
 
+    @Override
+    public int findCountByContextIdAndProfileId(UUID contextId, UUID profileId) {
+        return jooq.selectCount()
+                .from(CONTEXT_PROFILE)
+                .where(CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
+                .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .fetchOne(0, int.class);
+    }
+
 }

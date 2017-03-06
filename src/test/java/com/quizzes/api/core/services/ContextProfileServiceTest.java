@@ -14,9 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -72,6 +69,18 @@ public class ContextProfileServiceTest {
 
         verify(contextProfileRepository, times(1)).
                 findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class));
+    }
+
+    @Test
+    public void findCountByContextIdAndProfileId() throws Exception {
+        when(contextProfileRepository.findCountByContextIdAndProfileId(any(UUID.class), any(UUID.class))).
+                thenReturn(1);
+
+        int result = contextProfileService.findCountByContextIdAndProfileId(any(UUID.class),
+                any(UUID.class));
+
+        verify(contextProfileRepository, times(1)).
+                findCountByContextIdAndProfileId(any(UUID.class), any(UUID.class));
     }
 
 }
