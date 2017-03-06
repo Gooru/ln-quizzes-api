@@ -60,15 +60,8 @@ public class AnalyticsContentService {
         analyticsRestClient.notifyEvent(stopEvent, token);
     }
 
-    public void resourcePlay(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
-                             boolean isCollection, String token, long startDate) {
-
-        EventCollectionContentDto stopEvent = createEventDto(collectionId, classId, contextProfileId, profileId, isCollection,
-                token, START);
-        stopEvent.setEventName(RESOURCE_PLAY);
-        stopEvent.setStartTime(startDate);
-        stopEvent.setEndTime(quizzesUtils.getCurrentTimestamp());
-        analyticsRestClient.notifyEvent(stopEvent, token);
+    public void resourcePlay() {
+        //TODO: Implement this logic
     }
 
     private EventCollectionContentDto createEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID eventId, UUID profileId,
@@ -94,7 +87,7 @@ public class AnalyticsContentService {
 
     private ContextCollectionEventContentDto createContextEventDto(CollectionDto collection, UUID classId, String type) {
         return ContextCollectionEventContentDto.builder()
-                .collectionId(UUID.fromString(collection.getId()))
+                .contentGooruId(UUID.fromString(collection.getId()))
                 .collectionType(collection.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
                 .type(type)
                 .questionCount(collection.getIsCollection() ?

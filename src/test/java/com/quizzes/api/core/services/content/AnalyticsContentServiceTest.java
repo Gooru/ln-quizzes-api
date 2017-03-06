@@ -220,7 +220,7 @@ public class AnalyticsContentServiceTest {
 
     private ContextCollectionEventContentDto createContextEventDtoObject() {
         return ContextCollectionEventContentDto.builder()
-                .collectionId(collectionId)
+                .contentGooruId(collectionId)
                 .collectionType("collection")
                 .type("start")
                 .questionCount(2)

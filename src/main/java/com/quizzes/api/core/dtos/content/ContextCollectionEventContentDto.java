@@ -2,26 +2,19 @@ package com.quizzes.api.core.dtos.content;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.UUID;
 
 @Data
-@Builder
-public class ContextCollectionEventContentDto {
+@EqualsAndHashCode(callSuper=false)
+public class ContextCollectionEventContentDto extends ContextCommonEventContentDto {
 
-    private UUID contentGooruId;
-    private String type;
     private int questionCount;
-    private String collectionType;
-    private String collectionSubType;
-    private UUID courseGooruId;
-    private UUID classGooruId;
-    private UUID unitGooruId;
-    private UUID lessonGooruId;
-    private String clientSource;
-    private String source;
-    private UUID appId;
-    private UUID partnerId;
-    private UUID tenantId;
 
+    @Builder
+    public ContextCollectionEventContentDto(UUID contentGooruId, String type, String collectionType, String collectionSubType, UUID courseGooruId, UUID classGooruId, UUID unitGooruId, UUID lessonGooruId, String clientSource, String source, UUID appId, UUID partnerId, UUID tenantId, int questionCount) {
+        super(contentGooruId, type, collectionType, collectionSubType, courseGooruId, classGooruId, unitGooruId, lessonGooruId, clientSource, source, appId, partnerId, tenantId);
+        this.questionCount = questionCount;
+    }
 }
