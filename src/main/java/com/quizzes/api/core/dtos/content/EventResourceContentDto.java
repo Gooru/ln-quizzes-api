@@ -13,11 +13,11 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper=false)
 public class EventResourceContentDto extends EventContentCommonDto {
 
-    private ContextCollectionEventContentDto context;
+    private ContextResourceEventContentDto context;
     private PayloadObjectResourceEventContentDto payLoadObject;
 
     @Builder
-    public EventResourceContentDto(UUID eventId, String eventName, SessionEventContentDto session, UserEventContentDto user, VersionEventContentDto version, MetricsEventContentDto metrics, long startTime, long endTime, ContextCollectionEventContentDto context, PayloadObjectResourceEventContentDto payLoadObject) {
+    public EventResourceContentDto(UUID eventId, String eventName, SessionEventContentDto session, UserEventContentDto user, VersionEventContentDto version, MetricsEventContentDto metrics, long startTime, long endTime, ContextResourceEventContentDto context, PayloadObjectResourceEventContentDto payLoadObject) {
         super(eventId, eventName, session, user, version, metrics, startTime, endTime);
         this.context = context;
         this.payLoadObject = payLoadObject;

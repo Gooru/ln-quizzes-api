@@ -94,7 +94,7 @@ public class ContextEventService {
     }
 
     public OnResourceEventResponseDto processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
-                                                             OnResourceEventPostRequestDto body) {
+                                                             OnResourceEventPostRequestDto body, String token) {
         ContextProfileEntity context = currentContextProfileService
                 .findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
 
@@ -133,9 +133,10 @@ public class ContextEventService {
         ContextProfile contextProfile = updateContextProfile(context.getContextProfileId(),
                 currentResource.getId(), gson.toJson(eventSummary), gson.toJson(collectionTaxonomy));
 
-        doOnResourceEventTransaction(contextProfile, contextProfileEvent);
+        ContextProfileEvent newEvent = doOnResourceEventTransaction(contextProfile, contextProfileEvent);
         if (context.getClassId() != null) {
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
+            sendAnalyticsEvent(context, profileId, token, currentResource, newEvent.getCreatedAt().getTime(), true);
         }
 
         if (collectionDto.getMetadata().getSetting() == null) {
@@ -151,6 +152,15 @@ public class ContextEventService {
             return new OnResourceEventResponseDto();
         }
         return new OnResourceEventResponseDto(resourceDto.getScore());
+    }
+
+    private void sendAnalyticsEvent(ContextProfileEntity context, UUID profileId, String token, ResourceDto resource,
+                                    long time, boolean isPlayEvent) {
+        if(isPlayEvent){
+            analyticsContentService.resourcePlay(context.getCollectionId(), context.getClassId(),
+                    context.getContextProfileId(), profileId, context.getIsCollection(), token, resource, time);
+        }
+        //TODO: Stop event with validation if it's not the last event
     }
 
     private PostRequestResourceDto getPreviousResource(OnResourceEventPostRequestDto body) {
@@ -223,9 +233,9 @@ public class ContextEventService {
     }
 
     @Transactional
-    public void doOnResourceEventTransaction(ContextProfile contextProfile, ContextProfileEvent contextProfileEvent) {
+    public ContextProfileEvent doOnResourceEventTransaction(ContextProfile contextProfile, ContextProfileEvent contextProfileEvent) {
         contextProfileService.save(contextProfile);
-        contextProfileEventService.save(contextProfileEvent);
+        return contextProfileEventService.save(contextProfileEvent);
     }
 
     @Transactional
