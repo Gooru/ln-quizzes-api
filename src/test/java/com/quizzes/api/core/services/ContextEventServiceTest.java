@@ -922,18 +922,6 @@ public class ContextEventServiceTest {
     }
 
     @Test
-    public void doOnResourceEventTransaction() throws Exception {
-        ContextProfile contextProfile = createContextProfile();
-        ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
-
-        WhiteboxImpl.invokeMethod(contextEventService, "doOnResourceEventTransaction",
-                contextProfile, contextProfileEvent);
-
-        verify(contextProfileService, times(1)).save(contextProfile);
-        verify(contextProfileEventService, times(1)).save(contextProfileEvent);
-    }
-
-    @Test
     public void sendOnResourceEventMessage() throws Exception {
         ContextProfile contextProfile = createContextProfile();
         PostRequestResourceDto postRequestResourceDto = createPostRequestResourceDto();

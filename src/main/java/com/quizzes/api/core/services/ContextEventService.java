@@ -133,10 +133,13 @@ public class ContextEventService {
         ContextProfile contextProfile = updateContextProfile(context.getContextProfileId(),
                 currentResource.getId(), gson.toJson(eventSummary), gson.toJson(collectionTaxonomy));
 
-        ContextProfileEvent newEvent = doOnResourceEventTransaction(contextProfile, contextProfileEvent);
+        ContextProfile updatedContextProfile = contextProfileService.save(contextProfile);
+        contextProfileEventService.save(contextProfileEvent);
+
         if (context.getClassId() != null) {
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
-            sendAnalyticsEvent(context, profileId, token, currentResource, newEvent.getCreatedAt().getTime(), true);
+            sendAnalyticsEvent(context, profileId, token, currentResource, updatedContextProfile.getUpdatedAt().getTime(),
+                    true);
         }
 
         if (collectionDto.getMetadata().getSetting() == null) {
@@ -230,12 +233,6 @@ public class ContextEventService {
         CurrentContextProfile currentContextProfile = createCurrentContextProfileObject(
                 savedContextProfile.getContextId(), contextProfile.getProfileId(), savedContextProfile.getId());
         doCurrentContextEventTransaction(currentContextProfile);
-    }
-
-    @Transactional
-    public ContextProfileEvent doOnResourceEventTransaction(ContextProfile contextProfile, ContextProfileEvent contextProfileEvent) {
-        contextProfileService.save(contextProfile);
-        return contextProfileEventService.save(contextProfileEvent);
     }
 
     @Transactional
