@@ -2,6 +2,8 @@
 
 source .ci/common.sh
 
+retry /usr/bin/curl -S --fail -s http://quizzes:8080/health
+
 if [ $UID -eq 0 ]; then
   info "Running as root creating builder user and dropping privileges"
   groupadd -r -g 501 builder && useradd -m -r -g builder -u 500 builder
