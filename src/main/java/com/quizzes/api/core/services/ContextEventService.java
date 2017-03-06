@@ -93,6 +93,7 @@ public class ContextEventService {
         return resumeStartContextEvent(entity);
     }
 
+    @Transactional
     public OnResourceEventResponseDto processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
                                                              OnResourceEventPostRequestDto body, String token) {
         ContextProfileEntity context = currentContextProfileService
