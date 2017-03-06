@@ -2,9 +2,9 @@ package com.quizzes.api.core.services.content;
 
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.ResourceDto;
-import com.quizzes.api.core.dtos.content.ContextEventContentDto;
-import com.quizzes.api.core.dtos.content.EventContentDto;
-import com.quizzes.api.core.dtos.content.PayloadObjectEventContentDto;
+import com.quizzes.api.core.dtos.content.ContextCollectionEventContentDto;
+import com.quizzes.api.core.dtos.content.EventCollectionContentDto;
+import com.quizzes.api.core.dtos.content.PayloadObjectCollectionEventContentDto;
 import com.quizzes.api.core.dtos.content.SessionEventContentDto;
 import com.quizzes.api.core.dtos.content.UserEventContentDto;
 import com.quizzes.api.core.dtos.content.VersionEventContentDto;
@@ -34,13 +34,15 @@ public class AnalyticsContentService {
 
     private final static String COLLECTION_PLAY = QuizzesUtils.COLLECTION.concat(".play");
     private final static String COLLECTION_STOP = QuizzesUtils.COLLECTION.concat(".stop");
+    private final static String RESOURCE_PLAY = QuizzesUtils.COLLECTION.concat(".resource.play");
+    private final static String RESOURCE_STOP = QuizzesUtils.COLLECTION.concat(".resource.stop");
     private final static String START = "start";
     private final static String STOP = "stop";
 
     public void collectionPlay(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                                boolean isCollection, String token) {
 
-        EventContentDto playEvent = createEventDto(collectionId, classId, contextProfileId, contextProfileId,
+        EventCollectionContentDto playEvent = createEventDto(collectionId, classId, contextProfileId, contextProfileId,
                 profileId, isCollection, token, START);
         playEvent.setEventName(COLLECTION_PLAY);
         playEvent.setStartTime(quizzesUtils.getCurrentTimestamp());
@@ -50,7 +52,7 @@ public class AnalyticsContentService {
     public void collectionStop(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                                boolean isCollection, String token, long startDate) {
 
-        EventContentDto stopEvent = createEventDto(collectionId, classId, contextProfileId, contextProfileId,
+        EventCollectionContentDto stopEvent = createEventDto(collectionId, classId, contextProfileId, contextProfileId,
                 profileId, isCollection, token, STOP);
         stopEvent.setEventName(COLLECTION_STOP);
         stopEvent.setStartTime(startDate);
@@ -58,19 +60,23 @@ public class AnalyticsContentService {
         analyticsRestClient.notifyEvent(stopEvent, token);
     }
 
-    private EventContentDto createEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID eventId, UUID profileId,
-                                           boolean isCollection, String token, String type) {
+    public void resourcePlay() {
+        //TODO: Implement this logic
+    }
+
+    private EventCollectionContentDto createEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID eventId, UUID profileId,
+                                                     boolean isCollection, String token, String type) {
         CollectionDto collection = getCollection(collectionId, isCollection);
         SessionEventContentDto session = createSessionEventDto(sessionId, token);
-        ContextEventContentDto context = createContextEventDto(collection, classId, type);
+        ContextCollectionEventContentDto context = createContextEventDto(collection, classId, type);
 
-        return EventContentDto.builder()
+        return EventCollectionContentDto.builder()
                 .eventId(eventId)
                 .session(session)
                 .user(new UserEventContentDto(profileId))
                 .context(context)
                 .version(new VersionEventContentDto(configurationService.getAnalyticsVersion()))
-                .payLoadObject(new PayloadObjectEventContentDto(true))
+                .payLoadObject(new PayloadObjectCollectionEventContentDto(true))
                 .build();
     }
 
@@ -79,9 +85,9 @@ public class AnalyticsContentService {
                 collectionService.getCollection(collectionId) : collectionService.getAssessment(collectionId);
     }
 
-    private ContextEventContentDto createContextEventDto(CollectionDto collection, UUID classId, String type) {
-        return ContextEventContentDto.builder()
-                .collectionId(UUID.fromString(collection.getId()))
+    private ContextCollectionEventContentDto createContextEventDto(CollectionDto collection, UUID classId, String type) {
+        return ContextCollectionEventContentDto.builder()
+                .contentGooruId(UUID.fromString(collection.getId()))
                 .collectionType(collection.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
                 .type(type)
                 .questionCount(collection.getIsCollection() ?

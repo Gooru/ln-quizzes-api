@@ -1,8 +1,7 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.ClassMemberContentDto;
-import com.quizzes.api.core.dtos.content.EventContentDto;
+import com.quizzes.api.core.dtos.content.EventCollectionContentDto;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
@@ -11,8 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -39,7 +36,7 @@ public class AnalyticsRestClient {
     @Autowired
     private Gson gsonPretty;
 
-    public void notifyEvent(EventContentDto event, String token) {
+    public void notifyEvent(EventCollectionContentDto event, String token) {
         String endpointUrl = configurationService.getContentApiUrl() +
                 EVENTS_PATH + "?apiKey=" + configurationService.getApiKey();
 

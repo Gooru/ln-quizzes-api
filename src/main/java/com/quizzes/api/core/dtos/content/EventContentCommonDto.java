@@ -1,24 +1,23 @@
 package com.quizzes.api.core.dtos.content;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
 
 /**
- * This Dto will work for collection.notifyEvent, collection.stop
+ * This Dto will work for collection.play/stop and collection.resource.play/stop
  */
 @Data
-@Builder
-public class EventContentDto {
-    private UUID eventId;
-    private String eventName;
-    private SessionEventContentDto session;
+@AllArgsConstructor
+public class EventContentCommonDto {
+    UUID eventId;
+    String eventName;
+    SessionEventContentDto session;
     private UserEventContentDto user;
-    private ContextEventContentDto context;
     private VersionEventContentDto version;
     private MetricsEventContentDto metrics;
-    private PayloadObjectEventContentDto payLoadObject;
     private long startTime;
     private long endTime;
 }
