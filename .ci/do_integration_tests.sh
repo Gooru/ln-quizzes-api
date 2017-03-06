@@ -18,8 +18,6 @@ silent pip install -U docker-compose
 info "Starting the application using docker compose..."
 silent docker-compose up -d
 
-retry /usr/bin/curl -S --fail -s http://localhost:8080/health
-
 CLEAN_WORKING_DIR=$(basename "$PWD" | sed 's/-//g' | sed 's/\///g' | tr '[:upper:]' '[:lower:]')
 
 docker kill runner
