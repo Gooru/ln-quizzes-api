@@ -500,7 +500,7 @@ public class ContextEventService {
      * The Resources that has Taxonomies not summarized in the Collection Taxonomy also are Summarized and grouped by
      * Taxonomy ID.
      * Both the Collection Taxonomy Summary List and the additional Taxonomy Summaries are returned by this calculation
-     * 
+     *
      * @param contextProfileEvents  All the Events answered or skipped
      * @param calculateSkipped      If true the Events skipped are calculated in the summary
      * @param collectionDto         Contains the metadata (if exists) and the Collection Taxonomy List (if exists)
@@ -603,7 +603,7 @@ public class ContextEventService {
         Map<String, List<ContextProfileEvent>> result = new HashMap<>();
         for (ContextProfileEvent event : eventsWithTaxonomy) {
             List<String> eventTaxonomyList = resourcesNotInCollectionTaxonomy.get(event.getResourceId()).stream()
-                    .filter(taxonomyId -> !collectionTaxonomyIds.contains(Functions.identity()))
+                    .filter(taxonomyId -> !collectionTaxonomyIds.contains(taxonomyId))
                     .collect(Collectors.toList());
             for (String taxonomyId : eventTaxonomyList) {
                 if (result.containsKey(taxonomyId)) {
