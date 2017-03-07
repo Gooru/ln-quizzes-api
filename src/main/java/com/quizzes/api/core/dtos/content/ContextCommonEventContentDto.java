@@ -1,18 +1,23 @@
 package com.quizzes.api.core.dtos.content;
 
-import com.google.gson.annotations.SerializedName;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.UUID;
 
 @Data
-@Builder
-public class ContextEventContentDto {
-    @SerializedName("contentGooruId")
-    private UUID collectionId;
+@AllArgsConstructor
+public class ContextCommonEventContentDto {
+    /**
+     * @contentGooruId means collectionId for collection.play/stop and current resource id
+     * for collection.resource.play/stop
+     */
+    private UUID contentGooruId;
+
+    /**
+     * Possible values are: start or stop
+     */
     private String type;
-    private int questionCount;
     private String collectionType;
     private String collectionSubType;
     private UUID courseGooruId;
@@ -24,5 +29,4 @@ public class ContextEventContentDto {
     private UUID appId;
     private UUID partnerId;
     private UUID tenantId;
-
 }

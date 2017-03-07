@@ -29,6 +29,7 @@ import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
+import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,7 +70,10 @@ public class ContextEventService {
     private AnalyticsContentService analyticsContentService;
 
     @Autowired
-    ContextProfileEventRepository contextProfileEventRepository;
+    private ContextProfileEventRepository contextProfileEventRepository;
+
+    @Autowired
+    private QuizzesUtils quizzesUtils;
 
     @Autowired
     private Gson gson;
@@ -81,7 +85,7 @@ public class ContextEventService {
         if (entity.getCurrentContextProfileId() == null) {
             return createCurrentContextProfile(entity, token);
         } else if (entity.getIsComplete()) {
-            //This is a start context for a NEW ATTEPMT so we reset the current Resource ID
+            // Starts a new attempt, so we reset the current Resource ID
             entity.setCurrentResourceId(null);
             return createContextProfile(entity, token);
         }
@@ -89,8 +93,9 @@ public class ContextEventService {
         return resumeStartContextEvent(entity);
     }
 
+    @Transactional
     public OnResourceEventResponseDto processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
-                                                             OnResourceEventPostRequestDto body) {
+                                                             OnResourceEventPostRequestDto body, String token) {
         ContextProfileEntity context = currentContextProfileService
                 .findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
 
@@ -128,9 +133,13 @@ public class ContextEventService {
         ContextProfile contextProfile = updateContextProfile(context.getContextProfileId(),
                 currentResource.getId(), gson.toJson(eventSummary), gson.toJson(collectionTaxonomy));
 
-        doOnResourceEventTransaction(contextProfile, contextProfileEvent);
+        ContextProfile updatedContextProfile = contextProfileService.save(contextProfile);
+        contextProfileEventService.save(contextProfileEvent);
+
         if (context.getClassId() != null) {
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
+            sendAnalyticsEvent(context, profileId, token, currentResource, updatedContextProfile.getUpdatedAt().getTime(),
+                    true);
         }
 
         if (collectionDto.getMetadata().getSetting() == null) {
@@ -148,6 +157,15 @@ public class ContextEventService {
         return new OnResourceEventResponseDto(resourceDto.getScore());
     }
 
+    private void sendAnalyticsEvent(ContextProfileEntity context, UUID profileId, String token, ResourceDto resource,
+                                    long time, boolean isPlayEvent) {
+        if(isPlayEvent){
+            analyticsContentService.resourcePlay(context.getCollectionId(), context.getClassId(),
+                    context.getContextProfileId(), profileId, context.getIsCollection(), token, resource, time);
+        }
+        //TODO: Stop event with validation if it's not the last event
+    }
+
     private PostRequestResourceDto getPreviousResource(OnResourceEventPostRequestDto body) {
         PostRequestResourceDto resource = body.getPreviousResource();
         resource.setIsSkipped(resource.getAnswer() == null);
@@ -162,8 +180,7 @@ public class ContextEventService {
         return contextProfile;
     }
 
-
-    public void processFinishContextEvent(UUID contextId, UUID profileId) {
+    public void processFinishContextEvent(UUID contextId, UUID profileId, String token) {
         CurrentContextProfile currentContextProfile =
                 currentContextProfileService.findByContextIdAndProfileId(contextId, profileId);
         ContextProfile contextProfile = contextProfileService.findById(currentContextProfile.getContextProfileId());
@@ -173,10 +190,10 @@ public class ContextEventService {
         }
 
         Context context = contextService.findById(contextId);
-        finishContextEvent(context, contextProfile);
+        finishContextEvent(context, contextProfile, token);
     }
 
-    private void finishContextEvent(Context context, ContextProfile contextProfile) {
+    private void finishContextEvent(Context context, ContextProfile contextProfile, String token) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getId());
 
@@ -204,6 +221,9 @@ public class ContextEventService {
         //If entity does not have class is an anonymous user or it's in preview mode
         if (context.getClassId() != null) {
             sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
+            analyticsContentService.collectionStop(
+                    context.getCollectionId(), context.getClassId(), contextProfile.getId(), contextProfile.getProfileId(),
+                    context.getIsCollection(), token, contextProfile.getCreatedAt().getTime());
         }
     }
 
@@ -213,12 +233,6 @@ public class ContextEventService {
         CurrentContextProfile currentContextProfile = createCurrentContextProfileObject(
                 savedContextProfile.getContextId(), contextProfile.getProfileId(), savedContextProfile.getId());
         doCurrentContextEventTransaction(currentContextProfile);
-    }
-
-    @Transactional
-    public void doOnResourceEventTransaction(ContextProfile contextProfile, ContextProfileEvent contextProfileEvent) {
-        contextProfileService.save(contextProfile);
-        contextProfileEventService.save(contextProfileEvent);
     }
 
     @Transactional

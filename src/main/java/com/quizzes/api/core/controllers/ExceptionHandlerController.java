@@ -81,17 +81,6 @@ public class ExceptionHandlerController {
     }
 
     /**
-     * Handles any general exception
-     *
-     * @return Exception message with status code 500
-     */
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(value = Exception.class)
-    public ExceptionMessageDto handleException(Exception e) {
-        return getExceptionMessageDto("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, e);
-    }
-
-    /**
      * Handles forbidden request errors
      *
      * @return Exception message
@@ -155,6 +144,17 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = InvalidRequestBodyException.class)
     public ExceptionMessageDto handleInvalidRequestBodyException(InvalidRequestBodyException e) {
         return getExceptionMessageDto("Invalid request body", HttpStatus.BAD_REQUEST, e);
+    }
+
+    /**
+     * Handles any general exception
+     *
+     * @return Exception message with status code 500
+     */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = Exception.class)
+    public ExceptionMessageDto handleException(Exception e) {
+        return getExceptionMessageDto("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, e);
     }
 
     private ExceptionMessageDto getExceptionMessageDto(String message, HttpStatus status, Exception exception) {

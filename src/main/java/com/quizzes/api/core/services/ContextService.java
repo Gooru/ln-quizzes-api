@@ -6,13 +6,14 @@ import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.ContextPutRequestDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
-import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
+import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -32,7 +34,7 @@ public class ContextService {
     private ContextRepository contextRepository;
 
     @Autowired
-    private ClassMemberRestClient classMemberRestClient;
+    private ClassMemberService classMemberService;
 
     @Autowired
     private CollectionService collectionService;
@@ -49,7 +51,7 @@ public class ContextService {
         List<UUID> assigneeIds = new ArrayList<>();
 
         if (contextDto.getClassId() != null) {
-            assigneeIds.addAll(classMemberRestClient.getClassMembers(contextDto.getClassId(), token).getMemberIds());
+            assigneeIds.addAll(classMemberService.getClassMemberIds(contextDto.getClassId(), token));
         }
 
         // Saves all processed data
@@ -179,6 +181,15 @@ public class ContextService {
                     + " and Assignee Profile ID: " + profileId);
         }
         return context;
+    }
+
+    public List<ContextEntity> findMappedContext(UUID classId, UUID collectionId, Map<String, String> contextMap,
+                                                 UUID profileId, String token) throws InvalidAssigneeException {
+        if (!classMemberService.containsMemberId(classId, profileId, token)) {
+            throw new InvalidAssigneeException("Profile Id: " + profileId + " is not a valid Assignee " +
+                    "(member of the Class Id: " + classId + ")");
+        }
+        return contextRepository.findMappedContexts(classId, collectionId, contextMap);
     }
 
     private void validateCollectionOwnerInContext(UUID profileId, UUID collectionId, boolean isCollection)

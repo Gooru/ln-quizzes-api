@@ -1,26 +1,27 @@
 const QuizzesCommon = require('./quizzesCommon.js');
 const Config = require('./quizzesTestConfiguration.js');
+const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
 
 let randomCollectionId = QuizzesCommon.generateUUID();
 
 QuizzesCommon.startTest('Get collection without type parameter', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
-        QuizzesCommon.verifyBadRequest(`/v1/collections/${randomCollectionId}`,
-            'Get collection without type parameter', authToken);
+        QuizzesCommon.verifyHttpError('Get collection without type parameter',
+            `/v1/collections/${randomCollectionId}`, HttpErrorCodes.BAD_REQUEST, authToken);
     });
 });
 
 QuizzesCommon.startTest('Get collection with invalid parameter type', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
-        QuizzesCommon.verifyBadRequest(`/v1/collections/${randomCollectionId}?type=wrong_type`,
-            'Get collection with invalid parameter type', authToken);
+        QuizzesCommon.verifyHttpError('Get collection with invalid parameter type',
+            `/v1/collections/${randomCollectionId}?type=wrong_type`, HttpErrorCodes.BAD_REQUEST, authToken);
     });
 });
 
 QuizzesCommon.startTest('Get not existing collection', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
-        QuizzesCommon.verifyContentNotFound(`/v1/collections/${randomCollectionId}?type=collection`,
-            'Get not existing collection', authToken);
+        QuizzesCommon.verifyHttpError('Get not existing assessment',
+            `/v1/collections/${randomCollectionId}?type=collection`, HttpErrorCodes.NOT_FOUND, authToken);
     });
 });
 

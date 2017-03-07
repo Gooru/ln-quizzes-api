@@ -251,6 +251,7 @@ public class CollectionRestClient {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
         metadata.setType(mapQuestionType(resourceContentDto));
+        metadata.setThumbnail(resourceContentDto.getThumbnail());
         if (resourceContentDto.getAnswers() != null) {
             metadata.setCorrectAnswer(getCorrectAnswers(resourceContentDto));
             metadata.setInteraction(createInteraction(resourceContentDto));
@@ -317,10 +318,7 @@ public class CollectionRestClient {
         if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
             return resource.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
         }
-        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
-            return resource.getDescription();
-        }
-        return resource.getTitle();
+        return resource.getDescription();
     }
 
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {

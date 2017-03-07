@@ -21,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.UUID;
 
-
 @Component
 public class ClassMemberRestClient {
 
@@ -35,13 +34,10 @@ public class ClassMemberRestClient {
     private Gson gsonPretty;
 
     @Autowired
-    AuthenticationRestClient authenticationRestClient;
+    private GooruHelper gooruHelper;
 
     @Autowired
-    GooruHelper gooruHelper;
-
-    @Autowired
-    ConfigurationService configurationService;
+    private ConfigurationService configurationService;
 
     public ClassMemberContentDto getClassMembers(UUID classId, String token) {
         String endpointUrl = configurationService.getContentApiUrl() + String.format(CLASS_MEMBERS_URL, classId);
