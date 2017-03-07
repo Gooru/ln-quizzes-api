@@ -77,11 +77,11 @@ public class AnalyticsContentService {
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
-    public void reactionCreate(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
-                               boolean isCollection, String token, String reaction, ResourceDto resource, long time) {
+    public void reactionCreate(UUID collectionId, UUID classId, UUID contextProfileId, UUID eventId, UUID profileId,
+                               boolean isCollection, String token, String reaction, UUID resourceId, long time) {
 
         EventReactionContentDto playEvent = createReactionEventDto(collectionId, classId, contextProfileId,
-                contextProfileId, profileId, isCollection, token, reaction, resource);
+                eventId, profileId, isCollection, token, reaction, resourceId);
         playEvent.setEventName(REACTION_CREATE);
         playEvent.setStartTime(time);
         playEvent.setEndTime(time);
@@ -126,14 +126,14 @@ public class AnalyticsContentService {
 
     private EventReactionContentDto createReactionEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID eventId,
                                                            UUID profileId, boolean isCollection, String token,
-                                                           String reaction, ResourceDto resource) {
+                                                           String reaction, UUID resourceId) {
         CollectionDto collection = getCollection(collectionId, isCollection);
         SessionEventContentDto session = createSessionEventDto(sessionId, token);
         ContextReactionEventContentDto context = createContextReactionEventDto(collection, classId, reaction, eventId,
-                resource);
+                resourceId);
 
         return EventReactionContentDto.builder()
-                .eventId(eventId)
+                .eventId(UUID.randomUUID())
                 .session(session)
                 .user(new UserEventContentDto(profileId))
                 .context(context)
@@ -179,9 +179,9 @@ public class AnalyticsContentService {
 
     private ContextReactionEventContentDto createContextReactionEventDto(CollectionDto collection, UUID classId,
                                                                          String reaction, UUID eventId,
-                                                                         ResourceDto resource) {
+                                                                         UUID resourceId) {
         return ContextReactionEventContentDto.builder()
-                .contentGooruId(resource.getId())
+                .contentGooruId(resourceId)
                 .parentEventId(eventId)
                 .parentGooruId(UUID.fromString(collection.getId()))
                 .reactionType(reaction)

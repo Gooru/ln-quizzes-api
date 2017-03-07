@@ -3,8 +3,10 @@ package com.quizzes.api.core.services.content;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.content.ContextCollectionEventContentDto;
+import com.quizzes.api.core.dtos.content.ContextReactionEventContentDto;
 import com.quizzes.api.core.dtos.content.ContextResourceEventContentDto;
 import com.quizzes.api.core.dtos.content.EventCollectionContentDto;
+import com.quizzes.api.core.dtos.content.EventReactionContentDto;
 import com.quizzes.api.core.dtos.content.EventResourceContentDto;
 import com.quizzes.api.core.dtos.content.SessionEventContentDto;
 import com.quizzes.api.core.dtos.content.UserEventContentDto;
@@ -26,7 +28,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -63,7 +65,9 @@ public class AnalyticsContentServiceTest {
     private UUID courseId;
     private UUID unitId;
     private UUID resourceId;
+    private UUID eventId;
     private String token;
+    private String reaction;
     private long currentTime;
 
     @Before
@@ -77,8 +81,10 @@ public class AnalyticsContentServiceTest {
         courseId = UUID.randomUUID();
         unitId = UUID.randomUUID();
         resourceId = UUID.randomUUID();
+        eventId = UUID.randomUUID();
         token = UUID.randomUUID().toString();
         currentTime = 1234;
+        reaction = "1";
     }
 
     @Test
@@ -97,7 +103,6 @@ public class AnalyticsContentServiceTest {
         verify(analyticsRestClient, times(1)).notifyEvent(eventCollectionContentDto, token);
         verify(quizzesUtils, times(1)).getCurrentTimestamp();
     }
-
 
     @Test
     public void resourcePlay() throws Exception {
@@ -131,6 +136,22 @@ public class AnalyticsContentServiceTest {
         verify(analyticsRestClient, times(1)).notifyEvent(eventCollectionContentDto, token);
         verify(quizzesUtils, times(1)).getCurrentTimestamp();
     }
+
+    public void reactionCreate() throws Exception {
+        EventReactionContentDto eventReactionContentDto = createEventReactionDtoObject();
+        doReturn(currentTime).when(quizzesUtils, "getCurrentTimestamp");
+        doReturn(eventReactionContentDto).when(analyticsContentService, "createReactionEventDto", collectionId, classId,
+                contextProfileId, eventId, profileId, true, token, reaction, resourceId);
+        doNothing().when(analyticsRestClient).notifyEvent(eventReactionContentDto, token);
+
+        analyticsContentService.reactionCreate(collectionId, classId, contextProfileId, eventId, profileId, true,
+                token, reaction, resourceId, currentTime);
+
+        verifyPrivate(analyticsContentService, times(1)).invoke("createReactionEventDto", collectionId, classId,
+                contextProfileId, eventId, profileId, true, token, reaction, resourceId);
+        verify(analyticsRestClient, times(1)).notifyEvent(eventReactionContentDto, token);
+    }
+
 
     @Test
     public void createSessionEventDto() throws Exception {
@@ -170,7 +191,22 @@ public class AnalyticsContentServiceTest {
     }
 
     @Test
-    public void createContextEventDtoForCollection() throws Exception {
+    public void createContextReactionEventDto() throws Exception {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId.toString());
+
+        ContextReactionEventContentDto result = WhiteboxImpl.invokeMethod(analyticsContentService,
+                "createContextReactionEventDto", collectionDto, classId, reaction, eventId, resourceId);
+
+        assertEquals("Wrong content gooru Id", resourceId, result.getContentGooruId());
+        assertEquals("Wrong reaction type", reaction, result.getReactionType());
+        assertEquals("Wrong parent gooru Id", collectionId, result.getParentGooruId());
+        assertEquals("Wrong parent event Id", eventId, result.getParentEventId());
+        assertNull("Collection type is not null", result.getCollectionType());
+    }
+
+    @Test
+    public void createContextCollectionEventDto() throws Exception {
         ResourceDto resourceDto1 = new ResourceDto();
         resourceDto1.setIsResource(true);
 
@@ -274,6 +310,17 @@ public class AnalyticsContentServiceTest {
                 .build();
     }
 
+    private EventReactionContentDto createEventReactionDtoObject() {
+        return EventReactionContentDto.builder()
+                .eventId(eventId)
+                .session(createSessionEventDtoObject())
+                .user(new UserEventContentDto(profileId))
+                .context(createContextReactionEventDtoObject())
+                .version(new VersionEventContentDto("3.1"))
+                .startTime(currentTime)
+                .build();
+    }
+
     private EventResourceContentDto createEventResourceDtoObject() {
         return EventResourceContentDto.builder()
                 .eventId(collectionId)
@@ -298,6 +345,17 @@ public class AnalyticsContentServiceTest {
                 .collectionType("collection")
                 .type("start")
                 .questionCount(2)
+                .unitGooruId(unitId)
+                .classGooruId(classId)
+                .lessonGooruId(lessonId)
+                .courseGooruId(courseId)
+                .build();
+    }
+
+    private ContextReactionEventContentDto createContextReactionEventDtoObject() {
+        return ContextReactionEventContentDto.builder()
+                .contentGooruId(resourceId)
+                .reactionType(reaction)
                 .unitGooruId(unitId)
                 .classGooruId(classId)
                 .lessonGooruId(lessonId)
