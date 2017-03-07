@@ -1411,16 +1411,23 @@ public class ContextEventServiceTest {
         validateAttemptsPrivateMethod(2, 1);
     }
 
+    @Test
+    public void validateAttemptsNoSetting() throws Exception {
+        validateAttemptsPrivateMethod(null, 1);
+    }
+
     @Test(expected = NoAttemptsLeftException.class)
     public void validateAttemptsNoAttemptsLeft() throws Exception {
         validateAttemptsPrivateMethod(2, 2);
     }
 
-    private void validateAttemptsPrivateMethod(int allowedAttemps, int currentAttempts) throws Exception {
+    private void validateAttemptsPrivateMethod(Integer allowedAttempts, Integer currentAttempts) throws Exception {
         ContextProfileEntity entity = createContextProfileEntity();
 
         Map<String, Object> setting = new HashMap();
-        setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(allowedAttemps));
+        if (allowedAttempts != null) {
+            setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(allowedAttempts));
+        }
         CollectionDto collectionDto = createCollectionDto(setting);
         when(collectionService.getCollectionOrAssessment(any(UUID.class), anyBoolean()))
                 .thenReturn(collectionDto);
