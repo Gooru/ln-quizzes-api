@@ -515,7 +515,7 @@ public class ContextEventService {
 
         // Calculating the collection taxonomy summary
         Map<String, TaxonomySummaryDto> collectionTaxonomyMap = calculateCollectionTaxonomy(collectionDto,
-                contextProfileEvents, eventSummary);
+                contextProfileEvents == null? Collections.EMPTY_LIST : contextProfileEvents, eventSummary);
 
         // Calculating additional resource's taxonomy
 

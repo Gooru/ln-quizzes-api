@@ -45,6 +45,7 @@ import org.powermock.reflect.internal.WhiteboxImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -832,6 +833,75 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void calculateCollectionTaxonomyWithNoCollectionTaxonomy() throws Exception {
+        CollectionMetadataDto collectionMetadataDto = new CollectionMetadataDto();
+
+        CollectionDto collectionDto =  new CollectionDto();
+        collectionDto.setId(UUID.randomUUID().toString());
+        collectionDto.setMetadata(collectionMetadataDto);
+
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        ContextProfileEvent contextProfileEvent1 = new ContextProfileEvent();
+        contextProfileEvent1.setId(UUID.randomUUID());
+        contextProfileEvent1.setResourceId(UUID.randomUUID());
+        contextProfileEvents.add(contextProfileEvent1);
+        ContextProfileEvent contextProfileEvent2 = new ContextProfileEvent();
+        contextProfileEvent2.setId(UUID.randomUUID());
+        contextProfileEvent2.setResourceId(UUID.randomUUID());
+        contextProfileEvents.add(contextProfileEvent2);
+
+        EventSummaryDataDto eventSummary = new EventSummaryDataDto();
+        eventSummary.setAverageScore((short)50);
+        eventSummary.setTotalCorrect((short)1);
+        eventSummary.setAverageReaction((short)1);
+        eventSummary.setTotalTimeSpent(3000);
+        eventSummary.setTotalAnswered((short)2);
+
+        Map<String, TaxonomySummaryDto> result = WhiteboxImpl.invokeMethod(contextEventService,
+                "calculateCollectionTaxonomy", collectionDto, contextProfileEvents, eventSummary);
+
+        assertNotNull("Calculation result is null", result);
+        assertTrue("Collection Taxonomy should be empty", result.isEmpty());
+    }
+
+    @Test
+    public void calculateCollectionTaxonomyWithNoEvents() throws Exception {
+        CollectionMetadataDto collectionMetadataDto = new CollectionMetadataDto();
+
+        Map<String, Object> taxonomyMap = new HashMap<>();
+        taxonomyMap.put("Taxonomy01", new String());
+        taxonomyMap.put("Taxonomy02", new String());
+        taxonomyMap.put("Taxonomy03", new String());
+        collectionMetadataDto.setTaxonomy(taxonomyMap);
+
+        CollectionDto collectionDto =  new CollectionDto();
+        collectionDto.setId(UUID.randomUUID().toString());
+        collectionDto.setMetadata(collectionMetadataDto);
+
+        EventSummaryDataDto eventSummary = new EventSummaryDataDto();
+        eventSummary.setAverageScore((short)0);
+        eventSummary.setTotalCorrect((short)0);
+        eventSummary.setAverageReaction((short)0);
+        eventSummary.setTotalTimeSpent(0);
+        eventSummary.setTotalAnswered((short)0);
+
+        Map<String, TaxonomySummaryDto> result = WhiteboxImpl.invokeMethod(contextEventService,
+                "calculateCollectionTaxonomy", collectionDto, Collections.emptyList(), eventSummary);
+
+        assertNotNull("Calculation result is null", result);
+        assertEquals("Collection Taxonomy Summary is wrong", 3, result.size());
+        assertNotNull("The Taxonomy must have a summary", result.get("Taxonomy01"));
+        assertEquals("All the Taxonomies summaries must contain 0 Resources", 0,
+                result.get("Taxonomy01").getResources().size());
+        assertNotNull("The Taxonomy must have a summary", result.get("Taxonomy02"));
+        assertEquals("All the Taxonomies summaries must contain 0 Resources", 0,
+                result.get("Taxonomy02").getResources().size());
+        assertNotNull("The Taxonomy must have a summary", result.get("Taxonomy03"));
+        assertEquals("All the Taxonomies summaries must contain 0 Resources", 0,
+                result.get("Taxonomy03").getResources().size());
+    }
+
+    @Test
     public void getEventsByTaxonomy() throws Exception {
         UUID resourceId1 = UUID.randomUUID();
         UUID resourceId2 = UUID.randomUUID();
@@ -930,6 +1000,183 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void getEventsByTaxonomyWithNoAdditionalTaxonomies() throws Exception {
+        UUID resourceId1 = UUID.randomUUID();
+        UUID resourceId2 = UUID.randomUUID();
+        UUID resourceId3 = UUID.randomUUID();
+        UUID resourceId4 = UUID.randomUUID();
+        UUID resourceId5 = UUID.randomUUID();
+
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        ContextProfileEvent contextProfileEvent1 = new ContextProfileEvent();
+        contextProfileEvent1.setId(UUID.randomUUID());
+        contextProfileEvent1.setResourceId(resourceId1);
+        contextProfileEvents.add(contextProfileEvent1);
+        ContextProfileEvent contextProfileEvent2 = new ContextProfileEvent();
+        contextProfileEvent2.setId(UUID.randomUUID());
+        contextProfileEvent2.setResourceId(resourceId2);
+        contextProfileEvents.add(contextProfileEvent2);
+        ContextProfileEvent contextProfileEvent3 = new ContextProfileEvent();
+        contextProfileEvent3.setId(UUID.randomUUID());
+        contextProfileEvent3.setResourceId(resourceId3);
+        contextProfileEvents.add(contextProfileEvent3);
+        ContextProfileEvent contextProfileEvent4 = new ContextProfileEvent();
+        contextProfileEvent4.setId(UUID.randomUUID());
+        contextProfileEvent4.setResourceId(resourceId4);
+        contextProfileEvents.add(contextProfileEvent4);
+        ContextProfileEvent contextProfileEvent5 = new ContextProfileEvent();
+        contextProfileEvent5.setId(UUID.randomUUID());
+        contextProfileEvent5.setResourceId(resourceId5);
+        contextProfileEvents.add(contextProfileEvent5);
+
+        List<ResourceDto> collectionResources = new ArrayList<>();
+        ResourceDto resourceDto1 = new ResourceDto();
+        resourceDto1.setId(resourceId1);
+        ResourceMetadataDto resourceMetadataDto1 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy1 = new HashMap<>();
+        taxonomy1.put("Taxonomy02", new String());
+        resourceMetadataDto1.setTaxonomy(taxonomy1);
+        resourceDto1.setMetadata(resourceMetadataDto1);
+        collectionResources.add(resourceDto1);
+
+        ResourceDto resourceDto2 = new ResourceDto();
+        resourceDto2.setId(resourceId2);
+        ResourceMetadataDto resourceMetadataDto2 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy2 = new HashMap<>();
+
+        resourceDto2.setMetadata(resourceMetadataDto2);
+        collectionResources.add(resourceDto2);
+
+        ResourceDto resourceDto3 = new ResourceDto();
+        resourceDto3.setId(resourceId3);
+        ResourceMetadataDto resourceMetadataDto3 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy3 = new HashMap<>();
+        taxonomy3.put("Taxonomy01", new String());
+        resourceMetadataDto3.setTaxonomy(taxonomy3);
+        resourceDto3.setMetadata(resourceMetadataDto3);
+        collectionResources.add(resourceDto3);
+
+        // A Resource without Taxonomy
+        ResourceDto resourceDto4 = new ResourceDto();
+        resourceDto4.setId(resourceId4);
+        ResourceMetadataDto resourceMetadataDto4 = new ResourceMetadataDto();
+        resourceDto4.setMetadata(resourceMetadataDto4);
+        collectionResources.add(resourceDto4);
+
+        ResourceDto resourceDto5 = new ResourceDto();
+        resourceDto5.setId(resourceId5);
+        ResourceMetadataDto resourceMetadataDto5 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy5 = new HashMap<>();
+        resourceDto5.setMetadata(resourceMetadataDto5);
+        collectionResources.add(resourceDto5);
+
+        Set<String> collectionTaxonomyIds = new HashSet<>();
+        collectionTaxonomyIds.add("Taxonomy01");
+        collectionTaxonomyIds.add("Taxonomy02");
+        collectionTaxonomyIds.add("Taxonomy03");
+
+        Map<String, List<ContextProfileEvent>> result = WhiteboxImpl.invokeMethod(contextEventService,
+                "getEventsByTaxonomy", contextProfileEvents, collectionResources, collectionTaxonomyIds);
+
+        assertNotNull("Result is null", result);
+        assertTrue("Additional Taxonomies list should be empty", result.isEmpty());
+
+    }
+
+    @Test
+    public void getEventsByTaxonomyWithNoCollectionTaxonomy() throws Exception {
+        UUID resourceId1 = UUID.randomUUID();
+        UUID resourceId2 = UUID.randomUUID();
+        UUID resourceId3 = UUID.randomUUID();
+        UUID resourceId4 = UUID.randomUUID();
+        UUID resourceId5 = UUID.randomUUID();
+
+        List<ContextProfileEvent> contextProfileEvents = new ArrayList<>();
+        ContextProfileEvent contextProfileEvent1 = new ContextProfileEvent();
+        contextProfileEvent1.setId(UUID.randomUUID());
+        contextProfileEvent1.setResourceId(resourceId1);
+        contextProfileEvents.add(contextProfileEvent1);
+        ContextProfileEvent contextProfileEvent2 = new ContextProfileEvent();
+        contextProfileEvent2.setId(UUID.randomUUID());
+        contextProfileEvent2.setResourceId(resourceId2);
+        contextProfileEvents.add(contextProfileEvent2);
+        ContextProfileEvent contextProfileEvent3 = new ContextProfileEvent();
+        contextProfileEvent3.setId(UUID.randomUUID());
+        contextProfileEvent3.setResourceId(resourceId3);
+        contextProfileEvents.add(contextProfileEvent3);
+        ContextProfileEvent contextProfileEvent4 = new ContextProfileEvent();
+        contextProfileEvent4.setId(UUID.randomUUID());
+        contextProfileEvent4.setResourceId(resourceId4);
+        contextProfileEvents.add(contextProfileEvent4);
+        ContextProfileEvent contextProfileEvent5 = new ContextProfileEvent();
+        contextProfileEvent5.setId(UUID.randomUUID());
+        contextProfileEvent5.setResourceId(resourceId5);
+        contextProfileEvents.add(contextProfileEvent5);
+
+        List<ResourceDto> collectionResources = new ArrayList<>();
+        ResourceDto resourceDto1 = new ResourceDto();
+        resourceDto1.setId(resourceId1);
+        ResourceMetadataDto resourceMetadataDto1 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy1 = new HashMap<>();
+        taxonomy1.put("Taxonomy02", new String());
+        taxonomy1.put("Taxonomy04", new String());
+        resourceMetadataDto1.setTaxonomy(taxonomy1);
+        resourceDto1.setMetadata(resourceMetadataDto1);
+        collectionResources.add(resourceDto1);
+
+        ResourceDto resourceDto2 = new ResourceDto();
+        resourceDto2.setId(resourceId2);
+        ResourceMetadataDto resourceMetadataDto2 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy2 = new HashMap<>();
+        taxonomy2.put("Taxonomy05", new String());
+        taxonomy2.put("Taxonomy06", new String());
+        resourceMetadataDto2.setTaxonomy(taxonomy2);
+        resourceDto2.setMetadata(resourceMetadataDto2);
+        collectionResources.add(resourceDto2);
+
+        ResourceDto resourceDto3 = new ResourceDto();
+        resourceDto3.setId(resourceId3);
+        ResourceMetadataDto resourceMetadataDto3 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy3 = new HashMap<>();
+        taxonomy3.put("Taxonomy01", new String());
+        taxonomy3.put("Taxonomy06", new String());
+        resourceMetadataDto3.setTaxonomy(taxonomy3);
+        resourceDto3.setMetadata(resourceMetadataDto3);
+        collectionResources.add(resourceDto3);
+
+        // A Resource without Taxonomy
+        ResourceDto resourceDto4 = new ResourceDto();
+        resourceDto4.setId(resourceId4);
+        ResourceMetadataDto resourceMetadataDto4 = new ResourceMetadataDto();
+        resourceDto4.setMetadata(resourceMetadataDto4);
+        collectionResources.add(resourceDto4);
+
+        ResourceDto resourceDto5 = new ResourceDto();
+        resourceDto5.setId(resourceId5);
+        ResourceMetadataDto resourceMetadataDto5 = new ResourceMetadataDto();
+        Map<String, Object> taxonomy5 = new HashMap<>();
+        taxonomy5.put("Taxonomy04", new String());
+        taxonomy5.put("Taxonomy05", new String());
+        taxonomy5.put("Taxonomy06", new String());
+        resourceMetadataDto5.setTaxonomy(taxonomy5);
+        resourceDto5.setMetadata(resourceMetadataDto5);
+        collectionResources.add(resourceDto5);
+
+        Map<String, List<ContextProfileEvent>> result = WhiteboxImpl.invokeMethod(contextEventService,
+                "getEventsByTaxonomy", contextProfileEvents, collectionResources, Collections.emptySet());
+
+        assertNotNull("Result is null", result);
+        assertEquals("Wrong Taxonomies number", 5, result.size());
+        assertNotNull("Collection Taxonomy should be excluded", result.get("Taxonomy01"));
+        assertNotNull("Collection Taxonomy should be excluded", result.get("Taxonomy02"));
+        assertNull("Collection Taxonomy should be excluded", result.get("Taxonomy03"));
+        assertNotNull("Event Taxonomy should be included", result.get("Taxonomy04"));
+        assertNotNull("Event Taxonomy should be included", result.get("Taxonomy05"));
+        assertNotNull("Event Taxonomy should be included", result.get("Taxonomy06"));
+
+    }
+
+    @Test
     public void mapEventsByTaxonomyToTaxonomySummaryList() throws Exception {
         UUID resourceId1 = UUID.randomUUID();
         UUID resourceId2 = UUID.randomUUID();
@@ -1018,6 +1265,16 @@ public class ContextEventServiceTest {
 
         assertNotNull("Taxonomy Summary List is null", result);
         assertEquals("Taxonomy Summary List number of elements is wrong", 3, result.size());
+    }
+
+    @Test
+    public void mapEventsByTaxonomyToTaxonomySummaryListWithNoEventsByTaxonomy() throws Exception {
+
+        List<TaxonomySummaryDto> result = WhiteboxImpl.invokeMethod(contextEventService,
+                "mapEventsByTaxonomyToTaxonomySummaryList", Collections.emptyMap(), false);
+
+        assertNotNull("Taxonomy Summary List is null", result);
+        assertTrue("Taxonomy Summary List should be empty", result.isEmpty());
     }
 
     @Test
