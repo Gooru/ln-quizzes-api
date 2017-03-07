@@ -3,8 +3,10 @@ package com.quizzes.api.core.services.content;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.content.ContextCollectionEventContentDto;
+import com.quizzes.api.core.dtos.content.ContextReactionEventContentDto;
 import com.quizzes.api.core.dtos.content.ContextResourceEventContentDto;
 import com.quizzes.api.core.dtos.content.EventCollectionContentDto;
+import com.quizzes.api.core.dtos.content.EventReactionContentDto;
 import com.quizzes.api.core.dtos.content.EventResourceContentDto;
 import com.quizzes.api.core.dtos.content.PayloadObjectCollectionEventContentDto;
 import com.quizzes.api.core.dtos.content.PayloadObjectResourceEventContentDto;
@@ -28,6 +30,7 @@ public class AnalyticsContentService {
     private final static String COLLECTION_STOP = QuizzesUtils.COLLECTION.concat(".stop");
     private final static String RESOURCE_PLAY = QuizzesUtils.COLLECTION.concat(".resource.play");
     private final static String RESOURCE_STOP = QuizzesUtils.COLLECTION.concat(".resource.stop");
+    private final static String REACTION_CREATE = "reaction.create";
     private final static String START = "start";
     private final static String STOP = "stop";
 
@@ -64,7 +67,6 @@ public class AnalyticsContentService {
         analyticsRestClient.notifyEvent(stopEvent, token);
     }
 
-
     public void resourcePlay(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                              boolean isCollection, String token, ResourceDto resource, long startTime) {
 
@@ -72,6 +74,17 @@ public class AnalyticsContentService {
                 contextProfileId, profileId, isCollection, token, START, resource);
         playEvent.setEventName(RESOURCE_PLAY);
         playEvent.setStartTime(startTime);
+        analyticsRestClient.notifyEvent(playEvent, token);
+    }
+
+    public void reactionCreate(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
+                               boolean isCollection, String token, String reaction, ResourceDto resource, long time) {
+
+        EventReactionContentDto playEvent = createReactionEventDto(collectionId, classId, contextProfileId,
+                contextProfileId, profileId, isCollection, token, reaction, resource);
+        playEvent.setEventName(REACTION_CREATE);
+        playEvent.setStartTime(time);
+        playEvent.setEndTime(time);
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
@@ -111,6 +124,23 @@ public class AnalyticsContentService {
                 .build();
     }
 
+    private EventReactionContentDto createReactionEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID eventId,
+                                                           UUID profileId, boolean isCollection, String token,
+                                                           String reaction, ResourceDto resource) {
+        CollectionDto collection = getCollection(collectionId, isCollection);
+        SessionEventContentDto session = createSessionEventDto(sessionId, token);
+        ContextReactionEventContentDto context = createContextReactionEventDto(collection, classId, reaction, eventId,
+                resource);
+
+        return EventReactionContentDto.builder()
+                .eventId(eventId)
+                .session(session)
+                .user(new UserEventContentDto(profileId))
+                .context(context)
+                .version(new VersionEventContentDto(configurationService.getAnalyticsVersion()))
+                .build();
+    }
+
     private CollectionDto getCollection(UUID collectionId, boolean isCollection) {
         return isCollection ?
                 collectionService.getCollection(collectionId) : collectionService.getAssessment(collectionId);
@@ -140,6 +170,21 @@ public class AnalyticsContentService {
                 .parentEventId(eventId)
                 .parentGooruId(UUID.fromString(collection.getId()))
                 .resourceType(resource.getIsResource() ? QuizzesUtils.RESOURCE : QuizzesUtils.QUESTION)
+                .unitGooruId(collection.getUnitId())
+                .classGooruId(classId)
+                .lessonGooruId(collection.getLessonId())
+                .courseGooruId(collection.getCourseId())
+                .build();
+    }
+
+    private ContextReactionEventContentDto createContextReactionEventDto(CollectionDto collection, UUID classId,
+                                                                         String reaction, UUID eventId,
+                                                                         ResourceDto resource) {
+        return ContextReactionEventContentDto.builder()
+                .contentGooruId(resource.getId())
+                .parentEventId(eventId)
+                .parentGooruId(UUID.fromString(collection.getId()))
+                .reactionType(reaction)
                 .unitGooruId(collection.getUnitId())
                 .classGooruId(classId)
                 .lessonGooruId(collection.getLessonId())
