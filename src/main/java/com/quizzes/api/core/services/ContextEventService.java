@@ -1,6 +1,5 @@
 package com.quizzes.api.core.services;
 
-import com.google.common.base.Functions;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.CollectionDto;
@@ -13,7 +12,6 @@ import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.TaxonomySummaryDto;
-import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;
@@ -173,7 +171,7 @@ public class ContextEventService {
                 answerResource, startTime, stopEventId);
 
         //This means that the resource is the last one, so we don't need to send the start event to analytics
-        if(currentResource.getId() != previousResource.getId()) {
+        if (currentResource.getId() != previousResource.getId()) {
             analyticsContentService.resourcePlayStart(context.getCollectionId(), context.getClassId(),
                     context.getContextProfileId(), profileId, context.getIsCollection(), token, currentResource,
                     startTime, startEventId);
@@ -538,11 +536,11 @@ public class ContextEventService {
      * Taxonomy ID.
      * Both the Collection Taxonomy Summary List and the additional Taxonomy Summaries are returned by this calculation
      *
-     * @param contextProfileEvents  All the Events answered or skipped
-     * @param calculateSkipped      If true the Events skipped are calculated in the summary
-     * @param collectionDto         Contains the metadata (if exists) and the Collection Taxonomy List (if exists)
-     * @param eventSummary          Since we already calculated this information and it is the same for each Collection
-     *                              Taxonomy we will pass this as a parameter.
+     * @param contextProfileEvents All the Events answered or skipped
+     * @param calculateSkipped     If true the Events skipped are calculated in the summary
+     * @param collectionDto        Contains the metadata (if exists) and the Collection Taxonomy List (if exists)
+     * @param eventSummary         Since we already calculated this information and it is the same for each Collection
+     *                             Taxonomy we will pass this as a parameter.
      * @return A List of Taxonomy Summaries, some for the Collection and some for individual Resources with Taxonomies
      * not in the Collection Taxonomy Map.
      */
@@ -552,7 +550,7 @@ public class ContextEventService {
 
         // Calculating the collection taxonomy summary
         Map<String, TaxonomySummaryDto> collectionTaxonomyMap = calculateCollectionTaxonomy(collectionDto,
-                contextProfileEvents == null? Collections.EMPTY_LIST : contextProfileEvents, eventSummary);
+                contextProfileEvents == null ? Collections.EMPTY_LIST : contextProfileEvents, eventSummary);
 
         // Calculating additional resource's taxonomy
 
@@ -578,10 +576,10 @@ public class ContextEventService {
      * for all and every "Collection Taxonomy" so all the summaries have the same values, the same Resources (all the resources)
      * and the difference is the Taxonomy ID
      *
-     * @param collectionDto         Contains the metadata (if exists) and the Collection Taxonomy List (if exists)
-     * @param contextProfileEvents  each Event have a Resource ID.
-     * @param eventSummary          Since we already calculated this information and it is the same for each Collection
-     *                              Taxonomy we will pass this as a parameter.
+     * @param collectionDto        Contains the metadata (if exists) and the Collection Taxonomy List (if exists)
+     * @param contextProfileEvents each Event have a Resource ID.
+     * @param eventSummary         Since we already calculated this information and it is the same for each Collection
+     *                             Taxonomy we will pass this as a parameter.
      * @return The List on Collection Taxonomy Summaries
      */
     private Map<String, TaxonomySummaryDto> calculateCollectionTaxonomy(CollectionDto collectionDto,
@@ -612,8 +610,8 @@ public class ContextEventService {
      * a list of Standards (Taxonomy), this is optional.
      * We will return a Map of Standards (Taxonomy) with its {@link ContextProfileEvent}.
      *
-     * @param contextProfileEvents events with the resource ID
-     * @param collectionResources resources with an optional taxonomy map
+     * @param contextProfileEvents  events with the resource ID
+     * @param collectionResources   resources with an optional taxonomy map
      * @param collectionTaxonomyIds taxonomy IDs already in the collection, we need to exclude the events matching
      *                              this list because those are already summarized
      * @return a Map with the Taxonomy ID and the List of events in that taxonomy
@@ -658,6 +656,7 @@ public class ContextEventService {
 
     /**
      * Maps the ContextProfileEvents by Taxonomy Map into a List of Taxonomy Summary DTOs
+     *
      * @param eventsByTaxonomy a Map of Taxonomy IDs with the List of ContextProfileEvents in that Taxonomy
      * @param calculateSkipped skips the skipped events from the calculation if this is true.
      * @return
