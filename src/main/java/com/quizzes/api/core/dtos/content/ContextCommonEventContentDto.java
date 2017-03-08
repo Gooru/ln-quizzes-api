@@ -9,12 +9,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ContextCommonEventContentDto {
     /**
-     * @contentGooruId means collectionId for collection.play/stop and current resource id
-     * for collection.resource.play/stop
+     * @contentGooruId means collectionId for collection.play/stop
+     * It means currentResourceId for collection.resource.play/stop and reaction.create
      */
     private UUID contentGooruId;
 
     /**
+     * @type only works for collection.play/stop and collection.resource.play/stop
      * Possible values are: start or stop
      */
     private String type;
