@@ -364,43 +364,6 @@ public class ContextServiceTest {
         contextService.findAssignedContext(contextId, profileId);
     }
 
-    @Ignore
-    @Test
-    public void removeIdFromProfileDto() throws Exception {
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setId(UUID.randomUUID().toString());
-        profileDto.setFirstName("Keylor");
-        profileDto.setLastName("Navas");
-        profileDto.setUsername("knavas");
-
-        JsonObject jsonObject = WhiteboxImpl.invokeMethod(contextService, "removeIdFromProfileDto", profileDto);
-
-        assertEquals(jsonObject.size(), 3);
-        assertEquals("Wrong first name", "Keylor", jsonObject.get("firstName").getAsString());
-        assertEquals("wrong last name", "Navas", jsonObject.get("lastName").getAsString());
-        assertEquals("Wrong username", "knavas", jsonObject.get("username").getAsString());
-        assertNull(jsonObject.get("id"));
-
-    }
-
-    @Ignore
-    @Test
-    public void mapContextOwnerEntityToContextAssignedDto() throws Exception {
-        /*
-        ContextOwnerEntity contextOwnerEntity = createContextOwnerEntityMock();
-        ContextGetResponseDto contextAssignedDto =
-                WhiteboxImpl.invokeMethod(contextService, "mapContextOwnerEntityToContextAssignedDto",
-                        contextOwnerEntity);
-
-        assertEquals("Wrong context id", contextId, contextAssignedDto.getId());
-        assertEquals("Wrong collection id", collectionId.toString(), contextAssignedDto.getCollection().getId());
-        assertEquals("Wrong owner profile id", ownerProfileId, contextAssignedDto.getOwner().getId());
-        assertEquals("Wrong createdDate value", createdAt.getTime(), contextAssignedDto.getCreatedDate());
-        assertEquals("Wrong metadata value", 1, contextAssignedDto.getContextData().getMetadata().getStartDate());
-        assertTrue("Wrong hasStarted value", contextAssignedDto.getHasStarted());
-        */
-    }
-
     @Test
     public void findMappedContext() {
         List<UUID> classMemberIds = new ArrayList<>();
@@ -432,92 +395,6 @@ public class ContextServiceTest {
         contextService.findMappedContext(UUID.randomUUID(), UUID.randomUUID(), new HashMap(),
                 UUID.randomUUID(), "token");
     }
-
-    @Ignore
-    @Test
-    public void update() {
-        ContextDataDto contextDataDto = new ContextDataDto();
-        ContextPutRequestDto contextDataMock = new ContextPutRequestDto();
-        ContextPutRequestDto.PutRequestMetadataDTO metadata = new ContextPutRequestDto.PutRequestMetadataDTO();
-
-        //Setting metadata
-        MetadataDto metadataDto = new MetadataDto();
-        metadataDto.setDescription("First Partial");
-        metadataDto.setTitle("Math 1st Grade");
-        //metadataDto.setDueDate(234234);
-        //metadataDto.setStartDate(324234);
-
-        contextDataMock.setContextData(metadata);
-        contextDataDto.setMetadata(metadataDto);
-
-        //Setting assignees
-        List<ProfileDto> assignees = new ArrayList<>();
-        ProfileDto profile1 = new ProfileDto();
-        profile1.setId(UUID.randomUUID().toString());
-        ProfileDto profile2 = new ProfileDto();
-        profile2.setId(UUID.randomUUID().toString());
-        assignees.add(profile1);
-        assignees.add(profile2);
-        contextDataMock.setAssignees(assignees);
-
-        Context context = createContextMock();
-
-        //doReturn(context).when(contextService).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
-
-        List<String> externalProfileIdsToFind = new ArrayList<>();
-        //we are looking for this 2 profiles in the DB
-        externalProfileIdsToFind.add(profile1.getId());
-        externalProfileIdsToFind.add(profile2.getId());
-        List<String> foundExternalProfileIds = new ArrayList<>();
-        //this means only 1 out of 2 assignees exist in this context group
-        foundExternalProfileIds.add(profile1.getId());
-
-
-        List<UUID> profileIds = new ArrayList<>();
-        //we know that there are 2 profiles created in the context group, these are the assignee ids
-        profileIds.add(UUID.randomUUID());
-        profileIds.add(UUID.randomUUID());
-
-        when(contextRepository.save(any(Context.class))).thenReturn(context);
-
-
-        ProfileDto profileDto = new ProfileDto();
-        profileDto.setId(UUID.randomUUID().toString());
-        profileDto.setFirstName("Keylor");
-        profileDto.setLastName("Navas");
-        profileDto.setUsername("knavas");
-
-        Context updatedContext = contextService.update(UUID.randomUUID(), UUID.randomUUID(), contextDataMock);
-        context.setContextData("{\"contextMap\":{\"classId\":\"classId\"}}");
-
-        verify(contextRepository, times(1)).save(any(Context.class));
-
-        assertNotNull("Context is Null", updatedContext);
-        assertEquals("Wrong id for context", context.getId(), updatedContext.getId());
-        assertEquals("Wrong id for collection", context.getCollectionId(),
-                updatedContext.getCollectionId());
-        assertEquals("Wrong context data", context.getContextData(), updatedContext.getContextData());
-    }
-
-    /*
-    @Ignore
-    @Test(expected = ContentNotFoundException.class)
-    public void updateThrowsContentNotFoundException() {
-        doThrow(ContentNotFoundException.class)
-                .when(contextService).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
-        contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto());
-    }
-
-    @Ignore
-    @Test(expected = InvalidOwnerException.class)
-    public void updateThrowsInvalidOwnerException() {
-        doThrow(InvalidOwnerException.class)
-                .when(contextService).findByIdAndOwnerId(any(UUID.class), any(UUID.class));
-        contextService.update(UUID.randomUUID(), UUID.randomUUID(), new ContextPutRequestDto());
-    }
-    */
-
-
 
     private Context createContextMock() {
         Context context = new Context();

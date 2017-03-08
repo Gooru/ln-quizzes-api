@@ -8,8 +8,8 @@ QuizzesCommon.startTest('Get assigned contexts for anonymous', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
             QuizzesCommon.getAnonymousToken(function (anonymousToken) {
-                QuizzesCommon.verifyHttpError('Get created contexts using an anonymous token',
-                    `/v1/contexts/${contextResponse.id}/created`, HttpErrorCodes.FORBIDDEN, anonymousToken);
+                QuizzesCommon.verifyHttpError('Get assigned contexts using an anonymous token',
+                    `/v1/contexts/${contextResponse.id}/assigned`, HttpErrorCodes.FORBIDDEN, anonymousToken);
             });
         });
     });
