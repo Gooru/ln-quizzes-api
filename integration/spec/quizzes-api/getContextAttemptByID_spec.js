@@ -62,8 +62,8 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                                                 "required": ["taxonomyId", "averageScore", "averageReaction",
                                                     "totalAnswered", "totalCorrect", "totalTimeSpent", "resources"]
                                             },
-                                            "minItems": 12,
-                                            "maxItems": 12,
+                                            "minItems": 10,
+                                            "maxItems": 10,
                                             "uniqueItems": false
                                         }
                                     },
