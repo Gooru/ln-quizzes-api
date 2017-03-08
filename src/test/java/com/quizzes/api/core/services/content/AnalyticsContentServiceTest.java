@@ -1,6 +1,7 @@
 package com.quizzes.api.core.services.content;
 
 import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.content.ContextCollectionEventContentDto;
 import com.quizzes.api.core.dtos.content.ContextReactionEventContentDto;
@@ -8,6 +9,7 @@ import com.quizzes.api.core.dtos.content.ContextResourceEventContentDto;
 import com.quizzes.api.core.dtos.content.EventCollectionContentDto;
 import com.quizzes.api.core.dtos.content.EventReactionContentDto;
 import com.quizzes.api.core.dtos.content.EventResourceContentDto;
+import com.quizzes.api.core.dtos.content.PayloadObjectResourceEventContentDto;
 import com.quizzes.api.core.dtos.content.SessionEventContentDto;
 import com.quizzes.api.core.dtos.content.UserEventContentDto;
 import com.quizzes.api.core.dtos.content.VersionEventContentDto;
@@ -23,6 +25,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -31,6 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
@@ -69,9 +73,9 @@ public class AnalyticsContentServiceTest {
     private UUID eventId;
     private String token;
     private String reaction;
-    private long currentTime;
-    private long startTime;
-    private long stopTime;
+    private Long currentTime;
+    private Long startTime;
+    private Long stopTime;
 
     @Before
     public void before() throws Exception {
@@ -86,9 +90,9 @@ public class AnalyticsContentServiceTest {
         resourceId = UUID.randomUUID();
         eventId = UUID.randomUUID();
         token = UUID.randomUUID().toString();
-        currentTime = 1234;
-        startTime = 1234;
-        stopTime = 5678;
+        currentTime = 1234L;
+        startTime = 1234L;
+        stopTime = 5678L;
         reaction = "1";
     }
 
@@ -105,6 +109,22 @@ public class AnalyticsContentServiceTest {
                 .invoke("createCollectionEventDto", collectionId, classId, contextProfileId, contextProfileId, profileId,
                         true, token, "start", startTime, null);
         verify(analyticsRestClient, times(1)).notifyEvent(eventCollectionContentDto, token);
+    }
+
+    @Test
+    public void collectionStop() throws Exception {
+        EventCollectionContentDto eventCollectionContentDto = createEventCollectionDtoObject();
+        doReturn(currentTime).when(quizzesUtils, "getCurrentTimestamp");
+        doReturn(eventCollectionContentDto).when(analyticsContentService, "createCollectionEventDto", collectionId,
+                classId, contextProfileId, contextProfileId, profileId, true, token, "stop", startTime, currentTime);
+        doNothing().when(analyticsRestClient).notifyEvent(eventCollectionContentDto, token);
+
+        analyticsContentService.collectionPlayStop(collectionId, classId, contextProfileId, profileId, true, token, startTime);
+
+        verifyPrivate(analyticsContentService, times(1)).invoke("createCollectionEventDto", collectionId, classId,
+                contextProfileId, contextProfileId, profileId, true, token, "stop", startTime, currentTime);
+        verify(analyticsRestClient, times(1)).notifyEvent(eventCollectionContentDto, token);
+        verify(quizzesUtils, times(1)).getCurrentTimestamp();
     }
 
     @Test
@@ -125,18 +145,24 @@ public class AnalyticsContentServiceTest {
     }
 
     @Test
-    public void collectionStop() throws Exception {
-        EventCollectionContentDto eventCollectionContentDto = createEventCollectionDtoObject();
+    public void resourceStop() throws Exception {
+        EventResourceContentDto eventResourceContentDto = createEventResourceDtoObject();
+        ResourceDto resource = createResourceDto();
+        PostRequestResourceDto answerResource = createPostRequestResourceDto();
+
         doReturn(currentTime).when(quizzesUtils, "getCurrentTimestamp");
-        doReturn(eventCollectionContentDto).when(analyticsContentService, "createCollectionEventDto", collectionId,
-                classId, contextProfileId, contextProfileId, profileId, true, token, "stop", startTime, currentTime);
-        doNothing().when(analyticsRestClient).notifyEvent(eventCollectionContentDto, token);
+        doReturn(eventResourceContentDto).when(analyticsContentService, "createResourceEventDto", collectionId,
+                classId, contextProfileId, eventId, profileId, true, token, "stop", resource, answerResource,
+                startTime, currentTime);
+        doNothing().when(analyticsRestClient).notifyEvent(eventResourceContentDto, token);
 
-        analyticsContentService.collectionPlayStop(collectionId, classId, contextProfileId, profileId, true, token, startTime);
+        analyticsContentService.resourcePlayStop(collectionId, classId, contextProfileId, profileId, true, token,
+                resource, answerResource, startTime, eventId);
 
-        verifyPrivate(analyticsContentService, times(1)).invoke("createCollectionEventDto", collectionId, classId,
-                contextProfileId, contextProfileId, profileId, true, token, "stop", startTime, currentTime);
-        verify(analyticsRestClient, times(1)).notifyEvent(eventCollectionContentDto, token);
+        verifyPrivate(analyticsContentService, times(1))
+                .invoke("createResourceEventDto", collectionId, classId, contextProfileId, eventId, profileId,
+                        true, token, "stop", resource, answerResource, startTime, currentTime);
+        verify(analyticsRestClient, times(1)).notifyEvent(eventResourceContentDto, token);
         verify(quizzesUtils, times(1)).getCurrentTimestamp();
     }
 
@@ -155,6 +181,92 @@ public class AnalyticsContentServiceTest {
         verify(analyticsRestClient, times(1)).notifyEvent(eventReactionContentDto, token);
     }
 
+//    private EventResourceContentDto createResourceEventDto(UUID collectionId, UUID classId, UUID sessionId, UUID eventId,
+//                                                           UUID profileId, boolean isCollection, String token, String type,
+//                                                           ResourceDto resource, PostRequestResourceDto answerResource,
+//                                                           Long startTime, Long endTime) {
+//        CollectionDto collection = getCollection(collectionId, isCollection);
+//      if(resource == null){
+//            resource = getFirstResource(collection.getResources());
+//        }
+//        return EventResourceContentDto.builder()
+//                .eventId(eventId)
+//                .eventName(RESOURCE_PLAY)
+//                .session(createSessionEventDto(sessionId, token))
+//                .user(new UserEventContentDto(profileId))
+//                .context(createContextResourceEventDto(collection, classId, type, eventId, resource))
+//                .version(new VersionEventContentDto(configurationService.getAnalyticsVersion()))
+//                .payLoadObject(createResourcePayloadObject(type, resource, answerResource))
+//                .startTime(startTime)
+//                .endTime(endTime)
+//                .build();
+//    }
+
+    @Test
+    public void createResourceEventDtoResourceNull() throws Exception {
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setResources(new ArrayList<>());
+
+        doReturn(collectionDto).when(analyticsContentService, "getCollection", collectionId, true);
+        doReturn(ContextResourceEventContentDto.builder().build())
+                .when(analyticsContentService, "createContextResourceEventDto", any(CollectionDto.class),
+                        any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
+        doReturn(PayloadObjectResourceEventContentDto.builder().build())
+                .when(analyticsContentService, "createResourcePayloadObject", anyString(), any(ResourceDto.class),
+                        any(PostRequestResourceDto.class));
+        doReturn(SessionEventContentDto.builder().build()).when(analyticsContentService, "createSessionEventDto", any(UUID.class), anyString());
+        doReturn(createResourceDto()).when(analyticsContentService, "getFirstResource", any(List.class));
+
+        EventResourceContentDto result = WhiteboxImpl.invokeMethod(analyticsContentService, "createResourceEventDto",
+                collectionId, classId, contextProfileId, eventId, profileId, true, token, "start", null, null,
+                startTime, stopTime);
+
+        verifyPrivate(analyticsContentService, times(1)).invoke("getCollection", collectionId, true);
+        verifyPrivate(analyticsContentService, times(1)).invoke("createContextResourceEventDto", any(CollectionDto.class),
+                any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
+        verifyPrivate(analyticsContentService, times(1)).invoke("createResourcePayloadObject", anyString(), any(ResourceDto.class),
+                any(PostRequestResourceDto.class));
+        verifyPrivate(analyticsContentService, times(1)).invoke("createSessionEventDto", any(UUID.class), anyString());
+        verifyPrivate(analyticsContentService, times(1)).invoke("getFirstResource", any(List.class));
+
+        assertEquals("Wrong apiKey", eventId, result.getEventId());
+        assertEquals("Wrong event name", "collection.resource.play", result.getEventName());
+        assertEquals("Wrong startTime", startTime, result.getStartTime());
+        assertEquals("Wrong endTime", stopTime, result.getEndTime());
+    }
+
+    @Test
+    public void createResourceEventDto() throws Exception {
+        ResourceDto resource = createResourceDto();
+        PostRequestResourceDto answerResource = createPostRequestResourceDto();
+        CollectionDto collectionDto = new CollectionDto();
+
+        doReturn(collectionDto).when(analyticsContentService, "getCollection", collectionId, true);
+        doReturn(ContextResourceEventContentDto.builder().build())
+                .when(analyticsContentService, "createContextResourceEventDto", any(CollectionDto.class),
+                any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
+        doReturn(PayloadObjectResourceEventContentDto.builder().build())
+                .when(analyticsContentService, "createResourcePayloadObject", anyString(), any(ResourceDto.class),
+                        any(PostRequestResourceDto.class));
+        doReturn(SessionEventContentDto.builder().build()).when(analyticsContentService, "createSessionEventDto", any(UUID.class), anyString());
+
+        EventResourceContentDto result = WhiteboxImpl.invokeMethod(analyticsContentService, "createResourceEventDto",
+                collectionId, classId, contextProfileId, eventId, profileId, true, token, "start", resource, answerResource,
+                startTime, stopTime);
+
+        verifyPrivate(analyticsContentService, times(1)).invoke("getCollection", collectionId, true);
+        verifyPrivate(analyticsContentService, times(1)).invoke("createContextResourceEventDto", any(CollectionDto.class),
+                any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
+        verifyPrivate(analyticsContentService, times(1)).invoke("createResourcePayloadObject", anyString(), any(ResourceDto.class),
+                any(PostRequestResourceDto.class));
+        verifyPrivate(analyticsContentService, times(1)).invoke("createSessionEventDto", any(UUID.class), anyString());
+        verifyPrivate(analyticsContentService, times(0)).invoke("getFirstResource", any());
+
+        assertEquals("Wrong apiKey", eventId, result.getEventId());
+        assertEquals("Wrong event name", "collection.resource.play", result.getEventName());
+        assertEquals("Wrong startTime", startTime, result.getStartTime());
+        assertEquals("Wrong endTime", stopTime, result.getEndTime());
+    }
 
     @Test
     public void createSessionEventDto() throws Exception {
@@ -406,4 +518,9 @@ public class AnalyticsContentServiceTest {
         return resourceDto;
     }
 
+    private PostRequestResourceDto createPostRequestResourceDto() {
+        PostRequestResourceDto answerResource = new PostRequestResourceDto();
+        answerResource.setResourceId(resourceId);
+        return answerResource;
+    }
 }
