@@ -71,12 +71,6 @@ public class ContextEventService {
     private AnalyticsContentService analyticsContentService;
 
     @Autowired
-    private ContextProfileEventRepository contextProfileEventRepository;
-
-    @Autowired
-    private QuizzesUtils quizzesUtils;
-
-    @Autowired
     private Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId, String token) {
