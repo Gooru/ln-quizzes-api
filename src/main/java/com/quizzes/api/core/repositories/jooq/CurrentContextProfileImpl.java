@@ -1,6 +1,5 @@
 package com.quizzes.api.core.repositories.jooq;
 
-import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.CurrentContextProfileRepository;
