@@ -3,6 +3,11 @@ const QuizzesCommon = require('./quizzesCommon.js');
 const QuizzesApiUrl = Config.quizzesApiUrl;
 const Frisby = require('frisby');
 
+Frisby.globalSetup({
+    timeout: 30000
+
+});
+
 QuizzesCommon.startTest('OnResource on started context', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');

@@ -109,9 +109,8 @@ public class ContextEventService {
 
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
                 context.getIsCollection());
-        List<ResourceDto> collectionResources = collectionDto.getResources();
-        ResourceDto currentResource = findResourceInContext(collectionResources, resourceId, contextId);
-        ResourceDto previousResource = findResourceInContext(collectionResources, resourceDto.getResourceId(),
+        ResourceDto currentResource = findResourceInContext(collectionDto.getResources(), resourceId, contextId);
+        ResourceDto previousResource = findResourceInContext(collectionDto.getResources(), resourceDto.getResourceId(),
                 contextId);
 
         List<ContextProfileEvent> contextProfileEvents =
@@ -529,18 +528,74 @@ public class ContextEventService {
         return result;
     }
 
+    /**
+     * A Collection can have a set of Taxonomies, we will call these Collection Taxonomy, also every Resource in the
+     * Collection can have a set of Taxonomies.
+     * This method summarizes the resources of the Collection by Taxonomy.
+     * The Collection Taxonomy Summaries are general for the Collection, this means that all the Resources will be
+     * summarized en every Collection Taxonomy.
+     * The Resources that has Taxonomies not summarized in the Collection Taxonomy also are Summarized and grouped by
+     * Taxonomy ID.
+     * Both the Collection Taxonomy Summary List and the additional Taxonomy Summaries are returned by this calculation
+     *
+     * @param contextProfileEvents  All the Events answered or skipped
+     * @param calculateSkipped      If true the Events skipped are calculated in the summary
+     * @param collectionDto         Contains the metadata (if exists) and the Collection Taxonomy List (if exists)
+     * @param eventSummary          Since we already calculated this information and it is the same for each Collection
+     *                              Taxonomy we will pass this as a parameter.
+     * @return A List of Taxonomy Summaries, some for the Collection and some for individual Resources with Taxonomies
+     * not in the Collection Taxonomy Map.
+     */
     private List<TaxonomySummaryDto> calculateTaxonomySummary(List<ContextProfileEvent> contextProfileEvents,
                                                               boolean calculateSkipped,
                                                               CollectionDto collectionDto, EventSummaryDataDto eventSummary) {
 
         // Calculating the collection taxonomy summary
-        Map<String, TaxonomySummaryDto> collectionTaxonomyMap = new HashMap<>();
+        Map<String, TaxonomySummaryDto> collectionTaxonomyMap = calculateCollectionTaxonomy(collectionDto,
+                contextProfileEvents == null? Collections.EMPTY_LIST : contextProfileEvents, eventSummary);
+
+        // Calculating additional resource's taxonomy
+
+        // Converting ContextProfileEvents into a Map of Taxonomy with the List of Events for each Taxonomy
+        // we pass the IDs of the Taxonomys already in the collection so we can exclude those from the calculation
+        // sinse those are already summarized.
+        Map<String, List<ContextProfileEvent>> eventsByTaxonomy = getEventsByTaxonomy(contextProfileEvents,
+                collectionDto.getResources(), collectionTaxonomyMap.keySet());
+
+        // Mapping the eventsByTaxonomy to a List of summarized DTOs
+        List<TaxonomySummaryDto> eventTaxonomyList = mapEventsByTaxonomyToTaxonomySummaryList(eventsByTaxonomy,
+                calculateSkipped);
+
+        List<TaxonomySummaryDto> result = new ArrayList<>();
+        result.addAll(collectionTaxonomyMap.values());
+        result.addAll(eventTaxonomyList);
+
+        return result;
+    }
+
+    /**
+     * When there are a Taxonomy for the whole Collection this means that all the events in the Collection are summarized
+     * for all and every "Collection Taxonomy" so all the summaries have the same values, the same Resources (all the resources)
+     * and the difference is the Taxonomy ID
+     *
+     * @param collectionDto         Contains the metadata (if exists) and the Collection Taxonomy List (if exists)
+     * @param contextProfileEvents  each Event have a Resource ID.
+     * @param eventSummary          Since we already calculated this information and it is the same for each Collection
+     *                              Taxonomy we will pass this as a parameter.
+     * @return The List on Collection Taxonomy Summaries
+     */
+    private Map<String, TaxonomySummaryDto> calculateCollectionTaxonomy(CollectionDto collectionDto,
+                                                                        List<ContextProfileEvent> contextProfileEvents,
+                                                                        EventSummaryDataDto eventSummary) {
+        Map<String, TaxonomySummaryDto> result = new HashMap<>();
         if (collectionDto.getMetadata() != null && collectionDto.getMetadata().getTaxonomy() != null &&
                 !collectionDto.getMetadata().getTaxonomy().isEmpty()) {
+            // All the Event Resources in the ContextProfile are summarized in the Collection Taxonomy
             List<UUID> allEventResourceIds = contextProfileEvents.stream()
                     .map(ContextProfileEvent::getResourceId)
                     .collect(Collectors.toList());
-            collectionTaxonomyMap.putAll(collectionDto.getMetadata().getTaxonomy().keySet().stream()
+
+            result.putAll(collectionDto.getMetadata().getTaxonomy().keySet().stream()
                     .map(key -> {
                         TaxonomySummaryDto taxonomySummaryDto = mapEventSummaryToTaxonomySummary(eventSummary);
                         taxonomySummaryDto.setTaxonomyId(key);
@@ -549,54 +604,79 @@ public class ContextEventService {
                     })
                     .collect(Collectors.toMap(TaxonomySummaryDto::getTaxonomyId, Function.identity())));
         }
-        // Calculating additional resource's taxonomy
-        Map<UUID, Set<String>> resourcesNotInCollectionTaxonomy = collectionDto.getResources().stream()
+        return result;
+    }
+
+    /**
+     * This method receives a list of context events, each content event has an ID to a resource and each resource can have
+     * a list of Standards (Taxonomy), this is optional.
+     * We will return a Map of Standards (Taxonomy) with its {@link ContextProfileEvent}.
+     *
+     * @param contextProfileEvents events with the resource ID
+     * @param collectionResources resources with an optional taxonomy map
+     * @param collectionTaxonomyIds taxonomy IDs already in the collection, we need to exclude the events matching
+     *                              this list because those are already summarized
+     * @return a Map with the Taxonomy ID and the List of events in that taxonomy
+     */
+    private Map<String, List<ContextProfileEvent>> getEventsByTaxonomy(List<ContextProfileEvent> contextProfileEvents,
+                                                                       List<ResourceDto> collectionResources,
+                                                                       Set<String> collectionTaxonomyIds) {
+
+        // Filtering the Collection Resources to exclude Resources already in the Collection Taxonomy
+        Map<UUID, Set<String>> resourcesNotInCollectionTaxonomy = collectionResources.stream()
                 .filter(resource -> (resource.getMetadata() != null)
                         && (resource.getMetadata().getTaxonomy() != null)
-                        && (!collectionTaxonomyMap.keySet().containsAll(resource.getMetadata().getTaxonomy().entrySet()))
+                        && (!collectionTaxonomyIds.containsAll(resource.getMetadata().getTaxonomy().entrySet()))
                 )
                 .collect(Collectors.toMap(ResourceDto::getId,
                         resource -> resource.getMetadata().getTaxonomy().keySet()));
 
+        // Filtering ContextProfileEvents to exclude events with resources already in the Collection Taxonomy
         List<ContextProfileEvent> eventsWithTaxonomy = contextProfileEvents.stream()
                 .filter(event -> resourcesNotInCollectionTaxonomy.keySet().contains(event.getResourceId()))
                 .collect(Collectors.toList());
 
-        Map<String, List<ContextProfileEvent>> eventsByTaxonomy = new HashMap<>();
+        // Mapping the ContextProfileEvent List into a Map of Taxonomies with ContextProfileEvents
+        Map<String, List<ContextProfileEvent>> result = new HashMap<>();
         for (ContextProfileEvent event : eventsWithTaxonomy) {
             List<String> eventTaxonomyList = resourcesNotInCollectionTaxonomy.get(event.getResourceId()).stream()
-                    .filter(taxonomyId -> !collectionTaxonomyMap.keySet().contains(Functions.identity()))
+                    .filter(taxonomyId -> !collectionTaxonomyIds.contains(taxonomyId))
                     .collect(Collectors.toList());
             for (String taxonomyId : eventTaxonomyList) {
-                if (eventsByTaxonomy.containsKey(taxonomyId)) {
-                    List<ContextProfileEvent> eventsInTaxonomy = eventsByTaxonomy.get(taxonomyId);
+                if (result.containsKey(taxonomyId)) {
+                    List<ContextProfileEvent> eventsInTaxonomy = result.get(taxonomyId);
                     eventsInTaxonomy.add(event);
                 } else {
                     List<ContextProfileEvent> eventsInTaxonomy = new ArrayList<>();
                     eventsInTaxonomy.add(event);
-                    eventsByTaxonomy.put(taxonomyId, eventsInTaxonomy);
+                    result.put(taxonomyId, eventsInTaxonomy);
                 }
             }
         }
-
-        List<TaxonomySummaryDto> eventTaxonomyList = new ArrayList<>();
-        eventsByTaxonomy.entrySet().stream().forEach(entry -> {
-            EventSummaryDataDto eventSummaryByTaxonomy = this.calculateEventSummary(entry.getValue(), calculateSkipped);
-            TaxonomySummaryDto taxonomySummaryDto = mapEventSummaryToTaxonomySummary(eventSummaryByTaxonomy);
-            taxonomySummaryDto.setTaxonomyId(entry.getKey());
-            List<UUID> resourceIdListByTaxonomy = entry.getValue().stream()
-                    .map(event -> event.getResourceId())
-                    .distinct()
-                    .collect(Collectors.toList());
-            taxonomySummaryDto.setResources(resourceIdListByTaxonomy);
-            eventTaxonomyList.add(taxonomySummaryDto);
-        });
-
-        List<TaxonomySummaryDto> result = new ArrayList<>();
-        result.addAll(collectionTaxonomyMap.values());
-        result.addAll(eventTaxonomyList);
-
         return result;
+    }
+
+    /**
+     * Maps the ContextProfileEvents by Taxonomy Map into a List of Taxonomy Summary DTOs
+     * @param eventsByTaxonomy a Map of Taxonomy IDs with the List of ContextProfileEvents in that Taxonomy
+     * @param calculateSkipped skips the skipped events from the calculation if this is true.
+     * @return
+     */
+    private List<TaxonomySummaryDto> mapEventsByTaxonomyToTaxonomySummaryList(
+            Map<String, List<ContextProfileEvent>> eventsByTaxonomy, boolean calculateSkipped) {
+        return eventsByTaxonomy.entrySet().stream()
+                .map(entry -> {
+                    EventSummaryDataDto eventSummaryByTaxonomy = this.calculateEventSummary(entry.getValue(), calculateSkipped);
+                    TaxonomySummaryDto taxonomySummaryDto = mapEventSummaryToTaxonomySummary(eventSummaryByTaxonomy);
+                    taxonomySummaryDto.setTaxonomyId(entry.getKey());
+                    List<UUID> resourceIdListByTaxonomy = entry.getValue().stream()
+                            .map(event -> event.getResourceId())
+                            .distinct()
+                            .collect(Collectors.toList());
+                    taxonomySummaryDto.setResources(resourceIdListByTaxonomy);
+                    return taxonomySummaryDto;
+                })
+                .collect(Collectors.toList());
     }
 
     private TaxonomySummaryDto mapEventSummaryToTaxonomySummary(EventSummaryDataDto eventSummaryDataDto) {
