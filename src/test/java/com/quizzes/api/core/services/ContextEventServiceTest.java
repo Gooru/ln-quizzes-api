@@ -1423,6 +1423,10 @@ public class ContextEventServiceTest {
 
     private void validateAttemptsPrivateMethod(Integer allowedAttempts, Integer currentAttempts) throws Exception {
         ContextProfileEntity entity = createContextProfileEntity();
+        List<UUID> profileIds = new ArrayList<>();
+        while(profileIds.size() < currentAttempts) {
+            profileIds.add(UUID.randomUUID());
+        }
 
         Map<String, Object> setting = new HashMap();
         if (allowedAttempts != null) {
@@ -1431,13 +1435,13 @@ public class ContextEventServiceTest {
         CollectionDto collectionDto = createCollectionDto(setting);
         when(collectionService.getCollectionOrAssessment(any(UUID.class), anyBoolean()))
                 .thenReturn(collectionDto);
-        when(contextProfileService.findCountByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
-                .thenReturn(currentAttempts);
+        when(contextProfileService.findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(profileIds);
 
         WhiteboxImpl.invokeMethod(contextEventService, "validateAttempts", entity);
 
         verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", entity.getCollectionId(), entity.getIsCollection());
-        verifyPrivate(contextProfileService, times(1)).invoke("findCountByContextIdAndProfileId", contextId, profileId);
+        verifyPrivate(contextProfileService, times(1)).invoke("findContextProfileIdsByContextIdAndProfileId", contextId, profileId);
     }
 
     private List<ContextProfileEvent> createContextProfileEvents() {

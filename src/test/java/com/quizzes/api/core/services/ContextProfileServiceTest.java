@@ -71,16 +71,4 @@ public class ContextProfileServiceTest {
                 findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class));
     }
 
-    @Test
-    public void findCountByContextIdAndProfileId() throws Exception {
-        when(contextProfileRepository.findCountByContextIdAndProfileId(any(UUID.class), any(UUID.class))).
-                thenReturn(1);
-
-        int result = contextProfileService.findCountByContextIdAndProfileId(any(UUID.class),
-                any(UUID.class));
-
-        verify(contextProfileRepository, times(1)).
-                findCountByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-    }
-
 }

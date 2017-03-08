@@ -634,8 +634,9 @@ public class ContextEventService {
                 collectionService.getCollectionOrAssessment(entity.getCollectionId(), entity.getIsCollection());
         Double allowedAttempts =
                 (Double) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, new Double(-1));
-        int contextAttempts =
-                contextProfileService.findCountByContextIdAndProfileId(entity.getContextId(), entity.getProfileId());
+        int contextAttempts = contextProfileService
+                .findContextProfileIdsByContextIdAndProfileId(entity.getContextId(), entity.getProfileId())
+                .size();
 
         if (allowedAttempts.intValue() != -1 && allowedAttempts.intValue() <= contextAttempts) {
             throw new NoAttemptsLeftException("No attempts left for profile " + entity.getProfileId() +

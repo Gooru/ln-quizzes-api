@@ -17,7 +17,5 @@ public interface ContextProfileRepository {
 
     ContextProfile findById(UUID contextProfileId);
 
-    int findCountByContextIdAndProfileId(UUID contextId, UUID profileId);
-
 }
 
