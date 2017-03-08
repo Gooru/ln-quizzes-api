@@ -12,4 +12,8 @@ public interface ContextProfileEntity extends AssignedContextEntity {
 
     void setIsComplete(Boolean isComplete);
 
+    String getContextProfileData();
+
+    void setContextProfileData(String contextProfileData);
+
 }
