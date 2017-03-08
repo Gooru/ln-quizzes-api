@@ -20,6 +20,7 @@ import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
+import com.quizzes.api.core.exceptions.NoAttemptsLeftException;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
@@ -151,7 +152,7 @@ public class ContextEventService {
         }
 
         ShowFeedbackOptions showFeedback = ShowFeedbackOptions.fromValue(
-                collectionDto.getMetadata().getSetting(CollectionSetting.ShowFeedback.getLiteral(),
+                collectionDto.getMetadata().getSetting(CollectionSetting.ShowFeedback,
                         ShowFeedbackOptions.Never.getLiteral()).toString()
         );
 
@@ -282,8 +283,10 @@ public class ContextEventService {
     }
 
     private StartContextEventResponseDto createContextProfile(ContextProfileEntity entity, String token) {
+        validateAttempts(entity);
         UUID resourceEventId = UUID.randomUUID();
         ContextProfile contextProfile = createContextProfileObject(entity.getContextId(), entity.getProfileId(), resourceEventId);
+
         doCreateContextProfileTransaction(contextProfile);
         return processStartContext(entity, new ArrayList<>(), token, contextProfile.getCreatedAt().getTime(),
                 resourceEventId);
@@ -734,6 +737,21 @@ public class ContextEventService {
                     "the Context ID: " + contextId);
         }
         return resource;
+    }
+
+    private void validateAttempts(ContextProfileEntity entity) {
+        CollectionDto collectionDto =
+                collectionService.getCollectionOrAssessment(entity.getCollectionId(), entity.getIsCollection());
+        Double allowedAttempts =
+                (Double) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, new Double(-1));
+        int contextAttempts = contextProfileService
+                .findContextProfileIdsByContextIdAndProfileId(entity.getContextId(), entity.getProfileId())
+                .size();
+
+        if (allowedAttempts.intValue() != -1 && allowedAttempts.intValue() <= contextAttempts) {
+            throw new NoAttemptsLeftException("No attempts left for profile " + entity.getProfileId() +
+                    " on context " + entity.getContextId());
+        }
     }
 
 }

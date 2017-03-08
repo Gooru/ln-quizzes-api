@@ -22,6 +22,7 @@ import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
+import com.quizzes.api.core.exceptions.NoAttemptsLeftException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
@@ -225,6 +226,11 @@ public class ContextEventServiceTest {
         doReturn(contextProfile).when(contextEventService, "doCreateContextProfileTransaction", contextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
                 eq(entity), any(ArrayList.class), eq(token), anyLong(), any(UUID.class));
+
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(10));
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any(), anyBoolean())).thenReturn(collectionDto);
 
         StartContextEventResponseDto result =
                 WhiteboxImpl.invokeMethod(contextEventService, "createContextProfile", entity, token);
@@ -1490,7 +1496,6 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, times(1)).invoke("finishContextEvent", context, contextProfile, token);
     }
 
-    @Ignore
     @Test
     public void finishContextEvent() throws Exception {
         Context context = createContext();
@@ -1501,11 +1506,15 @@ public class ContextEventServiceTest {
         contextProfileEvents.add(contextProfileEvent);
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
-        List<ResourceContentDto> resources = new ArrayList<>();
+        List<ResourceDto> resources = new ArrayList<>();
 
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
-        doReturn(resources).when(contextEventService, "getCollectionResources",
-                collectionId, true);
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        collectionDto.setResources(resources);
+
+        when(collectionService.getCollectionOrAssessment(collectionId, true)).thenReturn(collectionDto);
         doReturn(resources).when(contextEventService, "getResourcesToCreate", contextProfileEvents, resources);
         doReturn(contextProfileEvents).when(contextEventService, "createSkippedContextProfileEvents",
                 contextProfileId, resources);
@@ -1518,7 +1527,7 @@ public class ContextEventServiceTest {
         WhiteboxImpl.invokeMethod(contextEventService, "finishContextEvent", context, contextProfile, token);
 
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
-        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verify(collectionService, times(1)).getCollectionOrAssessment(collectionId, true);
         verifyPrivate(contextEventService, times(1)).invoke("getResourcesToCreate", contextProfileEvents, resources);
         verifyPrivate(contextEventService, times(1)).invoke("createSkippedContextProfileEvents",
                 contextProfileId, resources);
@@ -1531,7 +1540,6 @@ public class ContextEventServiceTest {
                 profileId, true, token, startDate.getTime());
     }
 
-    @Ignore
     @Test
     public void finishContextEventForAnonymousOrPreview() throws Exception {
         Context context = createContext();
@@ -1543,11 +1551,14 @@ public class ContextEventServiceTest {
         contextProfileEvents.add(contextProfileEvent);
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
-        List<ResourceContentDto> resources = new ArrayList<>();
+        List<ResourceDto> resources = new ArrayList<>();
 
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
-        doReturn(resources).when(contextEventService, "getCollectionResources",
-                collectionId, true);
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        collectionDto.setResources(resources);
+        when(collectionService.getCollectionOrAssessment(collectionId, true)).thenReturn(collectionDto);
         doReturn(resources).when(contextEventService, "getResourcesToCreate", contextProfileEvents, resources);
         doReturn(contextProfileEvents).when(contextEventService, "createSkippedContextProfileEvents",
                 contextProfileId, resources);
@@ -1559,7 +1570,7 @@ public class ContextEventServiceTest {
         WhiteboxImpl.invokeMethod(contextEventService, "finishContextEvent", context, contextProfile, token);
 
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
-        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verify(collectionService, times(1)).getCollectionOrAssessment(collectionId, true);
         verifyPrivate(contextEventService, times(1)).invoke("getResourcesToCreate", contextProfileEvents, resources);
         verifyPrivate(contextEventService, times(1)).invoke("createSkippedContextProfileEvents",
                 contextProfileId, resources);
@@ -1909,6 +1920,44 @@ public class ContextEventServiceTest {
         assertEquals(eventSummaryDataDto.getAverageReaction(), 0);
         assertEquals(eventSummaryDataDto.getTotalCorrect(), 0);
         assertEquals(eventSummaryDataDto.getTotalAnswered(), 0);
+    }
+
+    @Test
+    public void validateAttemptsValid() throws Exception {
+        validateAttemptsPrivateMethod(2, 1);
+    }
+
+    @Test
+    public void validateAttemptsNoSetting() throws Exception {
+        validateAttemptsPrivateMethod(null, 1);
+    }
+
+    @Test(expected = NoAttemptsLeftException.class)
+    public void validateAttemptsNoAttemptsLeft() throws Exception {
+        validateAttemptsPrivateMethod(2, 2);
+    }
+
+    private void validateAttemptsPrivateMethod(Integer allowedAttempts, Integer currentAttempts) throws Exception {
+        ContextProfileEntity entity = createContextProfileEntity();
+        List<UUID> profileIds = new ArrayList<>();
+        while(profileIds.size() < currentAttempts) {
+            profileIds.add(UUID.randomUUID());
+        }
+
+        Map<String, Object> setting = new HashMap();
+        if (allowedAttempts != null) {
+            setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(allowedAttempts));
+        }
+        CollectionDto collectionDto = createCollectionDto(setting);
+        when(collectionService.getCollectionOrAssessment(any(UUID.class), anyBoolean()))
+                .thenReturn(collectionDto);
+        when(contextProfileService.findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
+                .thenReturn(profileIds);
+
+        WhiteboxImpl.invokeMethod(contextEventService, "validateAttempts", entity);
+
+        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", entity.getCollectionId(), entity.getIsCollection());
+        verifyPrivate(contextProfileService, times(1)).invoke("findContextProfileIdsByContextIdAndProfileId", contextId, profileId);
     }
 
     private List<ContextProfileEvent> createContextProfileEvents() {

@@ -4,7 +4,8 @@ import lombok.Getter;
 
 public enum CollectionSetting {
 
-    ShowFeedback("show_feedback");
+    ShowFeedback("show_feedback"),
+    AttemptsAllowed("attempts_allowed");
 
     @Getter
     private final String literal;

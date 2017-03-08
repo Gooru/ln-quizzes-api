@@ -1,5 +1,6 @@
 package com.quizzes.api.core.dtos;
 
+import com.quizzes.api.core.enums.CollectionSetting;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,14 +13,14 @@ public class CollectionMetadataDto implements Serializable {
     private Map<String, Object> setting;
     private Map<String, Object> taxonomy;
 
-    public Object getSetting(String key) {
+    public Object getSetting(CollectionSetting key) {
         return getSetting(key, null);
     }
 
-    public Object getSetting(String key, Object defaultValue) {
+    public Object getSetting(CollectionSetting key, Object defaultValue) {
         if (setting == null) {
-            return null;
+            return defaultValue;
         }
-        return setting.getOrDefault(key, defaultValue);
+        return setting.getOrDefault(key.getLiteral(), defaultValue);
     }
 }

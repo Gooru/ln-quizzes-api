@@ -9,6 +9,7 @@ import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.exceptions.MissingJsonPropertiesException;
+import com.quizzes.api.core.exceptions.NoAttemptsLeftException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -144,6 +145,17 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = InvalidRequestBodyException.class)
     public ExceptionMessageDto handleInvalidRequestBodyException(InvalidRequestBodyException e) {
         return getExceptionMessageDto("Invalid request body", HttpStatus.BAD_REQUEST, e);
+    }
+
+    /**
+     * Handles NoAttemptsLeftException
+     *
+     * @return Unprocessable entity with status 422
+     */
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(value = NoAttemptsLeftException.class)
+    public ExceptionMessageDto handleNoAttemptsLeftException(NoAttemptsLeftException e) {
+        return getExceptionMessageDto("Validation error. No attempts left", HttpStatus.UNPROCESSABLE_ENTITY, e);
     }
 
     /**
