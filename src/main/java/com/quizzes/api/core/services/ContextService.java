@@ -3,15 +3,12 @@ package com.quizzes.api.core.services;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
-import com.quizzes.api.core.dtos.ContextPutRequestDto;
-import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
-import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
@@ -19,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -43,24 +39,12 @@ public class ContextService {
     private Gson gson;
 
     @Transactional
-    public UUID createContext(ContextPostRequestDto contextDto, UUID profileId, String token) throws
+    public UUID createContext(ContextPostRequestDto contextDto, UUID profileId) throws
             InvalidOwnerException {
         validateCollectionOwnerInContext(profileId, contextDto.getCollectionId(), contextDto.getIsCollection());
 
         Context context = createContextObject(contextDto, profileId);
-        List<UUID> assigneeIds = new ArrayList<>();
-
-        if (contextDto.getClassId() != null) {
-            assigneeIds.addAll(classMemberService.getClassMemberIds(contextDto.getClassId(), token));
-        }
-
-        // Saves all processed data
         Context savedContext = contextRepository.save(context);
-        if (!assigneeIds.isEmpty()) {
-            assigneeIds.forEach(assigneeId ->
-                    contextProfileService.save(createContextProfileObject(savedContext.getId(), assigneeId)));
-        }
-
         return savedContext.getId();
     }
 
@@ -80,7 +64,6 @@ public class ContextService {
         context.setIsCollection(collection.getIsCollection());
 
         Context savedContext = contextRepository.save(context);
-        contextProfileService.save(createContextProfileObject(savedContext.getId(), profileId));
         return savedContext.getId();
     }
 
@@ -148,15 +131,6 @@ public class ContextService {
         context.setContextData(gson.toJson(contextDto.getContextData()));
         context.setIsCollection(contextDto.getIsCollection());
         return context;
-    }
-
-    private ContextProfile createContextProfileObject(UUID contextId, UUID profileId) {
-        ContextProfile contextProfile = new ContextProfile();
-        contextProfile.setContextId(contextId);
-        contextProfile.setProfileId(profileId);
-        contextProfile.setIsComplete(false);
-        contextProfile.setEventSummaryData(gson.toJson(new EventSummaryDataDto()));
-        return contextProfile;
     }
 
 }
