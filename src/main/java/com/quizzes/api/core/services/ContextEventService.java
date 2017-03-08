@@ -132,19 +132,19 @@ public class ContextEventService {
         EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
         List<TaxonomySummaryDto> collectionTaxonomy = calculateTaxonomySummary(contextProfileEvents, false, collectionDto, eventSummary);
 
-        UUID startEventId = UUID.randomUUID();
+        UUID startResourceEventId = UUID.randomUUID();
         ContextProfile contextProfile = updateContextProfile(context.getContextProfileId(), currentResource.getId(),
-                gson.toJson(eventSummary), gson.toJson(collectionTaxonomy), startEventId);
+                gson.toJson(eventSummary), gson.toJson(collectionTaxonomy), startResourceEventId);
 
         contextProfileService.save(contextProfile);
         ContextProfileEvent savedEvent = contextProfileEventService.save(contextProfileEvent);
 
         if (context.getClassId() != null) {
-            UUID stopEventId = gson.fromJson(context.getContextProfileData(),
+            UUID stopResourceEventId = gson.fromJson(context.getContextProfileData(),
                     ContextProfileDataDto.class).getResourceEventId();
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
-            sendAnalyticsEvent(context, profileId, token, currentResource, previousResource, resourceDto, stopEventId,
-                    startEventId, savedEvent.getCreatedAt().getTime());
+            sendAnalyticsEvent(context, profileId, token, currentResource, previousResource, resourceDto,
+                    stopResourceEventId, startResourceEventId, savedEvent.getCreatedAt().getTime());
         }
 
         if (collectionDto.getMetadata().getSetting() == null) {
@@ -171,7 +171,7 @@ public class ContextEventService {
                 context.getContextProfileId(), profileId, context.getIsCollection(), token, previousResource,
                 answerResource, startTime, stopEventId);
 
-        //This means that the resource is the last one, so we don't need to send the start event to analytics
+        //If the ids are the same it's because is the last event, so we don't need to send the start event to analytics
         if (currentResource.getId() != previousResource.getId()) {
             analyticsContentService.resourcePlayStart(context.getCollectionId(), context.getClassId(),
                     context.getContextProfileId(), profileId, context.getIsCollection(), token, currentResource,
