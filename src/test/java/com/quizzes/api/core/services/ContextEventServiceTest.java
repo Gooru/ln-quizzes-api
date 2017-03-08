@@ -1449,7 +1449,6 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, times(1)).invoke("finishContextEvent", context, contextProfile, token);
     }
 
-    @Ignore
     @Test
     public void finishContextEvent() throws Exception {
         Context context = createContext();
@@ -1460,11 +1459,15 @@ public class ContextEventServiceTest {
         contextProfileEvents.add(contextProfileEvent);
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
-        List<ResourceContentDto> resources = new ArrayList<>();
+        List<ResourceDto> resources = new ArrayList<>();
 
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
-        doReturn(resources).when(contextEventService, "getCollectionResources",
-                collectionId, true);
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        collectionDto.setResources(resources);
+
+        when(collectionService.getCollectionOrAssessment(collectionId, true)).thenReturn(collectionDto);
         doReturn(resources).when(contextEventService, "getResourcesToCreate", contextProfileEvents, resources);
         doReturn(contextProfileEvents).when(contextEventService, "createSkippedContextProfileEvents",
                 contextProfileId, resources);
@@ -1477,7 +1480,7 @@ public class ContextEventServiceTest {
         WhiteboxImpl.invokeMethod(contextEventService, "finishContextEvent", context, contextProfile, token);
 
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
-        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verify(collectionService, times(1)).getCollectionOrAssessment(collectionId, true);
         verifyPrivate(contextEventService, times(1)).invoke("getResourcesToCreate", contextProfileEvents, resources);
         verifyPrivate(contextEventService, times(1)).invoke("createSkippedContextProfileEvents",
                 contextProfileId, resources);
@@ -1490,7 +1493,6 @@ public class ContextEventServiceTest {
                 profileId, true, token, startDate.getTime());
     }
 
-    @Ignore
     @Test
     public void finishContextEventForAnonymousOrPreview() throws Exception {
         Context context = createContext();
@@ -1502,11 +1504,14 @@ public class ContextEventServiceTest {
         contextProfileEvents.add(contextProfileEvent);
         EventSummaryDataDto eventSummaryDataDto = new EventSummaryDataDto();
 
-        List<ResourceContentDto> resources = new ArrayList<>();
+        List<ResourceDto> resources = new ArrayList<>();
 
         when(contextProfileEventService.findByContextProfileId(contextProfileId)).thenReturn(contextProfileEvents);
-        doReturn(resources).when(contextEventService, "getCollectionResources",
-                collectionId, true);
+        Map<String, Object> setting = new HashMap();
+        setting.put(CollectionSetting.ShowFeedback.getLiteral(), ShowFeedbackOptions.Immediate.getLiteral());
+        CollectionDto collectionDto = createCollectionDto(setting);
+        collectionDto.setResources(resources);
+        when(collectionService.getCollectionOrAssessment(collectionId, true)).thenReturn(collectionDto);
         doReturn(resources).when(contextEventService, "getResourcesToCreate", contextProfileEvents, resources);
         doReturn(contextProfileEvents).when(contextEventService, "createSkippedContextProfileEvents",
                 contextProfileId, resources);
@@ -1518,7 +1523,7 @@ public class ContextEventServiceTest {
         WhiteboxImpl.invokeMethod(contextEventService, "finishContextEvent", context, contextProfile, token);
 
         verify(contextProfileEventService, times(1)).findByContextProfileId(contextProfileId);
-        verifyPrivate(contextEventService, times(1)).invoke("getCollectionResources", collectionId, true);
+        verify(collectionService, times(1)).getCollectionOrAssessment(collectionId, true);
         verifyPrivate(contextEventService, times(1)).invoke("getResourcesToCreate", contextProfileEvents, resources);
         verifyPrivate(contextEventService, times(1)).invoke("createSkippedContextProfileEvents",
                 contextProfileId, resources);
