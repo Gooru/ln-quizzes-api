@@ -38,7 +38,9 @@ public class ContextEventController {
                     "In any case returns the current attempt status.")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Body", response = StartContextEventResponseDto.class),
-            @ApiResponse(code = 500, message = "Bad request")})
+            @ApiResponse(code = 400, message = "Bad request"),
+            @ApiResponse(code = 403, message = "Forbidden. Student doesn't belong to class"),
+            @ApiResponse(code = 404, message = "Context not found")})
     @RequestMapping(path = "/contexts/{contextId}/start", method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
