@@ -24,9 +24,6 @@ import java.util.UUID;
 public class ContextService {
 
     @Autowired
-    private ContextProfileService contextProfileService;
-
-    @Autowired
     private ContextRepository contextRepository;
 
     @Autowired

@@ -75,8 +75,6 @@ public class CollectionRestClientTest {
     private UUID resourceId;
     private UUID questionId;
     private UUID ownerProfileId;
-    private String answerId1;
-    private String answerId2;
     private String url;
     private String token;
     private String collectionTitle;
@@ -98,8 +96,6 @@ public class CollectionRestClientTest {
         resourceId = UUID.randomUUID();
         questionId = UUID.randomUUID();
         ownerProfileId = UUID.randomUUID();
-        answerId1 = UUID.randomUUID().toString();
-        answerId2 = UUID.randomUUID().toString();
         url = "http://www.gooru.org";
         token = "token-id";
         collectionTitle = "Collection Title";
@@ -451,8 +447,8 @@ public class CollectionRestClientTest {
 
     @Test
     public void createInteraction() throws Exception {
-        AnswerContentDto answer1 = createAnswerContentDto(answerId1, "1", 1, "text");
-        AnswerContentDto answer2 = createAnswerContentDto(answerId2, "1", 2, "text");
+        AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "text");
+        AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "text");
         List<AnswerContentDto> answers = Arrays.asList(answer1, answer2);
         ResourceContentDto resourceContentDto = createQuestionContentDto();
         resourceContentDto.setAnswers(answers);
@@ -489,8 +485,8 @@ public class CollectionRestClientTest {
 
     @Test
     public void getCorrectAnswersMultipleChoice() throws Exception {
-        AnswerContentDto answer1 = createAnswerContentDto(answerId1, "1", 1, "text");
-        AnswerContentDto answer2 = createAnswerContentDto(answerId2, "false", 2, "text");
+        AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "text");
+        AnswerContentDto answer2 = createAnswerContentDto("2", "false", 2, "text");
         List<AnswerContentDto> answers = Arrays.asList(answer1, answer2);
         ResourceContentDto resourceContentDto = createQuestionContentDto();
         resourceContentDto.setAnswers(answers);
@@ -513,9 +509,7 @@ public class CollectionRestClientTest {
 
         assertEquals("Wrong number of answers", 2, resultWord.size());
         assertEquals("Wrong first correct answer value", "big,4", resultWord.get(0).getValue());
-        assertEquals("Wrong answer Id", answerId1, resultWord.get(0).getId().toString());
         assertEquals("Wrong second correct answer value", "down,22", resultWord.get(1).getValue());
-        assertEquals("Wrong answer Id", answerId1, resultWord.get(1).getId().toString());
 
         resourceContentDto = createHotTextHighlightResourceContentDto("sentence");
 
@@ -524,9 +518,7 @@ public class CollectionRestClientTest {
 
         assertEquals("Wrong number of answers", 2, resultSentence.size());
         assertEquals("Wrong first correct answer value", "big bad wolf,4", resultSentence.get(0).getValue());
-        assertEquals("Wrong answer Id", answerId1, resultSentence.get(0).getId().toString());
         assertEquals("Wrong second correct answer value", "down the house.,22", resultSentence.get(1).getValue());
-        assertEquals("Wrong answer Id", answerId1, resultSentence.get(1).getId().toString());
     }
 
     @Test
@@ -633,7 +625,7 @@ public class CollectionRestClientTest {
         resourceContentDto.setSequence(1);
         resourceContentDto.setContentSubformat(trueFalseQuestion);
         resourceContentDto.setTaxonomy(taxonomy);
-        AnswerContentDto answer = createAnswerContentDto(answerId1, "1", 1, "text");
+        AnswerContentDto answer = createAnswerContentDto("1", "1", 1, "text");
         resourceContentDto.setAnswers(Arrays.asList(answer));
         return resourceContentDto;
     }
@@ -654,8 +646,8 @@ public class CollectionRestClientTest {
         ResourceContentDto resourceContentDto = new ResourceContentDto();
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral());
         AnswerContentDto answer = highlightType.equals("word") ?
-                createAnswerContentDto(answerId1, "1", 1, "The [big] bad wolf blew [down] the house.", "word") :
-                createAnswerContentDto(answerId1, "1", 1, "The [big bad wolf] blew [down the house.]", "sentence");
+                createAnswerContentDto("1", "1", 1, "The [big] bad wolf blew [down] the house.", "word") :
+                createAnswerContentDto("1", "1", 1, "The [big bad wolf] blew [down the house.]", "sentence");
         resourceContentDto.setAnswers(Arrays.asList(answer));
 
         return resourceContentDto;
@@ -665,8 +657,8 @@ public class CollectionRestClientTest {
         ResourceContentDto resourceContentDto = new ResourceContentDto();
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral());
         resourceContentDto.setDescription("(3x4) = [12]<br />(3x2) = [6]");
-        AnswerContentDto answer1 = createAnswerContentDto(answerId1, "1", 1, "12");
-        AnswerContentDto answer2 = createAnswerContentDto(answerId2, "1", 2, "6");
+        AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "12");
+        AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "6");
         resourceContentDto.setAnswers(Arrays.asList(answer1, answer2));
 
         return resourceContentDto;
@@ -676,7 +668,7 @@ public class CollectionRestClientTest {
         ResourceContentDto resourceContentDto = new ResourceContentDto();
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral());
         resourceContentDto.setDescription("Enter your thoughts here");
-        AnswerContentDto answer = createAnswerContentDto(answerId1, "1", 1, "My thoughts...");
+        AnswerContentDto answer = createAnswerContentDto("1", "1", 1, "My thoughts...");
         resourceContentDto.setAnswers(Arrays.asList(answer));
         resourceContentDto.setTaxonomy(taxonomy);
 

@@ -174,6 +174,12 @@ public class ContextEventService {
                 context.getContextProfileId(), profileId, context.getIsCollection(), token, previousResource,
                 answerResource, startTime, stopEventId);
 
+        if (answerResource.getReaction() != null) {
+            analyticsContentService.reactionCreate(context.getCollectionId(), context.getClassId(),
+                    context.getContextProfileId(), stopEventId, profileId, context.getIsCollection(), token,
+                    String.valueOf(answerResource.getReaction()), previousResource.getId());
+        }
+
         //If the ids are the same it's because is the last event, so we don't need to send the start event to analytics
         if (currentResource.getId() != previousResource.getId()) {
             analyticsContentService.resourcePlayStart(context.getCollectionId(), context.getClassId(),

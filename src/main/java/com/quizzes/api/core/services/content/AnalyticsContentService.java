@@ -85,10 +85,10 @@ public class AnalyticsContentService {
     }
 
     public void reactionCreate(UUID collectionId, UUID classId, UUID contextProfileId, UUID eventId, UUID profileId,
-                               boolean isCollection, String token, String reaction, UUID resourceId, long time) {
+                               boolean isCollection, String token, String reaction, UUID resourceId) {
 
         EventReactionContentDto playEvent = createReactionEventDto(collectionId, classId, contextProfileId,
-                eventId, profileId, isCollection, token, reaction, resourceId, time);
+                eventId, profileId, isCollection, token, reaction, resourceId, quizzesUtils.getCurrentTimestamp());
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
@@ -126,7 +126,7 @@ public class AnalyticsContentService {
                 .eventName(RESOURCE_PLAY)
                 .session(createSessionEventDto(sessionId, token))
                 .user(new UserEventContentDto(profileId))
-                .context(createContextResourceEventDto(collection, classId, type, eventId, resource))
+                .context(createContextResourceEventDto(collection, classId, type, sessionId, resource))
                 .version(new VersionEventContentDto(configurationService.getAnalyticsVersion()))
                 .payLoadObject(createResourcePayloadObject(type, resource, answerResource))
                 .startTime(startTime)
@@ -155,7 +155,6 @@ public class AnalyticsContentService {
         answers.stream().map(answer -> {
             return AnswerObjectEventContent.builder()
                     .text(answer.getValue())
-                    .answerId(answer.getId())
                     .build();
         }).collect(Collectors.toList());
         return null;
@@ -169,15 +168,12 @@ public class AnalyticsContentService {
                                                            UUID profileId, boolean isCollection, String token,
                                                            String reaction, UUID resourceId, Long time) {
         CollectionDto collection = getCollection(collectionId, isCollection);
-        SessionEventContentDto session = createSessionEventDto(sessionId, token);
-        ContextReactionEventContentDto context = createContextReactionEventDto(collection, classId, reaction, eventId,
-                resourceId);
 
         return EventReactionContentDto.builder()
                 .eventId(UUID.randomUUID())
-                .session(session)
+                .session(createSessionEventDto(sessionId, token))
                 .user(new UserEventContentDto(profileId))
-                .context(context)
+                .context(createContextReactionEventDto(collection, classId, reaction, eventId, resourceId))
                 .version(new VersionEventContentDto(configurationService.getAnalyticsVersion()))
                 .eventName(REACTION_CREATE)
                 .startTime(time)
@@ -206,12 +202,12 @@ public class AnalyticsContentService {
     }
 
     private ContextResourceEventContentDto createContextResourceEventDto(CollectionDto collection, UUID classId,
-                                                                         String type, UUID eventId, ResourceDto resource) {
+                                                                         String type, UUID collectionEventId, ResourceDto resource) {
         return ContextResourceEventContentDto.builder()
                 .contentGooruId(resource.getId())
                 .collectionType(collection.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
                 .type(type)
-                .parentEventId(eventId)
+                .parentEventId(collectionEventId)
                 .parentGooruId(UUID.fromString(collection.getId()))
                 .resourceType(resource.getIsResource() ? QuizzesUtils.RESOURCE : QuizzesUtils.QUESTION)
                 .unitGooruId(collection.getUnitId())

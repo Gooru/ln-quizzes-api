@@ -287,7 +287,6 @@ public class CollectionRestClient {
 
     private List<AnswerDto> getHotTextHighlightCorrectAnswers(ResourceContentDto resourceContentDto) {
         List<AnswerDto> correctAnswers = new ArrayList<>();
-        String answerId = resourceContentDto.getAnswers().get(0).getId();
         String answerText = resourceContentDto.getAnswers().get(0).getAnswerText();
         Matcher hotTextHighlightMatcher = hotTextHighlightPattern.matcher(answerText);
 
@@ -295,12 +294,7 @@ public class CollectionRestClient {
         while (hotTextHighlightMatcher.find()) {
             int answerStart = hotTextHighlightMatcher.start(1) - (answerCount * 2) - 1; // matcher start - (2x + 1) to counter the missing [] on the FE
             String answerValue = answerText.substring(hotTextHighlightMatcher.start(1), hotTextHighlightMatcher.end(1));
-
-            AnswerDto answerDto = new AnswerDto();
-            answerDto.setValue(answerValue + "," + answerStart);
-            answerDto.setId(UUID.fromString(answerId));
-
-            correctAnswers.add(answerDto);
+            correctAnswers.add(new AnswerDto(answerValue + "," + answerStart));
             answerCount++;
         }
         return correctAnswers;
@@ -311,12 +305,7 @@ public class CollectionRestClient {
         if (answers != null) {
             correctAnswers = answers.stream()
                     .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
-                    .map(answer -> {
-                        AnswerDto answerDto = new AnswerDto();
-                        answerDto.setValue(encodeValues ? encodeAnswer(answer.getAnswerText()) : answer.getAnswerText());
-                        answerDto.setId(UUID.fromString(answer.getId()));
-                        return answerDto;
-                    })
+                    .map(answer -> new AnswerDto(encodeValues ? encodeAnswer(answer.getAnswerText()) : answer.getAnswerText()))
                     .collect(Collectors.toList());
         }
         return correctAnswers;
