@@ -102,6 +102,7 @@ public class ContextServiceTest {
         updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
+    /*
     @Test
     public void createContextForAssessment() throws Exception {
         ContextPostRequestDto contextPostRequestDto = createContextPostRequestDto();
@@ -242,7 +243,9 @@ public class ContextServiceTest {
         assertNotNull("Response is null", result);
         assertEquals("Wrong id for context", contextResult.getId(), result);
     }
+    */
 
+    /*
     @Test
     public void validateCollectionOwnerInContextForAssessment() throws Exception {
         CollectionDto assessmentDto = createAssessmentDto();
@@ -266,6 +269,7 @@ public class ContextServiceTest {
         WhiteboxImpl.invokeMethod(contextService, "validateCollectionOwnerInContext", UUID.randomUUID(), collectionId,
                 true);
     }
+    */
 
     @Test
     public void findById() {
@@ -362,38 +366,6 @@ public class ContextServiceTest {
         when(contextRepository.findAssignedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(null);
         contextService.findAssignedContext(contextId, profileId);
-    }
-
-    @Test
-    public void findMappedContext() {
-        List<UUID> classMemberIds = new ArrayList<>();
-        classMemberIds.add(profileId);
-        List<ContextEntity> mappedContexts = new ArrayList<>();
-        ContextEntity contextEntity = createContextEntityMock();
-        mappedContexts.add(contextEntity);
-
-        doReturn(true).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
-        doReturn(mappedContexts).when(contextRepository).findMappedContexts(any(UUID.class), any(UUID.class), anyMap());
-
-        List<ContextEntity> result = contextService.findMappedContext(UUID.randomUUID(), UUID.randomUUID(),
-                new HashMap(), UUID.randomUUID(), "token");
-
-        verify(classMemberService, times(1)).containsMemberId(any(UUID.class), any(UUID.class), anyString());
-        verify(contextRepository, times(1)).findMappedContexts(any(UUID.class), any(UUID.class), anyMap());
-        assertEquals("Invalid number is results", 1, result.size());
-        assertEquals("Invalid Context ID for first element", contextEntity.getContextId(),
-                result.get(0).getContextId());
-    }
-
-    @Test(expected = InvalidAssigneeException.class)
-    public void findMappedContextWhenThrowsInvalidAssigneeException() {
-        List<UUID> classMemberIds = new ArrayList<>();
-        classMemberIds.add(profileId);
-
-        doReturn(false).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
-
-        contextService.findMappedContext(UUID.randomUUID(), UUID.randomUUID(), new HashMap(),
-                UUID.randomUUID(), "token");
     }
 
     private Context createContextMock() {

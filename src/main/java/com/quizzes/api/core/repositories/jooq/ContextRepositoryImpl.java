@@ -202,6 +202,14 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
+    public ContextEntity findByContextMapKey(String contextMapKey) {
+        return jooq.select(getContextFields())
+                .from(CONTEXT)
+                .where(CONTEXT.CONTEXT_MAP_KEY.eq(contextMapKey))
+                .fetchOneInto(ContextEntity.class);
+    }
+
+    @Override
     public Context save(final Context context) {
         if (context.getId() == null) {
             return insertContext(context);
@@ -214,10 +222,11 @@ public class ContextRepositoryImpl implements ContextRepository {
         return jooq.insertInto(CONTEXT)
                 .set(CONTEXT.ID, UUID.randomUUID())
                 .set(CONTEXT.COLLECTION_ID, context.getCollectionId())
+                .set(CONTEXT.IS_COLLECTION, context.getIsCollection())
                 .set(CONTEXT.PROFILE_ID, context.getProfileId())
                 .set(CONTEXT.CLASS_ID, context.getClassId())
+                .set(CONTEXT.CONTEXT_MAP_KEY, context.getContextMapKey())
                 .set(CONTEXT.CONTEXT_DATA, context.getContextData())
-                .set(CONTEXT.IS_COLLECTION, context.getIsCollection())
                 .returning()
                 .fetchOne()
                 .into(Context.class);

@@ -80,6 +80,7 @@ public class ContextControllerTest {
         anonymousId = UUID.fromString("00000000-0000-0000-0000-000000000000");
     }
 
+    /*
     @Test
     public void createContext() throws Exception {
         ContextPostRequestDto assignment = new ContextPostRequestDto();
@@ -198,6 +199,7 @@ public class ContextControllerTest {
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertNotNull("Response body is null", result.getBody());
     }
+    */
 
     @Test
     public void getCreatedContexts() throws Exception {
@@ -269,58 +271,6 @@ public class ContextControllerTest {
         assertEquals("Invalid context id", assignedContextEntity.getContextId(), response.getBody().getContextId());
         assertTrue("HasStarted is false", response.getBody().getHasStarted());
     }
-
-    @Test
-    public void getMappedContexts() throws Exception {
-        List<ContextEntity> mappedContexts = new ArrayList<>();
-        ContextEntity contextEntity = createContextEntityMock();
-        mappedContexts.add(contextEntity);
-
-        doReturn(mappedContexts).when(contextService).findMappedContext(any(UUID.class), any(UUID.class), anyMap(),
-                any(UUID.class), anyString());
-
-        ResponseEntity<List<ContextGetResponseDto>> response =
-                controller.getMappedContexts(UUID.randomUUID(), UUID.randomUUID(), new HashMap<>(),
-                        UUID.randomUUID(), "token");
-
-        verify(contextService, times(1)).findMappedContext(any(UUID.class), any(UUID.class), anyMap(),
-                any(UUID.class), anyString());
-        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
-        assertEquals("Invalid number is results", 1, response.getBody().size());
-        assertEquals("Invalid Context ID for first element", contextEntity.getContextId(),
-                response.getBody().get(0).getContextId());
-    }
-
-    // TODO We need to clarify how will be integrated the Update for Contexts in Nile
-    /*
-    @Test
-    public void updateContext() throws Exception {
-        Context contextResult = new Context();
-        contextResult.setId(UUID.randomUUID());
-        contextResult.setCollectionId(UUID.randomUUID());
-        contextResult.setContextData("{\"context\":\"value\"}");
-        contextResult.setIsDeleted(false);
-        contextResult.setIsActive(true);
-
-        when(contextService.update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(contextResult);
-
-        ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
-                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
-
-        verify(contextService, times(1)).update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class));
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
-        assertEquals("Invalid status code", contextResult.getId(), result.getBody().getId());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void updateContextException() throws Exception {
-        when(contextService.update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(null);
-        ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
-                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
-    }
-    */
 
     private ContextEntity createContextEntityMock() {
         ContextEntity contextEntity = mock(ContextEntity.class);

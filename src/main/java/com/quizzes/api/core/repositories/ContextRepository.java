@@ -46,6 +46,8 @@ public interface ContextRepository {
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 
-    List<ContextEntity>  findMappedContexts(UUID classId, UUID collectionId, Map<String, String> contextMap);
+    List<ContextEntity> findMappedContexts(UUID classId, UUID collectionId, Map<String, String> contextMap);
+
+    ContextEntity findByContextMapKey(String contextMapKey);
 
 }
