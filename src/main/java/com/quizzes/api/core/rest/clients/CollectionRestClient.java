@@ -287,6 +287,7 @@ public class CollectionRestClient {
 
     private List<AnswerDto> getHotTextHighlightCorrectAnswers(ResourceContentDto resourceContentDto) {
         List<AnswerDto> correctAnswers = new ArrayList<>();
+        String answerId = resourceContentDto.getAnswers().get(0).getId();
         String answerText = resourceContentDto.getAnswers().get(0).getAnswerText();
         Matcher hotTextHighlightMatcher = hotTextHighlightPattern.matcher(answerText);
 
@@ -294,7 +295,12 @@ public class CollectionRestClient {
         while (hotTextHighlightMatcher.find()) {
             int answerStart = hotTextHighlightMatcher.start(1) - (answerCount * 2) - 1; // matcher start - (2x + 1) to counter the missing [] on the FE
             String answerValue = answerText.substring(hotTextHighlightMatcher.start(1), hotTextHighlightMatcher.end(1));
-            correctAnswers.add(new AnswerDto(answerValue + "," + answerStart));
+
+            AnswerDto answerDto = new AnswerDto();
+            answerDto.setValue(answerValue + "," + answerStart);
+            answerDto.setId(UUID.fromString(answerId));
+
+            correctAnswers.add(answerDto);
             answerCount++;
         }
         return correctAnswers;
@@ -305,7 +311,12 @@ public class CollectionRestClient {
         if (answers != null) {
             correctAnswers = answers.stream()
                     .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
-                    .map(answer -> new AnswerDto(encodeValues ? encodeAnswer(answer.getAnswerText()) : answer.getAnswerText()))
+                    .map(answer -> {
+                        AnswerDto answerDto = new AnswerDto();
+                        answerDto.setValue(encodeValues ? encodeAnswer(answer.getAnswerText()) : answer.getAnswerText());
+                        answerDto.setId(UUID.fromString(answer.getId()));
+                        return answerDto;
+                    })
                     .collect(Collectors.toList());
         }
         return correctAnswers;
@@ -349,6 +360,10 @@ public class CollectionRestClient {
     private String encodeAnswer(String answer) {
         byte[] message = answer.getBytes(StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(message);
+    }
+
+    private String decodeAnswer(String answer) {
+        return new String(Base64.getDecoder().decode(answer));
     }
 
 }

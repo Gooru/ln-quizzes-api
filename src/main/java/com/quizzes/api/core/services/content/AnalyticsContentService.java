@@ -155,6 +155,7 @@ public class AnalyticsContentService {
         answers.stream().map(answer -> {
             return AnswerObjectEventContent.builder()
                     .text(answer.getValue())
+                    .answerId(answer.getId())
                     .build();
         }).collect(Collectors.toList());
         return null;
