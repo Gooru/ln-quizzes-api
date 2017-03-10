@@ -61,7 +61,7 @@ public class QuizzesUtils {
     }
 
     public static boolean isAnonymous(String profileId) {
-        return profileId.equals(ANONYMOUS_PROFILE);
+        return profileId.equals(ANONYMOUS_PROFILE) || profileId.equals(ANONYMOUS_ID.toString());
     }
 
     public static UUID getAnonymousId() {

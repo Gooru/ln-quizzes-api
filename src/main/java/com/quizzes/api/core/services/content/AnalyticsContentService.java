@@ -77,18 +77,18 @@ public class AnalyticsContentService {
 
     public void resourcePlayStop(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
                                  boolean isCollection, String token, ResourceDto resource,
-                                 PostRequestResourceDto answerResource, Long startTime, UUID eventId) {
+                                 PostRequestResourceDto answerResource, Long startTime, Long endTime, UUID eventId) {
 
         EventResourceContentDto stopEvent = createResourceEventDto(collectionId, classId, contextProfileId,
-                eventId, profileId, isCollection, token, STOP, resource, answerResource, startTime, quizzesUtils.getCurrentTimestamp());
+                eventId, profileId, isCollection, token, STOP, resource, answerResource, startTime, endTime);
         analyticsRestClient.notifyEvent(stopEvent, token);
     }
 
     public void reactionCreate(UUID collectionId, UUID classId, UUID contextProfileId, UUID eventId, UUID profileId,
-                               boolean isCollection, String token, String reaction, UUID resourceId) {
+                               boolean isCollection, String token, String reaction, Long timestamp, UUID resourceId) {
 
         EventReactionContentDto playEvent = createReactionEventDto(collectionId, classId, contextProfileId,
-                eventId, profileId, isCollection, token, reaction, resourceId, quizzesUtils.getCurrentTimestamp());
+                eventId, profileId, isCollection, token, reaction, resourceId, timestamp);
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
@@ -115,11 +115,6 @@ public class AnalyticsContentService {
                                                            ResourceDto resource, PostRequestResourceDto answerResource,
                                                            Long startTime, Long endTime) {
         CollectionDto collection = getCollection(collectionId, isCollection);
-
-        //This case is only for startContext
-        if(resource == null){
-            resource = getFirstResource(collection.getResources());
-        }
 
         return EventResourceContentDto.builder()
                 .eventId(eventId)

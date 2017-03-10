@@ -6,7 +6,7 @@ import java.util.UUID;
 public class CommonResourceDto {
     private UUID resourceId;
     private long timeSpent;
-    private Integer reaction;
+    private int reaction;
     private List<AnswerDto> answer;
 
     public CommonResourceDto() {
@@ -28,11 +28,11 @@ public class CommonResourceDto {
         this.timeSpent = timeSpent;
     }
 
-    public Integer getReaction() {
+    public int getReaction() {
         return reaction;
     }
 
-    public void setReaction(Integer reaction) {
+    public void setReaction(int reaction) {
         this.reaction = reaction;
     }
 

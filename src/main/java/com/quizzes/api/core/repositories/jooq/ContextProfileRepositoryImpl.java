@@ -66,7 +66,6 @@ public class ContextProfileRepositoryImpl implements ContextProfileRepository {
                 .set(CONTEXT_PROFILE.CURRENT_RESOURCE_ID, contextProfile.getCurrentResourceId())
                 .set(CONTEXT_PROFILE.EVENT_SUMMARY_DATA, contextProfile.getEventSummaryData())
                 .set(CONTEXT_PROFILE.TAXONOMY_SUMMARY_DATA, contextProfile.getTaxonomySummaryData())
-                .set(CONTEXT_PROFILE.CONTEXT_PROFILE_DATA, contextProfile.getContextProfileData())
                 .returning()
                 .fetchOne()
                 .into(ContextProfile.class);

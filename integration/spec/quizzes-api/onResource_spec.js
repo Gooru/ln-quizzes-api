@@ -165,7 +165,7 @@ QuizzesCommon.startTest('OnResource on a context not started', function () {
                         }, {json: true})
                     .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                     .inspectRequest()
-                    .expectStatus(400)
+                    .expectStatus(404)
                     .toss();
 
             });
