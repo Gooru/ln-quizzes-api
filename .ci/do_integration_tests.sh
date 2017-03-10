@@ -37,6 +37,7 @@ EXIT_CODE=$?
 
 if [ "$EXIT_CODE" -eq 1 ]; then
   error "Integration tests failed"
+  docker logs ${CLEAN_WORKING_DIR}_web_1
   exit 1
 fi
 
