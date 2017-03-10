@@ -120,9 +120,24 @@ public class ContextEventService {
         if (contextProfileEvent == null) {
             contextProfileEvent = createContextProfileEvent(context.getContextProfileId(), previousResource.getId());
             contextProfileEvents.add(contextProfileEvent);
-            resourceDto.setScore(!resourceDto.getIsSkipped() ?
-                    calculateScore(previousResource, resourceDto.getAnswer()) :
-                    0);
+
+            // if the resource type is "resource"
+            // then the isSkipped calculation is based in the timespent instead of the answers
+            if (previousResource.getIsResource()) {
+                if (resourceDto.getTimeSpent() == 0) {
+                    resourceDto.setIsSkipped(true);
+                    resourceDto.setScore(0);
+                }
+                else {
+                    resourceDto.setIsSkipped(false);
+                    resourceDto.setScore(100);
+                }
+            }
+            else {
+                resourceDto.setScore(!resourceDto.getIsSkipped() ?
+                        calculateScore(previousResource, resourceDto.getAnswer()) :
+                        0);
+            }
         } else {
             resourceDto = updateExistingResourceDto(contextProfileEvent, previousResource, resourceDto);
         }
@@ -692,12 +707,24 @@ public class ContextEventService {
 
         resource.setTimeSpent(resource.getTimeSpent() + oldResource.getTimeSpent());
 
-        if (!resource.getIsSkipped()) {
-            resource.setScore(calculateScore(resourceInfo, resource.getAnswer()));
-        } else if (!oldResource.getIsSkipped()) {
-            oldResource.setTimeSpent(resource.getTimeSpent());
-            oldResource.setReaction(resource.getReaction());
-            return oldResource;
+        if (resourceInfo.getIsResource()) {
+            if (resource.getTimeSpent() == 0) {
+                resource.setIsSkipped(true);
+                resource.setScore(0);
+            }
+            else {
+                resource.setIsSkipped(false);
+                resource.setScore(100);
+            }
+        }
+        else {
+            if (!resource.getIsSkipped()) {
+                resource.setScore(calculateScore(resourceInfo, resource.getAnswer()));
+            } else if (!oldResource.getIsSkipped()) {
+                oldResource.setTimeSpent(resource.getTimeSpent());
+                oldResource.setReaction(resource.getReaction());
+                return oldResource;
+            }
         }
 
         return resource;
