@@ -80,7 +80,7 @@ public class ContextEventService {
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId, String token) {
         Context context = contextService.findById(contextId);
-        if (!QuizzesUtils.isAnonymous(profileId.toString())) {
+        if (context.getClassId() != null) {
             classMemberService.containsMemberId(context.getClassId(), profileId, token);
         }
 
