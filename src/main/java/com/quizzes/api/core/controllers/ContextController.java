@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.annotation.RequestScope;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -60,8 +59,7 @@ public class ContextController {
     public ResponseEntity<?> createContext(@ApiParam(name = "Body", value = "The contexts's collection ID, " +
             "class ID (optional) and the context data", required = true)
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
-                                           @RequestAttribute(value = "profileId") String profileId,
-                                           @RequestAttribute(value = "token") String token) {
+                                           @RequestAttribute(value = "profileId") String profileId) {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
@@ -75,15 +73,12 @@ public class ContextController {
             throw new InvalidRequestBodyException("Invalid JSON properties: " + invalidPropertiesMessage);
         }
 
-        if (contextPostRequestDto.getClassId() == null) {
-            return new ResponseEntity<>(
-                    new IdResponseDto(
-                            contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(),
-                                    QuizzesUtils.resolveProfileId(profileId))), HttpStatus.OK);
-        }
+        UUID contextId = (contextPostRequestDto.getClassId() == null) ?
+            contextService.createContextWithoutClassId(contextPostRequestDto.getCollectionId(),
+                    QuizzesUtils.resolveProfileId(profileId)) :
+            contextService.createContext(contextPostRequestDto, UUID.fromString(profileId));
 
-        return new ResponseEntity<>(new IdResponseDto(
-                contextService.createContext(contextPostRequestDto, UUID.fromString(profileId), token)), HttpStatus.OK);
+        return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Gets Created Contexts",

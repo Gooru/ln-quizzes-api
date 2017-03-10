@@ -31,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -771,6 +772,18 @@ public class CollectionRestClientTest {
         InteractionDto result =
                 WhiteboxImpl.invokeMethod(collectionRestClient, "createInteraction", resourceContentDto);
         assertNull("Interaction is null", result);
+    }
+
+    @Test
+    public void encodeAnswer() throws Exception {
+        String result = WhiteboxImpl.invokeMethod(collectionRestClient, "encodeAnswer", "<p>4/7</p>");
+        assertEquals("Wrong decoded value", "PHA+NC83PC9wPg==", result);
+    }
+
+    @Test
+    public void decodeAnswer() throws Exception {
+        String result = WhiteboxImpl.invokeMethod(collectionRestClient, "decodeAnswer", "PHA+NC83PC9wPg==");
+        assertEquals("Wrong decoded value", "<p>4/7</p>", result);
     }
 
 }
