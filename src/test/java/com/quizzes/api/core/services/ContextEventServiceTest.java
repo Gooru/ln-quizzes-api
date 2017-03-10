@@ -258,6 +258,38 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void processStartContextEventWithoutCurrentContextProfileForAnonymousOrPreview() throws Exception {
+        Context context = createContext();
+        context.setClassId(null);
+
+        when(contextService.findById(contextId)).thenReturn(context);
+
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenThrow(ContentNotFoundException.class);
+
+        ContextProfile contextProfile = createContextProfile();
+        when(contextProfileService.findById(currentContextProfile.getContextProfileId())).thenReturn(contextProfile);
+
+        StartContextEventResponseDto response = createStartContextEventResponseDto();
+        doReturn(response).when(contextEventService, "createContextProfile", context, profileId, token);
+
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
+
+        verify(contextService, times(1)).findById(contextId);
+        verify(classMemberService, times(0)).containsMemberId(any(), any(), any());
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(contextProfileService, times(0)).findById(currentContextProfile.getContextProfileId());
+
+        verifyPrivate(contextEventService, times(1)).invoke("createContextProfile", context, profileId, token);
+        verifyPrivate(contextEventService, times(0)).invoke("resumeStartContextEvent", any(), any());
+
+        assertEquals("Wrong context ID", contextId, result.getContextId());
+        assertNull("CurrentResource is not null", result.getCurrentResourceId());
+        assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
+        assertEquals("Wrong number of events", 0, result.getEvents().size());
+    }
+
+    @Test
     public void createContextProfilePrivateMethod() throws Exception {
         Context context = createContext();
         ContextProfile contextProfile = createContextProfile();
