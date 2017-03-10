@@ -17,7 +17,7 @@ public class EventResourceContentDto extends EventContentCommonDto {
     private PayloadObjectResourceEventContentDto payLoadObject;
 
     @Builder
-    public EventResourceContentDto(UUID eventId, String eventName, SessionEventContentDto session, UserEventContentDto user, VersionEventContentDto version, MetricsEventContentDto metrics, long startTime, long endTime, ContextResourceEventContentDto context, PayloadObjectResourceEventContentDto payLoadObject) {
+    public EventResourceContentDto(UUID eventId, String eventName, SessionEventContentDto session, UserEventContentDto user, VersionEventContentDto version, MetricsEventContentDto metrics, Long startTime, Long endTime, ContextResourceEventContentDto context, PayloadObjectResourceEventContentDto payLoadObject) {
         super(eventId, eventName, session, user, version, metrics, startTime, endTime);
         this.context = context;
         this.payLoadObject = payLoadObject;

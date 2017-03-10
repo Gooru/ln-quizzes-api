@@ -1,0 +1,1 @@
+alter table context_profile add column context_profile_data JSONB;

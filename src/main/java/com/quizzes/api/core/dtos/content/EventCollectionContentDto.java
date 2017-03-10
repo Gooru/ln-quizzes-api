@@ -19,7 +19,7 @@ public class EventCollectionContentDto extends EventContentCommonDto {
     @Builder
     public EventCollectionContentDto(UUID eventId, String eventName, SessionEventContentDto session,
                                      UserEventContentDto user, VersionEventContentDto version, MetricsEventContentDto metrics,
-                                     long startTime, long endTime, ContextCollectionEventContentDto context,
+                                     long startTime, Long endTime, ContextCollectionEventContentDto context,
                                      PayloadObjectCollectionEventContentDto payLoadObject) {
         super(eventId, eventName, session, user, version, metrics, startTime, endTime);
         this.context = context;

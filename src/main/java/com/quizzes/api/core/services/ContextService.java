@@ -2,7 +2,9 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionDto;
-import com.quizzes.api.core.dtos.controller.ContextDataDto;
+import com.quizzes.api.core.dtos.ContextPostRequestDto;
+import com.quizzes.api.core.dtos.ContextPutRequestDto;
+import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
