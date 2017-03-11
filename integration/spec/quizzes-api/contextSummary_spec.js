@@ -1,143 +1,152 @@
-const QuizzesApiUrl = require('./quizzesTestConfiguration.js').quizzesApiUrl;
 const QuizzesCommon = require('./quizzesCommon.js');
+const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const Config = require('./quizzesTestConfiguration.js');
+const QuizzesApiUrl = Config.quizzesApiUrl;
+const Frisby = require('frisby');
 
-var frisby = require('frisby');
+// var verifyGetContextEvents = function (contextId, ownerProfileId, result, afterJsonFunction) {
+//     return frisby.create('Get the context Events as an owner')
+//         .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/events')
+//         .addHeader('profile-id', ownerProfileId)
+//         .addHeader('lms-id', 'quizzes')
+//         .inspectRequest()
+//         .expectStatus(200)
+//         .inspectJSON()
+//         .expectJSON(result)
+//         .afterJSON(function () {
+//             afterJsonFunction(afterJsonFunction);
+//         })
+// };
 
-var verifyGetContextEvents = function (contextId, ownerProfileId, result, afterJsonFunction) {
-    return frisby.create('Get the context Events as an owner')
-        .get(QuizzesApiUrl + '/v1/contexts/' + contextId + '/events')
-        .addHeader('profile-id', ownerProfileId)
-        .addHeader('lms-id', 'quizzes')
-        .inspectRequest()
-        .expectStatus(200)
-        .inspectJSON()
-        .expectJSON(result)
-        .afterJSON(function () {
-            afterJsonFunction(afterJsonFunction);
-        })
-};
+QuizzesCommon.startTest('Test finished context summary for 10 correctly answered questions', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        QuizzesCommon.getCollectionById(collectionId, authToken,function (collectionResponse){
+            let classId = Config.getClass('TestClass01').id;
+            QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+                let contextId = contextResponse.id;
+                QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                    QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
 
-QuizzesCommon.startTest("Test finished context summary for 10 correctly answered questions", function() {
-    QuizzesCommon.createContext(function (contextCreated) {
-        QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
-            QuizzesCommon.getAssignedContextById(contextCreated.id, assigneeProfile.id, function (contextAssigned) {
-                QuizzesCommon.getCollectionById(contextAssigned.collection.id, assigneeProfile.id, function (collection) {
-                    QuizzesCommon.startContext(contextAssigned.id, assigneeProfile.id, function (startResponse) {
                         // First question - correct
-                        QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[1].id, {
+                        QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[1].id, {
                             "previousResource": {
-                                "answer": [ { value: 'D' } ],
+                                "answer": collectionResponse.resources[0].metadata.correctAnswer,
                                 "reaction": 3,
-                                "resourceId": collection.resources[0].id,
+                                "resourceId": collectionResponse.resources[0].id,
                                 "timeSpent": 1000
                             }
-                        }, function () {
+                        }, assigneeAuthToken, function () {
                             // Second question - correct
-                            QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[2].id, {
+                            QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[2].id, {
                                 "previousResource": {
-                                    "answer": [ { value: 'B' } ],
+                                    "answer": collectionResponse.resources[1].metadata.correctAnswer,
                                     "reaction": 3,
-                                    "resourceId": collection.resources[1].id,
+                                    "resourceId": collectionResponse.resources[1].id,
                                     "timeSpent": 1000
                                 }
-                            }, function () {
+                            }, assigneeAuthToken, function () {
                                 // Third question - correct
-                                QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[3].id, {
+                                QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[3].id, {
                                     "previousResource": {
-                                        "answer": [ { value: 'Smaller amounts of water evaporate in the cool morning.' } ],
+                                        "answer": collectionResponse.resources[2].metadata.correctAnswer,
                                         "reaction": 3,
-                                        "resourceId": collection.resources[2].id,
+                                        "resourceId": collectionResponse.resources[2].id,
                                         "timeSpent": 1000
                                     }
-                                }, function () {
+                                }, assigneeAuthToken, function () {
                                     // Fourth question - correct
-                                    QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[4].id, {
+                                    QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[4].id, {
                                         "previousResource": {
-                                            "answer": [ { value: 'The water in the sponge went into the air.' } ],
+                                            "answer": collectionResponse.resources[3].metadata.correctAnswer,
                                             "reaction": 3,
-                                            "resourceId": collection.resources[3].id,
+                                            "resourceId": collectionResponse.resources[3].id,
                                             "timeSpent": 1000
                                         }
-                                    }, function () {
+                                    }, assigneeAuthToken, function () {
                                         // Fifth question - correct
-                                        QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[5].id, {
+                                        QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[5].id, {
                                             "previousResource": {
-                                                "answer": [ { value: 'They are formed from water vapor in the air.' } ],
+                                                "answer": collectionResponse.resources[4].metadata.correctAnswer,
                                                 "reaction": 3,
-                                                "resourceId": collection.resources[4].id,
+                                                "resourceId": collectionResponse.resources[4].id,
                                                 "timeSpent": 1000
                                             }
-                                        }, function () {
+                                        }, assigneeAuthToken, function () {
                                             // Sixth question - correct
-                                            QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[6].id, {
+                                            QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[6].id, {
                                                 "previousResource": {
-                                                    "answer": [ { value: 'more water vapor will be in the atmosphere.' } ],
+                                                    "answer": collectionResponse.resources[5].metadata.correctAnswer,
                                                     "reaction": 3,
-                                                    "resourceId": collection.resources[5].id,
+                                                    "resourceId": collectionResponse.resources[5].id,
                                                     "timeSpent": 1000
                                                 }
-                                            }, function () {
+                                            }, assigneeAuthToken, function () {
                                                 // Seventh question - correct
-                                                QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[7].id, {
+                                                QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[7].id, {
                                                     "previousResource": {
-                                                        "answer": [ { value: 'snow' } ],
+                                                        "answer": collectionResponse.resources[6].metadata.correctAnswer,
                                                         "reaction": 3,
-                                                        "resourceId": collection.resources[6].id,
+                                                        "resourceId": collectionResponse.resources[6].id,
                                                         "timeSpent": 1000
                                                     }
-                                                }, function () {
+                                                }, assigneeAuthToken, function () {
                                                     // Eighth question - correct
-                                                    QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[8].id, {
+                                                    QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[8].id, {
                                                         "previousResource": {
-                                                            "answer": [ { value: 'Dew forming on plants during a cold night' } ],
+                                                            "answer": collectionResponse.resources[7].metadata.correctAnswer,
                                                             "reaction": 3,
-                                                            "resourceId": collection.resources[7].id,
+                                                            "resourceId": collectionResponse.resources[7].id,
                                                             "timeSpent": 1000
                                                         }
-                                                    }, function () {
+                                                    }, assigneeAuthToken, function () {
                                                         // Ninth question - correct
-                                                        QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[9].id, {
+                                                        QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[9].id, {
                                                             "previousResource": {
-                                                                "answer":[ { value: 'The sun heating the lake' } ],
+                                                                "answer": collectionResponse.resources[8].metadata.correctAnswer,
                                                                 "reaction": 3,
-                                                                "resourceId": collection.resources[8].id,
+                                                                "resourceId": collectionResponse.resources[8].id,
                                                                 "timeSpent": 1000
                                                             }
-                                                        }, function () {
-                                                            // Tenth question - correct
-                                                            QuizzesCommon.onResourceEvent(contextAssigned.id, assigneeProfile.id, collection.resources[9].id, {
+                                                        }, assigneeAuthToken, function () {
+                                                            // Tenth question - wrong, Free Response score is 0
+                                                            QuizzesCommon.onResourceEvent(contextId, collectionResponse.resources[9].id, {
                                                                 "previousResource": {
-                                                                    "answer": [ { value: 'water vapor cooling down to become a liquid' } ],
+                                                                    "answer": [ { value: 'any answer' } ],
+//                                                                    "answer": collectionResponse.resources[9].metadata.correctAnswer,
                                                                     "reaction": 3,
-                                                                    "resourceId": collection.resources[9].id,
+                                                                    "resourceId": collectionResponse.resources[9].id,
                                                                     "timeSpent": 1000
                                                                 }
-                                                            }, function () {
-                                                                QuizzesCommon.finishContext(contextAssigned.id, assigneeProfile.id, function () {
-                                                                    QuizzesCommon.getProfileByExternalId('teacher-id-1', function (ownerProfile) {
-                                                                        QuizzesCommon.verifyGetContextEvents(contextAssigned.id, ownerProfile.id,
-                                                                            {
-                                                                                "collection": {
-                                                                                    "id": collection.id
-                                                                                },
-                                                                                "contextId": contextAssigned.id,
-                                                                                "profileEvents": [
-                                                                                    {
-                                                                                        "currentResourceId": collection.resources[9].id,
-                                                                                        "profileId": assigneeProfile.id,
-                                                                                        "contextProfileSummary": {
-                                                                                            "totalTimeSpent": 10000,
-                                                                                            "averageReaction": 3,
-                                                                                            "averageScore": 100,
-                                                                                            "totalCorrect": 10,
-                                                                                            "totalAnswered": 10
-                                                                                        }
+                                                            }, assigneeAuthToken, function () {
+                                                                QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
+                                                                    let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
+                                                                    Frisby.create('')
+                                                                        .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}`)
+                                                                        .addHeader('Authorization', 'Token ' + authToken)
+                                                                        .inspectRequest()
+                                                                        .expectStatus(200)
+                                                                        .expectHeaderContains('content-type', 'application/json')
+                                                                        .expectJSON({
+                                                                            "collectionId": collectionId,
+                                                                            "contextId": contextId,
+                                                                            "profileAttempts": [
+                                                                                {
+                                                                                    "currentResourceId": collectionResponse.resources[9].id,
+                                                                                    "profileId": assigneeProfileId,
+                                                                                    "eventSummary": {
+                                                                                        "totalTimeSpent": 10000,
+                                                                                        "averageReaction": 3,
+                                                                                        "averageScore": 90,
+                                                                                        "totalCorrect": 9,
+                                                                                        "totalAnswered": 10
                                                                                     }
-                                                                                ]
-                                                                            }, function () {
-                                                                            }
-                                                                        );
-                                                                    });
+                                                                                }
+                                                                            ]
+                                                                        })
+                                                                        .inspectJSON()
+                                                                        .toss();
+
                                                                 });
                                                             });
                                                         });
@@ -155,7 +164,7 @@ QuizzesCommon.startTest("Test finished context summary for 10 correctly answered
         });
     });
 });
-
+/*
 QuizzesCommon.startTest("Test finished context summary for 10 incorrectly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
@@ -294,7 +303,8 @@ QuizzesCommon.startTest("Test finished context summary for 10 incorrectly answer
         });
     });
 });
-
+*/
+/*
 QuizzesCommon.startTest("Test finished context summary for 2 correct and 1 incorrect answered questions, the other 7 skipped", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
@@ -363,7 +373,8 @@ QuizzesCommon.startTest("Test finished context summary for 2 correct and 1 incor
         });
     });
 });
-
+*/
+/*
 QuizzesCommon.startTest("Test finished context summary spent time calculation for multiple visits of the same question", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
@@ -442,7 +453,8 @@ QuizzesCommon.startTest("Test finished context summary spent time calculation fo
         });
     });
 });
-
+*/
+/*
 // this one checks that any skipped question doesn't have an answer data (answer, reaction, time spent, ...)
 // and that every answered question has that info
 QuizzesCommon.startTest("Test finished context summary with 2 answered questions and 8 skipped", function() {
@@ -563,7 +575,8 @@ QuizzesCommon.startTest("Test finished context summary with 2 answered questions
         });
     });
 });
-
+*/
+/*
 QuizzesCommon.startTest("Test finished context summary when a question answer and reaction are changed", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
@@ -632,7 +645,8 @@ QuizzesCommon.startTest("Test finished context summary when a question answer an
         });
     });
 });
-
+*/
+/*
 QuizzesCommon.startTest("Test an unfinished context summary with 3 questions answered correctly", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
@@ -699,7 +713,8 @@ QuizzesCommon.startTest("Test an unfinished context summary with 3 questions ans
         });
     });
 });
-
+*/
+/*
 QuizzesCommon.startTest("Test an unfinished context summary with 3 questions answered incorrectly", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
@@ -766,7 +781,8 @@ QuizzesCommon.startTest("Test an unfinished context summary with 3 questions ans
         });
     });
 });
-
+*/
+/*
 QuizzesCommon.startTest("Test context summary for 10 correctly answered questions", function() {
     QuizzesCommon.createContext(function (contextCreated) {
         QuizzesCommon.getProfileByExternalId('student-id-1', function (assigneeProfile) {
@@ -853,3 +869,4 @@ QuizzesCommon.startTest("Test context summary for 10 correctly answered question
         });
     });
 });
+*/

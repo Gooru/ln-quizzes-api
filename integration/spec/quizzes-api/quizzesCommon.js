@@ -204,7 +204,7 @@ var quizzesCommon = {
             .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, previousResource, {json: true})
             .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
-            .expectStatus(204)
+            .expectStatus(200)
             .after(function () {
                 afterJsonFunction();
             })
