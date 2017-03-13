@@ -270,7 +270,8 @@ public class ContextEventService {
         CollectionDto collection = collectionService
                 .getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
 
-        ResourceDto currentResource = getFirstResource(collection.getResources());
+        // Gets the first Resource of the Collection
+        ResourceDto currentResource = collection.getResources().get(0);
         UUID currentResourceId = (currentResource != null) ? currentResource.getId() : null;
 
         // classless context = anonymous or preview mode
@@ -281,10 +282,6 @@ public class ContextEventService {
         }
         return prepareStartContextEventResponse(context.getId(), currentResourceId,
                 UUID.fromString(collection.getId()), contextProfileEvents);
-    }
-
-    private ResourceDto getFirstResource(List<ResourceDto> resources) {
-        return resources.stream().filter(r -> r.getSequence() == 1).findFirst().get();
     }
 
     private StartContextEventResponseDto createContextProfile(Context context, UUID profileId, String token) {
@@ -302,7 +299,8 @@ public class ContextEventService {
         CollectionDto collection = collectionService
                 .getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
 
-        ResourceDto currentResource = getFirstResource(collection.getResources());
+        // Gets the first Resource of the Collection
+        ResourceDto currentResource = collection.getResources().get(0);
         UUID currentResourceId = (currentResource != null) ? currentResource.getId() : null;
 
         //If entity does not have class is an anonymous user or it's in preview mode
