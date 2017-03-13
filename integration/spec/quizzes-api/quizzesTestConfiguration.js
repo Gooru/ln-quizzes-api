@@ -72,10 +72,10 @@ let testAssessments = {
                 ]
             },
             {
-                id: 'ad4d0fe0-4edc-4a47-982b-205c0f670bce',
+                id: '0b40a08e-a342-47d2-9264-b68dc408efdf',
                 correctAnswer: [
                     {
-                        'value': 'VHJ1ZQ=='
+                        'value': 'NTAwICogMiA9IDEwMDAw'
                     }
                 ]
             }
