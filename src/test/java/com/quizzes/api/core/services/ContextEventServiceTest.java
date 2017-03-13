@@ -35,6 +35,7 @@ import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
+import com.quizzes.api.util.QuizzesUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -107,6 +108,9 @@ public class ContextEventServiceTest {
 
     @Mock
     private ClassMemberService classMemberService;
+
+    @Mock
+    private QuizzesUtils quizzesUtils;
 
     @Mock
     private Gson gson = new Gson();
@@ -254,15 +258,47 @@ public class ContextEventServiceTest {
     }
 
     @Test
+    public void processStartContextEventWithoutCurrentContextProfileForAnonymousOrPreview() throws Exception {
+        Context context = createContext();
+        context.setClassId(null);
+
+        when(contextService.findById(contextId)).thenReturn(context);
+
+        when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
+                .thenThrow(ContentNotFoundException.class);
+
+        ContextProfile contextProfile = createContextProfile();
+        when(contextProfileService.findById(currentContextProfile.getContextProfileId())).thenReturn(contextProfile);
+
+        StartContextEventResponseDto response = createStartContextEventResponseDto();
+        doReturn(response).when(contextEventService, "createContextProfile", context, profileId, token);
+
+        StartContextEventResponseDto result = contextEventService.processStartContextEvent(contextId, profileId, token);
+
+        verify(contextService, times(1)).findById(contextId);
+        verify(classMemberService, times(0)).containsMemberId(any(), any(), any());
+        verify(currentContextProfileService, times(1)).findByContextIdAndProfileId(contextId, profileId);
+        verify(contextProfileService, times(0)).findById(currentContextProfile.getContextProfileId());
+
+        verifyPrivate(contextEventService, times(1)).invoke("createContextProfile", context, profileId, token);
+        verifyPrivate(contextEventService, times(0)).invoke("resumeStartContextEvent", any(), any());
+
+        assertEquals("Wrong context ID", contextId, result.getContextId());
+        assertNull("CurrentResource is not null", result.getCurrentResourceId());
+        assertEquals("Wrong collectionId", collectionId, result.getCollectionId());
+        assertEquals("Wrong number of events", 0, result.getEvents().size());
+    }
+
+    @Test
     public void createContextProfilePrivateMethod() throws Exception {
         Context context = createContext();
         ContextProfile contextProfile = createContextProfile();
 
         doReturn(contextProfile).when(contextEventService, "createContextProfileObject", any(UUID.class),
-                any(UUID.class), any(UUID.class));
+                any(UUID.class));
         doReturn(contextProfile).when(contextEventService, "doCreateContextProfileTransaction", contextProfile);
         doReturn(createStartContextEventResponseDto()).when(contextEventService, "processStartContext",
-                any(), any(), any(), any(ArrayList.class), eq(token), anyLong(), any(UUID.class));
+                any(), any(), any(), any(ArrayList.class), eq(token), anyLong());
 
         Map<String, Object> setting = new HashMap<>();
         setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(10));
@@ -275,10 +311,10 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, times(1)).invoke("validateAttemptsLeft",
                 context, profileId);
         verifyPrivate(contextEventService, times(1)).invoke("createContextProfileObject", any(UUID.class),
-                any(UUID.class), any(UUID.class));
+                any(UUID.class));
         verifyPrivate(contextEventService, times(1)).invoke("doCreateContextProfileTransaction", contextProfile);
         verifyPrivate(contextEventService, times(1)).invoke("processStartContext", eq(context), eq(profileId),
-                eq(contextProfile), any(ArrayList.class), eq(token), anyLong(), any(UUID.class));
+                eq(contextProfile), any(ArrayList.class), eq(token), anyLong());
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertNull("CurrentResource is not null", result.getCurrentResourceId());
@@ -301,13 +337,11 @@ public class ContextEventServiceTest {
                 eq(contextId), eq(resourceId), eq(collectionId), any(ArrayList.class));
 
         StartContextEventResponseDto result =  WhiteboxImpl.invokeMethod(contextEventService, "processStartContext",
-                context, profileId, contextProfile, new ArrayList<>(), token, startDate.getTime(), eventId);
+                context, profileId, contextProfile, new ArrayList<>(), token, startDate.getTime());
 
         verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean());
         verify(analyticsContentService, times(1)).collectionPlayStart(any(UUID.class), any(UUID.class), any(UUID.class),
                 any(UUID.class), anyBoolean(), anyString(), anyLong());
-        verify(analyticsContentService, times(1)).resourcePlayStart(any(UUID.class), any(UUID.class), any(UUID.class),
-                any(UUID.class), anyBoolean(), anyString(), any(ResourceDto.class), anyLong(), any(UUID.class));
 
         verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", eq(contextId),
                 eq(resourceId), eq(collectionId), any(ArrayList.class));
@@ -338,13 +372,11 @@ public class ContextEventServiceTest {
                 eq(contextId), eq(resourceId), eq(collectionId), any(ArrayList.class));
 
         StartContextEventResponseDto result =  WhiteboxImpl.invokeMethod(contextEventService, "processStartContext",
-                context, profileId, contextProfile, new ArrayList<>(), token, startDate.getTime(), eventId);
+                context, profileId, contextProfile, new ArrayList<>(), token, startDate.getTime());
 
         verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean());
         verify(analyticsContentService, times(0)).collectionPlayStart(any(UUID.class), any(UUID.class), any(UUID.class),
                 any(UUID.class), anyBoolean(), anyString(), anyLong());
-        verify(analyticsContentService, times(0)).resourcePlayStart(any(UUID.class), any(UUID.class), any(UUID.class),
-                any(UUID.class), anyBoolean(), anyString(), any(ResourceDto.class), anyLong(), any(UUID.class));
 
         verifyPrivate(contextEventService, times(1)).invoke("prepareStartContextEventResponse", eq(contextId),
                 eq(resourceId), eq(collectionId), any(ArrayList.class));
@@ -370,7 +402,7 @@ public class ContextEventServiceTest {
     @Test
     public void createContextProfileObject() throws Exception {
         ContextProfile result = WhiteboxImpl.invokeMethod(contextEventService,
-                "createContextProfileObject", contextId, profileId, eventId);
+                "createContextProfileObject", contextId, profileId);
 
         assertEquals("Wrong context ID", contextId, result.getContextId());
         assertEquals("Wrong profile ID", profileId, result.getProfileId());
@@ -383,9 +415,6 @@ public class ContextEventServiceTest {
         Assert.assertEquals("Wrong average score", 0, eventResult.getAverageScore());
         Assert.assertEquals("Wrong total answered", 0, eventResult.getTotalAnswered());
         Assert.assertEquals("Wrong total correct", 0, eventResult.getTotalCorrect());
-
-        ContextProfileDataDto dataDto = gson.fromJson(result.getContextProfileData(), ContextProfileDataDto.class);
-        assertEquals("Wrong event id", eventId, dataDto.getResourceEventId());
     }
 
     @Test
@@ -571,6 +600,8 @@ public class ContextEventServiceTest {
 
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
+        doNothing().when(contextEventService, "sendAnalyticsEvent", any(ContextEntity.class), any(UUID.class),
+                anyString(), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class));
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body, token);
 
@@ -596,6 +627,8 @@ public class ContextEventServiceTest {
                 any(String.class), any(String.class), any(UUID.class));
         verifyPrivate(contextEventService, times(1)).invoke("sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
+        verifyPrivate(contextEventService, times(1)).invoke("sendAnalyticsEvent", any(ContextEntity.class),
+                any(UUID.class), anyString(), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class));
     }
 
     @Test
@@ -654,6 +687,8 @@ public class ContextEventServiceTest {
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(updatedContextProfile);
         doNothing().when(contextEventService, "sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
+        doNothing().when(contextEventService, "sendAnalyticsEvent", any(ContextEntity.class), any(UUID.class),
+                anyString(), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class));
 
         contextEventService.processOnResourceEvent(contextId, profileId, resourceId, body, token);
 
@@ -680,8 +715,7 @@ public class ContextEventServiceTest {
         verifyPrivate(contextEventService, times(1)).invoke("sendOnResourceEventMessage",
                 contextProfile, body.getPreviousResource(), eventSummaryDataDto);
         verifyPrivate(contextEventService, times(1)).invoke("sendAnalyticsEvent", any(ContextEntity.class), any(UUID.class),
-                anyString(), any(ResourceDto.class), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class),
-                any(UUID.class), anyLong());
+                anyString(), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class));
     }
 
     @Test
@@ -764,8 +798,7 @@ public class ContextEventServiceTest {
                 anyString(), anyString(), any(UUID.class));
         verifyPrivate(contextEventService, times(0)).invoke("sendOnResourceEventMessage", any(), any(), any());
         verifyPrivate(contextEventService, times(0)).invoke("sendAnalyticsEvent", any(ContextEntity.class), any(UUID.class),
-                anyString(), any(ResourceDto.class), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class),
-                any(UUID.class), anyLong());
+                anyString(), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class));
     }
 
     @Test
@@ -856,8 +889,7 @@ public class ContextEventServiceTest {
         when(contextProfileService.save(any(ContextProfile.class))).thenReturn(updatedContextProfile);
         doNothing().when(contextEventService, "sendOnResourceEventMessage", any(), any(), any());
         doNothing().when(contextEventService,"sendAnalyticsEvent", any(ContextEntity.class), any(UUID.class),
-                anyString(), any(ResourceDto.class), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class),
-                any(UUID.class), anyLong());
+                anyString(), any(ResourceDto.class), any(PostRequestResourceDto.class), any(UUID.class));
 
         return body;
     }
@@ -2155,8 +2187,6 @@ public class ContextEventServiceTest {
         when(entity.getContextProfileId()).thenReturn(contextProfileId);
         when(entity.getClassId()).thenReturn(classId);
         when(entity.getIsCollection()).thenReturn(true);
-        when(entity.getContextProfileData()).thenReturn(gson.toJson(ContextProfileDataDto.builder()
-                .resourceEventId(eventId).build()));
 
         return entity;
     }

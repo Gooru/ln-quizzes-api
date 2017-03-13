@@ -3,7 +3,6 @@ package com.quizzes.api.core.services;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.CollectionDto;
-import com.quizzes.api.core.dtos.ContextProfileDataDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
@@ -30,6 +29,7 @@ import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
+import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,11 +73,16 @@ public class ContextEventService {
     private ClassMemberService classMemberService;
 
     @Autowired
+    private QuizzesUtils quizzesUtils;
+
+    @Autowired
     private Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId, String token) {
         Context context = contextService.findById(contextId);
-        classMemberService.containsMemberId(context.getClassId(), profileId, token);
+        if (context.getClassId() != null) {
+            classMemberService.containsMemberId(context.getClassId(), profileId, token);
+        }
 
         CurrentContextProfile currentContextProfile;
         try {
@@ -140,14 +145,11 @@ public class ContextEventService {
                 gson.toJson(eventSummary), gson.toJson(collectionTaxonomy), startResourceEventId);
 
         contextProfileService.save(contextProfile);
-        ContextProfileEvent savedEvent = contextProfileEventService.save(contextProfileEvent);
+        contextProfileEventService.save(contextProfileEvent);
 
         if (context.getClassId() != null) {
-            UUID stopResourceEventId = gson.fromJson(context.getContextProfileData(),
-                    ContextProfileDataDto.class).getResourceEventId();
             sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
-            sendAnalyticsEvent(context, profileId, token, currentResource, previousResource, resourceDto,
-                    stopResourceEventId, startResourceEventId, savedEvent.getCreatedAt().getTime());
+            sendAnalyticsEvent(context, profileId, token, previousResource, resourceDto, UUID.randomUUID());
         }
 
         if (collectionDto.getMetadata().getSetting() == null) {
@@ -166,20 +168,22 @@ public class ContextEventService {
     }
 
     private void sendAnalyticsEvent(ContextProfileEntity context, UUID profileId, String token,
-                                    ResourceDto currentResource, ResourceDto previousResource,
-                                    PostRequestResourceDto answerResource, UUID stopEventId, UUID startEventId,
-                                    Long startTime) {
+                                    ResourceDto previousResource, PostRequestResourceDto answerResource,
+                                    UUID resourceEventId) {
+
+        Long endTime = quizzesUtils.getCurrentTimestamp();
+        Long startTime = endTime - answerResource.getTimeSpent();
+        analyticsContentService.resourcePlayStart(context.getCollectionId(), context.getClassId(),
+                context.getContextProfileId(), profileId, context.getIsCollection(), token, previousResource,
+                startTime, resourceEventId);
+
+        analyticsContentService.reactionCreate(context.getCollectionId(), context.getClassId(),
+                context.getContextProfileId(), resourceEventId, profileId, context.getIsCollection(), token,
+                String.valueOf(answerResource.getReaction()), startTime, previousResource.getId());
 
         analyticsContentService.resourcePlayStop(context.getCollectionId(), context.getClassId(),
                 context.getContextProfileId(), profileId, context.getIsCollection(), token, previousResource,
-                answerResource, startTime, stopEventId);
-
-        //If the ids are the same it's because is the last event, so we don't need to send the start event to analytics
-        if (currentResource.getId() != previousResource.getId()) {
-            analyticsContentService.resourcePlayStart(context.getCollectionId(), context.getClassId(),
-                    context.getContextProfileId(), profileId, context.getIsCollection(), token, currentResource,
-                    startTime, startEventId);
-        }
+                answerResource, startTime, endTime, resourceEventId);
     }
 
     private PostRequestResourceDto getPreviousResource(OnResourceEventPostRequestDto body) {
@@ -194,8 +198,6 @@ public class ContextEventService {
         contextProfile.setCurrentResourceId(currentResourceId);
         contextProfile.setEventSummaryData(eventSummary);
         contextProfile.setTaxonomySummaryData(taxonomySummary);
-        contextProfile.setContextProfileData(gson.toJson(ContextProfileDataDto.builder()
-                .resourceEventId(resourceEventId).build()));
         return contextProfile;
     }
 
@@ -264,7 +266,7 @@ public class ContextEventService {
 
     private StartContextEventResponseDto processStartContext(Context context, UUID profileId, ContextProfile contextProfile,
                                                              List<ContextProfileEvent> contextProfileEvents,
-                                                             String token, Long startTime, UUID resourceEventId) {
+                                                             String token, Long startTime) {
         CollectionDto collection = collectionService
                 .getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
 
@@ -276,10 +278,6 @@ public class ContextEventService {
             sendStartEventMessage(context.getId(), profileId, currentResourceId, true);
             analyticsContentService.collectionPlayStart(context.getCollectionId(), context.getClassId(), contextProfile.getId(),
                     profileId, collection.getIsCollection(), token, startTime);
-
-            analyticsContentService.resourcePlayStart(UUID.fromString(collection.getId()), context.getClassId(),
-                    contextProfile.getId(), profileId, collection.getIsCollection(), token, null, startTime,
-                    resourceEventId);
         }
         return prepareStartContextEventResponse(context.getId(), currentResourceId,
                 UUID.fromString(collection.getId()), contextProfileEvents);
@@ -291,11 +289,10 @@ public class ContextEventService {
 
     private StartContextEventResponseDto createContextProfile(Context context, UUID profileId, String token) {
         validateAttemptsLeft(context, profileId);
-        UUID resourceEventId = UUID.randomUUID();
-        ContextProfile contextProfile = createContextProfileObject(context.getId(), profileId, resourceEventId);
+        ContextProfile contextProfile = createContextProfileObject(context.getId(), profileId);
         contextProfile = doCreateContextProfileTransaction(contextProfile);
-        return processStartContext(context, profileId, contextProfile, new ArrayList<>(), token, contextProfile.getCreatedAt().getTime(),
-                resourceEventId);
+        return processStartContext(context, profileId, contextProfile, new ArrayList<>(), token,
+                contextProfile.getCreatedAt().getTime());
     }
 
     private StartContextEventResponseDto resumeStartContextEvent(Context context, CurrentContextProfile currentContextProfile) {
@@ -389,14 +386,12 @@ public class ContextEventService {
         activeMQClientService.sendFinishContextEventMessage(contextId, profileId, finishContextEventMessage);
     }
 
-    private ContextProfile createContextProfileObject(UUID contextId, UUID profileId, UUID resourceEventId) {
+    private ContextProfile createContextProfileObject(UUID contextId, UUID profileId) {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
         contextProfile.setIsComplete(false);
         contextProfile.setEventSummaryData(gson.toJson(calculateEventSummary(Collections.EMPTY_LIST, false)));
-        contextProfile.setContextProfileData(gson.toJson(ContextProfileDataDto.builder()
-                .resourceEventId(resourceEventId).build()));
         return contextProfile;
     }
 
