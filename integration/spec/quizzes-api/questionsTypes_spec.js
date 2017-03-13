@@ -20,6 +20,7 @@ let checkSingleChoiceQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MC - Select the correct operation result');
+    expect(metadata.description).toEqual('Select the correct operation result');
     expect(metadata.body).toEqual('Select the correct operation result');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'MTAwIC0gMTAgPSDCoDkwwqA='});
@@ -46,6 +47,7 @@ let checkMultipleChoiceQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MA - Select all the correct results');
+    expect(metadata.description).toEqual('Select all the correct results');
     expect(metadata.body).toEqual('Select all the correct results');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'NTAwICogMiA9IDEwMDAw'});
@@ -72,6 +74,7 @@ let checkDragAndDropQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('DD - Order the number from lowest to highest');
+    expect(metadata.description).toEqual('Order the number from lowest to highest ');
     expect(metadata.body).toEqual('Order the number from lowest to highest ');
     expect(metadata.correctAnswer.length).toEqual(2);
     expect(metadata.correctAnswer[0]).toEqual({'value': 'MTAw'});
@@ -99,6 +102,7 @@ let checkHotTextWordQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('HT - Highlight Text sample (Word)');
+    expect(metadata.description).toEqual('Highlight correct words<br><br>');
     expect(metadata.body).toEqual('The big bad wolf blew down the house.');
     expect(metadata.correctAnswer.length).toEqual(2);
     expect(metadata.correctAnswer).toContain({'value': 'big,4'});
@@ -111,6 +115,7 @@ let checkHotTextSentenceQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('HT - Highlight Text sample (Sentence)');
+    expect(metadata.description).toEqual('<span style="background-color: rgb(255, 255, 255);">Highlight correct sentences</span><br><br>');
     expect(metadata.body).toEqual('The first little pig built his house of straw. The big bad wolf blew down the house.');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'The big bad wolf blew down the house.,47'});
@@ -122,6 +127,7 @@ let checkTrueFalseQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('TF -  Select the correct value');
+    expect(metadata.description).toEqual('Select the correct value<br><br>400 + 400 = 800 ?');
     expect(metadata.body).toEqual('Select the correct value<br><br>400 + 400 = 800 ?');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'VHJ1ZQ=='});
@@ -148,8 +154,10 @@ let checkTextEntryQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('FIB - Complete the sentence with the correct words');
-    expect(metadata.body).toEqual('<span style="background-color: rgb(255, 255, 255);">' +
-        'The big bad [] blew down the [].</span><br>');
+    expect(metadata.description).toEqual(
+        '<span style="background-color: rgb(255, 255, 255);">The big bad [wolf] blew down the [house].</span><br>');
+    expect(metadata.body).toEqual(
+        '<span style="background-color: rgb(255, 255, 255);">The big bad [] blew down the [].</span><br>');
     expect(metadata.correctAnswer.length).toEqual(2);
     expect(metadata.correctAnswer).toContain({'value': 'wolf'});
     expect(metadata.correctAnswer).toContain({'value': 'house'});
@@ -161,6 +169,7 @@ let checkMultipleSelectImageQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MSI - Select the animals');
+    expect(metadata.description).toEqual(' Select the animals');
     expect(metadata.body).toEqual(' Select the animals');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'NThiMTcwNzYtMTRiNC00MmU3LTk3NzMtZmIzMTQ5MWMyZTRkLmpwZWc='});
@@ -187,6 +196,7 @@ let checkMultipleSelectTextQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('MST - Select the correct definition');
+    expect(metadata.description).toEqual('Select the verbs');
     expect(metadata.body).toEqual('Select the verbs');
     expect(metadata.correctAnswer.length).toEqual(1);
     expect(metadata.correctAnswer).toContain({'value': 'PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogMTVweDsiPlJ1bjwvc3Bhbj4='});
@@ -213,6 +223,7 @@ let checkExtendedTextQuestion = function (resources) {
     let metadata = resources[0].metadata;
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('FR- Please describe your learning objectives');
+    expect(metadata.description).toEqual('FR- Please describe your learning objectives');
     expect(metadata.body).toEqual('FR- Please describe your learning objectives');
     expect(metadata.correctAnswer).not.toBeDefined();
     expect(metadata.interaction).not.toBeDefined();
