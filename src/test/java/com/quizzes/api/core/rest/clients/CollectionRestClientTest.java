@@ -31,7 +31,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,6 +189,7 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong Question title", questionTitle, metadataResource.getTitle());
+        assertEquals("Wrong description", resourceDescription, metadataResource.getDescription());
         assertEquals("Wrong Question type", QuestionTypeEnum.TrueFalse.getLiteral(), metadataResource.getType());
         assertEquals("Wrong body text", resourceDescription, metadataResource.getBody());
         assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
@@ -236,6 +236,7 @@ public class CollectionRestClientTest {
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong title", questionTitle, metadataResource.getTitle());
         assertEquals("Wrong body", resourceDescription, metadataResource.getBody());
+        assertEquals("Wrong description", resourceDescription, metadataResource.getDescription());
         assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
         assertEquals("Wrong question type", trueFalseQuestion, metadataResource.getType());
         assertEquals("Wrong number of correct answers", 1, metadataResource.getCorrectAnswer().size());
@@ -346,6 +347,7 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResult = resourceResult.getMetadata();
         assertEquals("Wrong title", questionTitle, metadataResult.getTitle());
+        assertEquals("Wrong description", resourceDescription, metadataResult.getDescription());
         assertEquals("Wrong body", resourceDescription, metadataResult.getBody());
         assertEquals("Wrong thumbnail", thumbnail, metadataResult.getThumbnail());
         assertEquals("Wrong type", trueFalseQuestion, metadataResult.getType());
@@ -395,6 +397,7 @@ public class CollectionRestClientTest {
         verifyPrivate(collectionRestClient, times(1)).invoke("createInteraction", resourceContentDto);
 
         assertEquals("Wrong title", questionTitle, result.getTitle());
+        assertEquals("Wrong description", resourceDescription, result.getDescription());
         assertEquals("Wrong body", resourceDescription, result.getBody());
         assertEquals("Wrong thumbnail", thumbnail, result.getThumbnail());
         assertEquals("Wrong type", trueFalseQuestion, result.getType());
@@ -720,6 +723,7 @@ public class CollectionRestClientTest {
     private ResourceMetadataDto createResourceMetadataDtoForQuestion() {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(questionTitle);
+        metadata.setDescription(resourceDescription);
         metadata.setType(trueFalseQuestion);
         metadata.setCorrectAnswer(Arrays.asList(new AnswerDto("A")));
         metadata.setInteraction(createInteractionDto());

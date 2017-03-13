@@ -240,6 +240,7 @@ public class CollectionRestClient {
     private ResourceMetadataDto mapResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setDescription(resourceContentDto.getDescription());
         metadata.setType(resourceContentDto.getContentSubformat());
         metadata.setUrl(resourceContentDto.getUrl());
         metadata.setTaxonomy(resourceContentDto.getTaxonomy());
@@ -250,6 +251,7 @@ public class CollectionRestClient {
     private ResourceMetadataDto mapQuestionResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setDescription(resourceContentDto.getDescription());
         metadata.setType(mapQuestionType(resourceContentDto));
         metadata.setThumbnail(resourceContentDto.getThumbnail());
         if (resourceContentDto.getAnswers() != null) {
