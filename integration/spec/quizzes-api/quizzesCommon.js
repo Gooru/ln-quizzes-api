@@ -52,7 +52,7 @@ var quizzesCommon = {
     },
 
     getAnonymousToken: function (afterJsonFunction) {
-        console.log('Autorization anonymous user');
+        console.log('Authorization anonymous user');
         Frisby.create('Gets the authorization token for an anonymous user')
             .post(ContentProviderApiUrl + '/v2/signin', {
                 'client_key': 'c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==',
@@ -123,20 +123,6 @@ var quizzesCommon = {
         })
     },
 
-    getProfileByExternalId: function (externalId, afterJsonFunction) {
-        Frisby.create('Get the profile information in Quizzes')
-            .get(QuizzesApiUrl + '/v1/profile-by-external-id/' + externalId)
-            .addHeader('client-id', 'quizzes')
-            .inspectRequest()
-
-            .expectStatus(200)
-            .inspectJSON()
-            .afterJSON(function (profile) {
-                afterJsonFunction(profile);
-            })
-            .toss()
-    },
-
     getAssignedContextById: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
         Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
@@ -149,36 +135,6 @@ var quizzesCommon = {
                 afterJsonFunction(context);
             })
             .toss()
-    },
-
-    getCreatedContextById: function (contextId, authToken, expectedJson, afterJsonFunction) {
-        Frisby.create('Get created context information')
-            .get(QuizzesApiUrl + `/v1/contexts/${contextId}/created`)
-            .addHeader('Authorization', `Token ${authToken}`)
-            .inspectRequest()
-            .expectStatus(200)
-            .inspectJSON()
-            .expectJSON(expectedJson)
-            .afterJSON(function (context) {
-                afterJsonFunction(context);
-            })
-            .toss();
-    },
-
-    getCreatedContexts: function (authToken, afterJsonFunction) {
-        this.doGet('Get created contexts list', '/v1/contexts/created', 200, authToken,
-            function(contexts) {
-                afterJsonFunction(contexts);
-            }
-        );
-    },
-
-    getAssignedContexts: function (authToken, afterJsonFunction) {
-        this.doGet('Get assigned contexts list', '/v1/contexts/assigned', 200, authToken,
-            function(contexts) {
-                afterJsonFunction(contexts);
-            }
-        );
     },
 
     getCollectionById: function (collectionId, authToken, afterJsonFunction) {
