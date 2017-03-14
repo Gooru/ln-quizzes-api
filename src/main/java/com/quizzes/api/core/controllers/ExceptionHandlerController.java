@@ -3,6 +3,7 @@ package com.quizzes.api.core.controllers;
 import com.quizzes.api.core.dtos.ExceptionMessageDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
+import com.quizzes.api.core.exceptions.InvalidClassMemberException;
 import com.quizzes.api.core.exceptions.InvalidCredentialsException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
@@ -90,6 +91,17 @@ public class ExceptionHandlerController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(value = InvalidAssigneeException.class)
     public ExceptionMessageDto handleInvalidAssigneeException(InvalidAssigneeException e) {
+        return getExceptionMessageDto("Forbidden request", HttpStatus.FORBIDDEN, e);
+    }
+
+    /**
+     * Handles forbidden request errors
+     *
+     * @return Exception message
+     */
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(value = InvalidClassMemberException.class)
+    public ExceptionMessageDto handleInvalidClassMemberException(InvalidClassMemberException e) {
         return getExceptionMessageDto("Forbidden request", HttpStatus.FORBIDDEN, e);
     }
 
