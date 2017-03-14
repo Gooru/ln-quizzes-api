@@ -79,6 +79,7 @@ public class ContextController {
         Boolean isCollection = contextPostRequestDto.getIsCollection();
 
         if (classId != null) {
+            QuizzesUtils.rejectAnonymous(profileId, "Anonymous users cannot create contexts for a mapped Context");
             contextId = contextService.createContext(collectionId, resolvedProfileId, classId,
                     contextPostRequestDto.getContextData(), isCollection, token);
         } else {

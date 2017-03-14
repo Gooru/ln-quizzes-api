@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
@@ -13,6 +14,7 @@ import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,10 +43,9 @@ public class ContextService {
     @Autowired
     private Gson gson;
 
-    @Transactional
     public UUID createContext(UUID collectionId, UUID profileId, UUID classId, ContextDataDto contextDataDto,
                               Boolean isCollection, String token)
-            throws InvalidAssigneeException, InvalidOwnerException {
+            throws InvalidAssigneeException, InvalidOwnerException, InternalServerException {
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection);
         UUID collectionOwnerId = collectionDto.getOwnerId();
 
@@ -62,13 +63,21 @@ public class ContextService {
 
         String contextMapKey = generateContextMapKey(collectionId, classId, contextDataDto.getContextMap());
         ContextEntity contextEntity = contextRepository.findByContextMapKey(contextMapKey);
-
         if (contextEntity != null) {
             return contextEntity.getContextId();
         } else {
             Context context = buildContext(collectionId, profileId, classId, contextDataDto,
                     collectionDto.getIsCollection());
-            return contextRepository.save(context).getId();
+            try {
+                return contextRepository.save(context).getId();
+            } catch (DuplicateKeyException e) {
+                contextEntity = contextRepository.findByContextMapKey(contextMapKey);
+                if (contextEntity == null) {
+                    throw new InternalServerException("Context could not be created due to duplicated key. " +
+                            "Context with ContextMapKey " + contextMapKey + " not found.");
+                }
+                return contextEntity.getContextId();
+            }
         }
     }
 

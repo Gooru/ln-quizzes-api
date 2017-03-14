@@ -96,7 +96,7 @@ QuizzesCommon.startTest('Create context with anonymous user', function () {
 QuizzesCommon.startTest('Create context with anonymous user should throw error', function () {
     QuizzesCommon.getAnonymousToken(function (authToken) {
         let context = baseContext;
-        QuizzesCommon.verifyHttpErrorPost('Create context without contextData',
+        QuizzesCommon.verifyHttpErrorPost('Create context with anonymous user should throw error',
             '/v1/contexts', context, HttpErrorCodes.BAD_REQUEST, authToken);
     });
 });

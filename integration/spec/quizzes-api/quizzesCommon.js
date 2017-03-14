@@ -276,11 +276,12 @@ var quizzesCommon = {
     },
 
     verifyHttpErrorPost: function (description, url, body, expectedStatus, authToken) {
-        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken, function(error) {
-            expect(typeof error.message).toBe('string');
-            expect(typeof error.status).toBe('number');
-            expect(typeof error.exception).toBe('string');
-        });
+        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken,
+            function (error) {
+                expect(typeof error.message).toBe('string');
+                expect(typeof error.status).toBe('number');
+                expect(typeof error.exception).toBe('string');
+            });
     },
 
     httpErrorCodes: {
