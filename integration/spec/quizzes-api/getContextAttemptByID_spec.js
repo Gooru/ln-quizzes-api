@@ -13,7 +13,7 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
                     QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                         let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
-                        QuizzesCommon.getAttempts(contextId, assigneeProfileId, authToken, function (attemptsResponse) {
+                        QuizzesCommon.getAttemptsByProfileId(contextId, assigneeProfileId, authToken, function (attemptsResponse) {
                             let firstAttemptId = attemptsResponse.attempts[0];
                             Frisby.create('Test context attempt by owner')
                                 .get(QuizzesApiUrl + `/v1/attempts/${firstAttemptId}`)
@@ -116,7 +116,7 @@ QuizzesCommon.startTest('Get Attempt started and finished info with a wrong user
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
                     QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                         let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
-                        QuizzesCommon.getAttempts(contextId, assigneeProfileId, authToken, function (attemptsResponse) {
+                        QuizzesCommon.getAttemptsByProfileId(contextId, assigneeProfileId, authToken, function (attemptsResponse) {
                             QuizzesCommon.getAuthorizationToken('Student02', function (assignee2AuthToken) {
                                 let firstAttemptId = attemptsResponse.attempts[0];
                                 Frisby.create('Test context attempt by owner')

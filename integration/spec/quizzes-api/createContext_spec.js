@@ -1,5 +1,5 @@
 const QuizzesCommon = require('./quizzesCommon.js');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 const Config = require('./quizzesTestConfiguration.js');
 
 let baseContext = {

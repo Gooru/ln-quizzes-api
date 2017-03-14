@@ -92,6 +92,14 @@ var quizzesCommon = {
             .toss();
     },
 
+    generateRandomContextMap: function() {
+        return {
+            courseId: this.generateUUID(),
+            unitId: this.generateUUID(),
+            lessonId: this.generateUUID()
+        };
+    },
+
     /**
      * Creates a context passing the JSON body and the expected response as a parameter
      * @param body JSON with context information
@@ -238,9 +246,22 @@ var quizzesCommon = {
             .toss()
     },
 
-    getAttempts : function(contextId, profileId, authToken, afterJsonFunction) {
+    getAttemptsByProfileId: function(contextId, profileId, authToken, afterJsonFunction) {
         this.doGet(`Get Attempts for context ${contextId} and profile ${profileId}`,
             `/v1/attempts/contexts/${contextId}/profiles/${profileId}`, 200, authToken, afterJsonFunction);
+    },
+
+    getAttempts: function(contextId, authToken, expectedJson, afterJsonFunction) {
+        Frisby.create(`Get attempts for context ${contextId}`)
+            .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}`)
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(this.httpCodes.OK)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .expectJSON(expectedJson)
+            .afterJSON(afterJsonFunction)
+            .toss()
     },
 
     doGet: function(description, url, expectedStatus, authToken, afterJsonFunction) {
@@ -268,22 +289,24 @@ var quizzesCommon = {
     },
 
     verifyHttpError: function (description, url, expectedStatus, authToken) {
-        this.doGet(description, url, expectedStatus, authToken, function(error) {
-            expect(typeof error.message).toBe('string');
-            expect(typeof error.status).toBe('number');
-            expect(typeof error.exception).toBe('string');
-        });
+        this.doGet(`${description} returns ${expectedStatus} error code`, url, expectedStatus, authToken,
+            function(error) {
+                expect(typeof error.message).toBe('string');
+                expect(typeof error.status).toBe('number');
+                expect(typeof error.exception).toBe('string');
+            });
     },
 
     verifyHttpErrorPost: function (description, url, body, expectedStatus, authToken) {
-        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken, function(error) {
+        this.doPost(`${description} returns ${expectedStatus} error code`, url, body, expectedStatus, authToken, function(error) {
             expect(typeof error.message).toBe('string');
             expect(typeof error.status).toBe('number');
             expect(typeof error.exception).toBe('string');
         });
     },
 
-    httpErrorCodes: {
+    httpCodes: {
+        OK: 200,
         BAD_REQUEST: 400,
         UNAUTHORIZED: 401,
         FORBIDDEN: 403,
