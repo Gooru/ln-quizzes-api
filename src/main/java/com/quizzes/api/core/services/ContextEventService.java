@@ -36,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -271,7 +270,7 @@ public class ContextEventService {
         CollectionDto collection = collectionService
                 .getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
 
-        // Gets the first resource element from the Collection
+        // Gets the first Resource of the Collection
         ResourceDto currentResource = collection.getResources().get(0);
         UUID currentResourceId = (currentResource != null) ? currentResource.getId() : null;
 
@@ -300,7 +299,7 @@ public class ContextEventService {
         CollectionDto collection = collectionService
                 .getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
 
-        // Gets the first resource element from the Collection
+        // Gets the first Resource of the Collection
         ResourceDto currentResource = collection.getResources().get(0);
         UUID currentResourceId = (currentResource != null) ? currentResource.getId() : null;
 

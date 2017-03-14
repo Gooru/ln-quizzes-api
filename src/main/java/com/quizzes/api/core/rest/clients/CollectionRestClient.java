@@ -211,7 +211,6 @@ public class CollectionRestClient {
 
     private List<ResourceDto> mapResources(List<ResourceContentDto> resourceContentDtos) {
         List<ResourceDto> resourceDtos = new ArrayList<>();
-
         if (resourceContentDtos != null) {
             resourceDtos = resourceContentDtos.stream()
                     .sorted(Comparator.comparingInt(ResourceContentDto::getSequence))
@@ -236,13 +235,13 @@ public class CollectionRestClient {
                         return resourceDto;
                     }).collect(Collectors.toList());
         }
-
         return resourceDtos;
     }
 
     private ResourceMetadataDto mapResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setDescription(resourceContentDto.getDescription());
         metadata.setType(resourceContentDto.getContentSubformat());
         metadata.setUrl(resourceContentDto.getUrl());
         metadata.setTaxonomy(resourceContentDto.getTaxonomy());
@@ -253,6 +252,7 @@ public class CollectionRestClient {
     private ResourceMetadataDto mapQuestionResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setDescription(resourceContentDto.getDescription());
         metadata.setType(mapQuestionType(resourceContentDto));
         metadata.setThumbnail(resourceContentDto.getThumbnail());
         if (resourceContentDto.getAnswers() != null) {
