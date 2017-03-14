@@ -92,6 +92,14 @@ var quizzesCommon = {
             .toss();
     },
 
+    generateRandomContextMap: function() {
+        return {
+            courseId: this.generateUUID(),
+            unitId: this.generateUUID(),
+            lessonId: this.generateUUID()
+        };
+    },
+
     /**
      * Creates a context passing the JSON body and the expected response as a parameter
      * @param body JSON with context information

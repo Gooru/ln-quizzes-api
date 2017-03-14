@@ -7,7 +7,8 @@ QuizzesCommon.startTest('Get Current Attempt with context not started', function
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextResponseId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken("Student01", function (assigneeAuthToken) {
                 Frisby.create('Test current attempt with no attempts started by context owner')
@@ -35,7 +36,8 @@ QuizzesCommon.startTest('Get Current attempts, context started but not finished'
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextResponseId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
@@ -69,7 +71,8 @@ QuizzesCommon.startTest('Get Current Attempt started and finished', function () 
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextResponseId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
