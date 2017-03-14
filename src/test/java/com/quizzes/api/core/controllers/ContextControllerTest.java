@@ -2,7 +2,6 @@ package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
-import com.quizzes.api.core.dtos.ExceptionMessageDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
@@ -11,6 +10,7 @@ import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.ContextService;
+import com.quizzes.api.util.QuizzesUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMap;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -64,6 +63,7 @@ public class ContextControllerTest {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private UUID anonymousId;
+    private String token;
 
     @Before
     public void before() throws Exception {
@@ -75,126 +75,81 @@ public class ContextControllerTest {
         currentContextProfileId = UUID.randomUUID();
         createdAt = new Timestamp(System.currentTimeMillis());
         updatedAt = new Timestamp(System.currentTimeMillis());
-        anonymousId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+        anonymousId = QuizzesUtils.getAnonymousId();
+        token = UUID.randomUUID().toString();
     }
 
     @Test
     public void createContext() throws Exception {
-        ContextPostRequestDto assignment = new ContextPostRequestDto();
-        assignment.setCollectionId(collectionId);
-        assignment.setClassId(classId);
-        assignment.setContextData(new ContextDataDto());
+        ContextPostRequestDto contextRequestDto = new ContextPostRequestDto();
+        contextRequestDto.setCollectionId(collectionId);
+        contextRequestDto.setClassId(classId);
+        contextRequestDto.setContextData(new ContextDataDto());
 
-        when(contextService.createContext(assignment, profileId)).thenReturn(contextId);
+        doReturn(contextId)
+                .when(contextService).createContext(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(ContextDataDto.class), anyBoolean(), anyString());
 
-        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString());
+        ResponseEntity<?> result = controller.createContext(contextRequestDto, profileId.toString(), token);
 
-        verify(contextService, times(1)).createContext(assignment, profileId);
-        verify(contextService, times(0)).createContextWithoutClassId(any(UUID.class), any(UUID.class));
-        assertNotNull("Response is null", result);
+        verify(contextService, times(1)).createContext(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(ContextDataDto.class), anyBoolean(), anyString());
+        verify(contextService, times(0)).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
     }
 
+
     @Test
     public void createContextForPreview() throws Exception {
-        ContextPostRequestDto assignment = new ContextPostRequestDto();
-        assignment.setCollectionId(collectionId);
-        assignment.setContextData(new ContextDataDto());
+        ContextPostRequestDto contextRequestDto = new ContextPostRequestDto();
+        contextRequestDto.setCollectionId(collectionId);
+        contextRequestDto.setContextData(new ContextDataDto());
 
-        when(contextService.createContextWithoutClassId(collectionId, profileId)).thenReturn(contextId);
+        doReturn(contextId)
+                .when(contextService).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
 
-        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString());
+        ResponseEntity<?> result = controller.createContext(contextRequestDto, profileId.toString(), token);
 
-        verify(contextService, times(0)).createContext(any(), any());
-        verify(contextService, times(1)).createContextWithoutClassId(collectionId, profileId);
-        assertNotNull("Response is null", result);
+        verify(contextService, times(0)).createContext(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(ContextDataDto.class), anyBoolean(), anyString());
+        verify(contextService, times(1)).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
     }
 
     @Test
     public void createContextForAnonymous() throws Exception {
-        ContextPostRequestDto assignment = new ContextPostRequestDto();
-        assignment.setCollectionId(collectionId);
-        assignment.setContextData(new ContextDataDto());
+        ContextPostRequestDto contextRequestDto = new ContextPostRequestDto();
+        contextRequestDto.setCollectionId(collectionId);
+        contextRequestDto.setContextData(new ContextDataDto());
 
-        when(contextService.createContextWithoutClassId(collectionId, anonymousId)).thenReturn(contextId);
+        doReturn(contextId)
+                .when(contextService).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
 
-        ResponseEntity<?> result = controller.createContext(assignment, "anonymous");
+        ResponseEntity<?> result = controller.createContext(contextRequestDto, "anonymous", token);
 
-        verify(contextService, times(0)).createContext(any(ContextPostRequestDto.class), any(UUID.class));
-        verify(contextService, times(1)).createContextWithoutClassId(collectionId, anonymousId);
-        assertNotNull("Response is null", result);
+        verify(contextService, times(0)).createContext(any(UUID.class), any(UUID.class), any(UUID.class),
+                any(ContextDataDto.class), anyBoolean(), anyString());
+        verify(contextService, times(1)).createContextWithoutClassId(any(UUID.class), eq(anonymousId), anyBoolean());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
     }
 
     @Test(expected = InvalidRequestBodyException.class)
-    public void assignContextEmptyAssignment() throws Exception {
-        when(contextService.createContext(any(ContextPostRequestDto.class), eq(profileId))).thenReturn(null);
+    public void createContextWithoutCollectionId() throws Exception {
+        ContextPostRequestDto contextRequestDto = new ContextPostRequestDto();
+        contextRequestDto.setContextData(new ContextDataDto());
 
-        ResponseEntity<?> result = controller.createContext(new ContextPostRequestDto(), profileId.toString());
-        ExceptionMessageDto exception = (ExceptionMessageDto) result.getBody();
-
-        assertNotNull("Response is null", result);
-        assertEquals("Invalid status code:", HttpStatus.BAD_REQUEST.value(), result.getStatusCode().value());
-        assertTrue("Wrong exception", exception.getException().startsWith("Invalid JSON properties: "));
-        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), exception.getStatus());
-        assertEquals("Wrong message exception", "Bad Request", exception.getMessage());
+        controller.createContext(contextRequestDto, profileId.toString(), token);
     }
 
     @Test(expected = InvalidRequestBodyException.class)
-    public void assignContextCollectionValidation() throws Exception {
-        ContextPostRequestDto assignment = new ContextPostRequestDto();
-        assignment.setContextData(new ContextDataDto());
+    public void createContextWithoutContextData() throws Exception {
+        ContextPostRequestDto contextRequestDto = new ContextPostRequestDto();
+        contextRequestDto.setCollectionId(collectionId);
 
-        when(contextService.createContext(any(ContextPostRequestDto.class), eq(profileId)))
-                .thenReturn(contextId);
-
-        //Testing no collection
-        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString());
-        ExceptionMessageDto exception = (ExceptionMessageDto) result.getBody();
-
-        assertNotNull("Response is null", result);
-        assertEquals("Invalid status code:", HttpStatus.BAD_REQUEST.value(), result.getStatusCode().value());
-        assertTrue("Wrong exception", exception.getException().startsWith("Invalid JSON properties: "));
-        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), exception.getStatus());
-        assertEquals("Wrong message exception", "Bad Request", exception.getMessage());
-
-        assignment.setCollectionId(UUID.randomUUID());
-
-        result = controller.createContext(assignment, profileId.toString());
-        assertNotNull("Response is null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-        assertNotNull("Response body is null", result.getBody());
-    }
-
-    @Test(expected = InvalidRequestBodyException.class)
-    public void assignContextContextDataValidation() throws Exception {
-        ContextPostRequestDto assignment = new ContextPostRequestDto();
-        assignment.setCollectionId(UUID.randomUUID());
-
-        when(contextService.createContext(any(ContextPostRequestDto.class), eq(profileId)))
-                .thenReturn(contextId);
-
-        //Testing no context
-        ResponseEntity<?> result = controller.createContext(assignment, profileId.toString());
-        ExceptionMessageDto exception = (ExceptionMessageDto) result.getBody();
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code:", HttpStatus.BAD_REQUEST.value(), result.getStatusCode().value());
-        assertTrue("Wrong exception", exception.getException().startsWith("Invalid JSON properties: "));
-        assertEquals("Wrong status code", HttpStatus.BAD_REQUEST.value(), exception.getStatus());
-        assertEquals("Wrong message exception", "Bad Request", exception.getMessage());
-
-        ContextDataDto contextData = new ContextDataDto();
-        assignment.setContextData(contextData);
-
-        result = controller.createContext(assignment, profileId.toString());
-        assertNotNull("Response is null", result);
-        assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
-        assertNotNull("Response body is null", result.getBody());
+        controller.createContext(contextRequestDto, profileId.toString(), token);
     }
 
     @Test
@@ -267,58 +222,6 @@ public class ContextControllerTest {
         assertEquals("Invalid context id", assignedContextEntity.getContextId(), response.getBody().getContextId());
         assertTrue("HasStarted is false", response.getBody().getHasStarted());
     }
-
-    @Test
-    public void getMappedContexts() throws Exception {
-        List<ContextEntity> mappedContexts = new ArrayList<>();
-        ContextEntity contextEntity = createContextEntityMock();
-        mappedContexts.add(contextEntity);
-
-        doReturn(mappedContexts).when(contextService).findMappedContext(any(UUID.class), any(UUID.class), anyMap(),
-                any(UUID.class), anyString());
-
-        ResponseEntity<List<ContextGetResponseDto>> response =
-                controller.getMappedContexts(UUID.randomUUID(), UUID.randomUUID(), new HashMap<>(),
-                        UUID.randomUUID(), "token");
-
-        verify(contextService, times(1)).findMappedContext(any(UUID.class), any(UUID.class), anyMap(),
-                any(UUID.class), anyString());
-        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
-        assertEquals("Invalid number is results", 1, response.getBody().size());
-        assertEquals("Invalid Context ID for first element", contextEntity.getContextId(),
-                response.getBody().get(0).getContextId());
-    }
-
-    // TODO We need to clarify how will be integrated the Update for Contexts in Nile
-    /*
-    @Test
-    public void updateContext() throws Exception {
-        Context contextResult = new Context();
-        contextResult.setId(UUID.randomUUID());
-        contextResult.setCollectionId(UUID.randomUUID());
-        contextResult.setContextData("{\"context\":\"value\"}");
-        contextResult.setIsDeleted(false);
-        contextResult.setIsActive(true);
-
-        when(contextService.update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(contextResult);
-
-        ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
-                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
-
-        verify(contextService, times(1)).update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class));
-
-        assertNotNull("Response is Null", result);
-        assertEquals("Invalid status code", HttpStatus.OK, result.getStatusCode());
-        assertEquals("Invalid status code", contextResult.getId(), result.getBody().getId());
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void updateContextException() throws Exception {
-        when(contextService.update(any(UUID.class), any(UUID.class), any(ContextPutRequestDto.class))).thenReturn(null);
-        ResponseEntity<IdResponseDto> result = controller.updateContext(UUID.randomUUID(),
-                new ContextPutRequestDto(), "its_learning", UUID.randomUUID());
-    }
-    */
 
     private ContextEntity createContextEntityMock() {
         ContextEntity contextEntity = mock(ContextEntity.class);

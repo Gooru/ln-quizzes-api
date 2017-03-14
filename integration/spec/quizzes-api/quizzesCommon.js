@@ -69,7 +69,8 @@ var quizzesCommon = {
             .toss();
     },
 
-    createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
+    createContextWithStatus: function (collectionId, classId, isCollection, contextMap, authToken, status,
+                                       afterJsonFunction) {
         Frisby.create(`Create Context for collectionId ${collectionId} and classId ${classId}`)
             .post(QuizzesApiUrl + '/v1/contexts', {
                 'collectionId': collectionId,
@@ -84,12 +85,25 @@ var quizzesCommon = {
             }, {json: true})
             .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
-            .expectStatus(200)
+            .expectStatus(status)
             .timeout(60000) //waits 60sec for response
             .expectHeaderContains('content-type', 'application/json')
             .inspectJSON()
             .afterJSON(afterJsonFunction)
             .toss();
+    },
+
+    createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
+        this.createContextWithStatus(collectionId, classId, isCollection, contextMap, authToken, 200,
+            afterJsonFunction);
+    },
+
+    generateRandomContextMap: function() {
+        return {
+            courseId: this.generateUUID(),
+            unitId: this.generateUUID(),
+            lessonId: this.generateUUID()
+        };
     },
 
     /**
@@ -276,11 +290,12 @@ var quizzesCommon = {
     },
 
     verifyHttpErrorPost: function (description, url, body, expectedStatus, authToken) {
-        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken, function(error) {
-            expect(typeof error.message).toBe('string');
-            expect(typeof error.status).toBe('number');
-            expect(typeof error.exception).toBe('string');
-        });
+        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken,
+            function (error) {
+                expect(typeof error.message).toBe('string');
+                expect(typeof error.status).toBe('number');
+                expect(typeof error.exception).toBe('string');
+            });
     },
 
     httpErrorCodes: {

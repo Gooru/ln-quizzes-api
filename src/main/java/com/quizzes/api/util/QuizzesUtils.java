@@ -2,7 +2,7 @@ package com.quizzes.api.util;
 
 import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
-import com.quizzes.api.core.exceptions.InvalidOwnerException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.repositories.UtilsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -56,7 +56,7 @@ public class QuizzesUtils {
 
     public static void rejectAnonymous(String profileId, String message) {
         if (profileId.equals(ANONYMOUS_PROFILE)) {
-            throw new InvalidOwnerException(message);
+            throw new InvalidRequestException(message);
         }
     }
 

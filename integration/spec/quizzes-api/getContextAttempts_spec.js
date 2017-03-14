@@ -31,7 +31,8 @@ QuizzesCommon.startTest('Get Attempts started but no finished', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
@@ -63,7 +64,8 @@ QuizzesCommon.startTest('Get Attempts started and finished', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
@@ -100,7 +102,8 @@ QuizzesCommon.startTest('Get Attempts started and finished for two assignees', f
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assignee1AuthToken) {
@@ -147,7 +150,8 @@ QuizzesCommon.startTest('Get Attempts started and finished two times for the sam
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {

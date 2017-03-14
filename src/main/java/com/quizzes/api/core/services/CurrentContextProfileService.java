@@ -13,7 +13,7 @@ import java.util.UUID;
 public class CurrentContextProfileService {
 
     @Autowired
-    CurrentContextProfileRepository currentContextProfileRepository;
+    private CurrentContextProfileRepository currentContextProfileRepository;
 
     public CurrentContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId) {
         CurrentContextProfile currentContextProfile =
