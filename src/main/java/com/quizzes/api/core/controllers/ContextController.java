@@ -4,7 +4,6 @@ import com.quizzes.api.core.dtos.ContextGetResponseDto;
 import com.quizzes.api.core.dtos.ContextPostRequestDto;
 import com.quizzes.api.core.dtos.IdResponseDto;
 import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
-import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.mappers.EntityMapper;
 import com.quizzes.api.core.services.ContextService;
@@ -29,7 +28,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -89,29 +87,6 @@ public class ContextController {
         return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Gets Created Contexts",
-            notes = "Gets all the Contexts created by a Profile.\n\n" +
-                    "The session token should correspond to the Owner (Profile). " +
-                    "The fields `profileId` and `hasStarted` will not be present on the response body.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Body", responseContainer = "List",
-                    response = ContextGetResponseDto.class),
-            @ApiResponse(code = 404, message = "Content Not Found"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
-    })
-    @RequestMapping(path = "/contexts/created", method = RequestMethod.GET,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ContextGetResponseDto>> getCreatedContexts(
-            @RequestAttribute(value = "profileId") String profileId) throws Exception {
-
-        QuizzesUtils.rejectAnonymous(profileId);
-        List<ContextEntity> contexts = contextService.findCreatedContexts(UUID.fromString(profileId));
-        return new ResponseEntity<>(
-                contexts.stream().map(context -> entityMapper.mapContextEntityToContextGetResponseDto(context))
-                        .collect(Collectors.toList()),
-                HttpStatus.OK);
-    }
-
     @ApiOperation(
             value = "Gets Created Context by ID",
             notes = "Gets a Context by its Context ID created by a Profile.\n\n" +
@@ -135,29 +110,6 @@ public class ContextController {
         return new ResponseEntity<>(entityMapper.mapContextEntityToContextGetResponseDto(context), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Gets Assigned Contexts",
-            notes = "Gets all `Active` Contexts assigned to a Profile. " +
-                    "The session token should correspond to the Assignee (Profile). " +
-                    "Anonymous session token will be rejected by this endpoint.\n\n" +
-                    "The fields `isActive` and `modifiedDate` will not be present on the response body.")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Successful Response Body", responseContainer = "List"
-                    , response = ContextGetResponseDto.class),
-            @ApiResponse(code = 404, message = "Content Not Found"),
-            @ApiResponse(code = 500, message = "Internal Server Error")
-    })
-    @RequestMapping(path = "/contexts/assigned",
-            method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ContextGetResponseDto>> getAssignedContexts(
-            @RequestAttribute(value = "profileId") String profileId) throws Exception {
-        QuizzesUtils.rejectAnonymous(profileId);
-        List<AssignedContextEntity> contexts = contextService.findAssignedContexts(UUID.fromString(profileId));
-        return new ResponseEntity<>(
-                contexts.stream().map(context -> entityMapper.mapAssignedContextEntityToContextGetResponseDto(context))
-                        .collect(Collectors.toList()),
-                HttpStatus.OK);
-    }
-
     @ApiOperation(value = "Gets Assigned Context by ID",
             notes = "Gets the `Active` Context specified by the Context ID assigned to a Profile. " +
                     "The session token should correspond to the Assignee (Profile). " +
@@ -174,13 +126,12 @@ public class ContextController {
             @ApiParam(name = "ContextID", required = true,
                     value = "The ID of the context you want to get from the set of assigned contexts.")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") String profileId) throws Exception {
+            @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "token") String token) throws Exception {
 
         QuizzesUtils.rejectAnonymous(profileId);
-        return new ResponseEntity<>(
-                entityMapper.mapAssignedContextEntityToContextGetResponseDto(
-                    contextService.findAssignedContext(contextId, UUID.fromString(profileId))),
-                HttpStatus.OK);
+        ContextEntity context = contextService.findAssignedContext(contextId, UUID.fromString(profileId), token);
+        return new ResponseEntity<>(entityMapper.mapContextEntityToContextGetResponseDto(context), HttpStatus.OK);
     }
 
 }

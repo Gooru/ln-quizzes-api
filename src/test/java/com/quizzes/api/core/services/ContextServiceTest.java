@@ -261,18 +261,14 @@ public class ContextServiceTest {
 
     @Test
     public void findById() {
-        Context contextResult = new Context();
-        contextResult.setId(contextId);
-        contextResult.setCollectionId(collectionId);
-        contextResult.setContextData("{\"context\":\"value\"}");
-        contextResult.setIsDeleted(false);
+        ContextEntity contextResult = createContextEntityMock();
         when(contextRepository.findById(any(UUID.class))).thenReturn(contextResult);
 
-        Context result = contextService.findById(UUID.randomUUID());
+        ContextEntity result = contextService.findById(UUID.randomUUID());
 
         verify(contextRepository, times(1)).findById(any(UUID.class));
         assertNotNull("Response is Null", result);
-        assertEquals("Wrong id for context", contextId, result.getId());
+        assertEquals("Wrong id for context", contextId, result.getContextId());
         assertEquals("Wrong id for collection", collectionId, result.getCollectionId());
     }
 
@@ -336,24 +332,20 @@ public class ContextServiceTest {
 
     @Test
     public void findAssignedContext() throws Exception {
-        AssignedContextEntity assignedContextEntity = createAssignedContextEntityMock();
+        ContextEntity assignedContextEntity = createContextEntityMock();
+        when(contextRepository.findById(any(UUID.class))).thenReturn(assignedContextEntity);
+        doReturn(true).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
 
-        when(contextRepository.findAssignedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
-                .thenReturn(assignedContextEntity);
+        ContextEntity result = contextService.findAssignedContext(contextId, profileId, token);
 
-        AssignedContextEntity result = contextService.findAssignedContext(contextId, profileId);
-
-        verify(contextRepository, times(1))
-                .findAssignedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class));
-
+        verify(contextRepository, times(1)).findById(any(UUID.class));
         assertEquals("Wrong context id", assignedContextEntity.getContextId(), result.getContextId());
     }
 
     @Test(expected = ContentNotFoundException.class)
     public void findAssignedContextWhenThrowsContentNotFoundException() throws Exception {
-        when(contextRepository.findAssignedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
-                .thenReturn(null);
-        contextService.findAssignedContext(contextId, profileId);
+        when(contextRepository.findById(any(UUID.class))).thenReturn(null);
+        contextService.findAssignedContext(contextId, profileId, token);
     }
 
     private Context createContextMock() {

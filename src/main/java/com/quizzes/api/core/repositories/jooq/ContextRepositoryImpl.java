@@ -27,12 +27,12 @@ public class ContextRepositoryImpl implements ContextRepository {
     private DSLContext jooq;
 
     @Override
-    public Context findById(UUID id) {
-        return jooq.select()
+    public ContextEntity findById(UUID id) {
+        return jooq.select(getContextFields())
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
                 .and(CONTEXT.IS_DELETED.eq(false))
-                .fetchOneInto(Context.class);
+                .fetchOneInto(ContextEntity.class);
     }
 
     @Override

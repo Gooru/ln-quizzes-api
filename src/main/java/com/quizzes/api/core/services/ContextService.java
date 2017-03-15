@@ -97,8 +97,8 @@ public class ContextService {
         return contextRepository.save(context).getId();
     }
 
-    public Context findById(UUID contextId) {
-        Context context = contextRepository.findById(contextId);
+    public ContextEntity findById(UUID contextId) {
+        ContextEntity context = contextRepository.findById(contextId);
         if (context == null) {
             throw new ContentNotFoundException("Context not found for Context ID: " + contextId);
         }
@@ -122,13 +122,15 @@ public class ContextService {
         return contextRepository.findAssignedContextsByProfileId(profileId);
     }
 
-    public AssignedContextEntity findAssignedContext(UUID contextId, UUID profileId) throws ContentNotFoundException {
-        AssignedContextEntity context =
-                contextRepository.findAssignedContextByContextIdAndProfileId(contextId, profileId);
-        if (context == null) {
-            throw new ContentNotFoundException("Context not found for Context ID: " + contextId
-                    + " and Assignee Profile ID: " + profileId);
+    public ContextEntity findAssignedContext(UUID contextId, UUID profileId, String token)
+            throws ContentNotFoundException {
+
+        ContextEntity context = findById(contextId);
+        if (!classMemberService.containsMemberId(context.getClassId(), profileId, token)) {
+            throw new InvalidAssigneeException("Profile Id: " + profileId + " is not a valid Assignee " +
+                    "(member of the Class Id: " + context.getClassId() + ")");
         }
+
         return context;
     }
 

@@ -97,13 +97,9 @@ QuizzesCommon.startTest('Start context with wrong context', function () {
         let classId = Config.getClass('TestClass01').id;
         QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                Frisby.create('Test context attempt by assignee')
-                    .get(QuizzesApiUrl + `/v1/contexts/${classId}/assigned`)
-                    .addHeader('Authorization', `Token ${assigneeAuthToken}`)
-                    .inspectRequest()
-                    .expectStatus(404)
-                    .inspectJSON()
-                    .toss();
+                QuizzesCommon.verifyHttpError('Test context attempt by assignee',
+                    `/v1/contexts/${QuizzesCommon.generateUUID()}/assigned`,
+                    HttpErrorCodes.NOT_FOUND, assigneeAuthToken);
             });
         });
     });
@@ -116,13 +112,9 @@ QuizzesCommon.startTest('Start context with another student out of the class', f
         QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('StudentNotInClass', function (assigneeAuthToken) {
-                Frisby.create('Test context attempt by assignee')
-                    .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
-                    .addHeader('Authorization', `Token ${assigneeAuthToken}`)
-                    .inspectRequest()
-                    .expectStatus(404)
-                    .inspectJSON()
-                    .toss();
+                QuizzesCommon.verifyHttpError('Test context attempt by assignee',
+                    `/v1/contexts/${contextId}/assigned`,
+                    HttpErrorCodes.FORBIDDEN, assigneeAuthToken);
             });
         });
     });
@@ -134,15 +126,9 @@ QuizzesCommon.startTest('Start context with teacher token', function () {
         let classId = Config.getClass('TestClass01').id;
         QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
-            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                Frisby.create('Test context attempt by assignee')
-                    .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
-                    .addHeader('Authorization', `Token ${authToken}`)
-                    .inspectRequest()
-                    .expectStatus(404)
-                    .inspectJSON()
-                    .toss();
-            });
+            QuizzesCommon.verifyHttpError('Test context attempt by assignee',
+                `/v1/contexts/${contextId}/assigned`,
+                HttpErrorCodes.FORBIDDEN, authToken);
         });
     });
 });

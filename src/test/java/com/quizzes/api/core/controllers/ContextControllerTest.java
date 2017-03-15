@@ -153,24 +153,6 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void getCreatedContexts() throws Exception {
-        List<ContextEntity> contextEntities = new ArrayList<>();
-        ContextEntity contextEntity = createContextEntityMock();
-        contextEntities.add(contextEntity);
-
-        when(contextService.findCreatedContexts(any(UUID.class))).thenReturn(contextEntities);
-
-        ResponseEntity<List<ContextGetResponseDto>> response = controller.getCreatedContexts(UUID.randomUUID().toString());
-
-        verify(contextService, times(1)).findCreatedContexts(any(UUID.class));
-        assertNotNull("Response is null", response);
-        assertNotNull("Body is null", response.getBody());
-        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
-        assertEquals("Wrong number of created contexts", 1, response.getBody().size());
-        assertEquals("Invalid context id", contextEntity.getContextId(), response.getBody().get(0).getContextId());
-    }
-
-    @Test
     public void getCreatedContext() throws Exception {
         ContextEntity contextEntity = createContextEntityMock();
 
@@ -187,40 +169,20 @@ public class ContextControllerTest {
     }
 
     @Test
-    public void getAssignedContexts() throws Exception {
-        List<AssignedContextEntity> assignedContextEntities = new ArrayList<>();
-        AssignedContextEntity assignedContextEntity = createAssignedContextEntityMock();
-        assignedContextEntities.add(assignedContextEntity);
-
-        when(contextService.findAssignedContexts(any(UUID.class))).thenReturn(assignedContextEntities);
-
-        ResponseEntity<List<ContextGetResponseDto>> response = controller.getAssignedContexts(UUID.randomUUID().toString());
-
-        verify(contextService, times(1)).findAssignedContexts(any(UUID.class));
-        assertNotNull("Response is null", response);
-        assertNotNull("Body is null", response.getBody());
-        assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
-        assertEquals("Wrong number of assigned contexts", 1, response.getBody().size());
-        assertEquals("Invalid context id", assignedContextEntity.getContextId(),
-                response.getBody().get(0).getContextId());
-        assertTrue("HasStarted is false", response.getBody().get(0).getHasStarted());
-    }
-
-    @Test
     public void getAssignedContext() throws Exception {
-        AssignedContextEntity assignedContextEntity = createAssignedContextEntityMock();
+        ContextEntity assignedContextEntity = createContextEntityMock();
 
-        when(contextService.findAssignedContext(any(UUID.class), any(UUID.class))).thenReturn(assignedContextEntity);
+        when(contextService.findAssignedContext(any(UUID.class), any(UUID.class), any(String.class)))
+                .thenReturn(assignedContextEntity);
 
         ResponseEntity<ContextGetResponseDto> response =
-                controller.getAssignedContext(UUID.randomUUID(), UUID.randomUUID().toString());
+                controller.getAssignedContext(UUID.randomUUID(), UUID.randomUUID().toString(), "");
 
-        verify(contextService, times(1)).findAssignedContext(any(UUID.class), any(UUID.class));
+        verify(contextService, times(1)).findAssignedContext(any(UUID.class), any(UUID.class), any(String.class));
         assertNotNull("Response is null", response);
         assertNotNull("Body is null", response.getBody());
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());
         assertEquals("Invalid context id", assignedContextEntity.getContextId(), response.getBody().getContextId());
-        assertTrue("HasStarted is false", response.getBody().getHasStarted());
     }
 
     private ContextEntity createContextEntityMock() {

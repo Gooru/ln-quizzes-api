@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.CollectionMetadataDto;
-import com.quizzes.api.core.dtos.ContextProfileDataDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
@@ -42,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.internal.WhiteboxImpl;
@@ -126,6 +126,8 @@ public class ContextEventServiceTest {
     private UUID profileId;
     private CurrentContextProfile currentContextProfile;
     private Timestamp startDate;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     @Before
     public void beforeEachTest() {
@@ -140,11 +142,13 @@ public class ContextEventServiceTest {
         profileId = UUID.randomUUID();
         currentContextProfile = new CurrentContextProfile();
         startDate = new Timestamp(System.currentTimeMillis());
+        createdAt = new Timestamp(System.currentTimeMillis());
+        updatedAt = new Timestamp(System.currentTimeMillis());
     }
 
     @Test(expected = InvalidAssigneeException.class)
     public void processStartContextEventUsingInvalidClassMember() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         when(contextService.findById(contextId)).thenReturn(context);
         when(classMemberService.containsMemberId(any(), any(), any())).thenThrow(InvalidAssigneeException.class);
 
@@ -161,7 +165,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithCompletedContextProfile() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
 
         when(contextService.findById(contextId)).thenReturn(context);
         when(classMemberService.containsMemberId(context.getClassId(), profileId, token)).thenReturn(true);
@@ -195,7 +199,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithIncompleteContextProfile() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         when(contextService.findById(contextId)).thenReturn(context);
         when(classMemberService.containsMemberId(context.getClassId(), profileId, token)).thenReturn(true);
 
@@ -228,7 +232,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithoutCurrentContextProfile() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         when(contextService.findById(contextId)).thenReturn(context);
         when(classMemberService.containsMemberId(context.getClassId(), profileId, token)).thenReturn(true);
 
@@ -259,8 +263,8 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextEventWithoutCurrentContextProfileForAnonymousOrPreview() throws Exception {
-        Context context = createContext();
-        context.setClassId(null);
+        ContextEntity context = createContextEntityMock();
+        Mockito.when(context.getClassId()).thenReturn(null);
 
         when(contextService.findById(contextId)).thenReturn(context);
 
@@ -291,7 +295,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void createContextProfilePrivateMethod() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         ContextProfile contextProfile = createContextProfile();
 
         doReturn(contextProfile).when(contextEventService, "createContextProfileObject", any(UUID.class),
@@ -324,7 +328,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContext() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         CollectionDto collection = createCollectionDto(new HashMap<>());
         collection.setId(collectionId.toString());
         collection.setIsCollection(true);
@@ -357,8 +361,8 @@ public class ContextEventServiceTest {
 
     @Test
     public void processStartContextForAnonymousOrPreview() throws Exception {
-        Context context = createContext();
-        context.setClassId(null);
+        ContextEntity context = createContextEntityMock();
+        Mockito.when(context.getClassId()).thenReturn(null);
 
         CollectionDto collection = createCollectionDto(new HashMap<>());
         collection.setId(collectionId.toString());
@@ -470,7 +474,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void resumeStartContextEvent() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
         CollectionDto collection = createCollectionDto(new HashMap<>());
         collection.setResources(Arrays.asList(createResourceDto()));
@@ -496,8 +500,8 @@ public class ContextEventServiceTest {
 
     @Test
     public void resumeStartContextEventForAnonymousOrPreview() throws Exception {
-        Context context = createContext();
-        context.setClassId(null);
+        ContextEntity context = createContextEntityMock();
+        Mockito.when(context.getClassId()).thenReturn(null);
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
         CollectionDto collection = createCollectionDto(new HashMap<>());
         collection.setResources(Arrays.asList(createResourceDto()));
@@ -1542,7 +1546,7 @@ public class ContextEventServiceTest {
         CurrentContextProfile currentContextProfile = createCurrentContextProfile();
         ContextProfile contextProfile = createContextProfile();
         contextProfile.setIsComplete(false);
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
 
         when(currentContextProfileService.findByContextIdAndProfileId(contextId, profileId))
                 .thenReturn(currentContextProfile);
@@ -1560,7 +1564,7 @@ public class ContextEventServiceTest {
 
     @Test
     public void finishContextEvent() throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         ContextProfile contextProfile = createContextProfile();
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
@@ -1604,8 +1608,8 @@ public class ContextEventServiceTest {
 
     @Test
     public void finishContextEventForAnonymousOrPreview() throws Exception {
-        Context context = createContext();
-        context.setClassId(null);
+        ContextEntity context = createContextEntityMock();
+        Mockito.when(context.getClassId()).thenReturn(null);
         ContextProfile contextProfile = createContextProfile();
 
         ContextProfileEvent contextProfileEvent = createContextProfileEvent(contextProfileId, resourceId, "{}");
@@ -2000,7 +2004,7 @@ public class ContextEventServiceTest {
     }
 
     private void validateAttemptsPrivateMethod(Integer allowedAttempts, Integer currentAttempts) throws Exception {
-        Context context = createContext();
+        ContextEntity context = createContextEntityMock();
         List<UUID> profileIds = new ArrayList<>();
         while(profileIds.size() < currentAttempts) {
             profileIds.add(UUID.randomUUID());
@@ -2057,6 +2061,28 @@ public class ContextEventServiceTest {
         context.setIsCollection(true);
         context.setContextData("{}");
         return context;
+    }
+
+    private ContextEntity createContextEntityMock() {
+        ContextEntity contextEntity = mock(ContextEntity.class);
+        String contextData = "{" +
+                "  'contextMap': {" +
+                "    'courseId': 'course-id-1'" +
+                "  }," +
+                "  'metadata': {" +
+                "    'title': 'metadata title'," +
+                "    'description': 'metadata description'" +
+                "  }" +
+                "}";
+        Mockito.when(contextEntity.getContextId()).thenReturn(contextId);
+        Mockito.when(contextEntity.getCollectionId()).thenReturn(collectionId);
+        Mockito.when(contextEntity.getIsCollection()).thenReturn(true);
+        Mockito.when(contextEntity.getClassId()).thenReturn(classId);
+        Mockito.when(contextEntity.getProfileId()).thenReturn(profileId);
+        Mockito.when(contextEntity.getContextData()).thenReturn(contextData);
+        Mockito.when(contextEntity.getCreatedAt()).thenReturn(createdAt);
+        Mockito.when(contextEntity.getUpdatedAt()).thenReturn(updatedAt);
+        return contextEntity;
     }
 
     private ContextProfile createContextProfile() {

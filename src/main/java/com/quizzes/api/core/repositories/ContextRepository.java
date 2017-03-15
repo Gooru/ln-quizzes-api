@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface ContextRepository {
 
-    Context findById(UUID id);
+    ContextEntity findById(UUID id);
 
     ContextEntity findCreatedContextByContextIdAndProfileId(UUID contextId, UUID profileId);
 

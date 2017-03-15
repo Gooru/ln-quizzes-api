@@ -20,8 +20,8 @@ import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.exceptions.NoAttemptsLeftException;
+import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
-import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
@@ -79,7 +79,7 @@ public class ContextEventService {
     private Gson gson;
 
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId, String token) {
-        Context context = contextService.findById(contextId);
+        ContextEntity context = contextService.findById(contextId);
         if (context.getClassId() != null) {
             classMemberService.containsMemberId(context.getClassId(), profileId, token);
         }
@@ -210,11 +210,11 @@ public class ContextEventService {
             return;
         }
 
-        Context context = contextService.findById(contextId);
+        ContextEntity context = contextService.findById(contextId);
         finishContextEvent(context, contextProfile, token);
     }
 
-    private void finishContextEvent(Context context, ContextProfile contextProfile, String token) {
+    private void finishContextEvent(ContextEntity context, ContextProfile contextProfile, String token) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getId());
 
@@ -241,7 +241,7 @@ public class ContextEventService {
 
         //If entity does not have class is an anonymous user or it's in preview mode
         if (context.getClassId() != null) {
-            sendFinishContextEventMessage(context.getId(), contextProfile.getProfileId(), eventSummary);
+            sendFinishContextEventMessage(context.getContextId(), contextProfile.getProfileId(), eventSummary);
             analyticsContentService.collectionPlayStop(
                     context.getCollectionId(), context.getClassId(), contextProfile.getId(), contextProfile.getProfileId(),
                     context.getIsCollection(), token, contextProfile.getCreatedAt().getTime());
@@ -264,7 +264,7 @@ public class ContextEventService {
         eventsToCreate.stream().forEach(event -> contextProfileEventService.save(event));
     }
 
-    private StartContextEventResponseDto processStartContext(Context context, UUID profileId, ContextProfile contextProfile,
+    private StartContextEventResponseDto processStartContext(ContextEntity context, UUID profileId, ContextProfile contextProfile,
                                                              List<ContextProfileEvent> contextProfileEvents,
                                                              String token, Long startTime) {
         CollectionDto collection = collectionService
@@ -276,23 +276,23 @@ public class ContextEventService {
 
         // classless context = anonymous or preview mode
         if (context.getClassId() != null) {
-            sendStartEventMessage(context.getId(), profileId, currentResourceId, true);
+            sendStartEventMessage(context.getContextId(), profileId, currentResourceId, true);
             analyticsContentService.collectionPlayStart(context.getCollectionId(), context.getClassId(), contextProfile.getId(),
                     profileId, collection.getIsCollection(), token, startTime);
         }
-        return prepareStartContextEventResponse(context.getId(), currentResourceId,
+        return prepareStartContextEventResponse(context.getContextId(), currentResourceId,
                 UUID.fromString(collection.getId()), contextProfileEvents);
     }
 
-    private StartContextEventResponseDto createContextProfile(Context context, UUID profileId, String token) {
+    private StartContextEventResponseDto createContextProfile(ContextEntity context, UUID profileId, String token) {
         validateAttemptsLeft(context, profileId);
-        ContextProfile contextProfile = createContextProfileObject(context.getId(), profileId);
+        ContextProfile contextProfile = createContextProfileObject(context.getContextId(), profileId);
         contextProfile = doCreateContextProfileTransaction(contextProfile);
         return processStartContext(context, profileId, contextProfile, new ArrayList<>(), token,
                 contextProfile.getCreatedAt().getTime());
     }
 
-    private StartContextEventResponseDto resumeStartContextEvent(Context context, CurrentContextProfile currentContextProfile) {
+    private StartContextEventResponseDto resumeStartContextEvent(ContextEntity context, CurrentContextProfile currentContextProfile) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(currentContextProfile.getContextProfileId());
 
@@ -305,10 +305,10 @@ public class ContextEventService {
 
         //If entity does not have class is an anonymous user or it's in preview mode
         if (context.getClassId() != null) {
-            sendStartEventMessage(context.getId(), currentContextProfile.getProfileId(),
+            sendStartEventMessage(context.getContextId(), currentContextProfile.getProfileId(),
                     currentResourceId, false);
         }
-        return prepareStartContextEventResponse(context.getId(), currentResourceId,
+        return prepareStartContextEventResponse(context.getContextId(), currentResourceId,
                 context.getCollectionId(), contextProfileEvents);
     }
 
@@ -744,18 +744,18 @@ public class ContextEventService {
         return resource;
     }
 
-    private void validateAttemptsLeft(Context context, UUID profileId) {
+    private void validateAttemptsLeft(ContextEntity context, UUID profileId) {
         CollectionDto collectionDto =
                 collectionService.getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection());
         Double allowedAttempts =
                 (Double) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, new Double(-1));
         int contextAttempts = contextProfileService
-                .findContextProfileIdsByContextIdAndProfileId(context.getId(), profileId)
+                .findContextProfileIdsByContextIdAndProfileId(context.getContextId(), profileId)
                 .size();
 
         if (allowedAttempts.intValue() != -1 && allowedAttempts.intValue() <= contextAttempts) {
             throw new NoAttemptsLeftException("No attempts left for profile " + profileId.toString() +
-                    " on context " + context.getId());
+                    " on context " + context.getContextId());
         }
     }
 
