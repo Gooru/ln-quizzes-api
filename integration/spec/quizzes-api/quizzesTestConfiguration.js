@@ -78,6 +78,28 @@ let testAssessments = {
                         'value': 'NTAwICogMiA9IDEwMDAw'
                     }
                 ]
+            },
+            {
+                id: 'ed7a9785-3f93-454d-ad8d-be0f0508c6c8',
+                correctAnswer: [
+                    {
+                        'value': 'MTAw'
+                    },
+                    {
+                        'value': 'NTAw'
+                    }
+                ]
+            },
+            {
+                id: 'ace8949f-aa82-4d76-9f1d-cb58e6d1031b',
+                correctAnswer: [
+                    {
+                        'value': 'wolf'
+                    },
+                    {
+                        'value': 'house'
+                    }
+                ]
             }
         ]
     }

@@ -1,6 +1,6 @@
 const Config = require('./quizzesTestConfiguration.js');
 const QuizzesCommon = require('./quizzesCommon.js');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 
 QuizzesCommon.startTest('Start and finish context', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {

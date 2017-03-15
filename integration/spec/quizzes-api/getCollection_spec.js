@@ -1,6 +1,6 @@
 const QuizzesCommon = require('./quizzesCommon.js');
 const Config = require('./quizzesTestConfiguration.js');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 
 let randomCollectionId = QuizzesCommon.generateUUID();
 

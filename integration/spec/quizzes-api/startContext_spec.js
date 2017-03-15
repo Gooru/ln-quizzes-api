@@ -2,7 +2,7 @@ const Config = require('./quizzesTestConfiguration.js');
 const QuizzesCommon = require('./quizzesCommon.js');
 const QuizzesApiUrl = Config.quizzesApiUrl;
 const Frisby = require('frisby');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 
 //TODO: Fix getAssignedContextById
 // QuizzesCommon.startTest('Start context and validate response', function () {
