@@ -141,6 +141,7 @@ public class AnalyticsContentService {
         return PayloadObjectResourceEventContentDto.builder()
                 .questionType(quizzesUtils.getGooruQuestionType(resource.getMetadata().getType()))
                 .attemptStatus(getAttemptStatus(answerResource))
+                // TODO: we need to make sure to reapply this once the onResource refactor is ready
                 .answerObject(resource.getIsResource() ? null :
                         createAnswerObject(answerResource.getAnswer(), resource.getMetadata().getCorrectAnswer()))
                 .build();
