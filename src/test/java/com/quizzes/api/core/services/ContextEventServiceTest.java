@@ -562,6 +562,7 @@ public class ContextEventServiceTest {
         ResourceDto resource = createResourceDto();
         ResourceDto previousResource = createResourceDto();
         previousResource.setId(previousResourceId);
+        previousResource.setIsResource(false);
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
@@ -1410,6 +1411,7 @@ public class ContextEventServiceTest {
 
         ResourceDto resource = createResourceDto();
         resource.setMetadata(resourceMetadataDto);
+        resource.setIsResource(false);
 
         doReturn(100).when(contextEventService, "calculateScoreByQuestionType", eq(resourceMetadataDto.getType()),
                 eq(answerDtos), any(List.class));
