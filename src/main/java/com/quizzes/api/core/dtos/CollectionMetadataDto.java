@@ -23,4 +23,5 @@ public class CollectionMetadataDto implements Serializable {
         }
         return setting.getOrDefault(key.getLiteral(), defaultValue);
     }
+
 }

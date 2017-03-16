@@ -13,7 +13,7 @@ import java.util.UUID;
 public class ContextProfileService {
 
     @Autowired
-    ContextProfileRepository contextProfileRepository;
+    private ContextProfileRepository contextProfileRepository;
 
     public ContextProfile findById(UUID contextProfileId) throws ContentNotFoundException {
         ContextProfile contextProfile = contextProfileRepository.findById(contextProfileId);

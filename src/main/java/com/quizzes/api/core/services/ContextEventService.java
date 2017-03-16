@@ -1,6 +1,5 @@
 package com.quizzes.api.core.services;
 
-import com.google.common.base.Functions;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.CollectionDto;
@@ -10,6 +9,7 @@ import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
+import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.TaxonomySummaryDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
@@ -19,6 +19,7 @@ import com.quizzes.api.core.enums.CollectionSetting;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.enums.settings.ShowFeedbackOptions;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.exceptions.NoAttemptsLeftException;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
@@ -26,11 +27,9 @@ import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfileEvent;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
-import com.quizzes.api.core.repositories.ContextProfileEventRepository;
 import com.quizzes.api.core.services.content.AnalyticsContentService;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.core.services.messaging.ActiveMQClientService;
-import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,17 +70,28 @@ public class ContextEventService {
     private AnalyticsContentService analyticsContentService;
 
     @Autowired
-    private ContextProfileEventRepository contextProfileEventRepository;
-
-    @Autowired
-    private QuizzesUtils quizzesUtils;
-
-    @Autowired
     private Gson gson;
 
+    @Transactional
     public StartContextEventResponseDto processStartContextEvent(UUID contextId, UUID profileId, String token) {
-        ContextProfileEntity entity =
-                currentContextProfileService.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
+        ContextProfileEntity contextProfile = null;
+        try {
+            contextProfile = currentContextProfileService.findCurrentContextProfile(contextId, profileId);
+            if (contextProfile.getIsComplete()) {
+                entity.setCurrentResourceId(null);
+                return createContextProfile(entity, token);
+            }
+            return resumeStartContextEvent(contextProfile);
+        } catch (ContentNotFoundException e) {
+
+        }
+
+        if (contextProfile == null) {
+
+        }
+
+
+
 
         if (entity.getCurrentContextProfileId() == null) {
             return createCurrentContextProfile(entity, token);
@@ -96,81 +106,99 @@ public class ContextEventService {
 
     @Transactional
     public OnResourceEventResponseDto processOnResourceEvent(UUID contextId, UUID profileId, UUID resourceId,
-                                                             OnResourceEventPostRequestDto body, String token) {
-        ContextProfileEntity context = currentContextProfileService
-                .findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
-
-        if (context.getCurrentContextProfileId() == null || (context.getCurrentContextProfileId() != null && context.getIsComplete())) {
-            throw new InvalidRequestException("Context " + contextId + " not started on resource " + resourceId);
+                                                             OnResourceEventPostRequestDto onResourceEventBody,
+                                                             String token) {
+        ContextProfileEntity currentContextProfile =
+                currentContextProfileService.findCurrentContextProfile(contextId, profileId);
+        if (currentContextProfile.getIsComplete()) {
+            throw new InternalServerException("You cannot process more events on the completed Attempt ID: " +
+                    currentContextProfile.getContextProfileId() + " for Context ID " + contextId +
+                    " and Assignee ID " + profileId);
         }
 
-        PostRequestResourceDto resourceDto = getPreviousResource(body);
+        PostRequestResourceDto previousResourceBody = onResourceEventBody.getPreviousResource();
+        CollectionDto collectionDto =
+                collectionService.getCollectionOrAssessment(currentContextProfile.getCollectionId(),
+                        currentContextProfile.getIsCollection());
 
-        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
-                context.getIsCollection());
-        ResourceDto currentResource = findResourceInContext(collectionDto.getResources(), resourceId, contextId);
-        ResourceDto previousResource = findResourceInContext(collectionDto.getResources(), resourceDto.getResourceId(),
-                contextId);
+        ResourceDto currentResource = findResourceInResourceList(collectionDto.getResources(), resourceId);
+        if (currentResource == null) {
+            throw new ContentNotFoundException("Current Resource ID: " + resourceId + " was not found in the " +
+                    " list of resources for Collection ID " + collectionDto.getId());
+        }
+
+        ResourceDto previousResource =
+                findResourceInResourceList(collectionDto.getResources(), previousResourceBody.getResourceId());
+        if (previousResource == null) {
+            throw new ContentNotFoundException("Previous Resource ID: " + resourceId + " was not found in the " +
+                    " list of resources for Collection ID " + collectionDto.getId());
+        }
 
         List<ContextProfileEvent> contextProfileEvents =
-                contextProfileEventService.findByContextProfileId(context.getContextProfileId());
-        ContextProfileEvent contextProfileEvent = contextProfileEvents.stream()
-                .filter(event -> event.getResourceId().equals(previousResource.getId())).findFirst().orElse(null);
-
-        if (contextProfileEvent == null) {
-            contextProfileEvent = createContextProfileEvent(context.getContextProfileId(), previousResource.getId());
-            contextProfileEvents.add(contextProfileEvent);
-
-            // if the resource type is "resource"
-            // then the isSkipped calculation is based in the timespent instead of the answers
-            if (previousResource.getIsResource()) {
-                if (resourceDto.getTimeSpent() == 0) {
-                    resourceDto.setIsSkipped(true);
-                    resourceDto.setScore(0);
-                }
-                else {
-                    resourceDto.setIsSkipped(false);
-                    resourceDto.setScore(100);
-                }
-            }
-            else {
-                resourceDto.setScore(!resourceDto.getIsSkipped() ?
-                        calculateScore(previousResource, resourceDto.getAnswer()) :
-                        0);
-            }
-        } else {
-            resourceDto = updateExistingResourceDto(contextProfileEvent, previousResource, resourceDto);
-        }
-
-        contextProfileEvent.setEventData(gson.toJson(resourceDto));
-
+                updateContextProfileEvents(currentContextProfile, previousResourceBody, previousResource);
         EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
-        List<TaxonomySummaryDto> collectionTaxonomy = calculateTaxonomySummary(contextProfileEvents, false, collectionDto, eventSummary);
-        ContextProfile contextProfile = updateContextProfile(context.getContextProfileId(),
-                currentResource.getId(), gson.toJson(eventSummary), gson.toJson(collectionTaxonomy));
+        List<TaxonomySummaryDto> taxonomySummary = calculateTaxonomySummary(contextProfileEvents, false,
+                collectionDto, eventSummary);
+        ContextProfile savedContextProfile = updateContextProfile(currentContextProfile.getContextProfileId(),
+                currentResource.getId(), gson.toJson(eventSummary), gson.toJson(taxonomySummary));
 
-        ContextProfile updatedContextProfile = contextProfileService.save(contextProfile);
-        contextProfileEventService.save(contextProfileEvent);
-
-        if (context.getClassId() != null) {
-            sendOnResourceEventMessage(contextProfile, resourceDto, eventSummary);
-            sendAnalyticsEvent(context, profileId, token, currentResource, updatedContextProfile.getUpdatedAt().getTime(),
-                    true);
-        }
-
-        if (collectionDto.getMetadata().getSetting() == null) {
-            return new OnResourceEventResponseDto();
+        if (currentContextProfile.getClassId() != null) {
+            sendOnResourceEventMessage(savedContextProfile, previousResourceBody, eventSummary);
+            sendAnalyticsEvent(currentContextProfile, profileId, token, currentResource,
+                    savedContextProfile.getUpdatedAt().getTime(), true);
         }
 
         ShowFeedbackOptions showFeedback = ShowFeedbackOptions.fromValue(
                 collectionDto.getMetadata().getSetting(CollectionSetting.ShowFeedback,
-                        ShowFeedbackOptions.Never.getLiteral()).toString()
-        );
-
-        if (!showFeedback.equals(ShowFeedbackOptions.Immediate)) {
-            return new OnResourceEventResponseDto();
+                        ShowFeedbackOptions.Never.getLiteral()).toString());
+        if (ShowFeedbackOptions.Immediate.equals(showFeedback)) {
+            return new OnResourceEventResponseDto(previousResourceBody.getScore());
         }
-        return new OnResourceEventResponseDto(resourceDto.getScore());
+        return new OnResourceEventResponseDto();
+    }
+
+    private List<ContextProfileEvent> updateContextProfileEvents(ContextProfileEntity currentContextProfile,
+                                                          PostRequestResourceDto previousResourceBody,
+                                                          ResourceDto previousResource) {
+        boolean isSkipEvent = previousResource.getIsResource()
+                ? previousResourceBody.getTimeSpent() == 0
+                : previousResourceBody.getAnswer() == null;
+        int eventScore = isSkipEvent ? 0 : calculateScore(previousResource, previousResourceBody.getAnswer());
+
+        List<ContextProfileEvent> contextProfileEvents =
+                contextProfileEventService.findByContextProfileId(currentContextProfile.getContextProfileId());
+        ContextProfileEvent contextProfileEvent = contextProfileEvents.stream()
+                .filter(event -> event.getResourceId().equals(previousResource.getId())).findFirst().orElse(null);
+
+        if (contextProfileEvent == null) {
+            contextProfileEvent = createContextProfileEvent(currentContextProfile.getContextProfileId(),
+                    previousResource.getId());
+            contextProfileEvents.add(contextProfileEvent);
+            previousResourceBody.setIsSkipped(isSkipEvent);
+            previousResourceBody.setScore(eventScore);
+        } else {
+            PostRequestResourceDto oldPreviousResourceBody =
+                    gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
+            previousResourceBody.setTimeSpent(previousResourceBody.getTimeSpent()
+                    + oldPreviousResourceBody.getTimeSpent());
+            if (!isSkipEvent) {
+                previousResourceBody.setIsSkipped(isSkipEvent);
+                previousResourceBody.setScore(eventScore);
+            }
+        }
+        contextProfileEvent.setEventData(gson.toJson(previousResourceBody));
+        contextProfileEventService.save(contextProfileEvent);
+
+        return contextProfileEvents;
+    }
+
+    private ContextProfile updateContextProfile(UUID contextProfileId, UUID currentResourceId,
+                                                String eventSummary, String taxonomySummary) {
+        ContextProfile contextProfile = contextProfileService.findById(contextProfileId);
+        contextProfile.setCurrentResourceId(currentResourceId);
+        contextProfile.setEventSummaryData(eventSummary);
+        contextProfile.setTaxonomySummaryData(taxonomySummary);
+        return contextProfileService.save(contextProfile);
     }
 
     private void sendAnalyticsEvent(ContextProfileEntity context, UUID profileId, String token, ResourceDto resource,
@@ -188,13 +216,6 @@ public class ContextEventService {
         return resource;
     }
 
-    private ContextProfile updateContextProfile(UUID contextProfileId, UUID currentResourceId, String eventSummary, String taxonomySummary) {
-        ContextProfile contextProfile = contextProfileService.findById(contextProfileId);
-        contextProfile.setCurrentResourceId(currentResourceId);
-        contextProfile.setEventSummaryData(eventSummary);
-        contextProfile.setTaxonomySummaryData(taxonomySummary);
-        return contextProfile;
-    }
 
     public void processFinishContextEvent(UUID contextId, UUID profileId, String token) {
         CurrentContextProfile currentContextProfile =
@@ -258,13 +279,6 @@ public class ContextEventService {
         eventsToCreate.stream().forEach(event -> contextProfileEventService.save(event));
     }
 
-    private StartContextEventResponseDto createCurrentContextProfile(ContextProfileEntity entity, String token) {
-        CurrentContextProfile currentContextProfile = createCurrentContextProfileObject(
-                entity.getContextId(), entity.getProfileId(), entity.getContextProfileId());
-        doCurrentContextEventTransaction(currentContextProfile);
-        return processStartContext(entity, new ArrayList<>(), token);
-    }
-
     private StartContextEventResponseDto processStartContext(ContextProfileEntity entity,
                                                              List<ContextProfileEvent> contextProfileEvents,
                                                              String token) {
@@ -278,6 +292,13 @@ public class ContextEventService {
                 entity.getCollectionId(), contextProfileEvents);
     }
 
+    private StartContextEventResponseDto createCurrentContextProfile(ContextProfileEntity entity, String token) {
+        CurrentContextProfile currentContextProfile = createCurrentContextProfileObject(
+                entity.getContextId(), entity.getProfileId(), entity.getContextProfileId());
+        doCurrentContextEventTransaction(currentContextProfile);
+        return processStartContext(entity, new ArrayList<>(), token);
+    }
+
     private StartContextEventResponseDto createContextProfile(ContextProfileEntity entity, String token) {
         validateAttempts(entity);
         ContextProfile contextProfile = createContextProfileObject(entity.getContextId(), entity.getProfileId());
@@ -285,22 +306,56 @@ public class ContextEventService {
         return processStartContext(entity, new ArrayList<>(), token);
     }
 
+
+    private StartContextEventResponseDto createStartContextEvent(ContextProfileEntity contextProfile, String token) {
+        validateAttempts(contextProfile);
+        ContextProfile savedContextProfile =
+                contextProfileService.save(buildContextProfile(contextProfile.getContextId(),
+                        contextProfile.getProfileId()));
+        CurrentContextProfile currentContextProfile =
+                buildCurrentContextProfile(contextProfile.getContextId(), contextProfile.getProfileId(),
+                        savedContextProfile.getId());
+        currentContextProfileService.delete(currentContextProfile);
+        currentContextProfileService.create(currentContextProfile);
+
+        StartContextEventResponseDto eventResponse = buildStartContextEventResponse(contextProfile.getContextId(),
+                contextProfile.getCollectionId(), savedContextProfile.getCurrentResourceId(), new ArrayList<>());
+
+        // If Context does not have Class ID the event message is not sent
+        if (contextProfile.getClassId() != null) {
+            sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(), true,
+                    savedContextProfile.getCurrentResourceId());
+            analyticsContentService.collectionPlay(contextProfile.getCollectionId(), contextProfile.getClassId(),
+                    contextProfile.getContextProfileId(), contextProfile.getProfileId(),
+                    contextProfile.getIsCollection(), token);
+        }
+
+        return eventResponse;
+
+
+        return prepareStartContextEventResponse(entity.getContextId(), entity.getCurrentResourceId(),
+                entity.getCollectionId(), contextProfileEvents);
+
+
+        return processStartContext(entity, new ArrayList<>(), token);
+    }
+
     private StartContextEventResponseDto resumeStartContextEvent(ContextProfileEntity contextProfile) {
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getContextProfileId());
+        StartContextEventResponseDto eventResponse = buildStartContextEventResponse(contextProfile.getContextId(),
+                contextProfile.getCollectionId(), contextProfile.getCurrentResourceId(), contextProfileEvents);
 
-        //If entity does not have class is an anonymous user or it's in preview mode
+        // If Context does not have Class ID the event message is not sent
         if (contextProfile.getClassId() != null) {
-            sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(),
-                    contextProfile.getCurrentResourceId(), false);
+            sendStartEventMessage(contextProfile.getContextId(), contextProfile.getProfileId(), false,
+                    contextProfile.getCurrentResourceId());
         }
-        return prepareStartContextEventResponse(contextProfile.getContextId(), contextProfile.getCurrentResourceId(),
-                contextProfile.getCollectionId(), contextProfileEvents);
+
+        return eventResponse;
     }
 
-    private CurrentContextProfile createCurrentContextProfileObject(UUID contextId,
-                                                                    UUID profileId,
-                                                                    UUID contextProfileId) {
+    private CurrentContextProfile buildCurrentContextProfile(UUID contextId, UUID profileId, UUID contextProfileId) {
         CurrentContextProfile currentContextProfile = new CurrentContextProfile();
         currentContextProfile.setContextId(contextId);
         currentContextProfile.setProfileId(profileId);
@@ -331,28 +386,25 @@ public class ContextEventService {
         return evenData;
     }
 
-    private StartContextEventResponseDto prepareStartContextEventResponse(UUID contextId,
-                                                                          UUID currentResourceId,
-                                                                          UUID collectionId,
-                                                                          List<ContextProfileEvent>
-                                                                                  contextProfileEvents) {
+    private StartContextEventResponseDto buildStartContextEventResponse(UUID contextId, UUID collectionId,
+                                                                        UUID currentResourceId,
+                                                                        List<ContextProfileEvent> contextProfileEvents) {
         StartContextEventResponseDto response = new StartContextEventResponseDto();
         response.setContextId(contextId);
-        response.setCurrentResourceId(currentResourceId);
         response.setCollectionId(collectionId);
+        response.setCurrentResourceId(currentResourceId);
         response.setEvents(contextProfileEvents.stream()
                 .map(event -> gson.fromJson(event.getEventData(), PostResponseResourceDto.class))
                 .collect(Collectors.toList()));
         return response;
     }
 
-    private void sendStartEventMessage(UUID contextId, UUID profileId, UUID currentResourceId, boolean isNewAttempt) {
+    private void sendStartEventMessage(UUID contextId, UUID profileId, boolean isNewAttempt, UUID currentResourceId) {
         StartContextEventMessageDto startEventMessage = new StartContextEventMessageDto();
         startEventMessage.setIsNewAttempt(isNewAttempt);
         startEventMessage.setCurrentResourceId(currentResourceId);
         activeMQClientService.sendStartContextEventMessage(contextId, profileId, startEventMessage);
     }
-
 
     private void sendOnResourceEventMessage(ContextProfile contextProfile,
                                             PostRequestResourceDto previousResource,
@@ -372,7 +424,7 @@ public class ContextEventService {
         activeMQClientService.sendFinishContextEventMessage(contextId, profileId, finishContextEventMessage);
     }
 
-    private ContextProfile createContextProfileObject(UUID contextId, UUID profileId) {
+    private ContextProfile buildContextProfile(UUID contextId, UUID profileId) {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
@@ -699,63 +751,27 @@ public class ContextEventService {
                 .collect(Collectors.toList());
     }
 
-    private PostRequestResourceDto updateExistingResourceDto(ContextProfileEvent contextProfileEvent,
-                                                             ResourceDto resourceInfo,
-                                                             PostRequestResourceDto resource) {
-        PostRequestResourceDto oldResource =
-                gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
-
-        resource.setTimeSpent(resource.getTimeSpent() + oldResource.getTimeSpent());
-
-        if (resourceInfo.getIsResource()) {
-            if (resource.getTimeSpent() == 0) {
-                resource.setIsSkipped(true);
-                resource.setScore(0);
-            }
-            else {
-                resource.setIsSkipped(false);
-                resource.setScore(100);
-            }
-        }
-        else {
-            if (!resource.getIsSkipped()) {
-                resource.setScore(calculateScore(resourceInfo, resource.getAnswer()));
-            } else if (!oldResource.getIsSkipped()) {
-                oldResource.setTimeSpent(resource.getTimeSpent());
-                oldResource.setReaction(resource.getReaction());
-                return oldResource;
-            }
-        }
-
-        return resource;
-    }
-
     private int calculateScore(ResourceDto resource, List<AnswerDto> answer) {
-        return calculateScoreByQuestionType(resource.getMetadata().getType(), answer,
-                resource.getMetadata().getCorrectAnswer());
+        return resource.getIsResource() ? 100 : calculateScoreByQuestionType(resource.getMetadata().getType(),
+                answer, resource.getMetadata().getCorrectAnswer());
     }
 
-    private ResourceDto findResourceInContext(List<ResourceDto> resources, UUID resourceId, UUID contextId) {
-        ResourceDto resource = resources.stream().filter(r -> r.getId().equals(resourceId)).findFirst().orElse(null);
-        if (resource == null) {
-            throw new ContentNotFoundException("Resource ID: " + resourceId + " is not part of " +
-                    "the Context ID: " + contextId);
-        }
-        return resource;
+    private ResourceDto findResourceInResourceList(List<ResourceDto> resources, UUID resourceId) {
+        return resources.stream().filter(r -> r.getId().equals(resourceId)).findFirst().orElse(null);
     }
 
     private void validateAttempts(ContextProfileEntity entity) {
         CollectionDto collectionDto =
                 collectionService.getCollectionOrAssessment(entity.getCollectionId(), entity.getIsCollection());
-        Double allowedAttempts =
-                (Double) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, new Double(-1));
+        Integer allowedAttempts =
+                (Integer) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, -1);
         int contextAttempts = contextProfileService
                 .findContextProfileIdsByContextIdAndProfileId(entity.getContextId(), entity.getProfileId())
                 .size();
 
-        if (allowedAttempts.intValue() != -1 && allowedAttempts.intValue() <= contextAttempts) {
-            throw new NoAttemptsLeftException("No attempts left for profile " + entity.getProfileId() +
-                    " on context " + entity.getContextId());
+        if (allowedAttempts != -1 && allowedAttempts <= contextAttempts) {
+            throw new NoAttemptsLeftException("No attempts left for Profile ID " + entity.getProfileId() +
+                    " on Context ID " + entity.getContextId());
         }
     }
 

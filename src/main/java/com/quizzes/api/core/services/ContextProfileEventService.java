@@ -15,14 +15,10 @@ import java.util.UUID;
 public class ContextProfileEventService {
 
     @Autowired
-    ContextProfileEventRepository contextProfileEventRepository;
+    private ContextProfileEventRepository contextProfileEventRepository;
 
     public List<ContextProfileEvent> findByContextProfileId(UUID contextProfileId) {
         return contextProfileEventRepository.findByContextProfileId(contextProfileId);
-    }
-
-    public ContextProfileEvent save(ContextProfileEvent contextProfileEvent) {
-        return contextProfileEventRepository.save(contextProfileEvent);
     }
 
     public ContextProfileEvent findByContextProfileIdAndResourceId(UUID contextProfileId, UUID resourceId) {
@@ -37,7 +33,11 @@ public class ContextProfileEventService {
         return contextProfileEventRepository.findByContextProfileIdAndProfileId(contextProfileId,profileId);
     }
 
-    void deleteByContextProfileId(UUID contextProfileId) {
+    public ContextProfileEvent save(ContextProfileEvent contextProfileEvent) {
+        return contextProfileEventRepository.save(contextProfileEvent);
+    }
+
+    public void deleteByContextProfileId(UUID contextProfileId) {
         contextProfileEventRepository.deleteByContextProfileId(contextProfileId);
     }
 

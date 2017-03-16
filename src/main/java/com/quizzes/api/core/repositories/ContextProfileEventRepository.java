@@ -23,4 +23,5 @@ public interface ContextProfileEventRepository {
     List<ContextProfileEventEntity> findByContextProfileIdAndProfileId(UUID contextProfileId, UUID profileId);
 
     void deleteByContextProfileId(UUID contextProfileId);
+
 }
