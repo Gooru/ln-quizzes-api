@@ -731,8 +731,8 @@ public class ContextEventService {
     }
 
     private int calculateScore(ResourceDto resource, List<AnswerDto> answer) {
-        return calculateScoreByQuestionType(resource.getMetadata().getType(), answer,
-                resource.getMetadata().getCorrectAnswer());
+        return resource.getIsResource() ? 100 : calculateScoreByQuestionType(resource.getMetadata().getType(),
+                answer, resource.getMetadata().getCorrectAnswer());
     }
 
     private ResourceDto findResourceInContext(List<ResourceDto> resources, UUID resourceId, UUID contextId) {

@@ -562,6 +562,8 @@ public class ContextEventServiceTest {
         ResourceDto resource = createResourceDto();
         ResourceDto previousResource = createResourceDto();
         previousResource.setId(previousResourceId);
+        // TODO: we need to make sure to reapply this once the onResource refactor is ready
+        previousResource.setIsResource(false);
 
         List<AnswerDto> answers = new ArrayList<>();
         answers.add(createAnswerDto("A"));
@@ -1410,6 +1412,8 @@ public class ContextEventServiceTest {
 
         ResourceDto resource = createResourceDto();
         resource.setMetadata(resourceMetadataDto);
+        // TODO: we need to make sure to reapply this once the onResource refactor is ready
+        resource.setIsResource(false);
 
         doReturn(100).when(contextEventService, "calculateScoreByQuestionType", eq(resourceMetadataDto.getType()),
                 eq(answerDtos), any(List.class));

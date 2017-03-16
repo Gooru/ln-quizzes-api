@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -142,7 +141,9 @@ public class AnalyticsContentService {
         return PayloadObjectResourceEventContentDto.builder()
                 .questionType(quizzesUtils.getGooruQuestionType(resource.getMetadata().getType()))
                 .attemptStatus(getAttemptStatus(answerResource))
-                .answerObject(createAnswerObject(answerResource.getAnswer(), resource.getMetadata().getCorrectAnswer()))
+                // TODO: we need to make sure to reapply this once the onResource refactor is ready
+                .answerObject(resource.getIsResource() ? null :
+                        createAnswerObject(answerResource.getAnswer(), resource.getMetadata().getCorrectAnswer()))
                 .build();
     }
 
