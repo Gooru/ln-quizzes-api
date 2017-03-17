@@ -155,6 +155,24 @@ QuizzesCommon.startTest('Assignee1 creates a Context with Context map info on be
     });
 });
 
+QuizzesCommon.startTest('Assignee1 creates a Context with Context map info on behalf the Context owner and ' +
+    'Collection Owner verifies the Context was created for him', function () {
+    QuizzesCommon.getAuthorizationToken('Student01', function (authTokenAssignee1) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authTokenAssignee1,
+            function (contextResponse) {
+                let contextId = contextResponse.id;
+                QuizzesCommon.getAuthorizationToken('Teacher01', function (ownerAuthToken) {
+                    QuizzesCommon.getCreatedContextById(contextId, ownerAuthToken, function (createdContext) {
+                        expect(createdContext.contextId).toEqual(contextId);
+                    });
+                });
+            });
+    });
+});
+
 QuizzesCommon.startTest('Invalid Assignee tries to create a Context with Context map info on behalf the Context owner',
     function () {
         QuizzesCommon.getAuthorizationToken('StudentNotInClass', function (authToken) {

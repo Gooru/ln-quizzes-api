@@ -129,6 +129,20 @@ var quizzesCommon = {
         })
     },
 
+    getCreatedContextById: function (contextId, ownerAuthToken, afterJsonFunction) {
+        Frisby.create('Get assigned context information')
+            .get(QuizzesApiUrl + `/v1/contexts/${contextId}/created`)
+            .addHeader('Authorization', `Token ${ownerAuthToken}`)
+            .inspectRequest()
+            .expectStatus(200)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .afterJSON(function (context) {
+                afterJsonFunction(context);
+            })
+            .toss()
+    },
+
     getAssignedContextById: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
         Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
