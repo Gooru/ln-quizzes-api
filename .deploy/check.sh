@@ -9,8 +9,8 @@ function fail {
 
 function retry {
   local n=1
-  local max=10
-  local delay=10
+  local max=15
+  local delay=20
   while true; do
     "$@" && break || {
     if [[ $n -lt $max ]]; then
