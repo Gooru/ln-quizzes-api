@@ -354,8 +354,4 @@ public class CollectionRestClient {
         return Base64.getEncoder().encodeToString(message);
     }
 
-    private String decodeAnswer(String answer) {
-        return new String(Base64.getDecoder().decode(answer));
-    }
-
 }

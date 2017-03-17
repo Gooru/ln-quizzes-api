@@ -1,6 +1,7 @@
 package com.quizzes.api.core.services.content;
 
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.ChoiceDto;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
@@ -23,7 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -129,10 +132,6 @@ public class AnalyticsContentService {
                 .build();
     }
 
-    private ResourceDto getFirstResource(List<ResourceDto> resources) {
-        return resources.stream().filter(r -> r.getSequence() == 1).findFirst().get();
-    }
-
     private PayloadObjectResourceEventContentDto createResourcePayloadObject(String type, ResourceDto resource,
                                                                              PostRequestResourceDto answerResource) {
         if (type.equals(START)) {
@@ -142,21 +141,41 @@ public class AnalyticsContentService {
         return PayloadObjectResourceEventContentDto.builder()
                 .questionType(quizzesUtils.getGooruQuestionType(resource.getMetadata().getType()))
                 .attemptStatus(getAttemptStatus(answerResource))
-                .answerObject(createAnswerObject(answerResource.getAnswer(), resource.getMetadata().getCorrectAnswer()))
+                .taxonomyIds(getTaxonomyIds(resource))
+                .answerObject(createAnswerObject(answerResource, resource.getMetadata().getCorrectAnswer(),
+                        resource.getMetadata().getInteraction().getChoices()))
                 .build();
     }
 
-    private List<AnswerObjectEventContent> createAnswerObject(List<AnswerDto> answers, List<AnswerDto> correctAnswer) {
-        if(answers == null){
+    private Map<String, String> getTaxonomyIds(ResourceDto resource) {
+        Map<String, String> taxonomies = new HashMap<>();
+        resource.getMetadata().getTaxonomy().forEach((taxonomyKey, taxonomyDescription) -> {
+            Map<String, String> taxonomyValues = (Map<String, String>) taxonomyDescription;
+            taxonomies.put(taxonomyKey, taxonomyValues.get("code"));
+        });
+        return taxonomies;
+    }
+
+    private List<AnswerObjectEventContent> createAnswerObject(PostRequestResourceDto userAnswer,
+                                                              List<AnswerDto> correctAnswers,
+                                                              List<ChoiceDto> possibleAnswers) {
+        if(userAnswer.getAnswer() == null){
             return Collections.EMPTY_LIST;
         }
 
-        answers.stream().map(answer -> {
+        // Define which Answer Object depending on Question Type
+
+        final int[] order = {0};
+        return userAnswer.getAnswer().stream().map(answer -> {
+            order[0]++;
             return AnswerObjectEventContent.builder()
-                    .text(answer.getValue())
+                    .text(quizzesUtils.decodeAnswer(answer.getValue()))
+                    .timeStamp(userAnswer.getTimeSpent())
+                    .skip(userAnswer.getIsSkipped())
+                    .order(order[0])
+                    .status(userAnswer.getIsSkipped() ? SKIPPED : (userAnswer.getScore() == 100 ? CORRECT : INCORRECT))
                     .build();
         }).collect(Collectors.toList());
-        return null;
     }
 
     private String getAttemptStatus(PostRequestResourceDto answerResource) {

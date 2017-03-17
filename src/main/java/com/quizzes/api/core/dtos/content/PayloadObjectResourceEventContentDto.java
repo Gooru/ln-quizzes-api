@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Data
 @Builder
@@ -23,7 +23,7 @@ public class PayloadObjectResourceEventContentDto {
     /**
      * Low level mapped taxonomy ids on resource/question
      */
-    private List<UUID> taxonomyIds;
+    private Map<String, String> taxonomyIds;
 
     private List<AnswerObjectEventContent> answerObject;
 

@@ -1,12 +1,12 @@
 package com.quizzes.api.util;
 
-import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.repositories.UtilsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -25,26 +25,16 @@ public class QuizzesUtils {
 
     static {
         quizzesQuestionType = new HashMap<>();
-        quizzesQuestionType.put(QuestionTypeEnum.TrueFalse.getLiteral(),
-                GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.SingleChoice.getLiteral(),
-                GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.DragAndDrop.getLiteral(),
-                GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoice.getLiteral(),
-                GooruQuestionTypeEnum.MultipleAnswerQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceImage.getLiteral(),
-                GooruQuestionTypeEnum.HotSpotImageQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceText.getLiteral(),
-                GooruQuestionTypeEnum.HotSpotTextQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.HotTextWord.getLiteral(),
-                GooruQuestionTypeEnum.WordHotTextHighlightQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.HotTextSentence.getLiteral(),
-                GooruQuestionTypeEnum.SentenceHotTextHighlightQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.TextEntry.getLiteral(),
-                GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral());
-        quizzesQuestionType.put(QuestionTypeEnum.ExtendedText.getLiteral(),
-                GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral());
+        quizzesQuestionType.put(QuestionTypeEnum.TrueFalse.getLiteral(), "TF");
+        quizzesQuestionType.put(QuestionTypeEnum.SingleChoice.getLiteral(), "MC");
+        quizzesQuestionType.put(QuestionTypeEnum.DragAndDrop.getLiteral(), "HT_RO");
+        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoice.getLiteral(), "MA");
+        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceImage.getLiteral(), "HS_IMG");
+        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceText.getLiteral(), "HS_TXT");
+        quizzesQuestionType.put(QuestionTypeEnum.HotTextWord.getLiteral(), "HT_HL");
+        quizzesQuestionType.put(QuestionTypeEnum.HotTextSentence.getLiteral(), "HT_HL");
+        quizzesQuestionType.put(QuestionTypeEnum.TextEntry.getLiteral(), "FIB");
+        quizzesQuestionType.put(QuestionTypeEnum.ExtendedText.getLiteral(), "OE");
     }
 
     @Autowired
@@ -83,5 +73,9 @@ public class QuizzesUtils {
     public String getGooruQuestionType(String quizzesQuestionType) {
         String mappedType = QuizzesUtils.quizzesQuestionType.get(quizzesQuestionType);
         return (mappedType == null) ? QuestionTypeEnum.None.getLiteral() : mappedType;
+    }
+
+    public String decodeAnswer(String answer) {
+        return new String(Base64.getDecoder().decode(answer));
     }
 }
