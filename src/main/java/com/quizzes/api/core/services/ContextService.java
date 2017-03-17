@@ -97,7 +97,7 @@ public class ContextService {
         return contextRepository.save(context).getId();
     }
 
-    public ContextEntity findById(UUID contextId) {
+    public ContextEntity findById(UUID contextId) throws ContentNotFoundException {
         ContextEntity context = contextRepository.findById(contextId);
         if (context == null) {
             throw new ContentNotFoundException("Context not found for Context ID: " + contextId);
