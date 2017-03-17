@@ -16,7 +16,6 @@ import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -66,7 +65,7 @@ public class ContextService {
         if (contextEntity != null) {
             return contextEntity.getContextId();
         } else {
-            Context context = buildContext(collectionId, profileId, classId, contextDataDto,
+            Context context = buildContext(collectionId, collectionOwnerId, classId, contextDataDto,
                     collectionDto.getIsCollection());
             try {
                 return contextRepository.save(context).getId();
@@ -90,7 +89,6 @@ public class ContextService {
      * @param isCollection defined is the collectionId corresponds to a Collection (when true) or Assessment
      * @return the context ID
      */
-    @Transactional
     public UUID createContextWithoutClassId(UUID collectionId, UUID profileId, Boolean isCollection) {
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection);
         Context context = buildContextWithoutClassId(collectionId, profileId, collectionDto.getIsCollection());
@@ -134,17 +132,17 @@ public class ContextService {
         return context;
     }
 
-    private Context buildContextWithoutClassId(UUID collectionId, UUID profileId, boolean isCollection) {
+    private Context buildContextWithoutClassId(UUID collectionId, UUID ownerProfileId, boolean isCollection) {
         Context context = new Context();
-        context.setProfileId(profileId);
+        context.setProfileId(ownerProfileId);
         context.setCollectionId(collectionId);
         context.setIsCollection(isCollection);
         return context;
     }
 
-    private Context buildContext(UUID collectionId, UUID profileId, UUID classId, ContextDataDto contextDataDto,
+    private Context buildContext(UUID collectionId, UUID ownerProfileId, UUID classId, ContextDataDto contextDataDto,
                                  boolean isCollection) {
-        Context context = buildContextWithoutClassId(collectionId, profileId, isCollection);
+        Context context = buildContextWithoutClassId(collectionId, ownerProfileId, isCollection);
         context.setClassId(classId);
         context.setContextMapKey(generateContextMapKey(collectionId, classId, contextDataDto.getContextMap()));
         context.setContextData(gson.toJson(contextDataDto));
