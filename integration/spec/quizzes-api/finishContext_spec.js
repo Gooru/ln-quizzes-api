@@ -1,6 +1,6 @@
 const Config = require('./quizzesTestConfiguration.js');
 const QuizzesCommon = require('./quizzesCommon.js');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 
 QuizzesCommon.startTest('Start and finish context', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
@@ -21,7 +21,8 @@ QuizzesCommon.startTest('Finish a never started context', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.verifyHttpErrorPost('Finish a never started context',
@@ -35,7 +36,8 @@ QuizzesCommon.startTest('Finish a started context with a different student', fun
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collectionId = Config.getCollection('TestCollection01').id;
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collectionId, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {

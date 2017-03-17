@@ -38,6 +38,7 @@ import org.springframework.web.client.RestTemplate;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,36 +211,37 @@ public class CollectionRestClient {
 
     private List<ResourceDto> mapResources(List<ResourceContentDto> resourceContentDtos) {
         List<ResourceDto> resourceDtos = new ArrayList<>();
-
         if (resourceContentDtos != null) {
-            resourceDtos = resourceContentDtos.stream().map(resourceContentDto -> {
-                ResourceDto resourceDto = new ResourceDto();
-                resourceDto.setId(resourceContentDto.getId());
-                resourceDto.setSequence((short) resourceContentDto.getSequence());
+            resourceDtos = resourceContentDtos.stream()
+                    .sorted(Comparator.comparingInt(ResourceContentDto::getSequence))
+                    .map(resourceContentDto -> {
+                        ResourceDto resourceDto = new ResourceDto();
+                        resourceDto.setId(resourceContentDto.getId());
+                        resourceDto.setSequence((short) resourceContentDto.getSequence());
 
-                ResourceMetadataDto metadata;
-                boolean isResource = false;
-                if (resourceContentDto.getContentFormat() == null ||
-                        !resourceContentDto.getContentFormat().equals("resource")) {
-                    metadata = mapQuestionResource(resourceContentDto);
-                } else {
-                    metadata = mapResource(resourceContentDto);
-                    isResource = true;
-                }
+                        ResourceMetadataDto metadata;
+                        boolean isResource = false;
+                        if (resourceContentDto.getContentFormat() == null ||
+                                !resourceContentDto.getContentFormat().equals("resource")) {
+                            metadata = mapQuestionResource(resourceContentDto);
+                        } else {
+                            metadata = mapResource(resourceContentDto);
+                            isResource = true;
+                        }
 
-                resourceDto.setIsResource(isResource);
-                resourceDto.setMetadata(metadata);
+                        resourceDto.setIsResource(isResource);
+                        resourceDto.setMetadata(metadata);
 
-                return resourceDto;
-            }).collect(Collectors.toList());
+                        return resourceDto;
+                    }).collect(Collectors.toList());
         }
-
         return resourceDtos;
     }
 
     private ResourceMetadataDto mapResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setDescription(resourceContentDto.getDescription());
         metadata.setType(resourceContentDto.getContentSubformat());
         metadata.setUrl(resourceContentDto.getUrl());
         metadata.setTaxonomy(resourceContentDto.getTaxonomy());
@@ -250,6 +252,7 @@ public class CollectionRestClient {
     private ResourceMetadataDto mapQuestionResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
+        metadata.setDescription(resourceContentDto.getDescription());
         metadata.setType(mapQuestionType(resourceContentDto));
         metadata.setThumbnail(resourceContentDto.getThumbnail());
         if (resourceContentDto.getAnswers() != null) {
@@ -349,6 +352,10 @@ public class CollectionRestClient {
     private String encodeAnswer(String answer) {
         byte[] message = answer.getBytes(StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(message);
+    }
+
+    private String decodeAnswer(String answer) {
+        return new String(Base64.getDecoder().decode(answer));
     }
 
 }

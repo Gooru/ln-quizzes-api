@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.core.model.jooq.tables.records.ContextRecord> {
 
-	private static final long serialVersionUID = 1922370854;
+	private static final long serialVersionUID = -240467285;
 
 	/**
 	 * The singleton instance of <code>public.context</code>
@@ -83,6 +83,11 @@ public class Context extends org.jooq.impl.TableImpl<com.quizzes.api.core.model.
 	 * The column <code>public.context.updated_at</code>.
 	 */
 	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextRecord, java.sql.Timestamp> UPDATED_AT = createField("updated_at", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>public.context.context_map_key</code>.
+	 */
+	public final org.jooq.TableField<com.quizzes.api.core.model.jooq.tables.records.ContextRecord, java.lang.String> CONTEXT_MAP_KEY = createField("context_map_key", org.jooq.impl.SQLDataType.CLOB, this, "");
 
 	/**
 	 * Create a <code>public.context</code> table reference

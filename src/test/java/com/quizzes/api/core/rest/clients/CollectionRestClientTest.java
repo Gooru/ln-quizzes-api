@@ -189,6 +189,7 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong Question title", questionTitle, metadataResource.getTitle());
+        assertEquals("Wrong description", resourceDescription, metadataResource.getDescription());
         assertEquals("Wrong Question type", QuestionTypeEnum.TrueFalse.getLiteral(), metadataResource.getType());
         assertEquals("Wrong body text", resourceDescription, metadataResource.getBody());
         assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
@@ -235,6 +236,7 @@ public class CollectionRestClientTest {
         ResourceMetadataDto metadataResource = resourceResult.getMetadata();
         assertEquals("Wrong title", questionTitle, metadataResource.getTitle());
         assertEquals("Wrong body", resourceDescription, metadataResource.getBody());
+        assertEquals("Wrong description", resourceDescription, metadataResource.getDescription());
         assertEquals("Wrong thumbnail", thumbnail, metadataResource.getThumbnail());
         assertEquals("Wrong question type", trueFalseQuestion, metadataResource.getType());
         assertEquals("Wrong number of correct answers", 1, metadataResource.getCorrectAnswer().size());
@@ -345,6 +347,7 @@ public class CollectionRestClientTest {
 
         ResourceMetadataDto metadataResult = resourceResult.getMetadata();
         assertEquals("Wrong title", questionTitle, metadataResult.getTitle());
+        assertEquals("Wrong description", resourceDescription, metadataResult.getDescription());
         assertEquals("Wrong body", resourceDescription, metadataResult.getBody());
         assertEquals("Wrong thumbnail", thumbnail, metadataResult.getThumbnail());
         assertEquals("Wrong type", trueFalseQuestion, metadataResult.getType());
@@ -394,6 +397,7 @@ public class CollectionRestClientTest {
         verifyPrivate(collectionRestClient, times(1)).invoke("createInteraction", resourceContentDto);
 
         assertEquals("Wrong title", questionTitle, result.getTitle());
+        assertEquals("Wrong description", resourceDescription, result.getDescription());
         assertEquals("Wrong body", resourceDescription, result.getBody());
         assertEquals("Wrong thumbnail", thumbnail, result.getThumbnail());
         assertEquals("Wrong type", trueFalseQuestion, result.getType());
@@ -719,6 +723,7 @@ public class CollectionRestClientTest {
     private ResourceMetadataDto createResourceMetadataDtoForQuestion() {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(questionTitle);
+        metadata.setDescription(resourceDescription);
         metadata.setType(trueFalseQuestion);
         metadata.setCorrectAnswer(Arrays.asList(new AnswerDto("A")));
         metadata.setInteraction(createInteractionDto());
@@ -771,6 +776,18 @@ public class CollectionRestClientTest {
         InteractionDto result =
                 WhiteboxImpl.invokeMethod(collectionRestClient, "createInteraction", resourceContentDto);
         assertNull("Interaction is null", result);
+    }
+
+    @Test
+    public void encodeAnswer() throws Exception {
+        String result = WhiteboxImpl.invokeMethod(collectionRestClient, "encodeAnswer", "<p>4/7</p>");
+        assertEquals("Wrong decoded value", "PHA+NC83PC9wPg==", result);
+    }
+
+    @Test
+    public void decodeAnswer() throws Exception {
+        String result = WhiteboxImpl.invokeMethod(collectionRestClient, "decodeAnswer", "PHA+NC83PC9wPg==");
+        assertEquals("Wrong decoded value", "<p>4/7</p>", result);
     }
 
 }

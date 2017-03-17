@@ -1,6 +1,6 @@
 const Config = require('./quizzesTestConfiguration.js');
 const QuizzesCommon = require('./quizzesCommon.js');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 
 QuizzesCommon.startTest('Get a not existing assigned context by id', function () {
     QuizzesCommon.getAuthorizationToken('Student01', function (authToken) {
@@ -25,7 +25,7 @@ QuizzesCommon.startTest('Get an assigned context for anonymous', function () {
         QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
             QuizzesCommon.getAnonymousToken(function (anonymousToken) {
                 QuizzesCommon.verifyHttpError('Get an assigned context using an anonymous token',
-                    `/v1/contexts/${contextResponse.id}/assigned`, HttpErrorCodes.FORBIDDEN, anonymousToken);
+                    `/v1/contexts/${contextResponse.id}/assigned`, HttpErrorCodes.BAD_REQUEST, anonymousToken);
             });
         });
     });
@@ -37,12 +37,13 @@ QuizzesCommon.startTest('Get a context with a non assigned student', function ()
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
             QuizzesCommon.getAuthorizationToken('StudentNotInClass', function (assigneeAuthToken) {
-                QuizzesCommon.verifyHttpError('Get an assigned context using an anonymous token',
-                    `/v1/contexts/${contextResponse.id}/assigned`, HttpErrorCodes.NOT_FOUND, assigneeAuthToken);
+                QuizzesCommon.verifyHttpError('Get an assigned context using a non assigned student token',
+                    `/v1/contexts/${contextResponse.id}/assigned`, HttpErrorCodes.FORBIDDEN, assigneeAuthToken);
             });
         });
     });
 });
+
 
 QuizzesCommon.startTest('Get an assigned context', function () {
     let collection = Config.getCollection('TestCollection01');
@@ -54,8 +55,8 @@ QuizzesCommon.startTest('Get an assigned context', function () {
                     contextId: contextResponse.id,
                     collectionId: collection.id,
                     isCollection: collection.isCollection,
-                    profileId: QuizzesCommon.getProfileIdFromToken(authToken),
                     classId: classId,
+                    isActive: true,
                     startDate: 0,
                     dueDate: 0,
                     contextData:
@@ -68,7 +69,9 @@ QuizzesCommon.startTest('Get an assigned context', function () {
                     createdDate: function(value) {
                         expect(value).toBeDefined();
                     },
-                    hasStarted: false
+                    modifiedDate: function(value) {
+                        expect(value).toBeDefined();
+                    }
                 }, function() {});
             });
         });

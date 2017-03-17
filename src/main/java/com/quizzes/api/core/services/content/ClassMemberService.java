@@ -17,8 +17,16 @@ public class ClassMemberService {
         return classMemberRestClient.getClassMembers(classId, authToken).getMemberIds();
     }
 
+    public List<UUID> getClassOwnerIds(UUID classId, String authToken) {
+        return classMemberRestClient.getClassMembers(classId, authToken).getOwnerIds();
+    }
+
     public boolean containsMemberId(UUID classId, UUID memberId, String authToken) {
         return getClassMemberIds(classId, authToken).contains(memberId);
+    }
+
+    public boolean containsOwnerId(UUID classId, UUID ownerId, String authToken) {
+        return getClassOwnerIds(classId, authToken).contains(ownerId);
     }
 
 }

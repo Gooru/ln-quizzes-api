@@ -1,6 +1,6 @@
 const QuizzesCommon = require('./quizzesCommon.js');
 const Config = require('./quizzesTestConfiguration.js');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 
 let randomCollectionId = QuizzesCommon.generateUUID();
 
@@ -30,7 +30,7 @@ QuizzesCommon.startTest('Get collection endpoint', function () {
         let collectionId = Config.getCollection('TestCollection01').id;
         QuizzesCommon.getCollectionById(collectionId, authToken, function (collection) {
             expect(collection.id).toEqual(collectionId);
-            expect(collection.metadata.title).toEqual('Questions types collection [DO NOT CHANGE]');
+            expect(collection.metadata.title).toEqual('Collection Test #1 All Question Types');
             expect(collection.metadata.taxonomy).toBeDefined();
             expect(collection.isCollection).toEqual(true);
             expect(collection.resources.length).toEqual(10);

@@ -1,7 +1,6 @@
 package com.quizzes.api.core.services;
 
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
-import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.CurrentContextProfile;
 import com.quizzes.api.core.repositories.CurrentContextProfileRepository;
@@ -14,7 +13,7 @@ import java.util.UUID;
 public class CurrentContextProfileService {
 
     @Autowired
-    CurrentContextProfileRepository currentContextProfileRepository;
+    private CurrentContextProfileRepository currentContextProfileRepository;
 
     public CurrentContextProfile findByContextIdAndProfileId(UUID contextId, UUID profileId) {
         CurrentContextProfile currentContextProfile =

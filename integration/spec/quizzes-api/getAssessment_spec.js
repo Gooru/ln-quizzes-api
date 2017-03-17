@@ -1,6 +1,6 @@
 const QuizzesCommon = require('./quizzesCommon.js');
 const Config = require('./quizzesTestConfiguration.js');
-const HttpErrorCodes = QuizzesCommon.httpErrorCodes;
+const HttpErrorCodes = QuizzesCommon.httpCodes;
 
 // 'Get assessment without type parameter' and 'Get assessment with invalid parameter type'
 // are already covered on the getCollection_spec.js

@@ -11,6 +11,7 @@ import java.util.Map;
 public class ResourceMetadataDto implements Serializable {
 
     private String title;
+    private String description;
     private String type;
     private String url;
     private String body;

@@ -52,7 +52,7 @@ var quizzesCommon = {
     },
 
     getAnonymousToken: function (afterJsonFunction) {
-        console.log('Autorization anonymous user');
+        console.log('Authorization anonymous user');
         Frisby.create('Gets the authorization token for an anonymous user')
             .post(ContentProviderApiUrl + '/v2/signin', {
                 'client_key': 'c2hlZWJhbkBnb29ydWxlYXJuaW5nLm9yZw==',
@@ -69,7 +69,8 @@ var quizzesCommon = {
             .toss();
     },
 
-    createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
+    createContextWithStatus: function (collectionId, classId, isCollection, contextMap, authToken, status,
+                                       afterJsonFunction) {
         Frisby.create(`Create Context for collectionId ${collectionId} and classId ${classId}`)
             .post(QuizzesApiUrl + '/v1/contexts', {
                 'collectionId': collectionId,
@@ -84,12 +85,25 @@ var quizzesCommon = {
             }, {json: true})
             .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
-            .expectStatus(200)
+            .expectStatus(status)
             .timeout(60000) //waits 60sec for response
             .expectHeaderContains('content-type', 'application/json')
             .inspectJSON()
             .afterJSON(afterJsonFunction)
             .toss();
+    },
+
+    createContext: function (collectionId, classId, isCollection, contextMap, authToken, afterJsonFunction) {
+        this.createContextWithStatus(collectionId, classId, isCollection, contextMap, authToken, 200,
+            afterJsonFunction);
+    },
+
+    generateRandomContextMap: function() {
+        return {
+            courseId: this.generateUUID(),
+            unitId: this.generateUUID(),
+            lessonId: this.generateUUID()
+        };
     },
 
     /**
@@ -115,20 +129,6 @@ var quizzesCommon = {
         })
     },
 
-    getProfileByExternalId: function (externalId, afterJsonFunction) {
-        Frisby.create('Get the profile information in Quizzes')
-            .get(QuizzesApiUrl + '/v1/profile-by-external-id/' + externalId)
-            .addHeader('client-id', 'quizzes')
-            .inspectRequest()
-
-            .expectStatus(200)
-            .inspectJSON()
-            .afterJSON(function (profile) {
-                afterJsonFunction(profile);
-            })
-            .toss()
-    },
-
     getAssignedContextById: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
         Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
@@ -141,36 +141,6 @@ var quizzesCommon = {
                 afterJsonFunction(context);
             })
             .toss()
-    },
-
-    getCreatedContextById: function (contextId, authToken, expectedJson, afterJsonFunction) {
-        Frisby.create('Get created context information')
-            .get(QuizzesApiUrl + `/v1/contexts/${contextId}/created`)
-            .addHeader('Authorization', `Token ${authToken}`)
-            .inspectRequest()
-            .expectStatus(200)
-            .inspectJSON()
-            .expectJSON(expectedJson)
-            .afterJSON(function (context) {
-                afterJsonFunction(context);
-            })
-            .toss();
-    },
-
-    getCreatedContexts: function (authToken, afterJsonFunction) {
-        this.doGet('Get created contexts list', '/v1/contexts/created', 200, authToken,
-            function(contexts) {
-                afterJsonFunction(contexts);
-            }
-        );
-    },
-
-    getAssignedContexts: function (authToken, afterJsonFunction) {
-        this.doGet('Get assigned contexts list', '/v1/contexts/assigned', 200, authToken,
-            function(contexts) {
-                afterJsonFunction(contexts);
-            }
-        );
     },
 
     getCollectionById: function (collectionId, authToken, afterJsonFunction) {
@@ -204,7 +174,7 @@ var quizzesCommon = {
             .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, previousResource, {json: true})
             .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
-            .expectStatus(204)
+            .expectStatus(200)
             .after(function () {
                 afterJsonFunction();
             })
@@ -238,9 +208,22 @@ var quizzesCommon = {
             .toss()
     },
 
-    getAttempts : function(contextId, profileId, authToken, afterJsonFunction) {
+    getAttemptsByProfileId: function(contextId, profileId, authToken, afterJsonFunction) {
         this.doGet(`Get Attempts for context ${contextId} and profile ${profileId}`,
             `/v1/attempts/contexts/${contextId}/profiles/${profileId}`, 200, authToken, afterJsonFunction);
+    },
+
+    getAttempts: function(contextId, authToken, expectedJson, afterJsonFunction) {
+        Frisby.create(`Get attempts for context ${contextId}`)
+            .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}`)
+            .addHeader('Authorization', 'Token ' + authToken)
+            .inspectRequest()
+            .expectStatus(this.httpCodes.OK)
+            .expectHeaderContains('content-type', 'application/json')
+            .inspectJSON()
+            .expectJSON(expectedJson)
+            .afterJSON(afterJsonFunction)
+            .toss()
     },
 
     doGet: function(description, url, expectedStatus, authToken, afterJsonFunction) {
@@ -268,22 +251,25 @@ var quizzesCommon = {
     },
 
     verifyHttpError: function (description, url, expectedStatus, authToken) {
-        this.doGet(description, url, expectedStatus, authToken, function(error) {
-            expect(typeof error.message).toBe('string');
-            expect(typeof error.status).toBe('number');
-            expect(typeof error.exception).toBe('string');
-        });
+        this.doGet(`${description} returns ${expectedStatus} error code`, url, expectedStatus, authToken,
+            function(error) {
+                expect(typeof error.message).toBe('string');
+                expect(typeof error.status).toBe('number');
+                expect(typeof error.exception).toBe('string');
+            });
     },
 
     verifyHttpErrorPost: function (description, url, body, expectedStatus, authToken) {
-        this.doPost(`${description} returns ${expectedStatus} code`, url, body, expectedStatus, authToken, function(error) {
-            expect(typeof error.message).toBe('string');
-            expect(typeof error.status).toBe('number');
-            expect(typeof error.exception).toBe('string');
-        });
+        this.doPost(`${description} returns ${expectedStatus} error code`, url, body, expectedStatus, authToken,
+            function (error) {
+                expect(typeof error.message).toBe('string');
+                expect(typeof error.status).toBe('number');
+                expect(typeof error.exception).toBe('string');
+            });
     },
 
-    httpErrorCodes: {
+    httpCodes: {
+        OK: 200,
         BAD_REQUEST: 400,
         UNAUTHORIZED: 401,
         FORBIDDEN: 403,

@@ -5,6 +5,7 @@ import com.quizzes.api.core.dtos.ClassMemberContentDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
+import com.quizzes.api.core.exceptions.InvalidClassMemberException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.slf4j.Logger;
@@ -64,7 +65,12 @@ public class ClassMemberRestClient {
             if (hcee.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
                 throw new ContentNotFoundException("Class member for class ID:" + classId + " could not be found.");
             }
-            throw new ContentProviderException("Class member for class ID: " + classId + " could not be retrieved.", hcee);
+            if (hcee.getStatusCode().equals(HttpStatus.FORBIDDEN)) {
+                throw new InvalidClassMemberException("User with token " + token +
+                        " does not have permissions to access Class ID " + classId + " members.");
+            }
+            throw new ContentProviderException("Class member for class ID: " + classId + " could not be retrieved.",
+                    hcee);
         } catch (Exception e) {
             logger.error("Gooru class member '" + classId + "' could not be processed.", e);
             throw new InternalServerException("Class member for class ID: " + classId + " could not be processed.", e);

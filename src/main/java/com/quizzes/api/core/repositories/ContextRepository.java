@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public interface ContextRepository {
 
-    Context findById(UUID id);
+    ContextEntity findById(UUID id);
 
     ContextEntity findCreatedContextByContextIdAndProfileId(UUID contextId, UUID profileId);
 
@@ -46,6 +46,6 @@ public interface ContextRepository {
 
     ContextOwnerEntity findContextOwnerByContextIdAndAssigneeId(UUID contextId, UUID assigneeId);
 
-    List<ContextEntity>  findMappedContexts(UUID classId, UUID collectionId, Map<String, String> contextMap);
+    ContextEntity findByContextMapKey(String contextMapKey);
 
 }

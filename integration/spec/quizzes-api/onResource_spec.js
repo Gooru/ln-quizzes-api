@@ -12,7 +12,8 @@ QuizzesCommon.startTest('OnResource on started context', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collection.id, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
@@ -149,7 +150,8 @@ QuizzesCommon.startTest('OnResource on a context not started', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collection.id, classId, true, contextMap, authToken, function (contextResponse) {
             let contextResponseId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 let previousResource = collection.resources[0];
@@ -165,7 +167,7 @@ QuizzesCommon.startTest('OnResource on a context not started', function () {
                         }, {json: true})
                     .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                     .inspectRequest()
-                    .expectStatus(400)
+                    .expectStatus(404)
                     .toss();
 
             });
@@ -177,7 +179,8 @@ QuizzesCommon.startTest('OnResource on started and finished context', function (
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collection.id, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
@@ -209,7 +212,8 @@ QuizzesCommon.startTest('OnResource with no feedback because of no setting', fun
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let collection = Config.getCollection('TestCollection01');
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(collection.id, classId, true, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collection.id, classId, true, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
@@ -240,7 +244,8 @@ QuizzesCommon.startTest('OnResource with feedback by setting', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let assessment = Config.getAssessment('TestAssessment01');
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(assessment.id, classId, false, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(assessment.id, classId, false, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
@@ -271,7 +276,8 @@ QuizzesCommon.startTest('OnResource with no feedback by setting', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let assessment = Config.getAssessment('TestAssessment02');
         let classId = Config.getClass('TestClass01').id;
-        QuizzesCommon.createContext(assessment.id, classId, false, {}, authToken, function (contextResponse) {
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(assessment.id, classId, false, contextMap, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
             QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
                 QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {

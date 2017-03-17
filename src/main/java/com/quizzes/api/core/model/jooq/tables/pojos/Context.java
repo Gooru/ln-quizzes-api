@@ -9,7 +9,7 @@ package com.quizzes.api.core.model.jooq.tables.pojos;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Context implements java.io.Serializable {
 
-	private static final long serialVersionUID = -471798544;
+	private static final long serialVersionUID = -80158368;
 
 	private java.util.UUID     id;
 	private java.util.UUID     collectionId;
@@ -23,6 +23,7 @@ public class Context implements java.io.Serializable {
 	private java.lang.Boolean  isDeleted;
 	private java.sql.Timestamp createdAt;
 	private java.sql.Timestamp updatedAt;
+	private java.lang.String   contextMapKey;
 
 	public Context() {}
 
@@ -38,7 +39,8 @@ public class Context implements java.io.Serializable {
 		java.sql.Timestamp dueDate,
 		java.lang.Boolean  isDeleted,
 		java.sql.Timestamp createdAt,
-		java.sql.Timestamp updatedAt
+		java.sql.Timestamp updatedAt,
+		java.lang.String   contextMapKey
 	) {
 		this.id = id;
 		this.collectionId = collectionId;
@@ -52,6 +54,7 @@ public class Context implements java.io.Serializable {
 		this.isDeleted = isDeleted;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+		this.contextMapKey = contextMapKey;
 	}
 
 	public java.util.UUID getId() {
@@ -148,5 +151,13 @@ public class Context implements java.io.Serializable {
 
 	public void setUpdatedAt(java.sql.Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public java.lang.String getContextMapKey() {
+		return this.contextMapKey;
+	}
+
+	public void setContextMapKey(java.lang.String contextMapKey) {
+		this.contextMapKey = contextMapKey;
 	}
 }

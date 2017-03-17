@@ -6,7 +6,6 @@ import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextOwnerEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
-import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +27,12 @@ public class ContextRepositoryImpl implements ContextRepository {
     private DSLContext jooq;
 
     @Override
-    public Context findById(UUID id) {
-        return jooq.select()
+    public ContextEntity findById(UUID id) {
+        return jooq.select(getContextFields())
                 .from(CONTEXT)
                 .where(CONTEXT.ID.eq(id))
                 .and(CONTEXT.IS_DELETED.eq(false))
-                .fetchOneInto(Context.class);
+                .fetchOneInto(ContextEntity.class);
     }
 
     @Override
@@ -183,22 +182,11 @@ public class ContextRepositoryImpl implements ContextRepository {
     }
 
     @Override
-    public List<ContextEntity> findMappedContexts(UUID classId, UUID collectionId, Map<String, String> contextMap) {
-        Condition condition = CONTEXT.CLASS_ID.eq(classId)
-                .and(CONTEXT.COLLECTION_ID.eq(collectionId))
-                .and(CONTEXT.IS_ACTIVE.eq(true))
-                .and(CONTEXT.IS_DELETED.eq(false));
-
-        for (String key : contextMap.keySet()) {
-            condition = condition
-                    .and(String.format("CONTEXT.CONTEXT_DATA -> 'contextMap' ->> '%s' = '%s'", key,
-                            contextMap.get(key)));
-        }
-
+    public ContextEntity findByContextMapKey(String contextMapKey) {
         return jooq.select(getContextFields())
                 .from(CONTEXT)
-                .where(condition)
-                .fetchInto(ContextEntity.class);
+                .where(CONTEXT.CONTEXT_MAP_KEY.eq(contextMapKey))
+                .fetchOneInto(ContextEntity.class);
     }
 
     @Override
@@ -214,10 +202,11 @@ public class ContextRepositoryImpl implements ContextRepository {
         return jooq.insertInto(CONTEXT)
                 .set(CONTEXT.ID, UUID.randomUUID())
                 .set(CONTEXT.COLLECTION_ID, context.getCollectionId())
+                .set(CONTEXT.IS_COLLECTION, context.getIsCollection())
                 .set(CONTEXT.PROFILE_ID, context.getProfileId())
                 .set(CONTEXT.CLASS_ID, context.getClassId())
+                .set(CONTEXT.CONTEXT_MAP_KEY, context.getContextMapKey())
                 .set(CONTEXT.CONTEXT_DATA, context.getContextData())
-                .set(CONTEXT.IS_COLLECTION, context.getIsCollection())
                 .returning()
                 .fetchOne()
                 .into(Context.class);
@@ -242,6 +231,7 @@ public class ContextRepositoryImpl implements ContextRepository {
         fields.add(CONTEXT.IS_ACTIVE);
         fields.add(CONTEXT.START_DATE);
         fields.add(CONTEXT.DUE_DATE);
+        fields.add(CONTEXT.CONTEXT_MAP_KEY);
         fields.add(CONTEXT.CONTEXT_DATA);
         fields.add(CONTEXT.CREATED_AT);
         fields.add(CONTEXT.UPDATED_AT);

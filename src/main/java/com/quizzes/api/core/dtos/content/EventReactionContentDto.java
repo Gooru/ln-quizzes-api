@@ -13,7 +13,9 @@ public class EventReactionContentDto extends EventContentCommonDto {
     private ContextReactionEventContentDto context;
 
     @Builder
-    public EventReactionContentDto(UUID eventId, String eventName, SessionEventContentDto session, UserEventContentDto user, VersionEventContentDto version, MetricsEventContentDto metrics, long startTime, long endTime, ContextReactionEventContentDto context) {
+    public EventReactionContentDto(UUID eventId, String eventName, SessionEventContentDto session, UserEventContentDto user,
+                                   VersionEventContentDto version, MetricsEventContentDto metrics, Long startTime,
+                                   Long endTime, ContextReactionEventContentDto context) {
         super(eventId, eventName, session, user, version, metrics, startTime, endTime);
         this.context = context;
     }

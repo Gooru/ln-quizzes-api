@@ -37,6 +37,10 @@ public interface ContextEntity {
 
     void setDueDate(Timestamp dueDate);
 
+    String getContextMapKey();
+
+    void setContextMapKey(String contextMapKey);
+
     String getContextData();
 
     void setContextData(String contextData);

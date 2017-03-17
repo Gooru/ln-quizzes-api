@@ -18,6 +18,6 @@ public class EventContentCommonDto {
     private UserEventContentDto user;
     private VersionEventContentDto version;
     private MetricsEventContentDto metrics;
-    private long startTime;
-    private long endTime;
+    private Long startTime;
+    private Long endTime;
 }

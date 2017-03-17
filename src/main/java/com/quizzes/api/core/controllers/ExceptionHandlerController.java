@@ -4,6 +4,7 @@ import com.quizzes.api.core.dtos.ExceptionMessageDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
+import com.quizzes.api.core.exceptions.InvalidClassMemberException;
 import com.quizzes.api.core.exceptions.InvalidCredentialsException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.exceptions.InvalidRequestBodyException;
@@ -13,6 +14,7 @@ import com.quizzes.api.core.exceptions.MissingJsonPropertiesException;
 import com.quizzes.api.core.exceptions.NoAttemptsLeftException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -94,6 +96,17 @@ public class ExceptionHandlerController {
     }
 
     /**
+     * Handles forbidden request errors
+     *
+     * @return Exception message
+     */
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(value = InvalidClassMemberException.class)
+    public ExceptionMessageDto handleInvalidClassMemberException(InvalidClassMemberException e) {
+        return getExceptionMessageDto("Forbidden request", HttpStatus.FORBIDDEN, e);
+    }
+
+    /**
      * Handles invalid request errors
      *
      * @return Invalid request and status 400
@@ -157,6 +170,19 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = NoAttemptsLeftException.class)
     public ExceptionMessageDto handleNoAttemptsLeftException(NoAttemptsLeftException e) {
         return getExceptionMessageDto("Validation error. No attempts left", HttpStatus.UNPROCESSABLE_ENTITY, e);
+    }
+
+    /**
+     * Handles any SQL Exception
+     *
+     * @return Exception message with status code 500
+     */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = DataAccessException.class)
+    public ExceptionMessageDto handleException(DataAccessException e) {
+        logger.error("Internal Server Error", e);
+        return new ExceptionMessageDto("Internal Server Error",  HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Database exception has occurred");
     }
 
     /**
