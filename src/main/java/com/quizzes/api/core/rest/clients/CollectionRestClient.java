@@ -333,7 +333,7 @@ public class CollectionRestClient {
 
         List<ChoiceDto> choices = resourceContentDto.getAnswers().stream().map(answer -> {
             ChoiceDto choiceDto = new ChoiceDto();
-            choiceDto.setFixed(true);
+            choiceDto.setIsFixed(true);
             choiceDto.setText(answer.getAnswerText());
             choiceDto.setValue(encodeAnswer(answer.getAnswerText()));
             choiceDto.setSequence(answer.getSequence());

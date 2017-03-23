@@ -25,7 +25,7 @@ public class QuizzesUtils {
 
     static {
         quizzesQuestionType = new HashMap<>();
-        quizzesQuestionType.put(QuestionTypeEnum.TrueFalse.getLiteral(), "TF");
+        quizzesQuestionType.put(QuestionTypeEnum.TrueFalse.getLiteral(), "T/F");
         quizzesQuestionType.put(QuestionTypeEnum.SingleChoice.getLiteral(), "MC");
         quizzesQuestionType.put(QuestionTypeEnum.DragAndDrop.getLiteral(), "HT_RO");
         quizzesQuestionType.put(QuestionTypeEnum.MultipleChoice.getLiteral(), "MA");
@@ -75,7 +75,8 @@ public class QuizzesUtils {
         return (mappedType == null) ? QuestionTypeEnum.None.getLiteral() : mappedType;
     }
 
-    public String decodeAnswer(String answer) {
+    public static String decodeAnswer(String answer) {
         return new String(Base64.getDecoder().decode(answer));
     }
+
 }

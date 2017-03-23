@@ -1,7 +1,11 @@
 package com.quizzes.api.core.dtos;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@Data
+@EqualsAndHashCode(callSuper=true)
 public class PostRequestResourceDto extends CommonResourceDto {
 
     /* These property are only used to save that field in the database */
@@ -9,21 +13,6 @@ public class PostRequestResourceDto extends CommonResourceDto {
     private int score = 0;
 
     @ApiModelProperty(hidden = true)
-    private boolean isSkipped = true;
+    private Boolean isSkipped = true;
 
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public boolean getIsSkipped() {
-        return isSkipped;
-    }
-
-    public void setIsSkipped(boolean skipped) {
-        isSkipped = skipped;
-    }
 }

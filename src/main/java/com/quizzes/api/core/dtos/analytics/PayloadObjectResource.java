@@ -1,5 +1,6 @@
-package com.quizzes.api.core.dtos.content;
+package com.quizzes.api.core.dtos.analytics;
 
+import com.quizzes.api.core.enums.AnswerStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,12 +9,9 @@ import java.util.Map;
 
 @Data
 @Builder
-public class PayloadObjectResourceEventContentDto {
+public class PayloadObjectResource {
 
-    /**
-     * Status like: correct/incorrect/skipped
-     */
-    private String attemptStatus;
+    private AnswerStatus attemptStatus;
 
     /**
      * MC/TF/FIB/MA/etc.
@@ -25,6 +23,8 @@ public class PayloadObjectResourceEventContentDto {
      */
     private Map<String, String> taxonomyIds;
 
-    private List<AnswerObjectEventContent> answerObject;
+    private List<AnswerObject> answerObject;
+
+    private boolean isStudent;
 
 }
