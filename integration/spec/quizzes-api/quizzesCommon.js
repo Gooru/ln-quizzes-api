@@ -22,6 +22,11 @@ var quizzesCommon = {
         return Buffer(token, 'base64').toString().split(":")[2];
     },
 
+    generateWrongAnswers: function(numberOfAnswers) {
+        let wrongAnswer = { value: new Buffer('wrong-answer').toString('base64') };
+        return [...Array(numberOfAnswers)].map((_) => wrongAnswer);
+    },
+
     startTest: function (title, functionalTest) {
         console.log("\n ****** Executing Functional Test: " + title + " ****** \n");
         functionalTest();

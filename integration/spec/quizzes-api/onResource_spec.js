@@ -34,11 +34,11 @@ QuizzesCommon.startTest('OnResource on started context', function () {
                         .toss();
 
                     Frisby.create('onResource call with resourceId === previous resource ID')
-                        .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`,
+                        .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${previousResource.id}`,
                             {'previousResource': {
                                 'answer': previousResource.correctAnswer,
                                 'reaction': 2,
-                                'resourceId': resourceId,
+                                'resourceId': previousResource.id,
                                 'timeSpent': 1500
                             }
                             }, {json: true})

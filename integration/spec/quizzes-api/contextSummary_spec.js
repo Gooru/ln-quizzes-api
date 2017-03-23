@@ -3,7 +3,6 @@ const Config = require('./quizzesTestConfiguration.js');
 
 let defaultTimeSpent = 1000;
 let defaultReaction = 3;
-let wrongAnswer = [ { value: 'wrong-answer' } ];
 
 QuizzesCommon.startTest('Test finished context summary with all correctly answered questions', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
@@ -99,7 +98,7 @@ QuizzesCommon.startTest('Test finished context summary with all incorrectly answ
                         // First question - incorrect
                         QuizzesCommon.onResourceEvent(contextId, collection.resources[1].id, {
                             'previousResource': {
-                                'answer': wrongAnswer,
+                                'answer': QuizzesCommon.generateWrongAnswers(1),
                                 'reaction': defaultReaction,
                                 'resourceId': collection.resources[0].id,
                                 'timeSpent': defaultTimeSpent
@@ -109,7 +108,7 @@ QuizzesCommon.startTest('Test finished context summary with all incorrectly answ
                             // Second question - incorrect
                             QuizzesCommon.onResourceEvent(contextId, collection.resources[2].id, {
                                 'previousResource': {
-                                    'answer': wrongAnswer,
+                                    'answer': QuizzesCommon.generateWrongAnswers(1),
                                     'reaction': defaultReaction,
                                     'resourceId': collection.resources[1].id,
                                     'timeSpent': defaultTimeSpent
@@ -119,7 +118,7 @@ QuizzesCommon.startTest('Test finished context summary with all incorrectly answ
                                 // Third question - incorrect
                                 QuizzesCommon.onResourceEvent(contextId, collection.resources[3].id, {
                                     'previousResource': {
-                                        'answer': wrongAnswer,
+                                        'answer': QuizzesCommon.generateWrongAnswers(2),
                                         'reaction': defaultReaction,
                                         'resourceId': collection.resources[2].id,
                                         'timeSpent': defaultTimeSpent
@@ -129,7 +128,7 @@ QuizzesCommon.startTest('Test finished context summary with all incorrectly answ
                                     // Fourth question - incorrect
                                     QuizzesCommon.onResourceEvent(contextId, collection.resources[0].id, {
                                         'previousResource': {
-                                            'answer': wrongAnswer,
+                                            'answer': QuizzesCommon.generateWrongAnswers(2),
                                             'reaction': defaultReaction,
                                             'resourceId': collection.resources[3].id,
                                             'timeSpent': defaultTimeSpent
@@ -298,7 +297,7 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
                             // Second question - incorrect
                             QuizzesCommon.onResourceEvent(contextId, collection.resources[2].id, {
                                 'previousResource': {
-                                    'answer': wrongAnswer,
+                                    'answer': QuizzesCommon.generateWrongAnswers(1),
                                     'reaction': defaultReaction,
                                     'resourceId': collection.resources[1].id,
                                     'timeSpent': defaultTimeSpent
@@ -368,7 +367,7 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
                                 // Third question - incorrect
                                 QuizzesCommon.onResourceEvent(contextId, collection.resources[0].id, {
                                     'previousResource': {
-                                        'answer': wrongAnswer,
+                                        'answer': QuizzesCommon.generateWrongAnswers(2),
                                         'reaction': defaultReaction,
                                         'resourceId': collection.resources[2].id,
                                         'timeSpent': defaultTimeSpent
@@ -523,7 +522,7 @@ QuizzesCommon.startTest('Test finished context summary when a question answer an
                         // First question - incorrect
                         QuizzesCommon.onResourceEvent(contextId, collection.resources[1].id, {
                             'previousResource': {
-                                'answer': wrongAnswer,
+                                'answer': QuizzesCommon.generateWrongAnswers(1),
                                 'reaction': defaultReaction,
                                 'resourceId': collection.resources[0].id,
                                 'timeSpent': defaultTimeSpent
@@ -653,7 +652,7 @@ QuizzesCommon.startTest('Test an unfinished context summary with 2 questions ans
                         // First question - incorrect
                         QuizzesCommon.onResourceEvent(contextId, collection.resources[1].id, {
                             'previousResource': {
-                                'answer': wrongAnswer,
+                                'answer': QuizzesCommon.generateWrongAnswers(1),
                                 'reaction': defaultReaction,
                                 'resourceId': collection.resources[0].id,
                                 'timeSpent': defaultTimeSpent
@@ -663,7 +662,7 @@ QuizzesCommon.startTest('Test an unfinished context summary with 2 questions ans
                             // Second question - incorrect
                             QuizzesCommon.onResourceEvent(contextId, collection.resources[2].id, {
                                 'previousResource': {
-                                    'answer': wrongAnswer,
+                                    'answer': QuizzesCommon.generateWrongAnswers(1),
                                     'reaction': defaultReaction,
                                     'resourceId': collection.resources[1].id,
                                     'timeSpent': defaultTimeSpent
@@ -732,7 +731,7 @@ QuizzesCommon.startTest('Test an unfinished context summary with 2 questions cor
                                 // Third question - incorrect
                                 QuizzesCommon.onResourceEvent(contextId, collection.resources[3].id, {
                                     'previousResource': {
-                                        'answer': wrongAnswer,
+                                        'answer': QuizzesCommon.generateWrongAnswers(2),
                                         'reaction': defaultReaction,
                                         'resourceId': collection.resources[2].id,
                                         'timeSpent': defaultTimeSpent
