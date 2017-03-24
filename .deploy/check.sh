@@ -9,7 +9,7 @@ function fail {
 
 function retry {
   local n=1
-  local max=15
+  local max=20
   local delay=40
   while true; do
     "$@" && break || {
