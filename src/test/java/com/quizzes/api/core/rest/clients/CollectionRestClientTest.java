@@ -756,7 +756,7 @@ public class CollectionRestClientTest {
 
     private ChoiceDto createChoiceDto(boolean fixed, String text, String value, int sequence) {
         ChoiceDto choiceDto = new ChoiceDto();
-        choiceDto.setFixed(fixed);
+        choiceDto.setIsFixed(fixed);
         choiceDto.setText(text);
         choiceDto.setValue(value);
         choiceDto.setSequence(sequence);
@@ -783,11 +783,4 @@ public class CollectionRestClientTest {
         String result = WhiteboxImpl.invokeMethod(collectionRestClient, "encodeAnswer", "<p>4/7</p>");
         assertEquals("Wrong decoded value", "PHA+NC83PC9wPg==", result);
     }
-
-    @Test
-    public void decodeAnswer() throws Exception {
-        String result = WhiteboxImpl.invokeMethod(collectionRestClient, "decodeAnswer", "PHA+NC83PC9wPg==");
-        assertEquals("Wrong decoded value", "<p>4/7</p>", result);
-    }
-
 }

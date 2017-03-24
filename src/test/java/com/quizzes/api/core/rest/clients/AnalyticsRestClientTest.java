@@ -1,7 +1,7 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.content.EventCollectionContentDto;
+import com.quizzes.api.core.dtos.analytics.EventCollection;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class AnalyticsRestClientTest {
 
     @Test
     public void notifyEvent() throws Exception {
-        EventCollectionContentDto eventCollectionContentDto = EventCollectionContentDto.builder().build();
+        EventCollection eventCollectionContentDto = EventCollection.builder().build();
 
         doReturn(new ResponseEntity<>(eventCollectionContentDto, HttpStatus.OK)).when(restTemplate)
                 .postForObject(any(String.class), any(Collections.class), eq(Void.class));

@@ -1,4 +1,4 @@
-package com.quizzes.api.core.dtos.content;
+package com.quizzes.api.core.dtos.analytics;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class VersionEventContentDto {
+public class Version {
     private String logApi;
 }

@@ -1,9 +1,9 @@
-package com.quizzes.api.core.dtos.content;
+package com.quizzes.api.core.dtos.analytics;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -11,13 +11,13 @@ import java.util.UUID;
  */
 @Data
 @AllArgsConstructor
-public class EventContentCommonDto {
+public class EventCommon {
     UUID eventId;
     String eventName;
-    SessionEventContentDto session;
-    private UserEventContentDto user;
-    private VersionEventContentDto version;
-    private MetricsEventContentDto metrics;
+    Session session;
+    private User user;
+    private Version version;
+    private Map metrics;
     private Long startTime;
     private Long endTime;
 }

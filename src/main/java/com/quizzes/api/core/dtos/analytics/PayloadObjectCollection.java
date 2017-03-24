@@ -1,11 +1,11 @@
-package com.quizzes.api.core.dtos.content;
+package com.quizzes.api.core.dtos.analytics;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PayloadObjectCollectionEventContentDto {
+public class PayloadObjectCollection {
 
     private Boolean isStudent;
 
