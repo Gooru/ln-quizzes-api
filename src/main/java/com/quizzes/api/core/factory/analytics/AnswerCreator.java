@@ -1,17 +1,21 @@
-package com.quizzes.api.core.services.analytics.impl;
+package com.quizzes.api.core.factory.analytics;
 
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.ChoiceDto;
+import com.quizzes.api.core.dtos.PostRequestResourceDto;
+import com.quizzes.api.core.dtos.ResourceDto;
+import com.quizzes.api.core.dtos.analytics.AnswerObject;
 import com.quizzes.api.core.enums.AnswerStatus;
-import com.quizzes.api.core.services.analytics.AnswerCreator;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-abstract class AnswerCreatorCommon implements AnswerCreator {
+public interface AnswerCreator {
 
-    protected List<String> getAnswerValues(List<AnswerDto> answers) {
+    List<AnswerObject> createAnswerObjects(PostRequestResourceDto answerResource, ResourceDto resource);
+
+    default List<String> getAnswerValues(List<AnswerDto> answers) {
         if (answers == null) {
             return Collections.emptyList();
         }
@@ -19,7 +23,7 @@ abstract class AnswerCreatorCommon implements AnswerCreator {
                 .collect(Collectors.toList());
     }
 
-    protected List<String> getChoiceValues(List<ChoiceDto> choices) {
+    default List<String> getChoiceValues(List<ChoiceDto> choices) {
         if (choices == null) {
             return Collections.emptyList();
         }
@@ -27,38 +31,39 @@ abstract class AnswerCreatorCommon implements AnswerCreator {
                 .collect(Collectors.toList());
     }
 
-    protected AnswerStatus isCorrectContains(String choice, List<String> correctValues) {
+    default AnswerStatus isCorrectContains(String choice, List<String> correctValues) {
         if (correctValues.contains(choice)) {
             return AnswerStatus.Correct;
         }
         return AnswerStatus.Incorrect;
     }
 
-    protected AnswerStatus isCorrectEquals(String answer, String correctValue) {
+    default AnswerStatus isCorrectEquals(String answer, String correctValue) {
         if (correctValue.equals(answer)) {
             return AnswerStatus.Correct;
         }
         return AnswerStatus.Incorrect;
     }
 
-    protected AnswerStatus isCorrectTrimIgnoreCase(String userAnswer, String correctValue) {
+    default AnswerStatus isCorrectTrimIgnoreCase(String userAnswer, String correctValue) {
         if (userAnswer.trim().equalsIgnoreCase(correctValue.trim())) {
             return AnswerStatus.Correct;
         }
         return AnswerStatus.Incorrect;
     }
 
-    protected AnswerStatus isCorrectSkipped(String choice, List<String> correctValues, boolean isSkipped) {
+    default AnswerStatus isCorrectSkipped(String choice, List<String> correctValues, boolean isSkipped) {
         if (isSkipped) {
             return null;
         }
         return isCorrectContains(choice, correctValues);
     }
 
-    protected AnswerStatus isCorrectSelected(String choice, List<String> correctValues, boolean isSelected) {
+    default AnswerStatus isCorrectSelected(String choice, List<String> correctValues, boolean isSelected) {
         if (correctValues.contains(choice)) {
             return isSelected ? AnswerStatus.Correct : AnswerStatus.Incorrect;
         }
         return isSelected ? AnswerStatus.Incorrect : AnswerStatus.Correct;
     }
+
 }

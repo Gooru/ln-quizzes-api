@@ -1,37 +1,37 @@
-package com.quizzes.api.core.services.analytics.impl;
+package com.quizzes.api.core.factory.analytics.impl;
 
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.analytics.AnswerObject;
+import com.quizzes.api.core.factory.analytics.AnswerCreator;
+import com.quizzes.api.util.QuizzesUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class HotTextAnswerCreator extends AnswerCreatorCommon {
+public class HotTextReorderAnswerCreator implements AnswerCreator {
 
     @Override
     public List<AnswerObject> createAnswerObjects(PostRequestResourceDto answerResource, ResourceDto resource) {
         List<AnswerObject> answerObjects = new ArrayList<>();
 
-        List<Integer> optionsOrder = getOptionsOrder(resource.getMetadata().getBody());
         List<String> correctValues = getAnswerValues(resource.getMetadata().getCorrectAnswer());
         List<String> userAnswers = getAnswerValues(answerResource.getAnswer());
 
-        for (String answer : userAnswers) {
-            String[] answerParts = answer.split(",");
+        for (int i = 0; i < userAnswers.size(); i++) {
+            String answer = userAnswers.get(i);
+            int index = i + 1;
 
             answerObjects.add(AnswerObject.builder()
-                    .answerId("0")
+                    .answerId("answer_" + index)
                     .timeStamp(answerResource.getTimeSpent())
-                    .order(optionsOrder.indexOf(new Integer(answerParts[1])) + 1)
-                    .status(isCorrectContains(answer, correctValues))
+                    .order(index)
+                    .status(isCorrectEquals(answer, correctValues.get(i)))
                     .skip(false)
-                    .text(answerParts[0])
+                    .text(QuizzesUtils.decodeAnswer(answer))
                     .build());
         }
 
         return answerObjects;
     }
-
-    protected abstract List<Integer> getOptionsOrder(String body);
 }
