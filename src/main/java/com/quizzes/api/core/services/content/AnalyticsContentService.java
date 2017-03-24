@@ -176,14 +176,11 @@ public class AnalyticsContentService {
     private List<AnswerObject> createAnswerObject(PostRequestResourceDto answerResource,
                                                   ResourceDto resource) {
 
-        QuestionTypeEnum questionType = QuestionTypeEnum.fromString(resource.getMetadata().getType());
-
-        if (answerResource.getAnswer() == null ||
-                questionType.equals(QuestionTypeEnum.None) ||
-                resource.getIsResource()) {
+        if (answerResource.getAnswer() == null || resource.getIsResource()) {
             return Collections.emptyList();
         }
 
+        QuestionTypeEnum questionType = QuestionTypeEnum.fromString(resource.getMetadata().getType());
         AnswerCreator creator = answerCreatorFactory.getAnswerCreator(questionType);
         return creator.createAnswerObjects(answerResource, resource);
     }
