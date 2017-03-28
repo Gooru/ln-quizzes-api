@@ -25,7 +25,7 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-
+        // All CORS requests for method OPTIONS are accepted
         if (HttpMethod.OPTIONS.matches(request.getMethod())) {
             return true;
         }
@@ -34,8 +34,7 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
         String token = getToken(authorizationHeader);
         String[] decodedTokenValues = new String(Base64.getDecoder().decode(token)).split(":");
 
-        //TODO Enable Token Authentication once Gooru team fixes the BE endpoint
-        //authenticationRestClient.verifyAccessToken(token);
+        authenticationRestClient.verifyAccessToken(token);
 
         request.setAttribute(PROFILE_ID_ATTRIBUTE, decodedTokenValues[2]);
         request.setAttribute(CLIENT_ID_ATTRIBUTE, decodedTokenValues[4]);

@@ -33,7 +33,7 @@ public class CurrentContextProfileRepositoryImpl implements CurrentContextProfil
     public ContextProfileEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
         return jooq.select(CURRENT_CONTEXT_PROFILE.CONTEXT_ID, CURRENT_CONTEXT_PROFILE.PROFILE_ID,
                 CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID, CONTEXT.COLLECTION_ID, CONTEXT.IS_COLLECTION,
-                CONTEXT.CLASS_ID, CONTEXT_PROFILE.IS_COMPLETE)
+                CONTEXT.CLASS_ID, CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.CURRENT_RESOURCE_ID)
                 .from(CURRENT_CONTEXT_PROFILE)
                 .join(CONTEXT).on(CONTEXT.ID.eq(CURRENT_CONTEXT_PROFILE.CONTEXT_ID)
                         .and(CONTEXT.IS_ACTIVE.eq(true))

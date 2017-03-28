@@ -28,4 +28,8 @@ public interface AssigneeEventEntity {
 
     void setTaxonomySummary(String taxonomySummary);
 
+    UUID getResourceId();
+
+    void setResourceId(UUID resourceId);
+
 }
