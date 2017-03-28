@@ -2,8 +2,6 @@ package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.analytics.EventCommon;
-import com.quizzes.api.core.exceptions.ContentProviderException;
-import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -39,25 +36,19 @@ public class AnalyticsRestClient {
     public void notifyEvent(EventCommon event, String token) {
         String endpointUrl = configurationService.getContentApiUrl() +
                 EVENTS_PATH + "?apiKey=" + configurationService.getApiKey();
+        List<EventCommon> eventBody = Collections.singletonList(event);
 
         if (log.isDebugEnabled()) {
             log.debug("POST Request to: " + endpointUrl);
+            log.debug("Body: " + gsonPretty.toJson(eventBody));
         }
 
         try {
-            log.debug("Body: " + gsonPretty.toJson(Collections.singletonList(event)));
-
             HttpHeaders headers = gooruHelper.setupAnalyticsHttpHeaders(token);
-            HttpEntity<List> entity = new HttpEntity<>(Collections.singletonList(event), headers);
-            restTemplate.postForObject(endpointUrl, entity, Void.class);
-        } catch (HttpClientErrorException hcee) {
-            log.error("There was problem saving the event: " + event.getEventName(), hcee);
-            throw new ContentProviderException("There was problem saving the event: " + event.getEventName(), hcee);
+            restTemplate.postForObject(endpointUrl, new HttpEntity<>(eventBody, headers), Void.class);
         } catch (Exception e) {
-            log.error("There was problem saving the event: " + event.getEventName(), e);
-            throw new InternalServerException("There was problem saving the event: " + event.getEventName(), e);
+            log.error("Event " + event.getEventName() + " could not be sent to Analytics API.", e);
         }
     }
-
 
 }

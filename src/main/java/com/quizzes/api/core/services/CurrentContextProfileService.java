@@ -33,10 +33,10 @@ public class CurrentContextProfileService {
      * @param profileId profile assigned to the context
      * @return the currentProfileContext in the {@link ContextProfileEntity} found
      */
-    public ContextProfileEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
+    public ContextProfileEntity findCurrentContextProfile(UUID contextId, UUID profileId) {
         ContextProfileEntity currentContextProfile =
                 currentContextProfileRepository.findCurrentContextProfileByContextIdAndProfileId(contextId, profileId);
-        if (currentContextProfile == null || currentContextProfile.getContextProfileId() == null) {
+        if (currentContextProfile == null) {
             throw new ContentNotFoundException("Current Context Profile not found for Context ID: " + contextId
                     + " and Profile ID: " + profileId);
         }

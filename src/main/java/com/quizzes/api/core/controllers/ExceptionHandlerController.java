@@ -2,6 +2,7 @@ package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.ExceptionMessageDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
+import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidClassMemberException;
 import com.quizzes.api.core.exceptions.InvalidCredentialsException;
@@ -185,7 +186,18 @@ public class ExceptionHandlerController {
     }
 
     /**
-     * Handles any general exception
+     * Handles the explicit InternalServerException
+     *
+     * @return Exception message with status code 500
+     */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(value = InternalServerException.class)
+    public ExceptionMessageDto handleException(InternalServerException e) {
+        return getExceptionMessageDto("Server processing error", HttpStatus.INTERNAL_SERVER_ERROR, e);
+    }
+
+    /**
+     * Handles any other exception
      *
      * @return Exception message with status code 500
      */

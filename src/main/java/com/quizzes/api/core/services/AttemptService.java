@@ -1,5 +1,6 @@
 package com.quizzes.api.core.services;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AttemptGetResponseDto;
 import com.quizzes.api.core.dtos.ContextAttemptsResponseDto;
@@ -16,6 +17,7 @@ import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -66,15 +68,17 @@ public class AttemptService {
 
             profileEvent.setEvents(assigneeEventEntityList.stream()
                     .filter(studentEventEntity -> studentEventEntity.getEventData() != null)
-                    .map(studentEventEntity -> gson.fromJson(studentEventEntity.getEventData(),
-                            PostResponseResourceDto.class)).collect(Collectors.toList()));
+                    .map(studentEventEntity -> {
+                        PostResponseResourceDto evenData = gson.fromJson(studentEventEntity.getEventData(),
+                                PostResponseResourceDto.class);
+                        evenData.setResourceId(studentEventEntity.getResourceId());
+                        return evenData;
+                    }).collect(Collectors.toList()));
 
-            EventSummaryDataDto eventSummaryDataDto =
-                    gson.fromJson(anyAssigneeEventEntity.getEventsSummary(), EventSummaryDataDto.class);
-            profileEvent.setEventSummary(eventSummaryDataDto);
-            List<TaxonomySummaryDto> taxonomySummaryDtos =
-                    gson.fromJson(anyAssigneeEventEntity.getTaxonomySummary(), List.class);
-            profileEvent.setEventSummary(eventSummaryDataDto);
+            profileEvent.setEventSummary(gson.fromJson(anyAssigneeEventEntity.getEventsSummary(),
+                    EventSummaryDataDto.class));
+            profileEvent.setTaxonomySummary(gson.fromJson(anyAssigneeEventEntity.getTaxonomySummary(),
+                    new TypeToken<ArrayList<TaxonomySummaryDto>>(){}.getType()));
 
             return profileEvent;
 

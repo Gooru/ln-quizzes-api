@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 import static com.quizzes.api.core.model.jooq.tables.Context.CONTEXT;
-import static com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
 import static com.quizzes.api.core.model.jooq.tables.ContextProfile.CONTEXT_PROFILE;
+import static com.quizzes.api.core.model.jooq.tables.CurrentContextProfile.CURRENT_CONTEXT_PROFILE;
 
 @Repository
-public class CurrentContextProfileImpl implements CurrentContextProfileRepository {
+public class CurrentContextProfileRepositoryImpl implements CurrentContextProfileRepository {
 
     @Autowired
     private DSLContext jooq;
@@ -31,19 +31,17 @@ public class CurrentContextProfileImpl implements CurrentContextProfileRepositor
 
     @Override
     public ContextProfileEntity findCurrentContextProfileByContextIdAndProfileId(UUID contextId, UUID profileId) {
-        return jooq.select(CONTEXT.ID.as("context_id"), CONTEXT.IS_COLLECTION, CONTEXT.COLLECTION_ID,
-                CONTEXT_PROFILE.ID.as("context_profile_id"), CONTEXT_PROFILE.PROFILE_ID, CONTEXT.CLASS_ID,
-                CONTEXT_PROFILE.CURRENT_RESOURCE_ID, CONTEXT_PROFILE.IS_COMPLETE,
-                CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID.as("current_context_profile_id"))
-                .from(CONTEXT)
-                .leftJoin(CONTEXT_PROFILE).on(CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
-                        .and(CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
-                .leftJoin(CURRENT_CONTEXT_PROFILE).on(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(CONTEXT.ID)
-                        .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId)))
-                .where(CONTEXT.ID.eq(contextId))
-                .and(CONTEXT.IS_ACTIVE.eq(true))
-                .and(CONTEXT.IS_DELETED.eq(false))
-                .orderBy(CONTEXT_PROFILE.CREATED_AT.desc()).limit(1)
+        return jooq.select(CURRENT_CONTEXT_PROFILE.CONTEXT_ID, CURRENT_CONTEXT_PROFILE.PROFILE_ID,
+                CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID, CONTEXT.COLLECTION_ID, CONTEXT.IS_COLLECTION,
+                CONTEXT.CLASS_ID, CONTEXT_PROFILE.IS_COMPLETE, CONTEXT_PROFILE.CURRENT_RESOURCE_ID)
+                .from(CURRENT_CONTEXT_PROFILE)
+                .join(CONTEXT).on(CONTEXT.ID.eq(CURRENT_CONTEXT_PROFILE.CONTEXT_ID)
+                        .and(CONTEXT.IS_ACTIVE.eq(true))
+                        .and(CONTEXT.IS_DELETED.eq(false)))
+                .join(CONTEXT_PROFILE).on(CONTEXT_PROFILE.ID.eq(CURRENT_CONTEXT_PROFILE.CONTEXT_PROFILE_ID))
+                .where(CURRENT_CONTEXT_PROFILE.CONTEXT_ID.eq(contextId))
+                .and(CURRENT_CONTEXT_PROFILE.PROFILE_ID.eq(profileId))
+                .limit(1)
                 .fetchOneInto(ContextProfileEntity.class);
     }
 

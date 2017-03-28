@@ -1,5 +1,6 @@
 package com.quizzes.api.core.services.content;
 
+import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,15 @@ public class ClassMemberService {
 
     public boolean containsOwnerId(UUID classId, UUID ownerId, String authToken) {
         return getClassOwnerIds(classId, authToken).contains(ownerId);
+    }
+
+    public void validateClassMember(UUID classId, UUID profileId, String token) throws InvalidAssigneeException {
+        if (classId != null) {
+            if (!containsMemberId(classId, profileId, token)) {
+                throw new InvalidAssigneeException("Profile Id: " + profileId + " is not a valid Assignee " +
+                        "(member of the Class Id: " + classId + ")");
+            }
+        }
     }
 
 }

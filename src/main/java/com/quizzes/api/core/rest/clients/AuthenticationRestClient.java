@@ -1,10 +1,11 @@
 package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.exceptions.ContentProviderException;
-import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.dtos.content.TokenRequestDto;
 import com.quizzes.api.core.dtos.content.TokenResponseDto;
+import com.quizzes.api.core.exceptions.ContentProviderException;
+import com.quizzes.api.core.exceptions.InternalServerException;
+import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import org.slf4j.Logger;
@@ -13,8 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -53,12 +56,15 @@ public class AuthenticationRestClient {
                 logger.debug("Response from: " + endpointUrl);
                 logger.debug("Status: OK");
             }
-        } catch (RestClientException rce) {
-            logger.error("Session Token '" + token + "' is not valid in Gooru.", rce);
-            throw new ContentProviderException("Session Token " + token + " is not valid in Gooru.", rce);
+        } catch (RestClientResponseException rce) {
+            logger.error("Gooru Session Token " + token + " could not be validated.", rce);
+            if (HttpStatus.UNAUTHORIZED.value() == rce.getRawStatusCode()) {
+                throw new InvalidSessionException("Invalid Gooru Session Token " + token, rce);
+            }
+            throw new ContentProviderException("Gooru Session Token " + token + " could not be validated.", rce);
         } catch (Exception e) {
-            logger.error("Session Token validation '" + token + "' could not be processed.", e);
-            throw new InternalServerException("Session Token validation " + token + " could not be processed.", e);
+            logger.error("Gooru Session Token " + token + " validation process failed.", e);
+            throw new InternalServerException("Gooru Session Token " + token + " validation process failed.", e);
         }
     }
 
