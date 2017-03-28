@@ -333,7 +333,7 @@ public class CollectionRestClient {
 
         List<ChoiceDto> choices = resourceContentDto.getAnswers().stream().map(answer -> {
             ChoiceDto choiceDto = new ChoiceDto();
-            choiceDto.setFixed(true);
+            choiceDto.setIsFixed(true);
             choiceDto.setText(answer.getAnswerText());
             choiceDto.setValue(encodeAnswer(answer.getAnswerText()));
             choiceDto.setSequence(answer.getSequence());
@@ -352,10 +352,6 @@ public class CollectionRestClient {
     private String encodeAnswer(String answer) {
         byte[] message = answer.getBytes(StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(message);
-    }
-
-    private String decodeAnswer(String answer) {
-        return new String(Base64.getDecoder().decode(answer));
     }
 
 }

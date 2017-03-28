@@ -36,9 +36,6 @@ public enum QuestionTypeEnum {
     @SerializedName("extended_text")
     ExtendedText("extended_text"),
 
-    @SerializedName("match")
-    Match("match"),
-
     @SerializedName("none")
     None("none");
 

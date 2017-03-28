@@ -1,4 +1,4 @@
-package com.quizzes.api.core.dtos.content;
+package com.quizzes.api.core.dtos.analytics;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,8 @@ import java.util.UUID;
 
 @Data
 @AllArgsConstructor
-public class ContextCommonEventContentDto {
+public class ContextCommon {
+
     /**
      * @contentGooruId means collectionId for collection.play/stop
      * It means currentResourceId for collection.resource.play/stop and reaction.create

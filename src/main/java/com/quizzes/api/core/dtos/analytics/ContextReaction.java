@@ -1,4 +1,4 @@
-package com.quizzes.api.core.dtos.content;
+package com.quizzes.api.core.dtos.analytics;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper=false)
-public class ContextReactionEventContentDto extends ContextCommonEventContentDto {
+public class ContextReaction extends ContextCommon {
 
     /**
      * Collection UUID of which this resource is a part of (currently playing)
@@ -27,11 +27,11 @@ public class ContextReactionEventContentDto extends ContextCommonEventContentDto
     private String reactionType;
 
     @Builder
-    private ContextReactionEventContentDto(UUID contentGooruId, String type, String collectionType,
-                                           String collectionSubType, UUID courseGooruId, UUID classGooruId,
-                                           UUID unitGooruId, UUID lessonGooruId, String clientSource, String source,
-                                           UUID appId, UUID partnerId, UUID tenantId, UUID parentGooruId,
-                                           UUID parentEventId, String reactionType) {
+    private ContextReaction(UUID contentGooruId, String type, String collectionType,
+                            String collectionSubType, UUID courseGooruId, UUID classGooruId,
+                            UUID unitGooruId, UUID lessonGooruId, String clientSource, String source,
+                            UUID appId, UUID partnerId, UUID tenantId, UUID parentGooruId,
+                            UUID parentEventId, String reactionType) {
         super(contentGooruId, type, collectionType, collectionSubType, courseGooruId, classGooruId, unitGooruId,
                 lessonGooruId, clientSource, source, appId, partnerId, tenantId);
         this.parentGooruId = parentGooruId;

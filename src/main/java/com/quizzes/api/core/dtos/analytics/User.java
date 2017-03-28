@@ -1,4 +1,4 @@
-package com.quizzes.api.core.dtos.content;
+package com.quizzes.api.core.dtos.analytics;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,6 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class UserEventContentDto {
+public class User {
     private UUID gooruUId;
 }
