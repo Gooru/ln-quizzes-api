@@ -2,8 +2,6 @@ package com.quizzes.api.core.rest.clients;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.analytics.EventCommon;
-import com.quizzes.api.core.exceptions.ContentProviderException;
-import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +36,7 @@ public class AnalyticsRestClient {
     public void notifyEvent(EventCommon event, String token) {
         String endpointUrl = configurationService.getContentApiUrl() +
                 EVENTS_PATH + "?apiKey=" + configurationService.getApiKey();
-        List<EventContentCommonDto> eventBody = Collections.singletonList(event);
+        List<EventCommon> eventBody = Collections.singletonList(event);
 
         if (log.isDebugEnabled()) {
             log.debug("POST Request to: " + endpointUrl);
