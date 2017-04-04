@@ -6,6 +6,7 @@ import com.quizzes.api.core.repositories.UtilsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,20 +22,20 @@ public class QuizzesUtils {
     public final static String RESOURCE = "resource";
     public final static String QUESTION = "question";
 
-    private static final Map<String, String> quizzesQuestionType;
+    private static final Map<QuestionTypeEnum, String> quizzesQuestionType;
 
     static {
         quizzesQuestionType = new HashMap<>();
-        quizzesQuestionType.put(QuestionTypeEnum.TrueFalse.getLiteral(), "T/F");
-        quizzesQuestionType.put(QuestionTypeEnum.SingleChoice.getLiteral(), "MC");
-        quizzesQuestionType.put(QuestionTypeEnum.DragAndDrop.getLiteral(), "HT_RO");
-        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoice.getLiteral(), "MA");
-        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceImage.getLiteral(), "HS_IMG");
-        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceText.getLiteral(), "HS_TXT");
-        quizzesQuestionType.put(QuestionTypeEnum.HotTextWord.getLiteral(), "HT_HL");
-        quizzesQuestionType.put(QuestionTypeEnum.HotTextSentence.getLiteral(), "HT_HL");
-        quizzesQuestionType.put(QuestionTypeEnum.TextEntry.getLiteral(), "FIB");
-        quizzesQuestionType.put(QuestionTypeEnum.ExtendedText.getLiteral(), "OE");
+        quizzesQuestionType.put(QuestionTypeEnum.TrueFalse, "T/F");
+        quizzesQuestionType.put(QuestionTypeEnum.SingleChoice, "MC");
+        quizzesQuestionType.put(QuestionTypeEnum.DragAndDrop, "HT_RO");
+        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoice, "MA");
+        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceImage, "HS_IMG");
+        quizzesQuestionType.put(QuestionTypeEnum.MultipleChoiceText, "HS_TXT");
+        quizzesQuestionType.put(QuestionTypeEnum.HotTextWord, "HT_HL");
+        quizzesQuestionType.put(QuestionTypeEnum.HotTextSentence, "HT_HL");
+        quizzesQuestionType.put(QuestionTypeEnum.TextEntry, "FIB");
+        quizzesQuestionType.put(QuestionTypeEnum.ExtendedText, "OE");
     }
 
     @Autowired
@@ -71,12 +72,17 @@ public class QuizzesUtils {
     }
 
     public String getGooruQuestionType(String quizzesQuestionType) {
-        String mappedType = QuizzesUtils.quizzesQuestionType.get(quizzesQuestionType);
-        return (mappedType == null) ? QuestionTypeEnum.None.getLiteral() : mappedType;
+        String mappedType = QuizzesUtils.quizzesQuestionType.get(QuestionTypeEnum.getEnum(quizzesQuestionType));
+        return (mappedType == null) ? QuestionTypeEnum.Unknown.getLiteral() : mappedType;
     }
 
-    public static String decodeAnswer(String answer) {
-        return new String(Base64.getDecoder().decode(answer));
+    public static String encodeString(String string) {
+        byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    public static String decodeString(String string) {
+        return new String(Base64.getDecoder().decode(string));
     }
 
 }

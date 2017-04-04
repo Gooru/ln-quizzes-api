@@ -28,7 +28,7 @@ public class MultipleChoiceAnswerCreator implements AnswerCreator {
                     .order(answerObjects.size() + 1)
                     .status(isCorrectContains(userAnswer, correctValues))
                     .skip(false)
-                    .text(QuizzesUtils.decodeAnswer(userAnswer))
+                    .text(QuizzesUtils.decodeString(userAnswer))
                     .build());
         }
 

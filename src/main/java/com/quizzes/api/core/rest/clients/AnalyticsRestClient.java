@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.AsyncRestTemplate;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +22,7 @@ public class AnalyticsRestClient {
     private static final String EVENTS_PATH = NUCLEUS_INSIGHTS_API_URL.concat("/event");
 
     @Autowired
-    private RestTemplate restTemplate;
+    private AsyncRestTemplate asyncRestTemplate;
 
     @Autowired
     private ConfigurationService configurationService;
@@ -45,7 +45,7 @@ public class AnalyticsRestClient {
 
         try {
             HttpHeaders headers = gooruHelper.setupAnalyticsHttpHeaders(token);
-            restTemplate.postForObject(endpointUrl, new HttpEntity<>(eventBody, headers), Void.class);
+            asyncRestTemplate.postForEntity(endpointUrl, new HttpEntity<>(eventBody, headers), Void.class);
         } catch (Exception e) {
             log.error("Event " + event.getEventName() + " could not be sent to Analytics API.", e);
         }

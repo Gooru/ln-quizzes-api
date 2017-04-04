@@ -3,6 +3,10 @@ const QuizzesApiUrl = Config.quizzesApiUrl;
 const ContentProviderApiUrl = Config.contentProviderApiUrl;
 const Frisby = require('frisby');
 
+Frisby.globalSetup({
+    timeout: 20000  // Timeout waits for 20 seconds
+});
+
 var quizzesCommon = {
 
     /**
@@ -91,7 +95,6 @@ var quizzesCommon = {
             .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
             .expectStatus(status)
-            .timeout(60000) //waits 60sec for response
             .expectHeaderContains('content-type', 'application/json')
             .inspectJSON()
             .afterJSON(afterJsonFunction)

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -24,6 +25,16 @@ public class RestTemplateConfiguration {
         restTemplate.setMessageConverters(messageConverters);
 
         return restTemplate;
+    }
+
+    @Bean
+    public AsyncRestTemplate asyncRestTemplate() {
+        AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
+        List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+        messageConverters.add(gsonHttpMessageConverter);
+        asyncRestTemplate.setMessageConverters(messageConverters);
+
+        return asyncRestTemplate;
     }
 
 }

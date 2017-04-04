@@ -95,9 +95,9 @@ public class AnswerCreatorFactoryTest {
     }
 
     @Test
-    public void getAnswerCreatorNone() {
-        AnswerCreator creator = answerCreatorFactory.getAnswerCreator(QuestionTypeEnum.None);
-
+    public void getUnknownAnswerCreator() {
+        AnswerCreator creator = answerCreatorFactory.getAnswerCreator(QuestionTypeEnum.Unknown);
         assertThat(creator, instanceOf(UnknownAnswerCreator.class));
     }
+
 }

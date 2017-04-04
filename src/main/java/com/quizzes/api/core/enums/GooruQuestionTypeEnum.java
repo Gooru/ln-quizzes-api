@@ -1,6 +1,5 @@
 package com.quizzes.api.core.enums;
 
-
 public enum GooruQuestionTypeEnum {
 
     TrueFalseQuestion("true_false_question"),
@@ -23,7 +22,9 @@ public enum GooruQuestionTypeEnum {
 
     FillInTheBlankQuestion("fill_in_the_blank_question"),
 
-    OpenEndedQuestion("open_ended_question");
+    OpenEndedQuestion("open_ended_question"),
+
+    Unknown("unknown");
 
     private final String literal;
 
@@ -31,8 +32,17 @@ public enum GooruQuestionTypeEnum {
         this.literal = literal;
     }
 
-    public java.lang.String getLiteral() {
+    public String getLiteral() {
         return literal;
+    }
+
+    public static GooruQuestionTypeEnum getEnum(String literal) {
+        for(GooruQuestionTypeEnum value : values()) {
+            if (value.getLiteral().equalsIgnoreCase(literal)) {
+                return value;
+            }
+        }
+        return Unknown;
     }
 
 }

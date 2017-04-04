@@ -14,6 +14,7 @@ import com.quizzes.api.core.enums.GooruQuestionTypeEnum;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
+import com.quizzes.api.util.QuizzesUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -383,7 +384,7 @@ public class CollectionRestClientTest {
     public void mapQuestionResource() throws Exception {
         ResourceContentDto resourceContentDto = createQuestionContentDto();
 
-        doReturn(trueFalseQuestion).when(collectionRestClient, "mapQuestionType", resourceContentDto);
+        doReturn(QuestionTypeEnum.TrueFalse).when(collectionRestClient, "mapQuestionType", resourceContentDto);
         doReturn(Arrays.asList(new AnswerDto("A"))).when(collectionRestClient, "getCorrectAnswers",
                 resourceContentDto);
         doReturn(createInteractionDto()).when(collectionRestClient, "createInteraction",
@@ -400,7 +401,7 @@ public class CollectionRestClientTest {
         assertEquals("Wrong description", resourceDescription, result.getDescription());
         assertEquals("Wrong body", resourceDescription, result.getBody());
         assertEquals("Wrong thumbnail", thumbnail, result.getThumbnail());
-        assertEquals("Wrong type", trueFalseQuestion, result.getType());
+        assertEquals("Wrong type", QuestionTypeEnum.TrueFalse.getLiteral(), result.getType());
         assertEquals("Wrong type", 1, result.getCorrectAnswer().size());
         assertNull("Url is not null", result.getUrl());
         assertEquals("Wrong taxonomy", taxonomy, result.getTaxonomy());
@@ -532,8 +533,8 @@ public class CollectionRestClientTest {
                 WhiteboxImpl.invokeMethod(collectionRestClient, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 2, result.size());
-        assertEquals("Wrong first correct answer value", "12", result.get(0).getValue());
-        assertEquals("Wrong second correct answer value", "6", result.get(1).getValue());
+        assertEquals("Wrong first correct answer value", QuizzesUtils.encodeString("12"), result.get(0).getValue());
+        assertEquals("Wrong second correct answer value", QuizzesUtils.encodeString("6"), result.get(1).getValue());
     }
 
     @Test
@@ -550,73 +551,68 @@ public class CollectionRestClientTest {
     public void mapQuestionType() throws Exception {
         ResourceContentDto resourceContentDto = new ResourceContentDto();
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral());
-        String trueFalseQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum trueFalseQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("True/False question type wrongly mapped",
-                QuestionTypeEnum.TrueFalse.getLiteral(), trueFalseQuestionType);
+        assertEquals("True/False question type wrongly mapped", QuestionTypeEnum.TrueFalse, trueFalseQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral());
-        String singleChoiceQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum singleChoiceQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("SingleChoice question type wrongly mapped",
-                QuestionTypeEnum.SingleChoice.getLiteral(), singleChoiceQuestionType);
+        assertEquals("SingleChoice question type wrongly mapped", QuestionTypeEnum.SingleChoice,
+                singleChoiceQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral());
-        String dragAndDropQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum dragAndDropQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("DragAndDrop question type wrongly mapped",
-                QuestionTypeEnum.DragAndDrop.getLiteral(), dragAndDropQuestionType);
+        assertEquals("DragAndDrop question type wrongly mapped", QuestionTypeEnum.DragAndDrop, dragAndDropQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.MultipleAnswerQuestion.getLiteral());
-        String multipleChoiceQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum multipleChoiceQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("MultipleChoice question type wrongly mapped",
-                QuestionTypeEnum.MultipleChoice.getLiteral(), multipleChoiceQuestionType);
+        assertEquals("MultipleChoice question type wrongly mapped", QuestionTypeEnum.MultipleChoice,
+                multipleChoiceQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotSpotImageQuestion.getLiteral());
-        String multipleChoiceImageQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
-                resourceContentDto);
-        assertEquals("MultipleChoiceImage question type wrongly mapped",
-                QuestionTypeEnum.MultipleChoiceImage.getLiteral(), multipleChoiceImageQuestionType);
+        QuestionTypeEnum multipleChoiceImageQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient,
+                "mapQuestionType", resourceContentDto);
+        assertEquals("MultipleChoiceImage question type wrongly mapped", QuestionTypeEnum.MultipleChoiceImage,
+                multipleChoiceImageQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotSpotTextQuestion.getLiteral());
-        String multipleChoiceTextQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
-                resourceContentDto);
-        assertEquals("MultipleChoiceText question type wrongly mapped",
-                QuestionTypeEnum.MultipleChoiceText.getLiteral(), multipleChoiceTextQuestionType);
+        QuestionTypeEnum multipleChoiceTextQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient,
+                "mapQuestionType", resourceContentDto);
+        assertEquals("MultipleChoiceText question type wrongly mapped", QuestionTypeEnum.MultipleChoiceText,
+                multipleChoiceTextQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral());
         AnswerContentDto answer = new AnswerContentDto();
         answer.setHighlightType("word");
         resourceContentDto.setAnswers(Arrays.asList(answer));
-        String hotTextWordQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum hotTextWordQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("HotTextWord question type wrongly mapped",
-                QuestionTypeEnum.HotTextWord.getLiteral(), hotTextWordQuestionType);
+        assertEquals("HotTextWord question type wrongly mapped", QuestionTypeEnum.HotTextWord, hotTextWordQuestionType);
         answer.setHighlightType("sentence");
         resourceContentDto.setAnswers(Arrays.asList(answer));
-        String hotTextSentenceQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
-                resourceContentDto);
-        assertEquals("HotTextSentence question type wrongly mapped",
-                QuestionTypeEnum.HotTextSentence.getLiteral(), hotTextSentenceQuestionType);
+        QuestionTypeEnum hotTextSentenceQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient,
+                "mapQuestionType", resourceContentDto);
+        assertEquals("HotTextSentence question type wrongly mapped", QuestionTypeEnum.HotTextSentence,
+                hotTextSentenceQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral());
-        String textEntryQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum textEntryQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("TextEntry question type wrongly mapped",
-                QuestionTypeEnum.TextEntry.getLiteral(), textEntryQuestionType);
+        assertEquals("TextEntry question type wrongly mapped", QuestionTypeEnum.TextEntry, textEntryQuestionType);
 
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral());
-        String extendedTextQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum extendedTextQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("ExtendedText question type wrongly mapped",
-                QuestionTypeEnum.ExtendedText.getLiteral(), extendedTextQuestionType);
+        assertEquals("ExtendedText question type wrongly mapped", QuestionTypeEnum.ExtendedText,
+                extendedTextQuestionType);
 
         resourceContentDto.setContentSubformat("unknown");
-        String noneQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
+        QuestionTypeEnum unknownQuestionType = WhiteboxImpl.invokeMethod(collectionRestClient, "mapQuestionType",
                 resourceContentDto);
-        assertEquals("None question type wrongly mapped",
-                QuestionTypeEnum.None.getLiteral(), noneQuestionType);
+        assertEquals("None question type wrongly mapped", QuestionTypeEnum.Unknown, unknownQuestionType);
     }
 
     private ResourceContentDto createQuestionContentDto() {
@@ -778,9 +774,4 @@ public class CollectionRestClientTest {
         assertNull("Interaction is null", result);
     }
 
-    @Test
-    public void encodeAnswer() throws Exception {
-        String result = WhiteboxImpl.invokeMethod(collectionRestClient, "encodeAnswer", "<p>4/7</p>");
-        assertEquals("Wrong decoded value", "PHA+NC83PC9wPg==", result);
-    }
 }

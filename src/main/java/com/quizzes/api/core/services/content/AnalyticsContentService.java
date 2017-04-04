@@ -180,7 +180,7 @@ public class AnalyticsContentService {
             return Collections.emptyList();
         }
 
-        QuestionTypeEnum questionType = QuestionTypeEnum.fromString(resource.getMetadata().getType());
+        QuestionTypeEnum questionType = QuestionTypeEnum.getEnum(resource.getMetadata().getType());
         AnswerCreator creator = answerCreatorFactory.getAnswerCreator(questionType);
         return creator.createAnswerObjects(answerResource, resource);
     }

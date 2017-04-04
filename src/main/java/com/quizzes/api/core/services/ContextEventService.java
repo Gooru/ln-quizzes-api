@@ -48,6 +48,9 @@ import java.util.stream.IntStream;
 @Service
 public class ContextEventService {
 
+    private static final int CORRECT_SCORE = 100;
+    private static final int INCORRECT_SCORE = 0;
+
     @Autowired
     private ContextProfileService contextProfileService;
 
@@ -402,15 +405,16 @@ public class ContextEventService {
      * @param correctAnswers Correct answers for the question
      * @return the score
      */
-    private int calculateScoreForCaseInsensitiveOrderedMultipleChoice(List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
+    private int calculateScoreForCaseInsensitiveOrderedMultipleChoice(List<AnswerDto> userAnswers,
+                                                                      List<AnswerDto> correctAnswers) {
         if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
         boolean isCorrect = IntStream.rangeClosed(0, correctAnswers.size() - 1)
-                .allMatch(i -> correctAnswers.get(i).getValue().trim()
-                        .equalsIgnoreCase(userAnswers.get(i).getValue().trim()));
+                .allMatch(i -> correctAnswers.get(i).getValue()
+                        .equals(QuizzesUtils.encodeString(userAnswers.get(i).getValue().trim().toUpperCase())));
 
-        return isCorrect ? 100 : 0;
+        return isCorrect ? CORRECT_SCORE : INCORRECT_SCORE;
     }
 
     /**
@@ -663,7 +667,7 @@ public class ContextEventService {
 
     private int calculateScoreByQuestionType(String questionType, List<AnswerDto> userAnswers,
                                              List<AnswerDto> correctAnswers) {
-        QuestionTypeEnum enumType = QuestionTypeEnum.fromString(questionType);
+        QuestionTypeEnum enumType = QuestionTypeEnum.getEnum(questionType);
         switch (enumType) {
             case TrueFalse:
             case SingleChoice:

@@ -2,8 +2,6 @@ package com.quizzes.api.core.enums;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Arrays;
-
 public enum QuestionTypeEnum {
 
     @SerializedName("true_false")
@@ -36,8 +34,8 @@ public enum QuestionTypeEnum {
     @SerializedName("extended_text")
     ExtendedText("extended_text"),
 
-    @SerializedName("none")
-    None("none");
+    @SerializedName("unknown")
+    Unknown("unknown");
 
     private final String literal;
 
@@ -49,11 +47,13 @@ public enum QuestionTypeEnum {
         return literal;
     }
 
-    public static QuestionTypeEnum fromString(String text) {
-        return Arrays.stream(QuestionTypeEnum.values())
-                .filter(e -> e.literal.equals(text))
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException(String.format("Unsupported type %s.", text)));
+    public static QuestionTypeEnum getEnum(String literal) {
+        for(QuestionTypeEnum value : values()) {
+            if (value.getLiteral().equalsIgnoreCase(literal)) {
+                return value;
+            }
+        }
+        return Unknown;
     }
 
 }

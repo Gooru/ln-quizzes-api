@@ -28,7 +28,7 @@ public class HotTextReorderAnswerCreator implements AnswerCreator {
                     .order(index)
                     .status(isCorrectEquals(answer, correctValues.get(i)))
                     .skip(false)
-                    .text(QuizzesUtils.decodeAnswer(answer))
+                    .text(QuizzesUtils.decodeString(answer))
                     .build());
         }
 

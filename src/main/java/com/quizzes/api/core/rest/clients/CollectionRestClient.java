@@ -23,6 +23,7 @@ import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
+import com.quizzes.api.util.QuizzesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +36,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -54,33 +53,24 @@ public class CollectionRestClient {
     private static final String ASSESSMENTS_PATH = NUCLEUS_API_URL.concat("/assessments/%s");
     private static final String COLLECTIONS_PATH = NUCLEUS_API_URL.concat("/collections/%s");
 
-    private static final Map<String, String> questionTypeMap;
-
     private final Pattern hotTextHighlightPattern = Pattern.compile("\\[(.*?)\\]");
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static final Map<GooruQuestionTypeEnum, QuestionTypeEnum> questionTypeMap;
+
     static {
         questionTypeMap = new HashMap<>();
-        questionTypeMap.put(GooruQuestionTypeEnum.TrueFalseQuestion.getLiteral(),
-                QuestionTypeEnum.TrueFalse.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.MultipleChoiceQuestion.getLiteral(),
-                QuestionTypeEnum.SingleChoice.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.HotTextReorderQuestion.getLiteral(),
-                QuestionTypeEnum.DragAndDrop.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.MultipleAnswerQuestion.getLiteral(),
-                QuestionTypeEnum.MultipleChoice.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.HotSpotImageQuestion.getLiteral(),
-                QuestionTypeEnum.MultipleChoiceImage.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.HotSpotTextQuestion.getLiteral(),
-                QuestionTypeEnum.MultipleChoiceText.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.WordHotTextHighlightQuestion.getLiteral(),
-                QuestionTypeEnum.HotTextWord.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.SentenceHotTextHighlightQuestion.getLiteral(),
-                QuestionTypeEnum.HotTextSentence.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral(),
-                QuestionTypeEnum.TextEntry.getLiteral());
-        questionTypeMap.put(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral(),
-                QuestionTypeEnum.ExtendedText.getLiteral());
+        questionTypeMap.put(GooruQuestionTypeEnum.TrueFalseQuestion, QuestionTypeEnum.TrueFalse);
+        questionTypeMap.put(GooruQuestionTypeEnum.MultipleChoiceQuestion, QuestionTypeEnum.SingleChoice);
+        questionTypeMap.put(GooruQuestionTypeEnum.HotTextReorderQuestion, QuestionTypeEnum.DragAndDrop);
+        questionTypeMap.put(GooruQuestionTypeEnum.MultipleAnswerQuestion, QuestionTypeEnum.MultipleChoice);
+        questionTypeMap.put(GooruQuestionTypeEnum.HotSpotImageQuestion, QuestionTypeEnum.MultipleChoiceImage);
+        questionTypeMap.put(GooruQuestionTypeEnum.HotSpotTextQuestion, QuestionTypeEnum.MultipleChoiceText);
+        questionTypeMap.put(GooruQuestionTypeEnum.WordHotTextHighlightQuestion, QuestionTypeEnum.HotTextWord);
+        questionTypeMap.put(GooruQuestionTypeEnum.SentenceHotTextHighlightQuestion, QuestionTypeEnum.HotTextSentence);
+        questionTypeMap.put(GooruQuestionTypeEnum.FillInTheBlankQuestion, QuestionTypeEnum.TextEntry);
+        questionTypeMap.put(GooruQuestionTypeEnum.OpenEndedQuestion, QuestionTypeEnum.ExtendedText);
+        questionTypeMap.put(GooruQuestionTypeEnum.Unknown, QuestionTypeEnum.Unknown);
     }
 
     @Autowired
@@ -253,7 +243,7 @@ public class CollectionRestClient {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
         metadata.setDescription(resourceContentDto.getDescription());
-        metadata.setType(mapQuestionType(resourceContentDto));
+        metadata.setType(mapQuestionType(resourceContentDto).getLiteral());
         metadata.setThumbnail(resourceContentDto.getThumbnail());
         if (resourceContentDto.getAnswers() != null) {
             metadata.setCorrectAnswer(getCorrectAnswers(resourceContentDto));
@@ -264,28 +254,28 @@ public class CollectionRestClient {
         return metadata;
     }
 
-    private String mapQuestionType(ResourceContentDto resourceContentDto) {
+    private QuestionTypeEnum mapQuestionType(ResourceContentDto resourceContentDto) {
         String contentSubformat = resourceContentDto.getContentSubformat();
-        if (resourceContentDto.getContentSubformat()
-                .equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
-            contentSubformat = resourceContentDto.getAnswers().get(0).getHighlightType() + "_" +
-                    contentSubformat;
+        GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
+        if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion)) {
+            String highlightType = resourceContentDto.getAnswers().get(0).getHighlightType();
+            resourceQuestionType = GooruQuestionTypeEnum.getEnum(highlightType + "_" + contentSubformat);
         }
-        String mappedType = questionTypeMap.get(contentSubformat);
-        return (mappedType == null) ? QuestionTypeEnum.None.getLiteral() : mappedType;
+        return questionTypeMap.get(resourceQuestionType);
     }
 
     private List<AnswerDto> getCorrectAnswers(ResourceContentDto resourceContentDto) {
-        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
-            return getHotTextHighlightCorrectAnswers(resourceContentDto);
-        }
-        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
-            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
-        }
-        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+        String contentSubformat = resourceContentDto.getContentSubformat();
+        GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
+        if (resourceQuestionType.equals(GooruQuestionTypeEnum.OpenEndedQuestion)) {
             return null;
+        } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion)) {
+            return getHotTextHighlightCorrectAnswers(resourceContentDto);
+        } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.MultipleAnswerQuestion)) {
+            return getMultipleAnswerCorrectAnswers(resourceContentDto.getAnswers());
+        } else {
+            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers());
         }
-        return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), true);
     }
 
     private List<AnswerDto> getHotTextHighlightCorrectAnswers(ResourceContentDto resourceContentDto) {
@@ -295,7 +285,8 @@ public class CollectionRestClient {
 
         int answerCount = 0;
         while (hotTextHighlightMatcher.find()) {
-            int answerStart = hotTextHighlightMatcher.start(1) - (answerCount * 2) - 1; // matcher start - (2x + 1) to counter the missing [] on the FE
+            // matcher start - (2x + 1) to counter the missing [] on the FE
+            int answerStart = hotTextHighlightMatcher.start(1) - (answerCount * 2) - 1;
             String answerValue = answerText.substring(hotTextHighlightMatcher.start(1), hotTextHighlightMatcher.end(1));
             correctAnswers.add(new AnswerDto(answerValue + "," + answerStart));
             answerCount++;
@@ -303,31 +294,48 @@ public class CollectionRestClient {
         return correctAnswers;
     }
 
-    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers, boolean encodeValues) {
-        List<AnswerDto> correctAnswers = new ArrayList<>();
+    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers) {
+        final List<AnswerDto> correctAnswers = new ArrayList<>();
         if (answers != null) {
-            correctAnswers = answers.stream()
-                    .filter(answer -> answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1"))
-                    .map(answer -> new AnswerDto(encodeValues ? encodeAnswer(answer.getAnswerText()) : answer.getAnswerText()))
-                    .collect(Collectors.toList());
+            answers.forEach(answer -> {
+                if (answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1")) {
+                    correctAnswers.add(new AnswerDto(QuizzesUtils.encodeString(answer.getAnswerText().toUpperCase())));
+                }
+            });
         }
         return correctAnswers;
     }
 
-    private String getBody(ResourceContentDto resource) {
-        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral())) {
-            return resource.getAnswers().get(0).getAnswerText().replaceAll("(\\[|\\])", "");
+    private List<AnswerDto> getMultipleAnswerCorrectAnswers(List<AnswerContentDto> answers) {
+        final List<AnswerDto> correctAnswers = new ArrayList<>();
+        if (answers != null) {
+            answers.forEach(answer -> {
+                if (answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1")) {
+                    correctAnswers.add(new AnswerDto(QuizzesUtils.encodeString(String.valueOf(answer.getSequence()))));
+                }
+            });
         }
-        if (resource.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral())) {
-            return resource.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
+        return correctAnswers;
+    }
+
+    private String getBody(ResourceContentDto resourceContentDto) {
+        String contentSubformat = resourceContentDto.getContentSubformat();
+        GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
+        if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion)) {
+            return resourceContentDto.getAnswers().get(0).getAnswerText().replaceAll("(\\[|\\])", "");
+        } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
+            return resourceContentDto.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
+        } else {
+            return resourceContentDto.getDescription();
         }
-        return resource.getDescription();
     }
 
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
-        if (resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.HotTextHighlightQuestion.getLiteral()) ||
-                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral()) ||
-                resourceContentDto.getContentSubformat().equals(GooruQuestionTypeEnum.OpenEndedQuestion.getLiteral())) {
+        String contentSubformat = resourceContentDto.getContentSubformat();
+        GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
+        if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion) ||
+                resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion) ||
+                resourceQuestionType.equals(GooruQuestionTypeEnum.OpenEndedQuestion)) {
             return null;
         }
 
@@ -335,7 +343,13 @@ public class CollectionRestClient {
             ChoiceDto choiceDto = new ChoiceDto();
             choiceDto.setIsFixed(true);
             choiceDto.setText(answer.getAnswerText());
-            choiceDto.setValue(encodeAnswer(answer.getAnswerText()));
+            if (resourceQuestionType.equals(GooruQuestionTypeEnum.MultipleAnswerQuestion)) {
+                // Sets the value using the encoded Sequence
+                choiceDto.setValue(QuizzesUtils.encodeString(String.valueOf(answer.getSequence())));
+            } else {
+                // Sets the value using the encoded AnswerText
+                choiceDto.setValue(QuizzesUtils.encodeString(answer.getAnswerText()));
+            }
             choiceDto.setSequence(answer.getSequence());
             return choiceDto;
         }).collect(Collectors.toList());
@@ -347,11 +361,6 @@ public class CollectionRestClient {
         interactionDto.setChoices(choices);
 
         return interactionDto;
-    }
-
-    private String encodeAnswer(String answer) {
-        byte[] message = answer.getBytes(StandardCharsets.UTF_8);
-        return Base64.getEncoder().encodeToString(message);
     }
 
 }

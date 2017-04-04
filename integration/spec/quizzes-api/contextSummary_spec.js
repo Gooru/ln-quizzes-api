@@ -47,7 +47,7 @@ QuizzesCommon.startTest('Test finished context summary with all correctly answer
                                     // Fourth question - correct
                                     QuizzesCommon.onResourceEvent(contextId, collection.resources[0].id, {
                                         'previousResource': {
-                                            'answer': collection.resources[3].metadata.correctAnswer,
+                                            'answer': [{"value": "wolf"}, {"value": "house"}],
                                             'reaction': defaultReaction,
                                             'resourceId': collection.resources[3].id,
                                             'timeSpent': defaultTimeSpent
@@ -474,7 +474,7 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                                             'resourceId': collection.resources[0].id,
                                             'timeSpent': 1000,
                                             'reaction': 3,
-                                            'answer': [ { 'value': 'VHJ1ZQ==' } ]
+                                            'answer': [ { 'value': 'VFJVRQ==' } ]
                                         });
                                         expect(json.profileAttempts[0].events).toContain({
                                             'score': 100,
@@ -482,7 +482,7 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                                             'resourceId': collection.resources[1].id,
                                             'timeSpent': defaultTimeSpent,
                                             'reaction': defaultReaction,
-                                            'answer': [ { 'value': 'NTAwICogMiA9IDEwMDAw' } ]
+                                            'answer': [ { 'value': 'Mg==' } ]
                                         });
                                         expect(json.profileAttempts[0].events).toContain({
                                             'score': 0,
@@ -584,57 +584,59 @@ QuizzesCommon.startTest('Test finished context summary when a question answer an
 QuizzesCommon.startTest('Test an unfinished context summary with 2 questions answered correctly', function () {
     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
         let assessmentId = Config.getAssessment('TestAssessment02').id;
-        QuizzesCommon.getAssessmentById(assessmentId, authToken,function (collection){
+        QuizzesCommon.getAssessmentById(assessmentId, authToken, function (collection) {
             let classId = Config.getClass('TestClass01').id;
-            QuizzesCommon.createContext(assessmentId, classId, false, QuizzesCommon.generateRandomContextMap(), authToken, function (contextResponse) {
-                let contextId = contextResponse.id;
-                QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
-                    QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+            QuizzesCommon.createContext(assessmentId, classId, false, QuizzesCommon.generateRandomContextMap(),
+                authToken, function (contextResponse) {
+                    let contextId = contextResponse.id;
+                    QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                        QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
 
-                        // First question - correct
-                        QuizzesCommon.onResourceEvent(contextId, collection.resources[1].id, {
-                            'previousResource': {
-                                'answer': collection.resources[0].metadata.correctAnswer,
-                                'reaction': defaultReaction,
-                                'resourceId': collection.resources[0].id,
-                                'timeSpent': defaultTimeSpent
-                            }
-                        }, assigneeAuthToken, function () {
-
-                            // Second question - correct
-                            QuizzesCommon.onResourceEvent(contextId, collection.resources[2].id, {
+                            // First question - correct
+                            QuizzesCommon.onResourceEvent(contextId, collection.resources[1].id, {
                                 'previousResource': {
-                                    'answer': collection.resources[1].metadata.correctAnswer,
+                                    'answer': collection.resources[0].metadata.correctAnswer,
                                     'reaction': defaultReaction,
-                                    'resourceId': collection.resources[1].id,
+                                    'resourceId': collection.resources[0].id,
                                     'timeSpent': defaultTimeSpent
                                 }
                             }, assigneeAuthToken, function () {
 
-                                let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
-                                let answeredCount = 2;
-                                QuizzesCommon.getAttempts(contextId, authToken, {
-                                    'collectionId': assessmentId,
-                                    'contextId': contextId,
-                                    'profileAttempts': [
-                                        {
-                                            'currentResourceId': collection.resources[2].id,
-                                            'profileId': assigneeProfileId,
-                                            'eventSummary': {
-                                                'totalTimeSpent': defaultTimeSpent * 2,
-                                                'averageReaction': defaultReaction,
-                                                'averageScore': 100,
-                                                'totalCorrect': answeredCount,
-                                                'totalAnswered': answeredCount
+                                // Second question - correct
+                                QuizzesCommon.onResourceEvent(contextId, collection.resources[2].id, {
+                                    'previousResource': {
+                                        'answer': collection.resources[1].metadata.correctAnswer,
+                                        'reaction': defaultReaction,
+                                        'resourceId': collection.resources[1].id,
+                                        'timeSpent': defaultTimeSpent
+                                    }
+                                }, assigneeAuthToken, function () {
+
+                                    let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
+                                    let answeredCount = 2;
+                                    QuizzesCommon.getAttempts(contextId, authToken, {
+                                        'collectionId': assessmentId,
+                                        'contextId': contextId,
+                                        'profileAttempts': [
+                                            {
+                                                'currentResourceId': collection.resources[2].id,
+                                                'profileId': assigneeProfileId,
+                                                'eventSummary': {
+                                                    'totalTimeSpent': defaultTimeSpent * 2,
+                                                    'averageReaction': defaultReaction,
+                                                    'averageScore': 100,
+                                                    'totalCorrect': answeredCount,
+                                                    'totalAnswered': answeredCount
+                                                }
                                             }
-                                        }
-                                    ]
-                                }, function() {});
+                                        ]
+                                    }, function () {
+                                    });
+                                });
                             });
                         });
                     });
                 });
-            });
         });
     });
 });
