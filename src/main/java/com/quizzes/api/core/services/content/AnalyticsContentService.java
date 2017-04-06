@@ -59,7 +59,7 @@ public class AnalyticsContentService {
                                     boolean isCollection, String token, Long startTime) {
 
         EventCollection playEvent = createEventCollection(collectionId, classId, contextProfileId,
-                contextProfileId, profileId, isCollection, token, START, startTime, null);
+                contextProfileId, profileId, isCollection, token, START, startTime, startTime);
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
@@ -75,7 +75,7 @@ public class AnalyticsContentService {
                                   boolean isCollection, String token, ResourceDto resource, Long startTime, UUID eventId) {
 
         EventResource playEvent = createEventResource(collectionId, classId, contextProfileId,
-                eventId, profileId, isCollection, token, START, resource, null, startTime, null);
+                eventId, profileId, isCollection, token, START, resource, null, startTime, startTime);
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 

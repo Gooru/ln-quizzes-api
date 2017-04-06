@@ -100,14 +100,15 @@ public class AnalyticsContentServiceTest {
     public void collectionPlay() throws Exception {
         EventCollection eventCollection = createEventCollection();
         doReturn(eventCollection).when(analyticsContentService, "createEventCollection", collectionId,
-                classId, contextProfileId, contextProfileId, profileId, true, token, "start", startTime, null);
+                classId, contextProfileId, contextProfileId, profileId, true, token, "start", startTime, startTime);
         doNothing().when(analyticsRestClient).notifyEvent(eventCollection, token);
 
-        analyticsContentService.collectionPlayStart(collectionId, classId, contextProfileId, profileId, true, token, startTime);
+        analyticsContentService.collectionPlayStart(collectionId, classId, contextProfileId, profileId, true, token,
+                startTime);
 
         verifyPrivate(analyticsContentService, times(1))
                 .invoke("createEventCollection", collectionId, classId, contextProfileId, contextProfileId, profileId,
-                        true, token, "start", startTime, null);
+                        true, token, "start", startTime, startTime);
         verify(analyticsRestClient, times(1)).notifyEvent(eventCollection, token);
     }
 
@@ -119,7 +120,8 @@ public class AnalyticsContentServiceTest {
                 classId, contextProfileId, contextProfileId, profileId, true, token, "stop", startTime, currentTime);
         doNothing().when(analyticsRestClient).notifyEvent(eventCollection, token);
 
-        analyticsContentService.collectionPlayStop(collectionId, classId, contextProfileId, profileId, true, token, startTime);
+        analyticsContentService.collectionPlayStop(collectionId, classId, contextProfileId, profileId, true, token,
+                startTime);
 
         verifyPrivate(analyticsContentService, times(1)).invoke("createEventCollection", collectionId, classId,
                 contextProfileId, contextProfileId, profileId, true, token, "stop", startTime, currentTime);
@@ -132,7 +134,8 @@ public class AnalyticsContentServiceTest {
         EventResource eventResource = createEventResource();
         ResourceDto resource = createResourceDto();
         doReturn(eventResource).when(analyticsContentService, "createEventResource", collectionId,
-                classId, contextProfileId, eventId, profileId, true, token, "start", resource, null, startTime, null);
+                classId, contextProfileId, eventId, profileId, true, token, "start", resource, null, startTime,
+                startTime);
         doNothing().when(analyticsRestClient).notifyEvent(eventResource, token);
 
         analyticsContentService.resourcePlayStart(collectionId, classId, contextProfileId, profileId, true, token,
@@ -140,7 +143,7 @@ public class AnalyticsContentServiceTest {
 
         verifyPrivate(analyticsContentService, times(1))
                 .invoke("createEventResource", collectionId, classId, contextProfileId, eventId, profileId,
-                        true, token, "start", resource, null, startTime, null);
+                        true, token, "start", resource, null, startTime, startTime);
         verify(analyticsRestClient, times(1)).notifyEvent(eventResource, token);
     }
 
@@ -198,17 +201,18 @@ public class AnalyticsContentServiceTest {
         doReturn(PayloadObjectResource.builder().build())
                 .when(analyticsContentService, "createPayloadObjectResource", anyString(), any(ResourceDto.class),
                         any(PostRequestResourceDto.class));
-        doReturn(Session.builder().build()).when(analyticsContentService, "createSession", any(UUID.class), anyString());
+        doReturn(Session.builder().build()).when(analyticsContentService, "createSession", any(UUID.class),
+                anyString());
 
         EventResource result = WhiteboxImpl.invokeMethod(analyticsContentService, "createEventResource",
-                collectionId, classId, contextProfileId, eventId, profileId, true, token, "start", resource, answerResource,
-                startTime, stopTime);
+                collectionId, classId, contextProfileId, eventId, profileId, true, token, "start", resource,
+                answerResource, startTime, stopTime);
 
         verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true);
         verifyPrivate(analyticsContentService, times(1)).invoke("createContextResource", any(CollectionDto.class),
                 any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
-        verifyPrivate(analyticsContentService, times(1)).invoke("createPayloadObjectResource", anyString(), any(ResourceDto.class),
-                any(PostRequestResourceDto.class));
+        verifyPrivate(analyticsContentService, times(1)).invoke("createPayloadObjectResource", anyString(),
+                any(ResourceDto.class), any(PostRequestResourceDto.class));
         verifyPrivate(analyticsContentService, times(1)).invoke("createSession", any(UUID.class), anyString());
 
         assertEquals("Wrong apiKey", eventId, result.getEventId());
@@ -229,7 +233,8 @@ public class AnalyticsContentServiceTest {
         doReturn(PayloadObjectResource.builder().build())
                 .when(analyticsContentService, "createPayloadObjectResource", anyString(), any(ResourceDto.class),
                         any(PostRequestResourceDto.class));
-        doReturn(Session.builder().build()).when(analyticsContentService, "createSession", any(UUID.class), anyString());
+        doReturn(Session.builder().build()).when(analyticsContentService, "createSession", any(UUID.class),
+                anyString());
 
         EventResource result = WhiteboxImpl.invokeMethod(analyticsContentService, "createEventResource",
                 collectionId, classId, contextProfileId, eventId, profileId, true, token, "start", null, null,
@@ -238,8 +243,8 @@ public class AnalyticsContentServiceTest {
         verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true);
         verifyPrivate(analyticsContentService, times(1)).invoke("createContextResource", any(CollectionDto.class),
                 any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
-        verifyPrivate(analyticsContentService, times(1)).invoke("createPayloadObjectResource", anyString(), any(ResourceDto.class),
-                any(PostRequestResourceDto.class));
+        verifyPrivate(analyticsContentService, times(1)).invoke("createPayloadObjectResource", anyString(),
+                any(ResourceDto.class), any(PostRequestResourceDto.class));
         verifyPrivate(analyticsContentService, times(1)).invoke("createSession", any(UUID.class), anyString());
 
         assertEquals("Wrong apiKey", eventId, result.getEventId());
