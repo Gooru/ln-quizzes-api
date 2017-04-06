@@ -81,7 +81,8 @@ public class ContextController {
             contextId = contextService.createContext(collectionId, resolvedProfileId, classId,
                     contextPostRequestDto.getContextData(), isCollection, token);
         } else {
-            contextId = contextService.createContextWithoutClassId(collectionId, resolvedProfileId, isCollection);
+            contextId = contextService.createContextWithoutClassId(collectionId, resolvedProfileId, isCollection,
+                    token);
         }
 
         return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);

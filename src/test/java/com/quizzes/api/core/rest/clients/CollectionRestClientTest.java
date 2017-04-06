@@ -124,9 +124,8 @@ public class CollectionRestClientTest {
         doReturn(new ResponseEntity<>(collectionContentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(CollectionContentDto.class));
 
-        CollectionDto result = collectionRestClient.getCollection(collectionId);
+        CollectionDto result = collectionRestClient.getCollection(collectionId, "token");
 
-        verify(authenticationRestClient, times(1)).generateAnonymousToken();
         verify(configurationService, times(1)).getContentApiUrl();
         verify(gooruHelper, times(1)).setupHttpHeaders(anyString());
         verify(restTemplate, times(1))
@@ -167,9 +166,8 @@ public class CollectionRestClientTest {
         doReturn(new ResponseEntity<>(assessmentContentDto, HttpStatus.OK)).when(restTemplate)
                 .exchange(anyString(), eq(HttpMethod.GET), any(HttpEntity.class), eq(AssessmentContentDto.class));
 
-        CollectionDto result = collectionRestClient.getAssessment(collectionId);
+        CollectionDto result = collectionRestClient.getAssessment(collectionId, "token");
 
-        verify(authenticationRestClient, times(1)).generateAnonymousToken();
         verify(configurationService, times(1)).getContentApiUrl();
         verify(gooruHelper, times(1)).setupHttpHeaders(anyString());
         verify(restTemplate, times(1))

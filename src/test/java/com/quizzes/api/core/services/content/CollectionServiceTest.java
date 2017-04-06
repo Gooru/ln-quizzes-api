@@ -19,6 +19,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
@@ -52,11 +53,11 @@ public class CollectionServiceTest {
         collectionDto.setId(assessmentId.toString());
         collectionDto.setIsCollection(false);
 
-        doReturn(collectionDto).when(collectionRestClient).getAssessmentWithCacheRefresh(any(UUID.class));
+        doReturn(collectionDto).when(collectionRestClient).getAssessmentWithCacheRefresh(any(UUID.class), anyString());
 
-        CollectionDto result = collectionService.getAssessment(assessmentId, true);
+        CollectionDto result = collectionService.getAssessment(assessmentId, true, "token");
 
-        verify(collectionRestClient, times(1)).getAssessmentWithCacheRefresh(any(UUID.class));
+        verify(collectionRestClient, times(1)).getAssessmentWithCacheRefresh(any(UUID.class), anyString());
         assertEquals("Wrong Assessment ID", assessmentId.toString(), result.getId());
         assertFalse("Wrong IsCollection value", result.getIsCollection());
     }
@@ -67,11 +68,11 @@ public class CollectionServiceTest {
         collectionDto.setId(collectionId.toString());
         collectionDto.setIsCollection(true);
 
-        doReturn(collectionDto).when(collectionRestClient).getCollectionWithCacheRefresh(any(UUID.class));
+        doReturn(collectionDto).when(collectionRestClient).getCollectionWithCacheRefresh(any(UUID.class), anyString());
 
-        CollectionDto result = collectionService.getCollection(collectionId, true);
+        CollectionDto result = collectionService.getCollection(collectionId, true, "token");
 
-        verify(collectionRestClient, times(1)).getCollectionWithCacheRefresh(any(UUID.class));
+        verify(collectionRestClient, times(1)).getCollectionWithCacheRefresh(any(UUID.class), anyString());
         assertEquals("Wrong Collection ID", collectionId.toString(), result.getId());
         assertTrue("Wrong IsCollection value", result.getIsCollection());
     }
@@ -82,12 +83,12 @@ public class CollectionServiceTest {
         collectionDto.setId(assessmentId.toString());
         collectionDto.setIsCollection(false);
 
-        doReturn(collectionDto).when(collectionRestClient).getAssessment(any(UUID.class));
+        doReturn(collectionDto).when(collectionRestClient).getAssessment(any(UUID.class), anyString());
 
-        CollectionDto result = collectionService.getAssessment(assessmentId);
+        CollectionDto result = collectionService.getAssessment(assessmentId, "token");
 
-        verify(collectionService, times(1)).getAssessment(any(UUID.class), eq(false));
-        verify(collectionRestClient, times(1)).getAssessment(any(UUID.class));
+        verify(collectionService, times(1)).getAssessment(any(UUID.class), eq(false), anyString());
+        verify(collectionRestClient, times(1)).getAssessment(any(UUID.class), anyString());
         assertEquals("Wrong Assessment ID", assessmentId.toString(), result.getId());
         assertFalse("Wrong IsCollection value", result.getIsCollection());
     }
@@ -98,12 +99,12 @@ public class CollectionServiceTest {
         collectionDto.setId(collectionId.toString());
         collectionDto.setIsCollection(true);
 
-        doReturn(collectionDto).when(collectionRestClient).getCollection(any(UUID.class));
+        doReturn(collectionDto).when(collectionRestClient).getCollection(any(UUID.class), anyString());
 
-        CollectionDto result = collectionService.getCollection(collectionId);
+        CollectionDto result = collectionService.getCollection(collectionId, "token");
 
-        verify(collectionService, times(1)).getCollection(any(UUID.class));
-        verify(collectionRestClient, times(1)).getCollection(any(UUID.class));
+        verify(collectionService, times(1)).getCollection(any(UUID.class), anyString());
+        verify(collectionRestClient, times(1)).getCollection(any(UUID.class), anyString());
         assertEquals("Wrong Assessment ID", collectionId.toString(), result.getId());
         assertTrue("Wrong IsCollection value", result.getIsCollection());
     }
@@ -114,12 +115,12 @@ public class CollectionServiceTest {
         collectionDto.setId(collectionId.toString());
         collectionDto.setIsCollection(true);
 
-        doReturn(collectionDto).when(collectionService).getCollection(any(UUID.class));
+        doReturn(collectionDto).when(collectionService).getCollection(any(UUID.class), anyString());
 
-        CollectionDto result = collectionService.getCollectionOrAssessment(collectionId);
+        CollectionDto result = collectionService.getCollectionOrAssessment(collectionId, "token");
 
-        verify(collectionService, times(1)).getCollection(any(UUID.class));
-        verify(collectionService, times(0)).getAssessment(any(UUID.class));
+        verify(collectionService, times(1)).getCollection(any(UUID.class), anyString());
+        verify(collectionService, times(0)).getAssessment(any(UUID.class), anyString());
         assertEquals("Wrong Assessment ID", collectionId.toString(), result.getId());
         assertTrue("Wrong IsCollection value", result.getIsCollection());
     }
@@ -130,23 +131,23 @@ public class CollectionServiceTest {
         collectionDto.setId(assessmentId.toString());
         collectionDto.setIsCollection(false);
 
-        doThrow(ContentNotFoundException.class).when(collectionService).getCollection(any(UUID.class));
-        doReturn(collectionDto).when(collectionService).getAssessment(any(UUID.class));
+        doThrow(ContentNotFoundException.class).when(collectionService).getCollection(any(UUID.class), anyString());
+        doReturn(collectionDto).when(collectionService).getAssessment(any(UUID.class), anyString());
 
-        CollectionDto result = collectionService.getCollectionOrAssessment(assessmentId);
+        CollectionDto result = collectionService.getCollectionOrAssessment(assessmentId, "token");
 
-        verify(collectionService, times(1)).getCollection(any(UUID.class));
-        verify(collectionService, times(1)).getAssessment(any(UUID.class));
+        verify(collectionService, times(1)).getCollection(any(UUID.class), anyString());
+        verify(collectionService, times(1)).getAssessment(any(UUID.class), anyString());
         assertEquals("Wrong Assessment ID", assessmentId.toString(), result.getId());
         assertFalse("Wrong IsCollection value", result.getIsCollection());
     }
 
     @Test(expected = ContentNotFoundException.class)
     public void getCollectionOrAssessmentForInvalidCollectionAndAssessmentId() {
-        doThrow(ContentNotFoundException.class).when(collectionService).getCollection(any(UUID.class));
-        doThrow(ContentNotFoundException.class).when(collectionService).getAssessment(any(UUID.class));
+        doThrow(ContentNotFoundException.class).when(collectionService).getCollection(any(UUID.class), anyString());
+        doThrow(ContentNotFoundException.class).when(collectionService).getAssessment(any(UUID.class), anyString());
 
-        collectionService.getCollectionOrAssessment(assessmentId);
+        collectionService.getCollectionOrAssessment(assessmentId, "token");
     }
 
     @Test
@@ -158,11 +159,11 @@ public class CollectionServiceTest {
         resourceDtos.add(new ResourceDto());
         collectionDto.setResources(resourceDtos);
 
-        doReturn(collectionDto).when(collectionService).getAssessment(any(UUID.class));
+        doReturn(collectionDto).when(collectionService).getAssessment(any(UUID.class), anyString());
 
-        List<ResourceDto> result = collectionService.getAssessmentQuestions(assessmentId);
+        List<ResourceDto> result = collectionService.getAssessmentQuestions(assessmentId, "token");
 
-        verify(collectionService, times(1)).getAssessment(any(UUID.class));
+        verify(collectionService, times(1)).getAssessment(any(UUID.class), anyString());
         assertEquals("Wrong Questions list size", 1, result.size());
     }
 
@@ -175,11 +176,11 @@ public class CollectionServiceTest {
         resourceDtos.add(new ResourceDto());
         collectionDto.setResources(resourceDtos);
 
-        doReturn(collectionDto).when(collectionService).getCollection(any(UUID.class));
+        doReturn(collectionDto).when(collectionService).getCollection(any(UUID.class), anyString());
 
-        List<ResourceDto> result = collectionService.getCollectionResources(collectionId);
+        List<ResourceDto> result = collectionService.getCollectionResources(collectionId, "token");
 
-        verify(collectionService, times(1)).getCollection(any(UUID.class));
+        verify(collectionService, times(1)).getCollection(any(UUID.class), anyString());
         assertEquals("Wrong Resources list size", 1, result.size());
     }
 

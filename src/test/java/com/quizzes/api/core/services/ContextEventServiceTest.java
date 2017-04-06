@@ -2027,7 +2027,7 @@ public class ContextEventServiceTest {
             setting.put(CollectionSetting.AttemptsAllowed.getLiteral(), new Double(allowedAttempts));
         }
         CollectionDto collectionDto = createCollectionDto(setting);
-        when(collectionService.getCollectionOrAssessment(any(UUID.class), anyBoolean()))
+        when(collectionService.getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString()))
                 .thenReturn(collectionDto);
         when(contextProfileService.findContextProfileIdsByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(profileIds);

@@ -19,6 +19,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -47,11 +48,13 @@ public class CollectionControllerTest {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
 
-        PowerMockito.when(collectionService.getCollection(any(UUID.class), anyBoolean())).thenReturn(collectionDto);
+        PowerMockito.when(collectionService.getCollection(any(UUID.class), anyBoolean(), anyString()))
+                .thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "collection", false);
+        ResponseEntity<CollectionDto> result =
+                collectionController.getCollection(collectionId, "collection", false, "token");
 
-        verify(collectionService, times(1)).getCollection(any(UUID.class), eq(false));
+        verify(collectionService, times(1)).getCollection(any(UUID.class), eq(false), anyString());
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getBody().getId());
     }
@@ -61,11 +64,12 @@ public class CollectionControllerTest {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
 
-        PowerMockito.when(collectionService.getCollection(any(UUID.class), anyBoolean())).thenReturn(collectionDto);
+        PowerMockito.when(collectionService.getCollection(any(UUID.class), anyBoolean(), anyString())).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "collection", true);
+        ResponseEntity<CollectionDto> result =
+                collectionController.getCollection(collectionId, "collection", true, "token");
 
-        verify(collectionService, times(1)).getCollection(any(UUID.class), eq(true));
+        verify(collectionService, times(1)).getCollection(any(UUID.class), eq(true), anyString());
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
         assertEquals("Wrong collection ID", collectionId.toString(), result.getBody().getId());
     }
@@ -75,11 +79,12 @@ public class CollectionControllerTest {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
 
-        when(collectionService.getAssessment(any(UUID.class), anyBoolean())).thenReturn(collectionDto);
+        when(collectionService.getAssessment(any(UUID.class), anyBoolean(), anyString())).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "assessment", false);
+        ResponseEntity<CollectionDto> result =
+                collectionController.getCollection(collectionId, "assessment", false, "token");
 
-        verify(collectionService, times(1)).getAssessment(any(UUID.class), eq(false));
+        verify(collectionService, times(1)).getAssessment(any(UUID.class), eq(false), anyString());
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
         assertEquals("Wrong assessment ID", collectionId.toString(), result.getBody().getId());
     }
@@ -89,18 +94,19 @@ public class CollectionControllerTest {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
 
-        when(collectionService.getAssessment(any(UUID.class), anyBoolean())).thenReturn(collectionDto);
+        when(collectionService.getAssessment(any(UUID.class), anyBoolean(), anyString())).thenReturn(collectionDto);
 
-        ResponseEntity<CollectionDto> result = collectionController.getCollection(collectionId, "assessment", true);
+        ResponseEntity<CollectionDto> result =
+                collectionController.getCollection(collectionId, "assessment", true, "token");
 
-        verify(collectionService, times(1)).getAssessment(any(UUID.class), eq(true));
+        verify(collectionService, times(1)).getAssessment(any(UUID.class), eq(true), anyString());
         assertEquals("Wrong status code", HttpStatus.OK, result.getStatusCode());
         assertEquals("Wrong assessment ID", collectionId.toString(), result.getBody().getId());
     }
 
     @Test(expected = InvalidRequestException.class)
     public void getCollectionThrowException() throws Exception {
-        collectionController.getCollection(collectionId, "as", false);
+        collectionController.getCollection(collectionId, "as", false, "token");
     }
 
 }

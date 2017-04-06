@@ -35,6 +35,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doNothing;
@@ -194,7 +195,8 @@ public class AnalyticsContentServiceTest {
         PostRequestResourceDto answerResource = createPostRequestResourceDto();
         CollectionDto collectionDto = new CollectionDto();
 
-        doReturn(collectionDto).when(collectionService, "getCollectionOrAssessment", collectionId, true);
+        doReturn(collectionDto)
+                .when(collectionService).getCollectionOrAssessment(eq(collectionId), eq(true), anyString());
         doReturn(ContextResource.builder().build())
                 .when(analyticsContentService, "createContextResource", any(CollectionDto.class),
                         any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
@@ -208,7 +210,7 @@ public class AnalyticsContentServiceTest {
                 collectionId, classId, contextProfileId, eventId, profileId, true, token, "start", resource,
                 answerResource, startTime, stopTime);
 
-        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true);
+        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true, token);
         verifyPrivate(analyticsContentService, times(1)).invoke("createContextResource", any(CollectionDto.class),
                 any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
         verifyPrivate(analyticsContentService, times(1)).invoke("createPayloadObjectResource", anyString(),
@@ -226,7 +228,8 @@ public class AnalyticsContentServiceTest {
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setResources(new ArrayList<>());
 
-        doReturn(collectionDto).when(collectionService, "getCollectionOrAssessment", collectionId, true);
+        doReturn(collectionDto)
+                .when(collectionService).getCollectionOrAssessment(eq(collectionId), eq(true), anyString());
         doReturn(ContextResource.builder().build())
                 .when(analyticsContentService, "createContextResource", any(CollectionDto.class),
                         any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
@@ -240,7 +243,7 @@ public class AnalyticsContentServiceTest {
                 collectionId, classId, contextProfileId, eventId, profileId, true, token, "start", null, null,
                 startTime, stopTime);
 
-        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true);
+        verifyPrivate(collectionService, times(1)).invoke("getCollectionOrAssessment", collectionId, true, token);
         verifyPrivate(analyticsContentService, times(1)).invoke("createContextResource", any(CollectionDto.class),
                 any(UUID.class), anyString(), any(UUID.class), any(ResourceDto.class));
         verifyPrivate(analyticsContentService, times(1)).invoke("createPayloadObjectResource", anyString(),
@@ -319,7 +322,8 @@ public class AnalyticsContentServiceTest {
 
         CollectionDto collectionDto = new CollectionDto();
         collectionDto.setId(collectionId.toString());
-        doReturn(collectionDto).when(collectionService, "getCollectionOrAssessment", collectionId, isCollection);
+        doReturn(collectionDto)
+                .when(collectionService).getCollectionOrAssessment(eq(collectionId), eq(isCollection), anyString());
         doReturn(createSessionEventDtoObject()).when(analyticsContentService, "createSession",
                 contextProfileId, token);
 

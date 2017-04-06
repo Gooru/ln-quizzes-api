@@ -104,7 +104,7 @@ public class ContextEventService {
         }
         CollectionDto collectionDto =
                 collectionService.getCollectionOrAssessment(currentContextProfile.getCollectionId(),
-                        currentContextProfile.getIsCollection());
+                        currentContextProfile.getIsCollection(), token);
         ResourceDto currentResource = findResourceInResourceList(collectionDto.getResources(), resourceId);
         if (currentResource == null) {
             throw new ContentNotFoundException("Current Resource ID: " + resourceId + " was not found in the" +
@@ -214,7 +214,7 @@ public class ContextEventService {
 
     private void doFinishContextEvent(UUID contextId, UUID classId, UUID collectionId, boolean isCollection,
                                       UUID contextProfileId, UUID currentResourceId, String token) {
-        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection);
+        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfileId);
         List<UUID> createdResourceIds = contextProfileEvents.stream()
@@ -249,7 +249,7 @@ public class ContextEventService {
 
     private StartContextEventResponseDto createStartContextEvent(UUID contextId, UUID classId, UUID collectionId,
                                                                  boolean isCollection, UUID profileId, String token) {
-        validateProfileAttemptsLeft(contextId, profileId, collectionId, isCollection);
+        validateProfileAttemptsLeft(contextId, profileId, collectionId, isCollection, token);
         ContextProfile savedContextProfile = contextProfileService.save(buildContextProfile(contextId, profileId));
         CurrentContextProfile currentContextProfile =
                 buildCurrentContextProfile(contextId, profileId, savedContextProfile.getId());
@@ -692,8 +692,10 @@ public class ContextEventService {
         return resources.stream().filter(r -> r.getId().equals(resourceId)).findFirst().orElse(null);
     }
 
-    private void validateProfileAttemptsLeft(UUID contextId, UUID profileId, UUID collectionId, boolean isCollection) {
-        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection);
+    private void validateProfileAttemptsLeft(UUID contextId, UUID profileId, UUID collectionId, boolean isCollection,
+                                             String authToken) {
+        CollectionDto collectionDto =
+                collectionService.getCollectionOrAssessment(collectionId, isCollection, authToken);
         int allowedAttempts =
                 ((Double) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, -1.0)).intValue();
         int contextAttempts =

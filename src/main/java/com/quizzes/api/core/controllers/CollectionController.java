@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,19 +49,18 @@ public class CollectionController {
             @ApiParam(value = "Collection type. Valid types: 'collection' or 'assessment'",
                     required = true, name = "Type")
             @RequestParam String type,
-            @RequestParam(required = false) boolean refresh) {
+            @RequestParam(required = false) boolean refresh,
+            @RequestAttribute(value = "token") String authToken) {
 
-        return prepareResponse(getCollectionDto(collectionId, type, refresh));
-    }
-
-    private CollectionDto getCollectionDto(UUID collectionId, String type, boolean refresh) {
+        CollectionDto collectionDto;
         if (COLLECTION_TYPE.equalsIgnoreCase(type)) {
-            return collectionService.getCollection(collectionId, refresh);
+            collectionDto = collectionService.getCollection(collectionId, refresh, authToken);
         } else if (ASSESSMENT_TYPE.equalsIgnoreCase(type)) {
-            return collectionService.getAssessment(collectionId, refresh);
+            collectionDto = collectionService.getAssessment(collectionId, refresh, authToken);
         } else {
             throw new InvalidRequestException("Invalid 'type' parameter: " + type);
         }
+        return prepareResponse(collectionDto);
     }
 
     private ResponseEntity<CollectionDto> prepareResponse(CollectionDto collectionDto) {

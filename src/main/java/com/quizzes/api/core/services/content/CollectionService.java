@@ -16,47 +16,47 @@ public class CollectionService {
     @Autowired
     private CollectionRestClient collectionRestClient;
 
-    public CollectionDto getAssessment(UUID assessmentId, boolean withCacheRefresh) {
+    public CollectionDto getAssessment(UUID assessmentId, boolean withCacheRefresh, String authToken) {
         return withCacheRefresh ?
-                collectionRestClient.getAssessmentWithCacheRefresh(assessmentId) :
-                collectionRestClient.getAssessment(assessmentId);
+                collectionRestClient.getAssessmentWithCacheRefresh(assessmentId, authToken) :
+                collectionRestClient.getAssessment(assessmentId, authToken);
     }
 
-    public CollectionDto getAssessment(UUID assessmentId) {
-        return getAssessment(assessmentId, false);
+    public CollectionDto getAssessment(UUID assessmentId, String authToken) {
+        return getAssessment(assessmentId, false, authToken);
     }
 
-    public CollectionDto getCollection(UUID collectionId, boolean withCacheRefresh) {
+    public CollectionDto getCollection(UUID collectionId, boolean withCacheRefresh, String authToken) {
         return withCacheRefresh ?
-               collectionRestClient.getCollectionWithCacheRefresh(collectionId) :
-               collectionRestClient.getCollection(collectionId);
+               collectionRestClient.getCollectionWithCacheRefresh(collectionId, authToken) :
+               collectionRestClient.getCollection(collectionId, authToken);
     }
 
-    public CollectionDto getCollection(UUID collectionId) {
-        return getCollection(collectionId, false);
+    public CollectionDto getCollection(UUID collectionId, String authToken) {
+        return getCollection(collectionId, false, authToken);
     }
 
-    public CollectionDto getCollectionOrAssessment(UUID collectionId) {
+    public CollectionDto getCollectionOrAssessment(UUID collectionId, String authToken) {
         try {
-            return getCollection(collectionId);
+            return getCollection(collectionId, authToken);
         } catch (ContentNotFoundException e) {
-            return getAssessment(collectionId);
+            return getAssessment(collectionId, authToken);
         }
     }
 
-    public CollectionDto getCollectionOrAssessment(UUID collectionId, Boolean isCollection) {
+    public CollectionDto getCollectionOrAssessment(UUID collectionId, Boolean isCollection, String authToken) {
         return (isCollection == null) ?
-                getCollectionOrAssessment(collectionId) :
-                (isCollection) ? getCollection(collectionId) : getAssessment(collectionId);
+                getCollectionOrAssessment(collectionId, authToken) :
+                (isCollection) ? getCollection(collectionId, authToken) : getAssessment(collectionId, authToken);
     }
 
-    public List<ResourceDto> getAssessmentQuestions(UUID assessmentId) {
-        CollectionDto assessment = getAssessment(assessmentId);
+    public List<ResourceDto> getAssessmentQuestions(UUID assessmentId, String authToken) {
+        CollectionDto assessment = getAssessment(assessmentId, authToken);
         return assessment.getResources();
     }
 
-    public List<ResourceDto> getCollectionResources(UUID collectionId) {
-        CollectionDto collection = getCollection(collectionId);
+    public List<ResourceDto> getCollectionResources(UUID collectionId, String authToken) {
+        CollectionDto collection = getCollection(collectionId, authToken);
         return collection.getResources();
     }
 

@@ -104,12 +104,13 @@ public class ContextServiceTest {
         collectionDto.setOwnerId(profileId);
         ContextEntity contextEntity = createContextEntityMock();
 
-        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(contextEntity).when(contextRepository).findByContextMapKey(anyString());
 
         UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
 
-        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(contextRepository, times(1)).findByContextMapKey(anyString());
 
         assertEquals("Wrong Context ID", contextId, result);
@@ -127,13 +128,14 @@ public class ContextServiceTest {
         Context context = new Context();
         context.setId(contextId);
 
-        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(null).when(contextRepository).findByContextMapKey(anyString());
         doReturn(context).when(contextRepository).save(any(Context.class));
 
         UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
 
-        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(contextRepository, times(1)).findByContextMapKey(anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
 
@@ -151,14 +153,15 @@ public class ContextServiceTest {
         collectionDto.setOwnerId(UUID.randomUUID());
         ContextEntity contextEntity = createContextEntityMock();
 
-        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(true).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
         doReturn(true).when(classMemberService).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
         doReturn(contextEntity).when(contextRepository).findByContextMapKey(anyString());
 
         UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
 
-        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(classMemberService, times(1)).containsMemberId(any(UUID.class), any(UUID.class), anyString());
         verify(classMemberService, times(1)).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
         verify(contextRepository, times(1)).findByContextMapKey(anyString());
@@ -178,7 +181,8 @@ public class ContextServiceTest {
         Context context = new Context();
         context.setId(contextId);
 
-        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(true).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
         doReturn(true).when(classMemberService).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
         doReturn(null).when(contextRepository).findByContextMapKey(anyString());
@@ -186,7 +190,7 @@ public class ContextServiceTest {
 
         UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
 
-        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(classMemberService, times(1)).containsMemberId(any(UUID.class), any(UUID.class), anyString());
         verify(classMemberService, times(1)).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
         verify(contextRepository, times(1)).findByContextMapKey(anyString());
@@ -205,7 +209,8 @@ public class ContextServiceTest {
         collectionDto.setIsCollection(false);
         collectionDto.setOwnerId(UUID.randomUUID());
 
-        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(false).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
 
         contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
@@ -221,7 +226,8 @@ public class ContextServiceTest {
         collectionDto.setIsCollection(false);
         collectionDto.setOwnerId(UUID.randomUUID());
 
-        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(true).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
         doReturn(false).when(classMemberService).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
 
@@ -235,12 +241,13 @@ public class ContextServiceTest {
         Context context = new Context();
         context.setId(contextId);
 
-        doReturn(collectionDto).when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(context).when(contextRepository).save(any(Context.class));
 
-        UUID result = contextService.createContextWithoutClassId(collectionId, profileId, true);
+        UUID result = contextService.createContextWithoutClassId(collectionId, profileId, true, "token");
 
-        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean());
+        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
         assertEquals("Wrong id for context", contextId, result);
     }

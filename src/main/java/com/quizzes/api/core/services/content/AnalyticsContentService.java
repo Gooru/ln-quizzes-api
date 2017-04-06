@@ -100,7 +100,7 @@ public class AnalyticsContentService {
                                                   UUID eventId, UUID profileId, boolean isCollection,
                                                   String token, String type, Long startTime, Long endTime) {
 
-        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection);
+        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
 
         return EventCollection.builder()
                 .eventId(eventId)
@@ -121,7 +121,7 @@ public class AnalyticsContentService {
                                               ResourceDto resource, PostRequestResourceDto answerResource,
                                               Long startTime, Long endTime) {
 
-        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection);
+        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
 
         return EventResource.builder()
                 .eventId(eventId)
@@ -189,7 +189,7 @@ public class AnalyticsContentService {
                                               UUID profileId, boolean isCollection, String token,
                                               String reaction, UUID resourceId, Long time) {
 
-        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection);
+        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
 
         return EventReaction.builder()
                 .eventId(UUID.randomUUID())

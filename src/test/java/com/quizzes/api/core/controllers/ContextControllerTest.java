@@ -94,7 +94,8 @@ public class ContextControllerTest {
 
         verify(contextService, times(1)).createContext(any(UUID.class), any(UUID.class), any(UUID.class),
                 any(ContextDataDto.class), anyBoolean(), anyString());
-        verify(contextService, times(0)).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
+        verify(contextService, times(0))
+                .createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean(), anyString());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
     }
@@ -107,13 +108,16 @@ public class ContextControllerTest {
         contextRequestDto.setContextData(new ContextDataDto());
 
         doReturn(contextId)
-                .when(contextService).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
+                .when(contextService)
+                .createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean(), anyString());
 
         ResponseEntity<?> result = controller.createContext(contextRequestDto, profileId.toString(), token);
 
-        verify(contextService, times(0)).createContext(any(UUID.class), any(UUID.class), any(UUID.class),
-                any(ContextDataDto.class), anyBoolean(), anyString());
-        verify(contextService, times(1)).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
+        verify(contextService, times(0))
+                .createContext(any(UUID.class), any(UUID.class), any(UUID.class), any(ContextDataDto.class),
+                        anyBoolean(), anyString());
+        verify(contextService, times(1))
+                .createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean(), anyString());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
     }
@@ -125,13 +129,15 @@ public class ContextControllerTest {
         contextRequestDto.setContextData(new ContextDataDto());
 
         doReturn(contextId)
-                .when(contextService).createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean());
+                .when(contextService)
+                .createContextWithoutClassId(any(UUID.class), any(UUID.class), anyBoolean(), anyString());
 
         ResponseEntity<?> result = controller.createContext(contextRequestDto, "anonymous", token);
 
         verify(contextService, times(0)).createContext(any(UUID.class), any(UUID.class), any(UUID.class),
                 any(ContextDataDto.class), anyBoolean(), anyString());
-        verify(contextService, times(1)).createContextWithoutClassId(any(UUID.class), eq(anonymousId), anyBoolean());
+        verify(contextService, times(1))
+                .createContextWithoutClassId(any(UUID.class), eq(anonymousId), anyBoolean(), anyString());
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
         assertEquals("Response body is wrong", contextId, ((IdResponseDto) result.getBody()).getId());
     }

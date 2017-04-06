@@ -45,7 +45,7 @@ public class ContextService {
     public UUID createContext(UUID collectionId, UUID profileId, UUID classId, ContextDataDto contextDataDto,
                               Boolean isCollection, String token)
             throws InvalidAssigneeException, InvalidOwnerException, InternalServerException {
-        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection);
+        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
         UUID collectionOwnerId = collectionDto.getOwnerId();
 
         if (!collectionOwnerId.equals(profileId)) {
@@ -89,8 +89,9 @@ public class ContextService {
      * @param isCollection defined is the collectionId corresponds to a Collection (when true) or Assessment
      * @return the context ID
      */
-    public UUID createContextWithoutClassId(UUID collectionId, UUID profileId, Boolean isCollection) {
-        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection);
+    public UUID createContextWithoutClassId(UUID collectionId, UUID profileId, Boolean isCollection, String authToken) {
+        CollectionDto collectionDto =
+                collectionService.getCollectionOrAssessment(collectionId, isCollection, authToken);
         Context context = buildContextWithoutClassId(collectionId, profileId, collectionDto.getIsCollection());
         return contextRepository.save(context).getId();
     }

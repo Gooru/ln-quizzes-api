@@ -89,8 +89,7 @@ public class CollectionRestClient {
     private ConfigurationService configurationService;
 
     @ReadThroughSingleCache(namespace = "Collections")
-    public CollectionDto getCollection(@ParameterValueKeyProvider UUID collectionId) {
-        String token = authenticationRestClient.generateAnonymousToken();
+    public CollectionDto getCollection(@ParameterValueKeyProvider UUID collectionId, String authToken) {
         String endpointUrl = configurationService.getContentApiUrl() + String.format(COLLECTIONS_PATH, collectionId);
 
         if (logger.isDebugEnabled()) {
@@ -98,7 +97,7 @@ public class CollectionRestClient {
         }
 
         try {
-            HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
+            HttpHeaders headers = gooruHelper.setupHttpHeaders(authToken);
             HttpEntity entity = new HttpEntity(headers);
             ResponseEntity<CollectionContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, CollectionContentDto.class);
@@ -125,13 +124,12 @@ public class CollectionRestClient {
 
     @ReturnDataUpdateContent
     @UpdateSingleCache(namespace = "Collections")
-    public CollectionDto getCollectionWithCacheRefresh(@ParameterValueKeyProvider UUID collectionId) {
-        return getCollection(collectionId);
+    public CollectionDto getCollectionWithCacheRefresh(@ParameterValueKeyProvider UUID collectionId, String authToken) {
+        return getCollection(collectionId, authToken);
     }
 
     @ReadThroughSingleCache(namespace = "Assessments")
-    public CollectionDto getAssessment(@ParameterValueKeyProvider UUID assessmentId) {
-        String token = authenticationRestClient.generateAnonymousToken();
+    public CollectionDto getAssessment(@ParameterValueKeyProvider UUID assessmentId, String authToken) {
         String endpointUrl = configurationService.getContentApiUrl() + String.format(ASSESSMENTS_PATH, assessmentId);
 
         if (logger.isDebugEnabled()) {
@@ -139,7 +137,7 @@ public class CollectionRestClient {
         }
 
         try {
-            HttpHeaders headers = gooruHelper.setupHttpHeaders(token);
+            HttpHeaders headers = gooruHelper.setupHttpHeaders(authToken);
             HttpEntity requestEntity = new HttpEntity(headers);
             ResponseEntity<AssessmentContentDto> responseEntity =
                     restTemplate.exchange(endpointUrl, HttpMethod.GET, requestEntity, AssessmentContentDto.class);
@@ -168,8 +166,8 @@ public class CollectionRestClient {
 
     @ReturnDataUpdateContent
     @UpdateSingleCache(namespace = "Assessments")
-    public CollectionDto getAssessmentWithCacheRefresh(@ParameterValueKeyProvider UUID assessmentId) {
-        return getAssessment(assessmentId);
+    public CollectionDto getAssessmentWithCacheRefresh(@ParameterValueKeyProvider UUID assessmentId, String authToken) {
+        return getAssessment(assessmentId, authToken);
     }
 
     private CollectionDto createCollectionDtoFromCollectionContentDto(CollectionContentDto collectionContentDto) {
