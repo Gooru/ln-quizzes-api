@@ -151,17 +151,14 @@ var quizzesCommon = {
             .toss()
     },
 
-    getAssignedContextById: function (contextId, assigneeAuthToken, expectedJson, afterJsonFunction) {
+    getAssignedContextById: function (contextId, assigneeAuthToken, afterJsonFunction) {
         Frisby.create('Get assigned context information')
             .get(QuizzesApiUrl + `/v1/contexts/${contextId}/assigned`)
             .addHeader('Authorization', `Token ${assigneeAuthToken}`)
             .inspectRequest()
             .expectStatus(200)
             .inspectJSON()
-            .expectJSON(expectedJson)
-            .afterJSON(function (context) {
-                afterJsonFunction(context);
-            })
+            .afterJSON(afterJsonFunction)
             .toss()
     },
 

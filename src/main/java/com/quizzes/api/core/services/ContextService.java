@@ -123,13 +123,12 @@ public class ContextService {
 
     public ContextEntity findAssignedContext(UUID contextId, UUID profileId, String token)
             throws ContentNotFoundException {
-
         ContextEntity context = findById(contextId);
-        if (!classMemberService.containsMemberId(context.getClassId(), profileId, token)) {
+        if (context.getClassId() != null &&
+                !classMemberService.containsMemberId(context.getClassId(), profileId, token)) {
             throw new InvalidAssigneeException("Profile Id: " + profileId + " is not a valid Assignee " +
                     "(member of the Class Id: " + context.getClassId() + ")");
         }
-
         return context;
     }
 
