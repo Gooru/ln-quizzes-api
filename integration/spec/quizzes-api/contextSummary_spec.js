@@ -474,7 +474,7 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                                             'resourceId': collection.resources[0].id,
                                             'timeSpent': 1000,
                                             'reaction': 3,
-                                            'answer': [ { 'value': 'VFJVRQ==' } ]
+                                            'answer': [ { 'value': 'VHJ1ZQ==' } ]
                                         });
                                         expect(json.profileAttempts[0].events).toContain({
                                             'score': 100,

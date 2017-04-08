@@ -531,8 +531,8 @@ public class CollectionRestClientTest {
                 WhiteboxImpl.invokeMethod(collectionRestClient, "getCorrectAnswers", resourceContentDto);
 
         assertEquals("Wrong number of answers", 2, result.size());
-        assertEquals("Wrong first correct answer value", QuizzesUtils.encodeString("12"), result.get(0).getValue());
-        assertEquals("Wrong second correct answer value", QuizzesUtils.encodeString("6"), result.get(1).getValue());
+        assertEquals("Wrong first correct answer value", "12", result.get(0).getValue());
+        assertEquals("Wrong second correct answer value", "6", result.get(1).getValue());
     }
 
     @Test

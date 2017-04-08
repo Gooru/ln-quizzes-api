@@ -240,7 +240,7 @@ public class CollectionRestClient {
     private ResourceMetadataDto mapQuestionResource(ResourceContentDto resourceContentDto) {
         ResourceMetadataDto metadata = new ResourceMetadataDto();
         metadata.setTitle(resourceContentDto.getTitle());
-        metadata.setDescription(resourceContentDto.getDescription());
+        metadata.setDescription(getDescription(resourceContentDto));
         metadata.setType(mapQuestionType(resourceContentDto).getLiteral());
         metadata.setThumbnail(resourceContentDto.getThumbnail());
         if (resourceContentDto.getAnswers() != null) {
@@ -271,8 +271,10 @@ public class CollectionRestClient {
             return getHotTextHighlightCorrectAnswers(resourceContentDto);
         } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.MultipleAnswerQuestion)) {
             return getMultipleAnswerCorrectAnswers(resourceContentDto.getAnswers());
+        } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
+            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
         } else {
-            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers());
+            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), true);
         }
     }
 
@@ -292,12 +294,14 @@ public class CollectionRestClient {
         return correctAnswers;
     }
 
-    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers) {
+    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers, boolean encodeAnswer) {
         final List<AnswerDto> correctAnswers = new ArrayList<>();
         if (answers != null) {
             answers.forEach(answer -> {
                 if (answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1")) {
-                    correctAnswers.add(new AnswerDto(QuizzesUtils.encodeString(answer.getAnswerText().toUpperCase())));
+                    correctAnswers.add(new AnswerDto(encodeAnswer
+                            ? QuizzesUtils.encodeString(answer.getAnswerText())
+                            : answer.getAnswerText()));
                 }
             });
         }
@@ -321,7 +325,15 @@ public class CollectionRestClient {
         GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
         if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion)) {
             return resourceContentDto.getAnswers().get(0).getAnswerText().replaceAll("(\\[|\\])", "");
-        } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
+        } else {
+            return getDescription(resourceContentDto);
+        }
+    }
+
+    private String getDescription(ResourceContentDto resourceContentDto) {
+        String contentSubformat = resourceContentDto.getContentSubformat();
+        GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
+        if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
             return resourceContentDto.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
         } else {
             return resourceContentDto.getDescription();

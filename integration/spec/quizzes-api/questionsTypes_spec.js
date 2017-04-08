@@ -130,7 +130,7 @@ let checkTrueFalseQuestion = function (resources) {
     expect(metadata.description).toEqual('Select the correct value<br><br>400 + 400 = 800 ?');
     expect(metadata.body).toEqual('Select the correct value<br><br>400 + 400 = 800 ?');
     expect(metadata.correctAnswer.length).toEqual(1);
-    expect(metadata.correctAnswer).toContain({'value': 'VFJVRQ=='});
+    expect(metadata.correctAnswer).toContain({'value': 'VHJ1ZQ=='});
     expect(metadata.interaction.shuffle).toBeDefined();
     expect(metadata.interaction.maxChoices).toBeDefined();
     expect(metadata.interaction.prompt).toBeDefined();
@@ -155,12 +155,12 @@ let checkTextEntryQuestion = function (resources) {
     expect(resources.length).toEqual(1);
     expect(metadata.title).toEqual('FIB - Complete the sentence with the correct words');
     expect(metadata.description).toEqual(
-        '<span style="background-color: rgb(255, 255, 255);">The big bad [wolf] blew down the [house].</span><br>');
+        '<span style="background-color: rgb(255, 255, 255);">The big bad [] blew down the [].</span><br>');
     expect(metadata.body).toEqual(
         '<span style="background-color: rgb(255, 255, 255);">The big bad [] blew down the [].</span><br>');
     expect(metadata.correctAnswer.length).toEqual(2);
-    expect(metadata.correctAnswer).toContain({'value': 'V09MRg=='});
-    expect(metadata.correctAnswer).toContain({'value': 'SE9VU0U='});
+    expect(metadata.correctAnswer).toContain({'value': 'wolf'});
+    expect(metadata.correctAnswer).toContain({'value': 'house'});
     expect(metadata.interaction).not.toBeDefined();
 };
 
@@ -172,7 +172,7 @@ let checkMultipleSelectImageQuestion = function (resources) {
     expect(metadata.description).toEqual(' Select the animals');
     expect(metadata.body).toEqual(' Select the animals');
     expect(metadata.correctAnswer.length).toEqual(1);
-    expect(metadata.correctAnswer).toContain({'value': 'NThCMTcwNzYtMTRCNC00MkU3LTk3NzMtRkIzMTQ5MUMyRTRELkpQRUc='});
+    expect(metadata.correctAnswer).toContain({'value': 'NThiMTcwNzYtMTRiNC00MmU3LTk3NzMtZmIzMTQ5MWMyZTRkLmpwZWc='});
     expect(metadata.interaction.shuffle).toBeDefined();
     expect(metadata.interaction.maxChoices).toBeDefined();
     expect(metadata.interaction.prompt).toBeDefined();
@@ -199,7 +199,7 @@ let checkMultipleSelectTextQuestion = function (resources) {
     expect(metadata.description).toEqual('Select the verbs');
     expect(metadata.body).toEqual('Select the verbs');
     expect(metadata.correctAnswer.length).toEqual(1);
-    expect(metadata.correctAnswer).toContain({'value': 'PFNQQU4gU1RZTEU9IkZPTlQtU0laRTogMTVQWDsiPlJVTjwvU1BBTj4='});
+    expect(metadata.correctAnswer).toContain({'value': 'PHNwYW4gc3R5bGU9ImZvbnQtc2l6ZTogMTVweDsiPlJ1bjwvc3Bhbj4='});
     expect(metadata.interaction.shuffle).toBeDefined();
     expect(metadata.interaction.maxChoices).toBeDefined();
     expect(metadata.interaction.prompt).toBeDefined();

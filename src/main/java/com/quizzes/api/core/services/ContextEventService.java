@@ -412,8 +412,7 @@ public class ContextEventService {
         }
         boolean isCorrect = IntStream.rangeClosed(0, correctAnswers.size() - 1)
                 .allMatch(i -> correctAnswers.get(i).getValue()
-                        .equals(QuizzesUtils.encodeString(userAnswers.get(i).getValue().trim().toUpperCase())));
-
+                        .equalsIgnoreCase(userAnswers.get(i).getValue().trim()));
         return isCorrect ? CORRECT_SCORE : INCORRECT_SCORE;
     }
 
