@@ -474,7 +474,7 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                                             'resourceId': collection.resources[0].id,
                                             'timeSpent': 1000,
                                             'reaction': 3,
-                                            'answer': [ { 'value': 'VHJ1ZQ==' } ]
+                                            'answer': collection.resources[0].metadata.correctAnswer
                                         });
                                         expect(json.profileAttempts[0].events).toContain({
                                             'score': 100,
@@ -482,7 +482,7 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                                             'resourceId': collection.resources[1].id,
                                             'timeSpent': defaultTimeSpent,
                                             'reaction': defaultReaction,
-                                            'answer': [ { 'value': 'Mg==' } ]
+                                            'answer': collection.resources[1].metadata.correctAnswer
                                         });
                                         expect(json.profileAttempts[0].events).toContain({
                                             'score': 0,

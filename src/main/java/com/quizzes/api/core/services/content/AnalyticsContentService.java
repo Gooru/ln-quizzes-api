@@ -176,7 +176,7 @@ public class AnalyticsContentService {
     private List<AnswerObject> createAnswerObject(PostRequestResourceDto answerResource,
                                                   ResourceDto resource) {
 
-        if (answerResource.getAnswer() == null || resource.getIsResource()) {
+        if (resource.getIsResource() || answerResource.getIsSkipped() || answerResource.getAnswer() == null) {
             return Collections.emptyList();
         }
 

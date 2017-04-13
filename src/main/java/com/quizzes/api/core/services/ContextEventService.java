@@ -158,10 +158,10 @@ public class ContextEventService {
                                                          ResourceDto previousResource,
                                                          PostRequestResourceDto previousResourceEventData,
                                                          CollectionDto collectionDto, String token) {
-        boolean isSkipEvent = isSkipEvent(previousResource.getIsResource(), previousResourceEventData);
-        int score = calculateScore(isSkipEvent, previousResource.getIsResource(),
-                previousResource.getMetadata().getType(), previousResourceEventData.getAnswer(),
-                previousResource.getMetadata().getCorrectAnswer());
+        previousResourceEventData.setIsSkipped(isSkipEvent(previousResource.getIsResource(), previousResourceEventData));
+        previousResourceEventData.setScore(calculateScore(previousResourceEventData.getIsSkipped(),
+                previousResource.getIsResource(), previousResource.getMetadata().getType(),
+                previousResourceEventData.getAnswer(), previousResource.getMetadata().getCorrectAnswer()));
 
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfileEntity.getContextProfileId());
@@ -169,9 +169,9 @@ public class ContextEventService {
                 .filter(event -> event.getResourceId().equals(previousResource.getId()))
                 .findFirst().orElse(null);
         if (contextProfileEvent == null) {
-            PostRequestResourceDto eventData = buildContextProfileEventData(isSkipEvent, score,
-                    previousResourceEventData.getTimeSpent(), previousResourceEventData.getReaction(),
-                    previousResourceEventData.getAnswer());
+            PostRequestResourceDto eventData = buildContextProfileEventData(previousResourceEventData.getIsSkipped(),
+                    previousResourceEventData.getScore(), previousResourceEventData.getTimeSpent(),
+                    previousResourceEventData.getReaction(), previousResourceEventData.getAnswer());
             eventData.setTimeSpent(previousResourceEventData.getTimeSpent());
             contextProfileEvent = buildContextProfileEvent(contextProfileEntity.getContextProfileId(),
                     previousResource.getId(), eventData);
@@ -181,9 +181,9 @@ public class ContextEventService {
                     gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
             eventData.setTimeSpent(eventData.getTimeSpent() + previousResourceEventData.getTimeSpent());
             eventData.setReaction(previousResourceEventData.getReaction());
-            if (!isSkipEvent) {
-                eventData.setIsSkipped(isSkipEvent);
-                eventData.setScore(score);
+            if (!previousResourceEventData.getIsSkipped()) {
+                eventData.setIsSkipped(previousResourceEventData.getIsSkipped());
+                eventData.setScore(previousResourceEventData.getScore());
             }
             contextProfileEvent.setEventData(gson.toJson(eventData));
         }
@@ -207,7 +207,7 @@ public class ContextEventService {
                 collectionDto.getMetadata().getSetting(CollectionSetting.ShowFeedback,
                         ShowFeedbackOptions.Never.getLiteral()).toString());
         if (ShowFeedbackOptions.Immediate.equals(showFeedback)) {
-            return new OnResourceEventResponseDto(score);
+            return new OnResourceEventResponseDto(previousResourceEventData.getScore());
         }
         return new OnResourceEventResponseDto();
     }

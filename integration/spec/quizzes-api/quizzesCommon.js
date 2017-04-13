@@ -138,7 +138,7 @@ var quizzesCommon = {
     },
 
     getCreatedContextById: function (contextId, ownerAuthToken, afterJsonFunction) {
-        Frisby.create('Get assigned context information')
+        Frisby.create('Get created context information')
             .get(QuizzesApiUrl + `/v1/contexts/${contextId}/created`)
             .addHeader('Authorization', `Token ${ownerAuthToken}`)
             .inspectRequest()

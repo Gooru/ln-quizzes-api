@@ -75,7 +75,7 @@ let testAssessments = {
                 id: '0b40a08e-a342-47d2-9264-b68dc408efdf',
                 correctAnswer: [
                     {
-                        'value': 'NTAwICogMiA9IDEwMDAw'
+                        'value': 'Mg=='
                     }
                 ]
             },
