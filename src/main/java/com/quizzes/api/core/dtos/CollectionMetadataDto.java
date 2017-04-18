@@ -10,6 +10,7 @@ import java.util.Map;
 public class CollectionMetadataDto implements Serializable {
 
     private String title;
+    private String subFormat;
     private Map<String, Object> setting;
     private Map<String, Object> taxonomy;
 

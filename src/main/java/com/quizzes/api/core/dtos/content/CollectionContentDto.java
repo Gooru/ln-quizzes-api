@@ -26,5 +26,7 @@ public class CollectionContentDto implements Serializable {
     private UUID lessonId;
     @SerializedName("course_id")
     private UUID courseId;
+    @SerializedName("subformat")
+    private String subFormat;
     
 }
