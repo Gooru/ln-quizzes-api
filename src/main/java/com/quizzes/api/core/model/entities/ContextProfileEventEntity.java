@@ -39,4 +39,9 @@ public interface ContextProfileEventEntity {
     String getTaxonomySummary();
 
     void setTaxonomySummary(String taxonomySummary);
+
+    Long getCreatedAt();
+
+    void setCreatedAt(Long createdAt);
+
 }

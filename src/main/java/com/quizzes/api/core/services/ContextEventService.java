@@ -178,6 +178,7 @@ public class ContextEventService {
                     gson.fromJson(contextProfileEvent.getEventData(), PostRequestResourceDto.class);
             eventData.setTimeSpent(eventData.getTimeSpent() + previousResourceEventData.getTimeSpent());
             eventData.setReaction(previousResourceEventData.getReaction());
+            eventData.setAnswer(previousResourceEventData.getAnswer());
             if (!isSkipEvent) {
                 eventData.setIsSkipped(isSkipEvent);
                 eventData.setScore(score);
