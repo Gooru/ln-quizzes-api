@@ -1,5 +1,7 @@
 package com.quizzes.api.core.services.content;
 
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
@@ -15,12 +17,15 @@ import com.quizzes.api.core.dtos.analytics.PayloadObjectResource;
 import com.quizzes.api.core.dtos.analytics.Session;
 import com.quizzes.api.core.dtos.analytics.User;
 import com.quizzes.api.core.dtos.analytics.Version;
+import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.enums.AnswerStatus;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
-import com.quizzes.api.core.rest.clients.AnalyticsRestClient;
-import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.factory.analytics.AnswerCreator;
 import com.quizzes.api.core.factory.analytics.AnswerCreatorFactory;
+import com.quizzes.api.core.model.entities.ContextEntity;
+import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
+import com.quizzes.api.core.rest.clients.AnalyticsRestClient;
+import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,11 +39,15 @@ import java.util.UUID;
 @Service
 public class AnalyticsContentService {
 
-    private final static String COLLECTION_PLAY = QuizzesUtils.COLLECTION.concat(".play");
-    private final static String RESOURCE_PLAY = QuizzesUtils.COLLECTION.concat(".resource.play");
-    private final static String REACTION_CREATE = "reaction.create";
-    private final static String START = "start";
-    private final static String STOP = "stop";
+    private static final String COLLECTION_PLAY = QuizzesUtils.COLLECTION.concat(".play");
+    private static final String RESOURCE_PLAY = QuizzesUtils.COLLECTION.concat(".resource.play");
+    private static final String REACTION_CREATE = "reaction.create";
+    private static final String START = "start";
+    private static final String STOP = "stop";
+    private static final String COURSE_ID = "courseId";
+    private static final String UNIT_ID = "unitId";
+    private static final String LESSON_ID = "lessonId";
+
 
     @Autowired
     private AnalyticsRestClient analyticsRestClient;
@@ -55,59 +64,53 @@ public class AnalyticsContentService {
     @Autowired
     private AnswerCreatorFactory answerCreatorFactory;
 
-    public void collectionPlayStart(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
-                                    boolean isCollection, String token, Long startTime) {
+    @Autowired
+    private Gson gson;
 
-        EventCollection playEvent = createEventCollection(collectionId, classId, contextProfileId,
-                contextProfileId, profileId, isCollection, token, START, startTime, startTime);
+    public void collectionPlayStart(ContextEntity context, ContextProfile contextProfile, String token) {
+        EventCollection playEvent = createEventCollection(context, contextProfile, START,
+                contextProfile.getCreatedAt().getTime(), contextProfile.getCreatedAt().getTime(), token);
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
-    public void collectionPlayStop(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
-                                   boolean isCollection, String token, Long startTime) {
-
-        EventCollection stopEvent = createEventCollection(collectionId, classId, contextProfileId,
-                contextProfileId, profileId, isCollection, token, STOP, startTime, quizzesUtils.getCurrentTimestamp());
+    public void collectionPlayStop(ContextEntity context, ContextProfile contextProfile, String token) {
+        EventCollection stopEvent = createEventCollection(context, contextProfile, STOP,
+                contextProfile.getCreatedAt().getTime(), quizzesUtils.getCurrentTimestamp(), token);
         analyticsRestClient.notifyEvent(stopEvent, token);
     }
 
-    public void resourcePlayStart(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
-                                  boolean isCollection, String token, ResourceDto resource, Long startTime, UUID eventId) {
-
-        EventResource playEvent = createEventResource(collectionId, classId, contextProfileId,
-                eventId, profileId, isCollection, token, START, resource, null, startTime, startTime);
+    public void resourcePlayStart(ContextEntity context, ContextProfile contextProfile, UUID eventId,
+                                  ResourceDto resource, Long startTime, String token) {
+        EventResource playEvent = createEventResource(context, contextProfile, eventId, START, resource, null,
+                startTime, startTime, token);
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
-    public void resourcePlayStop(UUID collectionId, UUID classId, UUID contextProfileId, UUID profileId,
-                                 boolean isCollection, String token, ResourceDto resource,
-                                 PostRequestResourceDto answerResource, Long startTime, Long endTime, UUID eventId) {
-
-        EventResource stopEvent = createEventResource(collectionId, classId, contextProfileId,
-                eventId, profileId, isCollection, token, STOP, resource, answerResource, startTime, endTime);
+    public void resourcePlayStop(ContextEntity context, ContextProfile contextProfile, UUID eventId,
+                                 ResourceDto resource, PostRequestResourceDto answerResource, Long startTime,
+                                 Long endTime, String token) {
+        EventResource stopEvent = createEventResource(context, contextProfile, eventId, STOP, resource, answerResource,
+                startTime, endTime, token);
         analyticsRestClient.notifyEvent(stopEvent, token);
     }
 
-    public void reactionCreate(UUID collectionId, UUID classId, UUID contextProfileId, UUID eventId, UUID profileId,
-                               boolean isCollection, String token, String reaction, Long timestamp, UUID resourceId) {
-
-        EventReaction playEvent = createEventReaction(collectionId, classId, contextProfileId,
-                eventId, profileId, isCollection, token, reaction, resourceId, timestamp);
+    public void reactionCreate(ContextEntity context, ContextProfile contextProfile, UUID eventId,
+                               String reaction, Long timestamp, UUID resourceId, String token) {
+        EventReaction playEvent =
+                createEventReaction(context, contextProfile, eventId, reaction, resourceId, timestamp, token);
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
-    private EventCollection createEventCollection(UUID collectionId, UUID classId, UUID sessionId,
-                                                  UUID eventId, UUID profileId, boolean isCollection,
-                                                  String token, String type, Long startTime, Long endTime) {
-
-        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
-
+    private EventCollection createEventCollection(ContextEntity context, ContextProfile contextProfile, String type,
+                                                  long startTime, long endTime, String token) {
+        CollectionDto collection = collectionService.getCollectionOrAssessment(context.getCollectionId(),
+                context.getIsCollection(), token);
         return EventCollection.builder()
-                .eventId(eventId)
+                .eventId(contextProfile.getId())
                 .eventName(COLLECTION_PLAY)
-                .session(createSession(sessionId, token))
-                .user(new User(profileId))
-                .context(createContextCollection(collection, classId, type))
+                .session(createSession(contextProfile.getId(), token))
+                .user(new User(contextProfile.getProfileId()))
+                .context(createContextCollection(context, collection, type))
                 .version(new Version(configurationService.getAnalyticsVersion()))
                 .metrics(Collections.emptyMap())
                 .payLoadObject(new PayloadObjectCollection(true))
@@ -116,24 +119,55 @@ public class AnalyticsContentService {
                 .build();
     }
 
-    private EventResource createEventResource(UUID collectionId, UUID classId, UUID sessionId, UUID eventId,
-                                              UUID profileId, boolean isCollection, String token, String type,
-                                              ResourceDto resource, PostRequestResourceDto answerResource,
-                                              Long startTime, Long endTime) {
+    private ContextCollection createContextCollection(ContextEntity context, CollectionDto collection, String type) {
+        ContextDataDto contextData = gson.fromJson(context.getContextData(), ContextDataDto.class);
+        ContextCollection contextCollection = ContextCollection.builder()
+                .contentGooruId(context.getCollectionId())
+                .collectionType(context.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
+                .type(type)
+                .questionCount(collection.getIsCollection() ?
+                        getQuestionCount(collection.getResources()) : collection.getResources().size())
+                .classGooruId(context.getClassId())
+                .build();
+        String courseId = contextData.getContextMap().get(COURSE_ID);
+        String unitId = contextData.getContextMap().get(UNIT_ID);
+        String lessonId = contextData.getContextMap().get(LESSON_ID);
+        contextCollection.setCourseGooruId(Strings.isNullOrEmpty(courseId) ? null : UUID.fromString(courseId));
+        contextCollection.setUnitGooruId(Strings.isNullOrEmpty(unitId) ? null : UUID.fromString(unitId));
+        contextCollection.setLessonGooruId(Strings.isNullOrEmpty(lessonId) ? null : UUID.fromString(lessonId));
+        return contextCollection;
+    }
 
-        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
-
+    private EventResource createEventResource(ContextEntity context, ContextProfile contextProfile, UUID eventId,
+                                              String type, ResourceDto resource, PostRequestResourceDto answerResource,
+                                              Long startTime, Long endTime, String token) {
         return EventResource.builder()
                 .eventId(eventId)
                 .eventName(RESOURCE_PLAY)
-                .session(createSession(sessionId, token))
-                .user(new User(profileId))
-                .context(createContextResource(collection, classId, type, sessionId, resource))
+                .session(createSession(contextProfile.getId(), token))
+                .user(new User(contextProfile.getProfileId()))
+                .context(createContextResource(context, type, contextProfile.getId(), resource))
                 .version(new Version(configurationService.getAnalyticsVersion()))
                 .metrics(Collections.emptyMap())
                 .payLoadObject(createPayloadObjectResource(type, resource, answerResource))
                 .startTime(startTime)
                 .endTime(endTime)
+                .build();
+    }
+
+    private EventReaction createEventReaction(ContextEntity context, ContextProfile contextProfile, UUID eventId,
+                                              String reaction, UUID resourceId, Long time, String token) {
+        CollectionDto collection = collectionService.getCollectionOrAssessment(context.getCollectionId(),
+                context.getIsCollection(), token);
+        return EventReaction.builder()
+                .eventId(UUID.randomUUID())
+                .session(createSession(contextProfile.getId(), token))
+                .user(new User(contextProfile.getProfileId()))
+                .context(createContextReaction(collection, context.getClassId(), reaction, eventId, resourceId))
+                .version(new Version(configurationService.getAnalyticsVersion()))
+                .eventName(REACTION_CREATE)
+                .startTime(time)
+                .endTime(time)
                 .build();
     }
 
@@ -185,53 +219,25 @@ public class AnalyticsContentService {
         return creator.createAnswerObjects(answerResource, resource);
     }
 
-    private EventReaction createEventReaction(UUID collectionId, UUID classId, UUID sessionId, UUID eventId,
-                                              UUID profileId, boolean isCollection, String token,
-                                              String reaction, UUID resourceId, Long time) {
-
-        CollectionDto collection = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
-
-        return EventReaction.builder()
-                .eventId(UUID.randomUUID())
-                .session(createSession(sessionId, token))
-                .user(new User(profileId))
-                .context(createContextReaction(collection, classId, reaction, eventId, resourceId))
-                .version(new Version(configurationService.getAnalyticsVersion()))
-                .eventName(REACTION_CREATE)
-                .startTime(time)
-                .endTime(time)
-                .build();
-    }
-
-    private ContextCollection createContextCollection(CollectionDto collection, UUID classId,
-                                                      String type) {
-        return ContextCollection.builder()
-                .contentGooruId(UUID.fromString(collection.getId()))
-                .collectionType(collection.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
-                .type(type)
-                .questionCount(collection.getIsCollection() ?
-                        getQuestionCount(collection.getResources()) : collection.getResources().size())
-                .unitGooruId(collection.getUnitId())
-                .classGooruId(classId)
-                .lessonGooruId(collection.getLessonId())
-                .courseGooruId(collection.getCourseId())
-                .build();
-    }
-
-    private ContextResource createContextResource(CollectionDto collection, UUID classId,
-                                                  String type, UUID collectionEventId, ResourceDto resource) {
-        return ContextResource.builder()
+    private ContextResource createContextResource(ContextEntity context, String type, UUID collectionEventId,
+                                                  ResourceDto resource) {
+        ContextDataDto contextData = gson.fromJson(context.getContextData(), ContextDataDto.class);
+        ContextResource contextResource = ContextResource.builder()
                 .contentGooruId(resource.getId())
-                .collectionType(collection.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
+                .collectionType(context.getIsCollection() ? QuizzesUtils.COLLECTION : QuizzesUtils.ASSESSMENT)
                 .type(type)
                 .parentEventId(collectionEventId)
-                .parentGooruId(UUID.fromString(collection.getId()))
+                .parentGooruId(context.getCollectionId())
                 .resourceType(resource.getIsResource() ? QuizzesUtils.RESOURCE : QuizzesUtils.QUESTION)
-                .unitGooruId(collection.getUnitId())
-                .classGooruId(classId)
-                .lessonGooruId(collection.getLessonId())
-                .courseGooruId(collection.getCourseId())
+                .classGooruId(context.getClassId())
                 .build();
+        String courseId = contextData.getContextMap().get(COURSE_ID);
+        String unitId = contextData.getContextMap().get(UNIT_ID);
+        String lessonId = contextData.getContextMap().get(LESSON_ID);
+        contextResource.setCourseGooruId(Strings.isNullOrEmpty(courseId) ? null : UUID.fromString(courseId));
+        contextResource.setUnitGooruId(Strings.isNullOrEmpty(unitId) ? null : UUID.fromString(unitId));
+        contextResource.setLessonGooruId(Strings.isNullOrEmpty(lessonId) ? null : UUID.fromString(lessonId));
+        return contextResource;
     }
 
     private ContextReaction createContextReaction(CollectionDto collection, UUID classId,

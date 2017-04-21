@@ -27,19 +27,13 @@ import java.util.stream.Collectors;
 public class AttemptService {
 
     @Autowired
-    ContextProfileEventService contextProfileEventService;
+    private ContextProfileEventService contextProfileEventService;
 
     @Autowired
-    ContextService contextService;
+    private ContextService contextService;
 
     @Autowired
-    ContextProfileService contextProfileService;
-
-    @Autowired
-    CollectionService collectionService;
-
-    @Autowired
-    Gson gson;
+    private Gson gson;
 
     public ContextAttemptsResponseDto getCurrentAttemptByProfile(UUID contextId, UUID ownerId) {
         ContextEntity context = contextService.findCreatedContext(contextId, ownerId);
@@ -114,6 +108,7 @@ public class AttemptService {
         result.setCollectionId(firstEvent.getCollectionId());
         result.setProfileId(firstEvent.getProfileId());
         result.setCurrentResourceId(firstEvent.getCurrentResourceId());
+        result.setCreatedDate(firstEvent.getCreatedAt());
         result.setEventSummary(gson.fromJson(firstEvent.getEventsSummary(), EventSummaryDataDto.class));
         result.setTaxonomySummary(gson.fromJson(firstEvent.getTaxonomySummary(), List.class));
         List<PostResponseResourceDto> events = contextProfileEvents.stream().
@@ -127,4 +122,5 @@ public class AttemptService {
         result.setEvents(events);
         return result;
     }
+
 }

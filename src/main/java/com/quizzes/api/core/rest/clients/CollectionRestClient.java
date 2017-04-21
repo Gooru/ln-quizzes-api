@@ -80,9 +80,6 @@ public class CollectionRestClient {
     private Gson gson;
 
     @Autowired
-    private AuthenticationRestClient authenticationRestClient;
-
-    @Autowired
     private GooruHelper gooruHelper;
 
     @Autowired
@@ -186,6 +183,7 @@ public class CollectionRestClient {
     private CollectionMetadataDto mapCollectionMetadata(CollectionContentDto collectionContentDto) {
         CollectionMetadataDto collectionMetadataDto = new CollectionMetadataDto();
         collectionMetadataDto.setTitle(collectionContentDto.getTitle());
+        collectionMetadataDto.setSubFormat(collectionContentDto.getSubFormat());
         collectionMetadataDto.setSetting(collectionContentDto.getSetting());
         collectionMetadataDto.setTaxonomy(collectionContentDto.getTaxonomy());
         return collectionMetadataDto;

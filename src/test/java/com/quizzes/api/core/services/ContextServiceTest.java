@@ -2,6 +2,7 @@ package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.dtos.CollectionMetadataDto;
 import com.quizzes.api.core.dtos.MetadataDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
@@ -39,6 +40,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
@@ -250,6 +252,36 @@ public class ContextServiceTest {
         verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
         assertEquals("Wrong id for context", contextId, result);
+    }
+
+    @Test
+    public void createContextForSuggestedContent() throws Exception {
+        ContextDataDto contextDataDto = new ContextDataDto();
+        contextDataDto.setContextMap(new HashMap<>());
+        CollectionDto collectionDto = new CollectionDto();
+        collectionDto.setId(collectionId.toString());
+        collectionDto.setIsCollection(false);
+        collectionDto.setOwnerId(profileId);
+        CollectionMetadataDto collectionMetadataDto = new CollectionMetadataDto();
+        collectionMetadataDto.setSubFormat("pre-test");
+        collectionDto.setMetadata(collectionMetadataDto);
+        Context context = createContextMock();
+        doReturn(collectionDto)
+                .when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
+        doReturn(null)
+                .when(contextRepository).findByContextMapKey(anyString());
+        doReturn(context)
+                .when(contextRepository).save(any(Context.class));
+
+        UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
+
+        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
+        verify(contextRepository, times(1)).findByContextMapKey(anyString());
+        verify(contextRepository, times(1)).save(any(Context.class));
+        verify(classMemberService, never()).containsMemberId(any(UUID.class), any(UUID.class), anyString());
+        verify(classMemberService, never()).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
+
+        assertEquals("Wrong Context ID", contextId, result);
     }
 
     @Test
