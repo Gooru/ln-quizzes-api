@@ -194,6 +194,8 @@ public class ContextEventService {
                 false, eventSummary, taxonomySummaries);
 
         if (contextProfileEntity.getClassId() != null) {
+            previousResourceEventData.setScore(score);
+            previousResourceEventData.setIsSkipped(isSkipEvent);
             sendOnResourceEventMessage(savedContextProfile, previousResourceEventData, eventSummary);
             sendAnalyticsEvent(context, savedContextProfile, UUID.randomUUID(), previousResource,
                     previousResourceEventData, token);
