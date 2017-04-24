@@ -1,11 +1,12 @@
 version: 0.0
 os: linux
 files:
-#  - source: quizzes-api.service
-#  destination: /etc/systemd/system/
   - source: quizzes-api.jar
     destination: /opt/quizzes-api/
 hooks:
+  ApplicationStop:
+    - location: stop.sh
+      timeout: 180
   AfterInstall:
     - location: after-install.sh
       timeout: 180
