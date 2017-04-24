@@ -1,3 +1,3 @@
 #!/bin/bash
 
-service quizzes restart
+service quizzes start
