@@ -15,21 +15,20 @@ public class ResourceContentDto implements Serializable {
     private String title;
     private String description;
     private String thumbnail;
-
     @SerializedName("content_format")
     private String contentFormat;
-
     @SerializedName("content_subformat")
     private String contentSubformat;
     private String url;
-
     @SerializedName("sequence_id")
     private int sequence;
-
     @SerializedName("answer")
     private List<AnswerContentDto> answers;
     private Map<String, Object> taxonomy;
     @SerializedName("display_guide")
     private Map<String, Object> displayGuide;
+    private String narration;
+    @SerializedName("creator_id")
+    private UUID ownerId;
 
 }

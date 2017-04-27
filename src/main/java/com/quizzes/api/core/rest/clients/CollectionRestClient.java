@@ -232,6 +232,8 @@ public class CollectionRestClient {
         metadata.setUrl(resourceContentDto.getUrl());
         metadata.setTaxonomy(resourceContentDto.getTaxonomy());
         metadata.setDisplayGuide(resourceContentDto.getDisplayGuide());
+        metadata.setOwnerId(resourceContentDto.getOwnerId());
+        metadata.setNarration(resourceContentDto.getNarration());
         return metadata;
     }
 
@@ -247,6 +249,8 @@ public class CollectionRestClient {
         }
         metadata.setBody(getBody(resourceContentDto));
         metadata.setTaxonomy(resourceContentDto.getTaxonomy());
+        metadata.setOwnerId(resourceContentDto.getOwnerId());
+        metadata.setNarration(resourceContentDto.getNarration());
         return metadata;
     }
 

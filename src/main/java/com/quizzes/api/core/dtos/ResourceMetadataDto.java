@@ -6,6 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 public class ResourceMetadataDto implements Serializable {
@@ -21,5 +22,7 @@ public class ResourceMetadataDto implements Serializable {
     private Map<String, Object> taxonomy;
     @SerializedName("display_guide")
     private Map<String, Object> displayGuide;
+    private UUID ownerId;
+    private String narration;
 
 }
