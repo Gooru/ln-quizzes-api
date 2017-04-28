@@ -177,7 +177,8 @@ var quizzesCommon = {
 
     startContext: function (contextId, authToken, afterJsonFunction) {
         Frisby.create('Start Context')
-            .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
+            .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`, { eventSource: 'dailyclassactivity' },
+                { json: true })
             .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
             .expectStatus(200)
@@ -189,8 +190,10 @@ var quizzesCommon = {
     },
 
     onResourceEvent: function (contextId, resourceId, previousResource, authToken, afterJsonFunction) {
+        Object.assign(previousResource, { eventSource: 'dailyclassactivity' });
         Frisby.create('On Resource Event')
-            .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, previousResource, {json: true})
+            .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, previousResource,
+                { json: true })
             .addHeader('Authorization', `Token ${authToken}`)
             .inspectRequest()
             .expectStatus(200)
@@ -202,7 +205,8 @@ var quizzesCommon = {
 
     finishContext: function (contextId, authToken, afterJsonFunction) {
         Frisby.create('Finish Context')
-            .post(QuizzesApiUrl + '/v1/contexts/' + contextId + '/finish')
+            .post(QuizzesApiUrl + `/v1/contexts/${contextId}/finish`, { eventSource: 'dailyclassactivity' },
+                { json: true })
             .addHeader('Authorization', 'Token ' + authToken)
             .inspectRequest()
             .expectStatus(204)

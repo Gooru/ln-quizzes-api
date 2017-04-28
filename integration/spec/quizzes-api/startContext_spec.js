@@ -138,19 +138,12 @@ QuizzesCommon.startTest('Start context for anonymous', function () {
         let collectionId = Config.getCollection('TestCollection01').id;
         QuizzesCommon.createContext(collectionId, null, true, {}, authToken, function (contextResponse) {
             let contextId = contextResponse.id;
-            Frisby.create('Verify start context data')
-                .post(QuizzesApiUrl + `/v1/contexts/${contextId}/start`)
-                .addHeader('Authorization', `Token ${authToken}`)
-                .inspectRequest()
-                .expectStatus(200)
-                .expectJSON({
-                    'contextId': contextResponse.id,
-                    'collectionId': collectionId,
-                    'currentResourceId': undefined,
-                    'events': []
-                })
-                .inspectJSON()
-                .toss();
+            QuizzesCommon.startContext(contextId, authToken, function(contextResponse) {
+                expect(contextResponse.contextId).toEqual(contextId);
+                expect(contextResponse.collectionId).toEqual(collectionId);
+                expect(contextResponse.currentResourceId).toBe(undefined);
+                expect(contextResponse.events.length).toEqual(0);
+            });
         })
     });
 });
