@@ -1,13 +1,12 @@
 package com.quizzes.api.core.controllers;
 
 import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.EventSourceDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.services.ContextEventService;
-import com.quizzes.api.core.services.ContextProfileService;
-import com.quizzes.api.core.services.ContextService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,18 +42,13 @@ public class ContextEventControllerTest {
     @Mock
     private ContextEventService contextEventService;
 
-    @Mock
-    private ContextProfileService contextProfileService;
-
-    @Mock
-    private ContextService contextService;
-
     private UUID contextId;
     private UUID collectionId;
     private UUID resourceId;
     private UUID profileId;
     private UUID anonymousId;
     private String token;
+    private String eventSource;
 
     @Before
     public void before() throws Exception {
@@ -63,6 +58,7 @@ public class ContextEventControllerTest {
         profileId = UUID.randomUUID();
         anonymousId = UUID.fromString("00000000-0000-0000-0000-000000000000");
         token = UUID.randomUUID().toString();
+        eventSource = "dailyclassactivity";
     }
 
     @Test
@@ -85,13 +81,15 @@ public class ContextEventControllerTest {
         startContext.setEvents(events);
 
 
-        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class), any(String.class)))
+        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class), anyString(), anyString()))
                 .thenReturn(startContext);
 
-        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(contextId,
+        EventSourceDto eventSourceDto = new EventSourceDto();
+        eventSourceDto.setEventSource(eventSource);
+        ResponseEntity<StartContextEventResponseDto> result = controller.startContextEvent(contextId, eventSourceDto,
                 profileId.toString(), token);
 
-        verify(contextEventService, times(1)).processStartContextEvent(contextId, profileId, token);
+        verify(contextEventService, times(1)).processStartContextEvent(contextId, profileId, eventSource, token);
 
         StartContextEventResponseDto resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
@@ -136,13 +134,15 @@ public class ContextEventControllerTest {
         startContext.setCollectionId(collectionId);
         startContext.setEvents(events);
 
-        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class), any(String.class)))
+        when(contextEventService.processStartContextEvent(any(UUID.class), any(UUID.class), anyString(), anyString()))
                 .thenReturn(startContext);
 
+        EventSourceDto eventSourceDto = new EventSourceDto();
+        eventSourceDto.setEventSource(eventSource);
         ResponseEntity<StartContextEventResponseDto> result =
-                controller.startContextEvent(contextId, anonymousId.toString(), token);
+                controller.startContextEvent(contextId, eventSourceDto, anonymousId.toString(), token);
 
-        verify(contextEventService, times(1)).processStartContextEvent(contextId, anonymousId, token);
+        verify(contextEventService, times(1)).processStartContextEvent(contextId, anonymousId, eventSource, token);
 
         StartContextEventResponseDto resultBody = result.getBody();
         assertSame(resultBody.getClass(), StartContextEventResponseDto.class);
@@ -171,8 +171,11 @@ public class ContextEventControllerTest {
 
     @Test
     public void processFinishContextEvent() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(contextId, profileId.toString(), token);
-        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId, token);
+        EventSourceDto eventSourceDto = new EventSourceDto();
+        eventSourceDto.setEventSource(eventSource);
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, eventSourceDto, profileId.toString(),
+                token);
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, profileId, eventSource, token);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());
@@ -181,8 +184,10 @@ public class ContextEventControllerTest {
 
     @Test
     public void processFinishContextEventForAnonymous() throws Exception {
-        ResponseEntity<?> result = controller.finishContextEvent(contextId, "anonymous", token);
-        verify(contextEventService, times(1)).processFinishContextEvent(contextId, anonymousId, token);
+        EventSourceDto eventSourceDto = new EventSourceDto();
+        eventSourceDto.setEventSource(eventSource);
+        ResponseEntity<?> result = controller.finishContextEvent(contextId, eventSourceDto, "anonymous", token);
+        verify(contextEventService, times(1)).processFinishContextEvent(contextId, anonymousId, eventSource, token);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.NO_CONTENT, result.getStatusCode());

@@ -1,5 +1,6 @@
 package com.quizzes.api.core.controllers;
 
+import com.quizzes.api.core.dtos.EventSourceDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
@@ -46,10 +47,14 @@ public class ContextEventController {
     public ResponseEntity<StartContextEventResponseDto> startContextEvent(
             @ApiParam(value = "Id of the context that will be started", required = true, name = "ContextID")
             @PathVariable UUID contextId,
+            @ApiParam(value = "Request body in JSON format containing the event source data.", required = true,
+                    name = "Body")
+            @RequestBody EventSourceDto eventSourceDto,
             @RequestAttribute(value = "profileId") String profileId,
             @RequestAttribute(value = "token") String token) {
-        return new ResponseEntity<>(contextEventService.processStartContextEvent(contextId,
-                QuizzesUtils.resolveProfileId(profileId), token), HttpStatus.OK);
+        StartContextEventResponseDto response = contextEventService.processStartContextEvent(contextId,
+                QuizzesUtils.resolveProfileId(profileId), eventSourceDto.getEventSource(), token);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @ApiOperation(value = "On resource event",
@@ -66,14 +71,13 @@ public class ContextEventController {
             @PathVariable UUID resourceId,
             @ApiParam(value = "ID of the context that the resource belongs to", required = true, name = "Context ID")
             @PathVariable UUID contextId,
-            @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true, name = "Body")
+            @ApiParam(value = "Json body containing data to send to the requested event endpoint.", required = true,
+                    name = "Body")
             @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
             @RequestAttribute(value = "profileId") String profileId,
             @RequestAttribute(value = "token") String token) {
-
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId,
                 QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto, token);
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -89,10 +93,15 @@ public class ContextEventController {
     public ResponseEntity<Void> finishContextEvent(
             @ApiParam(value = "ID of the context to have its attempt finished.", required = true, name = "ContextID")
             @PathVariable UUID contextId,
+            @ApiParam(value = "Request body in JSON format containing the event source data.", required = true,
+                    name = "Body")
+            @RequestBody EventSourceDto eventSourceDto,
             @RequestAttribute(value = "profileId") String profileId,
             @RequestAttribute(value = "token") String token) {
-        contextEventService.processFinishContextEvent(contextId, QuizzesUtils.resolveProfileId(profileId), token);
+        contextEventService.processFinishContextEvent(contextId, QuizzesUtils.resolveProfileId(profileId),
+                eventSourceDto.getEventSource(), token);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }
 

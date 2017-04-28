@@ -29,9 +29,9 @@ public class ContextResource extends ContextCommon {
     private ContextResource(UUID contentGooruId, String type, String collectionType, String collectionSubType,
                             UUID courseGooruId, UUID classGooruId, UUID unitGooruId, UUID lessonGooruId,
                             String clientSource, String source, UUID appId, UUID partnerId, UUID tenantId,
-                            UUID parentGooruId, UUID parentEventId, String resourceType) {
+                            UUID parentGooruId, UUID parentEventId, String resourceType, String contentSource) {
         super(contentGooruId, type, collectionType, collectionSubType, courseGooruId, classGooruId, unitGooruId,
-                lessonGooruId, clientSource, source, appId, partnerId, tenantId);
+                lessonGooruId, clientSource, source, appId, partnerId, tenantId, contentSource);
         this.parentGooruId = parentGooruId;
         this.parentEventId = parentEventId;
         this.resourceType = resourceType;

@@ -31,4 +31,6 @@ public class ContextCommon {
     private UUID appId;
     private UUID partnerId;
     private UUID tenantId;
+    private String contentSource;
+
 }

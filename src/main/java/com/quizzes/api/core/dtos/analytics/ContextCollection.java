@@ -13,8 +13,12 @@ public class ContextCollection extends ContextCommon {
     private int questionCount;
 
     @Builder
-    public ContextCollection(UUID contentGooruId, String type, String collectionType, String collectionSubType, UUID courseGooruId, UUID classGooruId, UUID unitGooruId, UUID lessonGooruId, String clientSource, String source, UUID appId, UUID partnerId, UUID tenantId, int questionCount) {
-        super(contentGooruId, type, collectionType, collectionSubType, courseGooruId, classGooruId, unitGooruId, lessonGooruId, clientSource, source, appId, partnerId, tenantId);
+    public ContextCollection(UUID contentGooruId, String type, String collectionType, String collectionSubType,
+                             UUID courseGooruId, UUID classGooruId, UUID unitGooruId, UUID lessonGooruId,
+                             String clientSource, String source, UUID appId, UUID partnerId, UUID tenantId,
+                             int questionCount, String contentSource) {
+        super(contentGooruId, type, collectionType, collectionSubType, courseGooruId, classGooruId, unitGooruId,
+                lessonGooruId, clientSource, source, appId, partnerId, tenantId, contentSource);
         this.questionCount = questionCount;
     }
 }

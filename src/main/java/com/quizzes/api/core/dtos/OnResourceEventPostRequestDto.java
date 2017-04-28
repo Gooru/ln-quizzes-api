@@ -1,11 +1,13 @@
 package com.quizzes.api.core.dtos;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class OnResourceEventPostRequestDto {
+@EqualsAndHashCode(callSuper=false)
+public class OnResourceEventPostRequestDto extends EventSourceDto {
 
     private PostRequestResourceDto previousResource;
 
