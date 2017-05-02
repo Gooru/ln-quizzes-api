@@ -34,6 +34,7 @@ QuizzesCommon.startTest('Get collection endpoint', function () {
             expect(collection.metadata.taxonomy).toBeDefined();
             expect(collection.isCollection).toEqual(true);
             expect(collection.resources.length).toEqual(10);
+            expect(collection.ownerId).toBeDefined();
         });
     });
 });

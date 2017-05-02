@@ -23,6 +23,7 @@ QuizzesCommon.startTest('Get assessment endpoint', function () {
             expect(assessment.metadata.taxonomy).toBeDefined();
             expect(assessment.isCollection).toEqual(false);
             expect(assessment.resources.length).toEqual(9);
+            expect(assessment.ownerId).toBeDefined();
         });
     });
 });
