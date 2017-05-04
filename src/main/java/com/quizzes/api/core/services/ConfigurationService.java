@@ -21,6 +21,9 @@ public class ConfigurationService {
     @Value("${content.api.analytics_version}")
     private String analyticsVersion;
 
+    @Value("${content.api.analytics.appId}")
+    private String analyticsAppId;
+
     public String getContentApiUrl() {
         return contentApiUrl;
     }
@@ -40,4 +43,9 @@ public class ConfigurationService {
     public String getAnalyticsVersion() {
         return analyticsVersion;
     }
+
+    public String getAnalyticsAppId() {
+        return analyticsAppId;
+    }
+
 }

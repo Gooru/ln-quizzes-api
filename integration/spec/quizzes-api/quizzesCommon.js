@@ -190,7 +190,14 @@ var quizzesCommon = {
     },
 
     onResourceEvent: function (contextId, resourceId, previousResource, authToken, afterJsonFunction) {
-        Object.assign(previousResource, { eventSource: 'dailyclassactivity' });
+        Object.assign(previousResource, {
+            'eventContext': {
+                'eventSource': 'dailyclassactivity',
+                'sourceUrl': 'http://nile-qa.gooru.org/',
+                'pathId': 1,
+                'timezone': 'America/Costa_Rica'
+            }
+        });
         Frisby.create('On Resource Event')
             .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, previousResource,
                 { json: true })

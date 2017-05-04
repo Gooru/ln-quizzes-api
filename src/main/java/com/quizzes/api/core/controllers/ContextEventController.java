@@ -1,6 +1,6 @@
 package com.quizzes.api.core.controllers;
 
-import com.quizzes.api.core.dtos.EventSourceDto;
+import com.quizzes.api.core.dtos.EventContextDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
@@ -49,11 +49,15 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @ApiParam(value = "Request body in JSON format containing the event source data.", required = true,
                     name = "Body")
-            @RequestBody EventSourceDto eventSourceDto,
+            @RequestBody EventContextDto eventContextDto,
             @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
+        UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
+        eventContextDto.setPartnerId(resolvedProfileId);
+        eventContextDto.setTenantId(UUID.fromString(clientId));
         StartContextEventResponseDto response = contextEventService.processStartContextEvent(contextId,
-                QuizzesUtils.resolveProfileId(profileId), eventSourceDto.getEventSource(), token);
+                resolvedProfileId, eventContextDto, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -75,9 +79,13 @@ public class ContextEventController {
                     name = "Body")
             @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
             @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
-        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId,
-                QuizzesUtils.resolveProfileId(profileId), resourceId, onResourceEventPostRequestDto, token);
+        UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
+        onResourceEventPostRequestDto.getEventContext().setPartnerId(resolvedProfileId);
+        onResourceEventPostRequestDto.getEventContext().setTenantId(UUID.fromString(clientId));
+        OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, resolvedProfileId,
+                resourceId, onResourceEventPostRequestDto, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -95,11 +103,14 @@ public class ContextEventController {
             @PathVariable UUID contextId,
             @ApiParam(value = "Request body in JSON format containing the event source data.", required = true,
                     name = "Body")
-            @RequestBody EventSourceDto eventSourceDto,
+            @RequestBody EventContextDto eventContextDto,
             @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
-        contextEventService.processFinishContextEvent(contextId, QuizzesUtils.resolveProfileId(profileId),
-                eventSourceDto.getEventSource(), token);
+        UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
+        eventContextDto.setPartnerId(resolvedProfileId);
+        eventContextDto.setTenantId(UUID.fromString(clientId));
+        contextEventService.processFinishContextEvent(contextId, resolvedProfileId, eventContextDto, token);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

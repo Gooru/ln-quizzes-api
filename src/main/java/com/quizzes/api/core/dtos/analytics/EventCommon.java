@@ -12,12 +12,15 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 public class EventCommon {
+
     UUID eventId;
     String eventName;
     Session session;
     private User user;
     private Version version;
     private Map metrics;
+    private String timezone;
     private Long startTime;
     private Long endTime;
+
 }

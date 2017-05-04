@@ -14,10 +14,10 @@ public class EventReaction extends EventCommon {
     private ContextReaction context;
 
     @Builder
-    public EventReaction(UUID eventId, String eventName, Session session, User user,
-                         Version version, Map metrics, Long startTime,
-                         Long endTime, ContextReaction context) {
-        super(eventId, eventName, session, user, version, metrics, startTime, endTime);
+    public EventReaction(UUID eventId, String eventName, Session session, User user, Version version, Map metrics,
+                         String timezone, Long startTime, Long endTime, ContextReaction context) {
+        super(eventId, eventName, session, user, version, metrics, timezone, startTime, endTime);
         this.context = context;
     }
+
 }

@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper=false)
-public class OnResourceEventPostRequestDto extends EventSourceDto {
+public class OnResourceEventPostRequestDto {
 
+    private EventContextDto eventContext;
     private PostRequestResourceDto previousResource;
 
 }
