@@ -1,6 +1,5 @@
 package com.quizzes.api.core.services;
 
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
@@ -46,24 +45,9 @@ public class ContextService {
     public UUID createContext(UUID collectionId, UUID profileId, UUID classId, ContextDataDto contextDataDto,
                               Boolean isCollection, String token)
             throws InvalidAssigneeException, InvalidOwnerException, InternalServerException {
+        classMemberService.validateClassMember(classId, profileId, token);
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
         UUID collectionOwnerId = collectionDto.getOwnerId();
-        String subFormat = collectionDto.getMetadata().getSubFormat();
-
-        if (Strings.isNullOrEmpty(subFormat)) {     // If it is a normal Assessment (no pre-test, no post-test, etc)
-            if (!collectionOwnerId.equals(profileId)) {
-                if (!classMemberService.containsMemberId(classId, profileId, token)) {
-                    throw new InvalidAssigneeException("Profile Id: " + profileId + " is not a valid Assignee " +
-                            "(member of the Class Id: " + classId + ")");
-                }
-
-                if (!classMemberService.containsOwnerId(classId, collectionOwnerId, token)) {
-                    throw new InvalidOwnerException("Collection Owner ID: " + collectionOwnerId +
-                            " is not a valid Owner (owner of the Class Id: " + classId + ")");
-                }
-            }
-        }
-
         String contextMapKey = generateContextMapKey(collectionId, classId, contextDataDto.getContextMap());
         ContextEntity contextEntity = contextRepository.findByContextMapKey(contextMapKey);
         if (contextEntity != null) {
