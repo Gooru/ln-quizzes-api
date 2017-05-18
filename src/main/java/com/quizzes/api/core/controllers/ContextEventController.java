@@ -54,8 +54,6 @@ public class ContextEventController {
             @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
-        eventContextDto.setPartnerId(resolvedProfileId);
-        eventContextDto.setTenantId(UUID.fromString(clientId));
         StartContextEventResponseDto response = contextEventService.processStartContextEvent(contextId,
                 resolvedProfileId, eventContextDto, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -82,8 +80,6 @@ public class ContextEventController {
             @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
-        onResourceEventPostRequestDto.getEventContext().setPartnerId(resolvedProfileId);
-        onResourceEventPostRequestDto.getEventContext().setTenantId(UUID.fromString(clientId));
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, resolvedProfileId,
                 resourceId, onResourceEventPostRequestDto, token);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -108,8 +104,6 @@ public class ContextEventController {
             @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
-        eventContextDto.setPartnerId(resolvedProfileId);
-        eventContextDto.setTenantId(UUID.fromString(clientId));
         contextEventService.processFinishContextEvent(contextId, resolvedProfileId, eventContextDto, token);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

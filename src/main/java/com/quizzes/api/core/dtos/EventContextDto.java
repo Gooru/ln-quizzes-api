@@ -16,5 +16,10 @@ public class EventContextDto {
     private String gradingType;
     private UUID partnerId;
     private UUID tenantId;
+    private UUID classId;
+    private UUID courseId;
+    private UUID unitId;
+    private UUID lessonId;
+    private UUID collectionId;
 
 }

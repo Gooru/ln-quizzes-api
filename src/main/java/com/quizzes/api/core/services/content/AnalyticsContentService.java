@@ -106,6 +106,28 @@ public class AnalyticsContentService {
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
+    public void singleResourceEventStart(UUID eventId, UUID resourceId, UUID profileId, UUID sessionId, Long startTime,
+                                         EventContextDto eventContext, String token) {
+        EventResource playEvent = createSingleResourceEvent(eventId, START, resourceId, profileId, sessionId,
+                startTime, startTime, eventContext, token);
+        analyticsRestClient.notifyEvent(playEvent, token);
+    }
+
+    public void singleResourceEventStop(UUID eventId, UUID resourceId, UUID profileId, UUID sessionId, Long startTime,
+                                        Long endTime, EventContextDto eventContext, String token) {
+        EventResource playEvent = createSingleResourceEvent(eventId, STOP, resourceId, profileId, sessionId,
+                startTime, endTime, eventContext, token);
+        analyticsRestClient.notifyEvent(playEvent, token);
+    }
+
+    public void singleResourceEventReaction(UUID eventId, UUID resourceId, UUID parentEventId, UUID profileId,
+                                            UUID sessionId, int reaction, Long startTime, EventContextDto eventContext,
+                                            String token) {
+        EventReaction eventReaction = createSingleResourceEventReaction(eventId, parentEventId, resourceId, profileId,
+                sessionId, reaction, startTime, eventContext, token);
+        analyticsRestClient.notifyEvent(eventReaction, token);
+    }
+
     private EventCollection createEventCollection(ContextEntity context, ContextProfile contextProfile, String type,
                                                   long startTime, long endTime, EventContextDto eventContext,
                                                   String token) {
@@ -292,14 +314,91 @@ public class AnalyticsContentService {
                 .build();
     }
 
+    private EventResource createSingleResourceEvent(UUID eventId, String eventType, UUID resourceId, UUID profileId,
+                                                    UUID sessionId, Long startTime, Long endTime,
+                                                    EventContextDto eventContext, String token) {
+        return EventResource.builder()
+                .eventId(eventId)
+                .eventName(RESOURCE_PLAY)
+                .session(createSession(sessionId, token))
+                .user(new User(profileId))
+                .context(createSingleResourceEventContext(resourceId, eventType, eventContext))
+                .version(new Version(configurationService.getAnalyticsVersion()))
+                .metrics(Collections.emptyMap())
+                .payLoadObject(PayloadObjectResource.builder().isStudent(true).build())
+                .timezone(eventContext.getTimezone())
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
+    }
+
+    private ContextResource createSingleResourceEventContext(UUID resourceId, String eventType,
+                                                             EventContextDto eventContext) {
+        ContextResource contextResource = ContextResource.builder()
+                .contentGooruId(resourceId)
+                .type(eventType)
+                .collectionType(null)
+                .resourceType(QuizzesUtils.RESOURCE)
+                .pathId(eventContext.getPathId())
+                .contentSource(eventContext.getEventSource())
+                .source(eventContext.getSourceUrl())
+                .appId(UUID.fromString(configurationService.getAnalyticsAppId()))
+                .partnerId(eventContext.getPartnerId())
+                .tenantId(eventContext.getTenantId())
+                .classGooruId(eventContext.getClassId())
+                .courseGooruId(eventContext.getCourseId())
+                .unitGooruId(eventContext.getUnitId())
+                .lessonGooruId(eventContext.getLessonId())
+                .parentGooruId(eventContext.getCollectionId())
+                .build();
+        return contextResource;
+    }
+
+    private EventReaction createSingleResourceEventReaction(UUID eventId, UUID parentEventId, UUID resourceId,
+                                                            UUID profileId, UUID sessionId, int reaction,
+                                                            Long startTime, EventContextDto eventContext,
+                                                            String token) {
+        return EventReaction.builder()
+                .eventId(eventId)
+                .session(createSession(sessionId, token))
+                .user(new User(profileId))
+                .context(createSingleResourceEventReactionContext(resourceId, parentEventId, reaction, eventContext))
+                .version(new Version(configurationService.getAnalyticsVersion()))
+                .eventName(REACTION_CREATE)
+                .timezone(eventContext.getTimezone())
+                .startTime(startTime)
+                .endTime(startTime)
+                .build();
+    }
+
+    private ContextReaction createSingleResourceEventReactionContext(UUID resourceId, UUID parentEventId, int reaction,
+                                                                     EventContextDto eventContext) {
+        return ContextReaction.builder()
+                .contentGooruId(resourceId)
+                .parentEventId(parentEventId)
+                .reactionType(String.valueOf(reaction))
+                .pathId(eventContext.getPathId())
+                .contentSource(eventContext.getEventSource())
+                .source(eventContext.getSourceUrl())
+                .appId(UUID.fromString(configurationService.getAnalyticsAppId()))
+                .partnerId(eventContext.getPartnerId())
+                .tenantId(eventContext.getTenantId())
+                .classGooruId(eventContext.getClassId())
+                .courseGooruId(eventContext.getCourseId())
+                .unitGooruId(eventContext.getUnitId())
+                .lessonGooruId(eventContext.getLessonId())
+                .parentGooruId(eventContext.getCollectionId())
+                .build();
+    }
+
     private int getQuestionCount(List<ResourceDto> resources) {
         return (int) resources.stream().filter(resource -> !resource.getIsResource()).count();
     }
 
-    private Session createSession(UUID contextProfileId, String token) {
+    private Session createSession(UUID sessionId, String token) {
         return Session.builder()
                 .apiKey(UUID.fromString(configurationService.getApiKey()))
-                .sessionId(contextProfileId)
+                .sessionId(sessionId)
                 .sessionToken(token).build();
     }
 
