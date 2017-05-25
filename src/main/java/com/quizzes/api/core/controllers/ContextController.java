@@ -57,7 +57,6 @@ public class ContextController {
                                            @RequestBody ContextPostRequestDto contextPostRequestDto,
                                            @RequestAttribute(value = "profileId") String profileId,
                                            @RequestAttribute(value = "token") String token) {
-
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<ContextPostRequestDto>> constraintViolations =
@@ -70,21 +69,12 @@ public class ContextController {
             throw new InvalidRequestBodyException("Invalid JSON properties: " + invalidPropertiesMessage);
         }
 
-        UUID contextId;
         UUID collectionId = contextPostRequestDto.getCollectionId();
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
         UUID classId = contextPostRequestDto.getClassId();
         Boolean isCollection = contextPostRequestDto.getIsCollection();
-
-        if (classId != null) {
-            QuizzesUtils.rejectAnonymous(profileId, "Anonymous users cannot create contexts for a mapped Context");
-            contextId = contextService.createContext(collectionId, resolvedProfileId, classId,
-                    contextPostRequestDto.getContextData(), isCollection, token);
-        } else {
-            contextId = contextService.createContextWithoutClassId(collectionId, resolvedProfileId, isCollection,
-                    token);
-        }
-
+        UUID contextId = contextService.createContext(resolvedProfileId, collectionId, isCollection, classId,
+                    contextPostRequestDto.getContextData(), token);
         return new ResponseEntity<>(new IdResponseDto(contextId), HttpStatus.OK);
     }
 

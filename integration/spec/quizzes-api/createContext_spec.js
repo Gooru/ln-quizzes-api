@@ -173,15 +173,31 @@ QuizzesCommon.startTest('Assignee1 creates a Context with Context map info on be
     });
 });
 
-QuizzesCommon.startTest('Invalid Assignee tries to create a Context with Context map info on behalf the Context owner',
-    function () {
-        QuizzesCommon.getAuthorizationToken('StudentNotInClass', function (authToken) {
-            let collectionId = Config.getCollection('TestCollection01').id;
-            let classId = Config.getClass('TestClass01').id;
-            let contextMap = QuizzesCommon.generateRandomContextMap();
-            QuizzesCommon.createContextWithStatus(collectionId, classId, true, contextMap, authToken,
-                HttpErrorCodes.FORBIDDEN, function (error) {
-                    expect(error.status).toEqual(HttpErrorCodes.FORBIDDEN);
-                });
+QuizzesCommon.startTest('Invalid Assignee tries to create a Context with Context map info on behalf the ' +
+    'Context owner', function () {
+    QuizzesCommon.getAuthorizationToken('StudentNotInClass', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContextWithStatus(collectionId, classId, true, contextMap, authToken,
+            HttpErrorCodes.FORBIDDEN, function (error) {
+                expect(error.status).toEqual(HttpErrorCodes.FORBIDDEN);
+            });
+    });
+});
+
+QuizzesCommon.startTest('Create context without ClassID but with ContextMap', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let assessmentId = Config.getAssessment('TestAssessment01').id;
+        let classId = null;
+        let contextMap = {
+            courseId: Config.getCourse('Course01').id,
+            unitId: Config.getUnit('Unit01').id,
+            lessonId: Config.getLesson('Lesson01').id,
+        };
+        QuizzesCommon.createContext(assessmentId, classId, false, contextMap, authToken, function (contextResponse) {
+            expect(contextResponse).not.toBe(null);
+            expect(contextResponse.id).toBeDefined();
         });
     });
+});

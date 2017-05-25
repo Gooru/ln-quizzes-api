@@ -1,5 +1,6 @@
 package com.quizzes.api.core.services.content;
 
+import com.quizzes.api.core.dtos.ClassMemberContentDto;
 import com.quizzes.api.core.exceptions.InvalidClassMemberException;
 import com.quizzes.api.core.rest.clients.ClassMemberRestClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,10 @@ public class ClassMemberService {
 
     @Autowired
     private ClassMemberRestClient classMemberRestClient;
+
+    public ClassMemberContentDto getClassMemberContent(UUID classId, String authToken) {
+        return classMemberRestClient.getClassMembers(classId, authToken);
+    }
 
     public List<UUID> getClassMemberIds(UUID classId, String authToken) {
         return classMemberRestClient.getClassMembers(classId, authToken).getMemberIds();

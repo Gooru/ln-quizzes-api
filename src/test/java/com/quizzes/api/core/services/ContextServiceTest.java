@@ -1,6 +1,7 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
+import com.quizzes.api.core.dtos.ClassMemberContentDto;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.CollectionMetadataDto;
 import com.quizzes.api.core.dtos.MetadataDto;
@@ -110,7 +111,7 @@ public class ContextServiceTest {
                 .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(contextEntity).when(contextRepository).findByContextMapKey(anyString());
 
-        UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
+        UUID result = contextService.createContext(profileId, collectionId, false, classId, contextDataDto, token);
 
         verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(contextRepository, times(1)).findByContextMapKey(anyString());
@@ -135,7 +136,7 @@ public class ContextServiceTest {
         doReturn(null).when(contextRepository).findByContextMapKey(anyString());
         doReturn(context).when(contextRepository).save(any(Context.class));
 
-        UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
+        UUID result = contextService.createContext(profileId, collectionId, false, classId, contextDataDto, token);
 
         verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(contextRepository, times(1)).findByContextMapKey(anyString());
@@ -161,7 +162,7 @@ public class ContextServiceTest {
         doReturn(true).when(classMemberService).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
         doReturn(contextEntity).when(contextRepository).findByContextMapKey(anyString());
 
-        UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
+        UUID result = contextService.createContext(profileId, collectionId, false, classId, contextDataDto, token);
 
         verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(classMemberService, times(1)).containsMemberId(any(UUID.class), any(UUID.class), anyString());
@@ -190,7 +191,7 @@ public class ContextServiceTest {
         doReturn(null).when(contextRepository).findByContextMapKey(anyString());
         doReturn(context).when(contextRepository).save(any(Context.class));
 
-        UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
+        UUID result = contextService.createContext(profileId, collectionId, false, classId, contextDataDto, token);
 
         verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(classMemberService, times(1)).containsMemberId(any(UUID.class), any(UUID.class), anyString());
@@ -215,7 +216,7 @@ public class ContextServiceTest {
                 .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         doReturn(false).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
 
-        contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
+        contextService.createContext(profileId, collectionId, false, classId, contextDataDto, token);
     }
 
     @Ignore
@@ -233,25 +234,7 @@ public class ContextServiceTest {
         doReturn(true).when(classMemberService).containsMemberId(any(UUID.class), any(UUID.class), anyString());
         doReturn(false).when(classMemberService).containsOwnerId(any(UUID.class), any(UUID.class), anyString());
 
-        contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
-    }
-
-    @Ignore
-    @Test
-    public void createContextWithoutClassId() throws Exception {
-        CollectionDto collectionDto = createCollectionDto();
-        Context context = new Context();
-        context.setId(contextId);
-
-        doReturn(collectionDto).when(collectionService)
-                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
-        doReturn(context).when(contextRepository).save(any(Context.class));
-
-        UUID result = contextService.createContextWithoutClassId(collectionId, profileId, true, "token");
-
-        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
-        verify(contextRepository, times(1)).save(any(Context.class));
-        assertEquals("Wrong id for context", contextId, result);
+        contextService.createContext(profileId, collectionId, false, classId, contextDataDto, token);
     }
 
     @Test
@@ -266,16 +249,14 @@ public class ContextServiceTest {
         collectionMetadataDto.setSubFormat("pre-test");
         collectionDto.setMetadata(collectionMetadataDto);
         Context context = createContextMock();
-        doReturn(collectionDto)
-                .when(collectionService).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
-        doReturn(null)
-                .when(contextRepository).findByContextMapKey(anyString());
-        doReturn(context)
-                .when(contextRepository).save(any(Context.class));
+        doReturn(collectionDto).when(collectionService)
+                .getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
+        doReturn(null).when(contextRepository).findByContextMapKey(anyString());
+        doReturn(context).when(contextRepository).save(any(Context.class));
+        doReturn(createClassMemberContent()).when(classMemberService).getClassMemberContent(any(UUID.class), anyString());
 
-        UUID result = contextService.createContext(collectionId, profileId, classId, contextDataDto, false, token);
+        UUID result = contextService.createContext(profileId, collectionId, false, classId, contextDataDto, token);
 
-        verify(collectionService, times(1)).getCollectionOrAssessment(any(UUID.class), anyBoolean(), anyString());
         verify(contextRepository, times(1)).findByContextMapKey(anyString());
         verify(contextRepository, times(1)).save(any(Context.class));
         verify(classMemberService, never()).containsMemberId(any(UUID.class), any(UUID.class), anyString());
@@ -290,11 +271,12 @@ public class ContextServiceTest {
         contextMap.put("courseId", courseId.toString());
         contextMap.put("unitId", unitId.toString());
         contextMap.put("lessonId", lessonId.toString());
-        String expectedContextMapKey = Base64.getEncoder()
-                .encodeToString(String.format("%s/%s/%s/%s/%s", collectionId, classId, courseId, unitId, lessonId)
-                        .getBytes(StandardCharsets.UTF_8));
+        String expectedContextMapKey = Base64.getEncoder().encodeToString(
+                String.format("profileId:%s/collectionId:%s/classId:%s/courseId:%s/unitId:%s/lessonId:%s",
+                        profileId, collectionId, classId, courseId, unitId, lessonId).getBytes(StandardCharsets.UTF_8));
         String result =
-                WhiteboxImpl.invokeMethod(contextService, "generateContextMapKey", collectionId, classId, contextMap);
+                WhiteboxImpl.invokeMethod(contextService, "generateContextMapKey", profileId, collectionId, classId,
+                        contextMap);
         assertEquals("Wrong ContextMapKey value", expectedContextMapKey, result);
     }
 
@@ -460,12 +442,13 @@ public class ContextServiceTest {
         return contextEntity;
     }
 
-    private CollectionDto createCollectionDto() {
-        CollectionDto collectionDto = new CollectionDto();
-        collectionDto.setIsCollection(true);
-        collectionDto.setId(collectionId.toString());
-        collectionDto.setOwnerId(profileId);
-        return collectionDto;
+    private ClassMemberContentDto createClassMemberContent() {
+        ClassMemberContentDto classMemberContent = new ClassMemberContentDto();
+        classMemberContent.setMemberIds(new ArrayList<>());
+        classMemberContent.setOwnerIds(new ArrayList<>());
+        classMemberContent.getOwnerIds().add(profileId);
+        return classMemberContent;
     }
+
 
 }

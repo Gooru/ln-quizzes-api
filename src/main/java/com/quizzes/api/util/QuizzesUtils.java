@@ -51,8 +51,18 @@ public class QuizzesUtils {
         }
     }
 
+    public static void rejectAnonymous(UUID profileId, String message) {
+        if (profileId.equals(ANONYMOUS_ID)) {
+            throw new InvalidRequestException(message);
+        }
+    }
+
     public static boolean isAnonymous(String profileId) {
         return profileId.equals(ANONYMOUS_PROFILE) || profileId.equals(ANONYMOUS_ID.toString());
+    }
+
+    public static boolean isAnonymous(UUID profileId) {
+        return ANONYMOUS_ID.equals(profileId);
     }
 
     public static UUID getAnonymousId() {

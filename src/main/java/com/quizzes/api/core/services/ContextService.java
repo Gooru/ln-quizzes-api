@@ -1,11 +1,12 @@
 package com.quizzes.api.core.services;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.dtos.ClassMemberContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
+import com.quizzes.api.core.exceptions.InvalidClassMemberException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
@@ -13,6 +14,7 @@ import com.quizzes.api.core.model.jooq.tables.pojos.Context;
 import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
+import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ import java.util.UUID;
 @Service
 public class ContextService {
 
+    private static final String PROFILE_ID = "profileId";
+    private static final String COLLECTION_ID = "collectionId";
+    private static final String CLASS_ID = "classId";
     private static final String COURSE_ID = "courseId";
     private static final String UNIT_ID = "unitId";
     private static final String LESSON_ID = "lessonId";
@@ -42,19 +47,39 @@ public class ContextService {
     @Autowired
     private Gson gson;
 
-    public UUID createContext(UUID collectionId, UUID profileId, UUID classId, ContextDataDto contextDataDto,
-                              Boolean isCollection, String token)
+    public UUID createContext(UUID profileId, UUID collectionId, Boolean isCollection, UUID classId,
+                              ContextDataDto contextDataDto, String authToken)
             throws InvalidAssigneeException, InvalidOwnerException, InternalServerException {
-        classMemberService.validateClassMember(classId, profileId, token);
-        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(collectionId, isCollection, token);
-        UUID collectionOwnerId = collectionDto.getOwnerId();
-        String contextMapKey = generateContextMapKey(collectionId, classId, contextDataDto.getContextMap());
+
+        if (classId != null) {
+            QuizzesUtils.rejectAnonymous(profileId, "Anonymous users cannot create Contexts mapped to a Class");
+            ClassMemberContentDto classMemberContent = classMemberService.getClassMemberContent(classId, authToken);
+            if (!classMemberContent.getMemberIds().contains(profileId) &&
+                    !classMemberContent.getOwnerIds().contains(profileId)) {
+                throw new InvalidClassMemberException("Profile Id: " + profileId +
+                        " is not a valid member (Assignee or Owner) of the Class Id: " + classId);
+            }
+            profileId = classMemberContent.getOwnerIds().get(0);
+        }
+
+        // Tries to get Collection or Assessment to verify if the ID exists.
+        collectionService.getCollectionOrAssessment(collectionId, isCollection, authToken);
+        String contextMapKey = generateContextMapKey(profileId, collectionId, classId, contextDataDto.getContextMap());
+
+        // If Anonymous user then creates a Context without ContextMapKey
+        if (QuizzesUtils.isAnonymous(profileId)) {
+            Context context =
+                    buildContext(profileId, collectionId, isCollection, classId, contextDataDto, contextMapKey);
+            context.setContextMapKey(null);
+            return contextRepository.save(context).getId();
+        }
+
         ContextEntity contextEntity = contextRepository.findByContextMapKey(contextMapKey);
         if (contextEntity != null) {
             return contextEntity.getContextId();
         } else {
-            Context context = buildContext(collectionId, collectionOwnerId, classId, contextDataDto,
-                    collectionDto.getIsCollection());
+            Context context =
+                    buildContext(profileId, collectionId, isCollection, classId, contextDataDto, contextMapKey);
             try {
                 return contextRepository.save(context).getId();
             } catch (DuplicateKeyException e) {
@@ -66,22 +91,6 @@ public class ContextService {
                 return contextEntity.getContextId();
             }
         }
-    }
-
-    /**
-     * Creates Contexts without ClassId and ContextMap data. Mostly used by Anonymous accounts or when a logged in
-     * user does previews of a Collection (or Assessment)
-     *
-     * @param collectionId collection ID
-     * @param profileId    we use an UUID with zeros for anonymous
-     * @param isCollection defined is the collectionId corresponds to a Collection (when true) or Assessment
-     * @return the context ID
-     */
-    public UUID createContextWithoutClassId(UUID collectionId, UUID profileId, Boolean isCollection, String authToken) {
-        CollectionDto collectionDto =
-                collectionService.getCollectionOrAssessment(collectionId, isCollection, authToken);
-        Context context = buildContextWithoutClassId(collectionId, profileId, collectionDto.getIsCollection());
-        return contextRepository.save(context).getId();
     }
 
     public ContextEntity findById(UUID contextId) throws ContentNotFoundException {
@@ -120,36 +129,37 @@ public class ContextService {
         return context;
     }
 
-    private Context buildContextWithoutClassId(UUID collectionId, UUID ownerProfileId, boolean isCollection) {
+    private Context buildContext(UUID profileId, UUID collectionId, boolean isCollection, UUID classId,
+                                 ContextDataDto contextDataDto, String contextMapKey) {
         Context context = new Context();
-        context.setProfileId(ownerProfileId);
+        context.setProfileId(profileId);
         context.setCollectionId(collectionId);
         context.setIsCollection(isCollection);
-        return context;
-    }
-
-    private Context buildContext(UUID collectionId, UUID ownerProfileId, UUID classId, ContextDataDto contextDataDto,
-                                 boolean isCollection) {
-        Context context = buildContextWithoutClassId(collectionId, ownerProfileId, isCollection);
         context.setClassId(classId);
-        context.setContextMapKey(generateContextMapKey(collectionId, classId, contextDataDto.getContextMap()));
         context.setContextData(gson.toJson(contextDataDto));
+        context.setContextMapKey(contextMapKey);
         return context;
     }
 
-    private String generateContextMapKey(UUID collectionId, UUID classId, Map<String, String> contextMap) {
-        String composedKey = String.format("%s/%s", collectionId, classId);
+    private String generateContextMapKey(UUID profileId, UUID collectionId, UUID classId,
+                                         Map<String, String> contextMap) {
+        String composedKey = PROFILE_ID + ":" + profileId;
+        composedKey += "/" + COLLECTION_ID + ":" + collectionId;
+
+        if (classId != null) {
+            composedKey += "/" + CLASS_ID + ":" + classId;
+        }
 
         if (contextMap.get(COURSE_ID) != null) {
-            composedKey += "/" + contextMap.get(COURSE_ID);
+            composedKey += "/" + COURSE_ID + ":" + contextMap.get(COURSE_ID);
         }
 
         if (contextMap.get(UNIT_ID) != null) {
-            composedKey += "/" + contextMap.get(UNIT_ID);
+            composedKey += "/" + UNIT_ID + ":" + contextMap.get(UNIT_ID);
         }
 
         if (contextMap.get(LESSON_ID) != null) {
-            composedKey += "/" + contextMap.get(LESSON_ID);
+            composedKey += "/" + LESSON_ID + ":" + contextMap.get(LESSON_ID);
         }
 
         return Base64.getEncoder().encodeToString(composedKey.getBytes(StandardCharsets.UTF_8));
