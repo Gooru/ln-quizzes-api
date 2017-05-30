@@ -13,7 +13,6 @@ import com.quizzes.api.core.model.entities.AssigneeEventEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.entities.ContextProfileEventEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
-import com.quizzes.api.core.services.content.CollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -88,15 +87,12 @@ public class AttemptService {
      * @return
      */
     public AttemptGetResponseDto getAttempt(UUID attemptId, UUID profileId) {
-
         List<ContextProfileEventEntity> contextProfileEvents =
                 contextProfileEventService.findByContextProfileIdAndProfileId(attemptId, profileId);
-
         if (contextProfileEvents.isEmpty()) {
-            throw new ContentNotFoundException("Attempt: " + attemptId + " not found for profile: " + profileId);
+            throw new ContentNotFoundException("Attempt ID: " + attemptId + " not found for Profile ID: " + profileId);
         }
-        AttemptGetResponseDto result = mapContextProfileEventListToAttempt(contextProfileEvents);
-        return result;
+        return mapContextProfileEventListToAttempt(contextProfileEvents);
     }
 
     private AttemptGetResponseDto mapContextProfileEventListToAttempt(List<ContextProfileEventEntity> contextProfileEvents) {

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @CrossOrigin
@@ -73,19 +74,19 @@ public class AttemptController {
             @ApiParam(value = "Context ID", required = true, name = "contextId")
             @PathVariable UUID contextId,
             @ApiParam(value = "Assignee Profile ID", required = true, name = "profileId")
-            @PathVariable(name = "profileId") UUID assigneeProfileId,
-            @RequestAttribute(value = "profileId") String authorizationProfileId) {
-        QuizzesUtils.rejectAnonymous(authorizationProfileId);
-        UUID authorizationProfileUUID = UUID.fromString(authorizationProfileId);
-        if (!assigneeProfileId.equals(authorizationProfileUUID)) {
-            //this means that an authorized user is requesting for an assignee attempts
-            //we need to verify that this user is the owner of the context
-            contextService.findCreatedContext(contextId, authorizationProfileUUID);
+            @PathVariable(name = "profileId") String profileId,
+            @RequestAttribute(value = "profileId") String authProfileId) {
+        UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
+        UUID resolvedAuthProfileId = QuizzesUtils.resolveProfileId(authProfileId);
+        if (!resolvedAuthProfileId.equals(resolvedProfileId)) {
+            // Checks that exists a Context ID owned by the AuthProfile ID. This means that the Context owner will
+            // fetch Assignee (ProfileId) attempt events
+            contextService.findCreatedContext(contextId, resolvedAuthProfileId);
         }
-
+        List<UUID> attemptIds =
+                contextProfileService.findContextProfileIdsByContextIdAndProfileId(contextId, resolvedProfileId);
         AttemptIdsResponseDto attemptIdsDto = new AttemptIdsResponseDto();
-        attemptIdsDto.setAttempts(contextProfileService
-                .findContextProfileIdsByContextIdAndProfileId(contextId, assigneeProfileId));
+        attemptIdsDto.setAttempts(attemptIds);
         return new ResponseEntity<>(attemptIdsDto, HttpStatus.OK);
     }
 
@@ -104,7 +105,8 @@ public class AttemptController {
             @ApiParam(value = "Event attempt ID", required = true, name = "attemptId")
             @PathVariable UUID attemptId,
             @RequestAttribute(value = "profileId") String profileId) {
-        AttemptGetResponseDto attemptDto = attemptService.getAttempt(attemptId, QuizzesUtils.resolveProfileId(profileId));
+        AttemptGetResponseDto attemptDto =
+                attemptService.getAttempt(attemptId, QuizzesUtils.resolveProfileId(profileId));
         return new ResponseEntity<>(attemptDto, HttpStatus.OK);
     }
 }

@@ -188,3 +188,50 @@ QuizzesCommon.startTest('Get Attempts started and finished two times for the sam
         });
     });
 });
+
+QuizzesCommon.startTest('Get Attempts for an Anonymous session', function () {
+    QuizzesCommon.getAnonymousToken(function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, null, true, contextMap, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
+            QuizzesCommon.startContext(contextId, authToken, function () {
+                QuizzesCommon.finishContext(contextId, authToken, function () {
+                    testAttempts('Test context attempts with started context by assigneeId and assignee Token',
+                        contextId, profileId, 1, authToken);
+                });
+            });
+        });
+    });
+});
+
+QuizzesCommon.startTest('Get Attempts for an Anonymous session of a Context created by a normal account', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collectionId = Config.getCollection('TestCollection01').id;
+        let classId = Config.getClass('TestClass01').id;
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collectionId, classId, true, contextMap, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            let profileId = QuizzesCommon.getProfileIdFromToken(authToken);
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                    QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
+                        let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
+                        testAttempts('Test context attempts with started context by assigneeId and assignee Token',
+                            contextId, assigneeProfileId, 1, assigneeAuthToken);
+
+                        QuizzesCommon.getAnonymousToken(function (anonymousAuthToken) {
+                            Frisby.create('Test context attempts for a finished context with Anonymous session')
+                                .get(QuizzesApiUrl + `/v1/attempts/contexts/${contextId}/profiles/${profileId}`)
+                                .addHeader('Authorization', `Token ${anonymousAuthToken}`)
+                                .inspectRequest()
+                                .expectStatus(404)
+                                .toss();
+                        });
+                    });
+                });
+            });
+        });
+    });
+});
