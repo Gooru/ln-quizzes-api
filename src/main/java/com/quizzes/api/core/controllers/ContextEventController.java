@@ -51,7 +51,6 @@ public class ContextEventController {
                     name = "Body")
             @RequestBody EventContextDto eventContextDto,
             @RequestAttribute(value = "profileId") String profileId,
-            @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
         StartContextEventResponseDto response = contextEventService.processStartContextEvent(contextId,
@@ -77,7 +76,6 @@ public class ContextEventController {
                     name = "Body")
             @RequestBody OnResourceEventPostRequestDto onResourceEventPostRequestDto,
             @RequestAttribute(value = "profileId") String profileId,
-            @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
         OnResourceEventResponseDto response = contextEventService.processOnResourceEvent(contextId, resolvedProfileId,
@@ -101,7 +99,6 @@ public class ContextEventController {
                     name = "Body")
             @RequestBody EventContextDto eventContextDto,
             @RequestAttribute(value = "profileId") String profileId,
-            @RequestAttribute(value = "clientId") String clientId,
             @RequestAttribute(value = "token") String token) {
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
         contextEventService.processFinishContextEvent(contextId, resolvedProfileId, eventContextDto, token);

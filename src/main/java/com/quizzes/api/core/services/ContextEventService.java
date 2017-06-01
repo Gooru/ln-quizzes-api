@@ -170,10 +170,9 @@ public class ContextEventService {
                 .filter(event -> event.getResourceId().equals(previousResource.getId()))
                 .findFirst().orElse(null);
         if (contextProfileEvent == null) {
-            PostRequestResourceDto eventData = buildContextProfileEventData(isSkipEvent, score,
-                    previousResourceEventData.getTimeSpent(), previousResourceEventData.getReaction(),
-                    previousResourceEventData.getAnswer());
-            eventData.setTimeSpent(previousResourceEventData.getTimeSpent());
+            PostRequestResourceDto eventData = buildContextProfileEventData(isSkipEvent,
+                    previousResource.getIsResource(), score, previousResourceEventData.getTimeSpent(),
+                    previousResourceEventData.getReaction(), previousResourceEventData.getAnswer());
             contextProfileEvent = buildContextProfileEvent(contextProfileEntity.getContextProfileId(),
                     previousResource.getId(), eventData);
             contextProfileEvents.add(contextProfileEvent);
@@ -363,10 +362,12 @@ public class ContextEventService {
         return contextProfileEvent;
     }
 
-    private PostRequestResourceDto buildContextProfileEventData(boolean isSkipped, int score, long timeSpent,
-                                                                int reaction, List<AnswerDto> answerList) {
+    private PostRequestResourceDto buildContextProfileEventData(boolean isSkipped, boolean isResource,
+                                                                int score, long timeSpent, int reaction,
+                                                                List<AnswerDto> answerList) {
         PostRequestResourceDto eventData = new PostRequestResourceDto();
         eventData.setIsSkipped(isSkipped);
+        eventData.setIsResource(isResource);
         eventData.setScore(score);
         eventData.setTimeSpent(timeSpent);
         eventData.setReaction(reaction);
@@ -479,7 +480,7 @@ public class ContextEventService {
                 totalReactions++;
             }
 
-            if (calculateSkipped || !eventDataDto.getIsSkipped()) {
+            if (!eventDataDto.getIsResource() && (calculateSkipped || !eventDataDto.getIsSkipped())) {
                 sumScore += eventDataDto.getScore();
                 totalCorrect += eventDataDto.getScore() == 100 ? 1 : 0;
                 totalAnswered++;
@@ -664,7 +665,7 @@ public class ContextEventService {
 
     private int calculateScore(boolean isSkipped, boolean isResource, String questionType,
                                List<AnswerDto> userAnswers, List<AnswerDto> correctAnswers) {
-        return isSkipped ? 0 : (isResource ? 100 : calculateScoreByQuestionType(questionType, userAnswers,
+        return isSkipped ? 0 : (isResource ? 0 : calculateScoreByQuestionType(questionType, userAnswers,
                 correctAnswers));
     }
 
