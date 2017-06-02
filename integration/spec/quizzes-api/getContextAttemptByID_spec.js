@@ -128,7 +128,7 @@ QuizzesCommon.startTest('Get Attempt started and finished info with a wrong user
                                         'profileId': assigneeProfileId,
                                         'contextId': contextResponse.id,
                                         'eventSummary': function (summary) {
-                                            expect(summary.totalAnswered).toBe(10)
+                                            expect(summary.totalAnswered).toBe(0)
                                         },
                                         'events': function (eventList) {
                                             expect(eventList.length).toBe(10)
@@ -146,7 +146,7 @@ QuizzesCommon.startTest('Get Attempt started and finished info with a wrong user
                                         'profileId': assigneeProfileId,
                                         'contextId': contextResponse.id,
                                         'eventSummary': function (summary) {
-                                            expect(summary.totalAnswered).toBe(10)
+                                            expect(summary.totalAnswered).toBe(0)
                                         },
                                         'events': function (eventList) {
                                             expect(eventList.length).toBe(10)
