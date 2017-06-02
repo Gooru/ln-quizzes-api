@@ -65,6 +65,7 @@ public class AttemptService {
                         PostResponseResourceDto evenData = gson.fromJson(studentEventEntity.getEventData(),
                                 PostResponseResourceDto.class);
                         evenData.setResourceId(studentEventEntity.getResourceId());
+                        evenData.setIsResource(null);
                         return evenData;
                     }).collect(Collectors.toList()));
 
@@ -110,10 +111,11 @@ public class AttemptService {
         List<PostResponseResourceDto> events = contextProfileEvents.stream().
                 filter(contextProfileEvent -> contextProfileEvent.getEventData() != null).
                 map(contextProfileEvent -> {
-                    PostResponseResourceDto event =
+                    PostResponseResourceDto eventData =
                             gson.fromJson(contextProfileEvent.getEventData(), PostResponseResourceDto.class);
-                    event.setResourceId(contextProfileEvent.getResourceId());
-                    return event;
+                    eventData.setResourceId(contextProfileEvent.getResourceId());
+                    eventData.setIsResource(null);
+                    return eventData;
                 }).collect(Collectors.toList());
         result.setEvents(events);
         return result;

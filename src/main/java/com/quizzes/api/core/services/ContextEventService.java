@@ -228,7 +228,7 @@ public class ContextEventService {
                 .collect(Collectors.toList());
         List<ContextProfileEvent> pendingContextProfileEvents = pendingResourceIds.stream()
                 .map(resourceId -> buildContextProfileEvent(contextProfile.getContextProfileId(), resourceId,
-                        buildContextProfileEventData(true, 0, 0, 0, null)))
+                        buildContextProfileEventData(true, true, 0, 0, 0, null)))
                 .collect(Collectors.toList());
 
         // Fill in the pending ContextProfileEvent data to calculate the summaries
@@ -331,7 +331,12 @@ public class ContextEventService {
         response.setCollectionId(collectionId);
         response.setCurrentResourceId(currentResourceId);
         response.setEvents(contextProfileEvents.stream()
-                .map(event -> gson.fromJson(event.getEventData(), PostResponseResourceDto.class))
+                .map(event -> {
+                    PostResponseResourceDto eventData =
+                            gson.fromJson(event.getEventData(), PostResponseResourceDto.class);
+                    eventData.setIsResource(null);
+                    return eventData;
+                })
                 .collect(Collectors.toList()));
         return response;
     }

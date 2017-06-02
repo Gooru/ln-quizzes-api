@@ -306,7 +306,6 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
 
                                 QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                                     let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
-                                    let resourceCount = collection.resources.length;
                                     QuizzesCommon.getAttempts(contextId, authToken, {
                                         'collectionId': assessmentId,
                                         'contextId': contextId,
@@ -317,9 +316,9 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
                                                 'eventSummary': {
                                                     'totalTimeSpent': defaultTimeSpent * 2,
                                                     'averageReaction': defaultReaction,
-                                                    'averageScore': 25,
+                                                    'averageScore': 50,
                                                     'totalCorrect': 1,
-                                                    'totalAnswered': resourceCount
+                                                    'totalAnswered': 2
                                                 }
                                             }
                                         ]
@@ -386,7 +385,6 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
 
                                         QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                                             let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
-                                            let resourceCount = collection.resources.length;
                                             QuizzesCommon.getAttempts(contextId, authToken, {
                                                 'collectionId': assessmentId,
                                                 'contextId': contextId,
@@ -397,9 +395,9 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
                                                         'eventSummary': {
                                                             'totalTimeSpent': defaultTimeSpent * 8,
                                                             'averageReaction': defaultReaction,
-                                                            'averageScore': 50,
+                                                            'averageScore': 66,
                                                             'totalCorrect': 2,
-                                                            'totalAnswered': resourceCount
+                                                            'totalAnswered': 3
                                                         }
                                                     }
                                                 ]
@@ -438,7 +436,7 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                             }
                         }, assigneeAuthToken, function () {
 
-                            // Second question - incorrect
+                            // Second question - correct
                             QuizzesCommon.onResourceEvent(contextId, collection.resources[2].id, {
                                 'previousResource': {
                                     'answer': collection.resources[1].metadata.correctAnswer,
@@ -450,7 +448,6 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
 
                                 QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                                     let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
-                                    let resourceCount = collection.resources.length;
                                     QuizzesCommon.getAttempts(contextId, authToken, {
                                         'collectionId': assessmentId,
                                         'contextId': contextId,
@@ -461,9 +458,9 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                                                 'eventSummary': {
                                                     'totalTimeSpent': defaultTimeSpent * 2,
                                                     'averageReaction': defaultReaction,
-                                                    'averageScore': 50,
+                                                    'averageScore': 100,
                                                     'totalCorrect': 2,
-                                                    'totalAnswered': resourceCount
+                                                    'totalAnswered': 2
                                                 }
                                             }
                                         ]
@@ -552,7 +549,6 @@ QuizzesCommon.startTest('Test finished context summary when a question answer an
 
                                     QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                                         let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
-                                        let resourceCount = collection.resources.length;
                                         QuizzesCommon.getAttempts(contextId, authToken, {
                                             'collectionId': assessmentId,
                                             'contextId': contextId,
@@ -563,9 +559,9 @@ QuizzesCommon.startTest('Test finished context summary when a question answer an
                                                     'eventSummary': {
                                                         'totalTimeSpent': defaultTimeSpent * 3,
                                                         'averageReaction': (defaultReaction + updatedReaction) / 2,
-                                                        'averageScore': 25,
+                                                        'averageScore': 50,
                                                         'totalCorrect': 1,
-                                                        'totalAnswered': resourceCount
+                                                        'totalAnswered': 2
                                                     }
                                                 }
                                             ]
