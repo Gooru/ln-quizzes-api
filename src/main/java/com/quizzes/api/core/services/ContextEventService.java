@@ -215,20 +215,20 @@ public class ContextEventService {
 
     private void doFinishContextEvent(ContextEntity context, ContextProfileEntity contextProfile,
                                       EventContextDto eventContext, String token) {
-        CollectionDto collectionDto =
-                collectionService.getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection(),
-                        token);
+        CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
+                context.getIsCollection(), token);
         List<ContextProfileEvent> contextProfileEvents =
                 contextProfileEventService.findByContextProfileId(contextProfile.getContextProfileId());
         List<UUID> createdResourceIds = contextProfileEvents.stream()
                 .map(ContextProfileEvent::getResourceId)
                 .collect(Collectors.toList());
-        List<UUID> pendingResourceIds = collectionDto.getResources().stream()
-                .map(ResourceDto::getId).filter(resourceId -> !createdResourceIds.contains(resourceId))
+        List<ResourceDto> pendingResources = collectionDto.getResources().stream()
+                .filter(resource -> !createdResourceIds.contains(resource.getId()))
                 .collect(Collectors.toList());
-        List<ContextProfileEvent> pendingContextProfileEvents = pendingResourceIds.stream()
-                .map(resourceId -> buildContextProfileEvent(contextProfile.getContextProfileId(), resourceId,
-                        buildContextProfileEventData(true, true, 0, 0, 0, null)))
+        List<ContextProfileEvent> pendingContextProfileEvents = pendingResources.stream()
+                .map(pendingResource -> buildContextProfileEvent(contextProfile.getContextProfileId(),
+                        pendingResource.getId(),
+                        buildContextProfileEventData(true, pendingResource.getIsResource(), 0, 0, 0, null)))
                 .collect(Collectors.toList());
 
         // Fill in the pending ContextProfileEvent data to calculate the summaries
