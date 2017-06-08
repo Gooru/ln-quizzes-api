@@ -316,9 +316,9 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
                                                 'eventSummary': {
                                                     'totalTimeSpent': defaultTimeSpent * 2,
                                                     'averageReaction': defaultReaction,
-                                                    'averageScore': 50,
+                                                    'averageScore': 25,
                                                     'totalCorrect': 1,
-                                                    'totalAnswered': 2
+                                                    'totalAnswered': 4
                                                 }
                                             }
                                         ]
@@ -395,9 +395,9 @@ QuizzesCommon.startTest('Test finished context summary for 1 correct and 1 incor
                                                         'eventSummary': {
                                                             'totalTimeSpent': defaultTimeSpent * 8,
                                                             'averageReaction': defaultReaction,
-                                                            'averageScore': 66,
+                                                            'averageScore': 50,
                                                             'totalCorrect': 2,
-                                                            'totalAnswered': 3
+                                                            'totalAnswered': 4
                                                         }
                                                     }
                                                 ]
@@ -458,9 +458,9 @@ QuizzesCommon.startTest('Test finished context summary with 2 answered questions
                                                 'eventSummary': {
                                                     'totalTimeSpent': defaultTimeSpent * 2,
                                                     'averageReaction': defaultReaction,
-                                                    'averageScore': 100,
+                                                    'averageScore': 50,
                                                     'totalCorrect': 2,
-                                                    'totalAnswered': 2
+                                                    'totalAnswered': 4
                                                 }
                                             }
                                         ]
@@ -559,9 +559,9 @@ QuizzesCommon.startTest('Test finished context summary when a question answer an
                                                     'eventSummary': {
                                                         'totalTimeSpent': defaultTimeSpent * 3,
                                                         'averageReaction': (defaultReaction + updatedReaction) / 2,
-                                                        'averageScore': 50,
+                                                        'averageScore': 25,
                                                         'totalCorrect': 1,
-                                                        'totalAnswered': 2
+                                                        'totalAnswered': 4
                                                     }
                                                 }
                                             ]
