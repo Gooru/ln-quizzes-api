@@ -246,7 +246,7 @@ public class ContextEventService {
 
         // If there is Class ID the event message is propagated
         if (context.getClassId() != null) {
-            sendFinishContextEventMessage(context.getContextId(), contextProfile.getContextProfileId(), eventSummary);
+            sendFinishContextEventMessage(context.getContextId(), contextProfile.getProfileId(), eventSummary);
             analyticsContentService.collectionPlayStop(context, savedContextProfile, eventContext, token);
         }
     }
