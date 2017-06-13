@@ -14,9 +14,9 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                     QuizzesCommon.finishContext(contextId, assigneeAuthToken, function () {
                         let assigneeProfileId = QuizzesCommon.getProfileIdFromToken(assigneeAuthToken);
                         QuizzesCommon.getAttemptsByProfileId(contextId, assigneeProfileId, authToken, function (attemptsResponse) {
-                            let firstAttemptId = attemptsResponse.attempts[0];
+                            let lastAttemptId = attemptsResponse.attempts[attemptsResponse.attempts.length - 1];
                             Frisby.create('Test context attempt by owner')
-                                .get(QuizzesApiUrl + `/v1/attempts/${firstAttemptId}`)
+                                .get(QuizzesApiUrl + `/v1/attempts/${lastAttemptId}`)
                                 .addHeader('Authorization', `Token ${authToken}`)
                                 .inspectRequest()
                                 .expectStatus(200)
@@ -62,9 +62,9 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                                                 "required": ["taxonomyId", "averageScore", "averageReaction",
                                                     "totalAnswered", "totalCorrect", "totalTimeSpent", "resources"]
                                             },
-                                            "minItems": 10,
-                                            "maxItems": 10,
-                                            "uniqueItems": false
+                                            "minItems": 5,
+                                            "maxItems": 5,
+                                            "uniqueItems": true
                                         }
                                     },
                                     "required": ["profileId", "contextId", "eventSummary", "taxonomySummary"]
@@ -73,7 +73,7 @@ QuizzesCommon.startTest('Get Attempt started and finished info', function () {
                                 .toss();
 
                             Frisby.create('Test context attempt by assignee')
-                                .get(QuizzesApiUrl + `/v1/attempts/${firstAttemptId}`)
+                                .get(QuizzesApiUrl + `/v1/attempts/${lastAttemptId}`)
                                 .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                                 .inspectRequest()
                                 .expectStatus(200)
