@@ -46,6 +46,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.quizzes.api.core.enums.QuestionTypeEnum.ExtendedText;
+
 @Service
 public class ContextEventService {
 
@@ -190,7 +192,8 @@ public class ContextEventService {
         }
         contextProfileEventService.save(contextProfileEvent);
 
-        EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, false);
+        EventSummaryDataDto eventSummary =
+                calculateEventSummary(contextProfileEvents, getQuestionTypeMap(collectionDto), false);
         List<TaxonomySummaryDto> taxonomySummaries =
                 calculateTaxonomySummary(contextProfileEvents, collectionDto, false);
         ContextProfile savedContextProfile =
@@ -234,7 +237,8 @@ public class ContextEventService {
 
         // Fill in the pending ContextProfileEvent data to calculate the summaries
         contextProfileEvents.addAll(pendingContextProfileEvents);
-        EventSummaryDataDto eventSummary = calculateEventSummary(contextProfileEvents, true);
+        EventSummaryDataDto eventSummary =
+                calculateEventSummary(contextProfileEvents, getQuestionTypeMap(collectionDto), true);
         List<TaxonomySummaryDto> taxonomySummaries =
                 calculateTaxonomySummary(contextProfileEvents, collectionDto, true);
         // Save ContextProfile data
@@ -347,7 +351,8 @@ public class ContextEventService {
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
         contextProfile.setIsComplete(false);
-        contextProfile.setEventSummaryData(gson.toJson(calculateEventSummary(Collections.EMPTY_LIST, false)));
+        contextProfile.setEventSummaryData(gson.toJson(
+                calculateEventSummary(Collections.EMPTY_LIST, new HashMap<>(), false)));
         return contextProfile;
     }
 
@@ -467,7 +472,7 @@ public class ContextEventService {
     }
 
     private EventSummaryDataDto calculateEventSummary(Collection<ContextProfileEvent> contextProfileEvents,
-                                                      boolean calculateSkipped) {
+                                                      Map<UUID, String> questionTypeMap, boolean calculateSkipped) {
         EventSummaryDataDto result = new EventSummaryDataDto();
         long totalTimeSpent = 0;
         short sumReaction = 0;
@@ -487,9 +492,13 @@ public class ContextEventService {
             }
 
             if (!eventDataDto.getIsResource() && (calculateSkipped || !eventDataDto.getIsSkipped())) {
-                sumScore += eventDataDto.getScore();
-                totalCorrect += eventDataDto.getScore() == 100 ? 1 : 0;
-                totalAnswered++;
+                String questionType = questionTypeMap.get(eventDataDto.getResourceId());
+                QuestionTypeEnum questionTypeEnum = QuestionTypeEnum.getEnum(questionType);
+                if (questionTypeEnum != ExtendedText) {
+                    sumScore += eventDataDto.getScore();
+                    totalCorrect += eventDataDto.getScore() == 100 ? 1 : 0;
+                    totalAnswered++;
+                }
             }
         }
 
@@ -507,7 +516,8 @@ public class ContextEventService {
                                                               boolean calculateSkipped) {
         Map<String, Set<ContextProfileEvent>> eventsByTaxonomy =
                 getEventsByTaxonomy(contextProfileEvents, collectionDto.getResources());
-        return calculateSummaryByTaxonomy(eventsByTaxonomy, calculateSkipped);
+        Map<UUID, String> questionTypeMap = getQuestionTypeMap(collectionDto);
+        return calculateSummaryByTaxonomy(eventsByTaxonomy, questionTypeMap, calculateSkipped);
     }
 
     private Map<String, Set<ContextProfileEvent>> getEventsByTaxonomy(List<ContextProfileEvent> contextProfileEvents,
@@ -532,12 +542,13 @@ public class ContextEventService {
     }
 
     private List<TaxonomySummaryDto> calculateSummaryByTaxonomy(Map<String, Set<ContextProfileEvent>> eventsByTaxonomy,
+                                                                Map<UUID, String> questionTypeMap,
                                                                 boolean calculateSkipped) {
         return eventsByTaxonomy.entrySet().stream()
                 .map(entry -> {
                     String taxonomy = entry.getKey();
                     Set<ContextProfileEvent> events = entry.getValue();
-                    EventSummaryDataDto eventSummary = this.calculateEventSummary(events, calculateSkipped);
+                    EventSummaryDataDto eventSummary = calculateEventSummary(events, questionTypeMap, calculateSkipped);
                     List<UUID> resourceIds = events.stream()
                             .map(ContextProfileEvent::getResourceId)
                             .collect(Collectors.toList());
@@ -607,6 +618,13 @@ public class ContextEventService {
             throw new NoAttemptsLeftException("No attempts left for Profile ID " + profileId + " on Context ID "
                     + context.getContextId());
         }
+    }
+
+    private Map<UUID, String> getQuestionTypeMap(CollectionDto collectionDto) {
+        return collectionDto.getResources().stream()
+                .filter(resource -> !resource.getIsResource() && resource.getMetadata() != null)
+                .collect(Collectors.toMap(ResourceDto::getId, resource -> resource.getMetadata().getType()));
+
     }
 
 }
