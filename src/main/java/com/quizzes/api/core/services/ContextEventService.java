@@ -492,13 +492,14 @@ public class ContextEventService {
             }
 
             if (!eventDataDto.getIsResource() && (calculateSkipped || !eventDataDto.getIsSkipped())) {
-                String questionType = questionTypeMap.get(eventDataDto.getResourceId());
-                QuestionTypeEnum questionTypeEnum = QuestionTypeEnum.getEnum(questionType);
-                if (questionTypeEnum != ExtendedText) {
+                //TODO: This code was commented by Gooru's requirements. It will be enabled again once Gooru notify us.
+                //String questionType = questionTypeMap.get(eventDataDto.getResourceId());
+                //QuestionTypeEnum questionTypeEnum = QuestionTypeEnum.getEnum(questionType);
+                //if (questionTypeEnum != ExtendedText) {
                     sumScore += eventDataDto.getScore();
                     totalCorrect += eventDataDto.getScore() == 100 ? 1 : 0;
                     totalAnswered++;
-                }
+                //}
             }
         }
 
