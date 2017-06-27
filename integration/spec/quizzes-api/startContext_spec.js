@@ -4,6 +4,13 @@ const QuizzesApiUrl = Config.quizzesApiUrl;
 const Frisby = require('frisby');
 const HttpErrorCodes = QuizzesCommon.httpCodes;
 
+let eventContext = {
+    'eventSource': 'dailyclassactivity',
+    'sourceUrl': 'http://nile-qa.gooru.org/',
+    'pathId': 1,
+    'timezone': 'America/Costa_Rica'
+};
+
 //TODO: Fix getAssignedContextById
 // QuizzesCommon.startTest('Start context and validate response', function () {
 //     QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
@@ -145,5 +152,46 @@ QuizzesCommon.startTest('Start context for anonymous', function () {
                 expect(contextResponse.events.length).toEqual(0);
             });
         })
+    });
+});
+
+QuizzesCommon.startTest('Starts a Context, Answers a Question and the Resumes the Context', function () {
+    QuizzesCommon.getAuthorizationToken('Teacher01', function (authToken) {
+        let collection = Config.getCollection('TestCollection01');
+        let classId = Config.getClass('TestClass01').id;
+        let contextMap = QuizzesCommon.generateRandomContextMap();
+        QuizzesCommon.createContext(collection.id, classId, true, contextMap, authToken, function (contextResponse) {
+            let contextId = contextResponse.id;
+            QuizzesCommon.getAuthorizationToken('Student01', function (assigneeAuthToken) {
+                QuizzesCommon.startContext(contextId, assigneeAuthToken, function () {
+                    let previousResource = collection.resources[0];
+                    let resourceId = collection.resources[1].id;
+
+                    Frisby.create('Test valid onResource call')
+                        .post(QuizzesApiUrl + `/v1/contexts/${contextId}/onResource/${resourceId}`, {
+                            'eventContext': eventContext,
+                            'previousResource': {
+                                'answer': previousResource.correctAnswer,
+                                'reaction': 2,
+                                'resourceId': previousResource.id,
+                                'timeSpent': 1500
+                            }
+                        }, {json: true})
+                        .addHeader('Authorization', `Token ${assigneeAuthToken}`)
+                        .inspectRequest()
+                        .expectStatus(200)
+                        .afterJSON(function() {
+                            QuizzesCommon.startContext(contextId, assigneeAuthToken, function (resumeResponse) {
+                                expect(resumeResponse.contextId).toEqual(contextId);
+                                expect(resumeResponse.collectionId).toEqual(collection.id);
+                                expect(resumeResponse.currentResourceId).toEqual(resourceId);
+                                expect(resumeResponse.events.length).toEqual(1);
+                                expect(resumeResponse.events[0].resourceId).toEqual(previousResource.id);
+                            });
+                        })
+                        .toss();
+                });
+            });
+        });
     });
 });

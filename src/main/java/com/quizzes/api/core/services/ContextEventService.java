@@ -339,6 +339,7 @@ public class ContextEventService {
                 .map(event -> {
                     PostResponseResourceDto eventData =
                             gson.fromJson(event.getEventData(), PostResponseResourceDto.class);
+                    eventData.setResourceId(event.getResourceId());
                     eventData.setIsResource(null);
                     return eventData;
                 })

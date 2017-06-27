@@ -183,9 +183,7 @@ var quizzesCommon = {
             .inspectRequest()
             .expectStatus(200)
             .inspectJSON()
-            .afterJSON(function (startContextResult) {
-                afterJsonFunction(startContextResult);
-            })
+            .afterJSON(afterJsonFunction)
             .toss()
     },
 
