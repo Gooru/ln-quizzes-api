@@ -52,6 +52,7 @@ public class CollectionRestClient {
     private static final String NUCLEUS_API_URL = "/api/nucleus/v1";
     private static final String ASSESSMENTS_PATH = NUCLEUS_API_URL.concat("/assessments/%s");
     private static final String COLLECTIONS_PATH = NUCLEUS_API_URL.concat("/collections/%s");
+    private static final String HIGHLIGHT_TYPE_DEFAULT = "word";
 
     private final Pattern hotTextHighlightPattern = Pattern.compile("\\[(.*?)\\]");
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -258,7 +259,8 @@ public class CollectionRestClient {
         String contentSubformat = resourceContentDto.getContentSubformat();
         GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
         if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion)) {
-            String highlightType = resourceContentDto.getAnswers().get(0).getHighlightType();
+            List<AnswerContentDto> answers = resourceContentDto.getAnswers();
+            String highlightType = answers == null ? HIGHLIGHT_TYPE_DEFAULT : answers.get(0).getHighlightType();
             resourceQuestionType = GooruQuestionTypeEnum.getEnum(highlightType + "_" + contentSubformat);
         }
         return questionTypeMap.get(resourceQuestionType);
@@ -282,7 +284,8 @@ public class CollectionRestClient {
 
     private List<AnswerDto> getHotTextHighlightCorrectAnswers(ResourceContentDto resourceContentDto) {
         List<AnswerDto> correctAnswers = new ArrayList<>();
-        String answerText = resourceContentDto.getAnswers().get(0).getAnswerText();
+        List<AnswerContentDto> answers = resourceContentDto.getAnswers();
+        String answerText = answers == null ? "" : answers.get(0).getAnswerText();
         Matcher hotTextHighlightMatcher = hotTextHighlightPattern.matcher(answerText);
 
         int answerCount = 0;
@@ -326,7 +329,8 @@ public class CollectionRestClient {
         String contentSubformat = resourceContentDto.getContentSubformat();
         GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
         if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion)) {
-            return resourceContentDto.getAnswers().get(0).getAnswerText().replaceAll("(\\[|\\])", "");
+            List<AnswerContentDto> answers = resourceContentDto.getAnswers();
+            return answers == null ? "" : answers.get(0).getAnswerText().replaceAll("(\\[|\\])", "");
         } else {
             return getDescription(resourceContentDto);
         }
