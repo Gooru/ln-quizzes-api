@@ -200,7 +200,7 @@ public class ContextEventService {
                 saveContextProfile(contextProfileEntity.getContextProfileId(), resourceId, false, eventSummary,
                         taxonomySummaries);
 
-        if (contextProfileEntity.getClassId() != null) {
+        if (!QuizzesUtils.isAnonymous(contextProfileEntity.getProfileId())) {
             previousResourceEventData.setScore(score);
             previousResourceEventData.setIsSkipped(isSkipEvent);
             sendOnResourceEventMessage(savedContextProfile, previousResourceEventData, eventSummary);
