@@ -248,8 +248,7 @@ public class ContextEventService {
         // Save pending ContextProfileEvents
         pendingContextProfileEvents.stream().forEach(event -> contextProfileEventService.save(event));
 
-        // If there is Class ID the event message is propagated
-        if (context.getClassId() != null) {
+        if (!QuizzesUtils.isAnonymous(savedContextProfile.getProfileId())) {
             sendFinishContextEventMessage(context.getContextId(), contextProfile.getProfileId(), eventSummary);
             analyticsContentService.collectionPlayStop(context, savedContextProfile, eventContext, token);
         }
@@ -267,8 +266,7 @@ public class ContextEventService {
         StartContextEventResponseDto eventResponse = buildStartContextEventResponse(context.getContextId(),
                 context.getCollectionId(), savedContextProfile.getCurrentResourceId(), Collections.EMPTY_LIST);
 
-        // If there is Class ID the event message is propagated
-        if (context.getClassId() != null) {
+        if (!QuizzesUtils.isAnonymous(profileId)) {
             sendStartEventMessage(context.getContextId(), profileId, savedContextProfile.getCurrentResourceId(), true);
             analyticsContentService.collectionPlayStart(context, savedContextProfile, eventContext, token);
         }
@@ -282,8 +280,7 @@ public class ContextEventService {
         StartContextEventResponseDto eventResponse = buildStartContextEventResponse(context.getContextId(),
                 context.getCollectionId(), contextProfile.getCurrentResourceId(), contextProfileEvents);
 
-        // If there is Class ID the event message is propagated
-        if (context.getClassId() != null) {
+        if (!QuizzesUtils.isAnonymous(contextProfile.getProfileId())) {
             sendStartEventMessage(context.getContextId(), contextProfile.getProfileId(),
                     contextProfile.getCurrentResourceId(), false);
         }
