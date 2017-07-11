@@ -276,9 +276,9 @@ public class CollectionRestClient {
         } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.MultipleAnswerQuestion)) {
             return getMultipleAnswerCorrectAnswers(resourceContentDto.getAnswers());
         } else if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
-            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
-        } else {
             return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), true);
+        } else {
+            return getMultipleChoiceCorrectAnswers(resourceContentDto.getAnswers(), false);
         }
     }
 
@@ -299,14 +299,14 @@ public class CollectionRestClient {
         return correctAnswers;
     }
 
-    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers, boolean encodeAnswer) {
+    private List<AnswerDto> getMultipleChoiceCorrectAnswers(List<AnswerContentDto> answers, boolean isFillInBlank) {
         final List<AnswerDto> correctAnswers = new ArrayList<>();
         if (answers != null) {
             answers.forEach(answer -> {
-                if (answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1")) {
-                    correctAnswers.add(new AnswerDto(encodeAnswer
-                            ? QuizzesUtils.encodeString(answer.getAnswerText())
-                            : answer.getAnswerText()));
+                if (isFillInBlank) {
+                    correctAnswers.add(new AnswerDto(answer.getAnswerText()));
+                } else if (answer.isCorrect().equalsIgnoreCase("true") || answer.isCorrect().equals("1")) {
+                    correctAnswers.add(new AnswerDto(QuizzesUtils.encodeString(answer.getAnswerText())));
                 }
             });
         }
@@ -340,7 +340,9 @@ public class CollectionRestClient {
         String contentSubformat = resourceContentDto.getContentSubformat();
         GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
         if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
-            return resourceContentDto.getDescription().replaceAll("(?<=\\[)(.*?)(?=\\])", "");
+            return resourceContentDto.getDescription()
+                    .replaceAll("(?<=\\[)(.*?)(?=\\])", "")
+                    .replaceAll("(_______)", "[]");
         } else {
             return resourceContentDto.getDescription();
         }
