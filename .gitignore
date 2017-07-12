@@ -5,3 +5,5 @@ build/
 s3.artifact
 newman/
 node_modules/
+.idea/
+*.iml

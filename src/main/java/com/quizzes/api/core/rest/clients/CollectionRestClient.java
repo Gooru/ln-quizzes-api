@@ -340,8 +340,9 @@ public class CollectionRestClient {
         String contentSubformat = resourceContentDto.getContentSubformat();
         GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
         if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
+            // remove content for evey pair of brackets, except for those preceded for sqrt
             return resourceContentDto.getDescription()
-                    .replaceAll("(?<=\\[)(.*?)(?=\\])", "")
+                    .replaceAll("(?<!sqrt\\[)(?<=\\[)(.*?)(?=\\])", "")
                     .replaceAll("(_______)", "[]");
         } else {
             return resourceContentDto.getDescription();
