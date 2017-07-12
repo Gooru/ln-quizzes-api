@@ -435,7 +435,7 @@ public class CollectionRestClientTest {
 
         String result = WhiteboxImpl.invokeMethod(collectionRestClient, "getBody", resourceContentDto);
 
-        assertEquals("Wrong body content", "(3x4) = []<br />(3x2) = []", result);
+        assertEquals("Wrong body content", "(3x4) = []<br />(3x\\sqrt[3]{2}) = []", result);
     }
 
     @Test
@@ -653,7 +653,7 @@ public class CollectionRestClientTest {
     private ResourceContentDto createFillInTheBlankResourceContentDto() {
         ResourceContentDto resourceContentDto = new ResourceContentDto();
         resourceContentDto.setContentSubformat(GooruQuestionTypeEnum.FillInTheBlankQuestion.getLiteral());
-        resourceContentDto.setDescription("(3x4) = [12]<br />(3x2) = [6]");
+        resourceContentDto.setDescription("(3x4) = [12]<br />(3x\\sqrt[3]{2}) = [6]");
         AnswerContentDto answer1 = createAnswerContentDto("1", "1", 1, "12");
         AnswerContentDto answer2 = createAnswerContentDto("2", "1", 2, "6");
         resourceContentDto.setAnswers(Arrays.asList(answer1, answer2));
