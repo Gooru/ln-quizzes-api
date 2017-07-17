@@ -217,7 +217,7 @@ QuizzesCommon.startTest('OnResource on started and finished context', function (
                             }, {json: true})
                             .addHeader('Authorization', `Token ${assigneeAuthToken}`)
                             .inspectRequest()
-                            .expectStatus(500)
+                            .expectStatus(200)
                             .toss();
                     });
                 });
