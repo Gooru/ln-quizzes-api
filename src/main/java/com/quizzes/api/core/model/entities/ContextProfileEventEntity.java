@@ -44,4 +44,8 @@ public interface ContextProfileEventEntity {
 
     void setCreatedAt(Long createdAt);
 
+    Long getUpdatedAt();
+
+    void setUpdatedAt(Long updatedAt);
+
 }

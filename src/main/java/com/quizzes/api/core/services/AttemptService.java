@@ -106,6 +106,7 @@ public class AttemptService {
         result.setProfileId(firstEvent.getProfileId());
         result.setCurrentResourceId(firstEvent.getCurrentResourceId());
         result.setCreatedDate(firstEvent.getCreatedAt());
+        result.setUpdatedDate(firstEvent.getUpdatedAt());
         result.setEventSummary(gson.fromJson(firstEvent.getEventsSummary(), EventSummaryDataDto.class));
         result.setTaxonomySummary(gson.fromJson(firstEvent.getTaxonomySummary(), List.class));
         List<PostResponseResourceDto> events = contextProfileEvents.stream().

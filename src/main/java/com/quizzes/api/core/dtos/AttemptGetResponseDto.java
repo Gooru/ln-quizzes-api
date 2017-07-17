@@ -13,6 +13,7 @@ public class AttemptGetResponseDto extends StartContextEventResponseDto {
     private UUID attemptId;
     private UUID profileId;
     private Long createdDate;
+    private Long updatedDate;
     private EventSummaryDataDto eventSummary;
     private List<TaxonomySummaryDto> taxonomySummary;
 
