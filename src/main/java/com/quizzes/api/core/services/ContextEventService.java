@@ -190,14 +190,16 @@ public class ContextEventService {
         contextProfileEvent.setEventData(gson.toJson(eventData));
         contextProfileEventService.save(contextProfileEvent);
 
-        List<ContextProfileEvent> contextProfileEvents =
-                contextProfileEventService.findByContextProfileId(contextProfileEntity.getContextProfileId());
+        ContextProfile contextProfile = contextProfileService.findById(contextProfileId);
+        List<ContextProfileEvent> contextProfileEvents = contextProfileEventService
+                .findByContextProfileId(contextProfileId);
         EventSummaryDataDto eventSummary =
-                calculateEventSummary(contextProfileEvents, getQuestionTypeMap(collectionDto), false);
+                calculateEventSummary(contextProfileEvents, getQuestionTypeMap(collectionDto),
+                        contextProfile.getIsComplete());
         List<TaxonomySummaryDto> taxonomySummaries =
-                calculateTaxonomySummary(contextProfileEvents, collectionDto, false);
+                calculateTaxonomySummary(contextProfileEvents, collectionDto, contextProfile.getIsComplete());
         ContextProfile savedContextProfile =
-                saveContextProfile(contextProfileEntity.getContextProfileId(), resourceId, false, eventSummary,
+                saveContextProfile(contextProfile, resourceId, contextProfile.getIsComplete(), eventSummary,
                         taxonomySummaries);
 
         if (!QuizzesUtils.isAnonymous(contextProfileEntity.getProfileId())) {
@@ -217,13 +219,14 @@ public class ContextEventService {
         return new OnResourceEventResponseDto();
     }
 
-    private void doFinishContextEvent(UUID contextId, ContextProfileEntity contextProfile,
+    private void doFinishContextEvent(UUID contextId, ContextProfileEntity contextProfileEntity,
                                       EventContextDto eventContext, String token) {
+        UUID contextProfileId = contextProfileEntity.getContextProfileId();
         ContextEntity context = contextService.findById(contextId);
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
                 context.getIsCollection(), token);
         List<ContextProfileEvent> contextProfileEvents =
-                contextProfileEventService.findByContextProfileId(contextProfile.getContextProfileId());
+                contextProfileEventService.findByContextProfileId(contextProfileId);
         List<UUID> createdResourceIds = contextProfileEvents.stream()
                 .map(ContextProfileEvent::getResourceId)
                 .collect(Collectors.toList());
@@ -231,21 +234,21 @@ public class ContextEventService {
                 .filter(resource -> !createdResourceIds.contains(resource.getId()))
                 .collect(Collectors.toList());
         List<ContextProfileEvent> pendingContextProfileEvents = pendingResources.stream()
-                .map(pendingResource -> buildContextProfileEvent(contextProfile.getContextProfileId(),
-                        pendingResource.getId(),
+                .map(pendingResource -> buildContextProfileEvent(contextProfileId, pendingResource.getId(),
                         buildContextProfileEventData(true, pendingResource.getIsResource(), 0, 0, 0, null)))
                 .collect(Collectors.toList());
 
         // Fill in the pending ContextProfileEvent data to calculate the summaries
         contextProfileEvents.addAll(pendingContextProfileEvents);
+        ContextProfile contextProfile = contextProfileService.findById(contextProfileId);
         EventSummaryDataDto eventSummary =
                 calculateEventSummary(contextProfileEvents, getQuestionTypeMap(collectionDto), true);
         List<TaxonomySummaryDto> taxonomySummaries =
                 calculateTaxonomySummary(contextProfileEvents, collectionDto, true);
         // Save ContextProfile data
         ContextProfile savedContextProfile =
-                saveContextProfile(contextProfile.getContextProfileId(), contextProfile.getCurrentResourceId(), true,
-                        eventSummary, taxonomySummaries);
+                saveContextProfile(contextProfile, contextProfile.getCurrentResourceId(), true, eventSummary,
+                        taxonomySummaries);
         // Save pending ContextProfileEvents
         pendingContextProfileEvents.stream().forEach(event -> contextProfileEventService.save(event));
 
@@ -386,10 +389,9 @@ public class ContextEventService {
         return eventData;
     }
 
-    private ContextProfile saveContextProfile(UUID contextProfileId, UUID currentResourceId, boolean isComplete,
+    private ContextProfile saveContextProfile(ContextProfile contextProfile, UUID currentResourceId, boolean isComplete,
                                               EventSummaryDataDto eventSummary,
                                               List<TaxonomySummaryDto> taxonomySummaries) {
-        ContextProfile contextProfile = contextProfileService.findById(contextProfileId);
         contextProfile.setCurrentResourceId(currentResourceId);
         contextProfile.setEventSummaryData(gson.toJson(eventSummary));
         contextProfile.setTaxonomySummaryData(gson.toJson(taxonomySummaries));
