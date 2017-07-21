@@ -3,7 +3,8 @@ package com.quizzes.api.core.factory.analytics;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.factory.analytics.impl.FillInTheBlankAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.HotSpotAnswerCreator;
-import com.quizzes.api.core.factory.analytics.impl.HotTextHighlightAnswerCreator;
+import com.quizzes.api.core.factory.analytics.impl.HotTextSentenceHighlightAnswerCreator;
+import com.quizzes.api.core.factory.analytics.impl.HotTextWordHighlightAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.HotTextReorderAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.MultipleAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.MultipleChoiceAnswerCreator;
@@ -77,14 +78,14 @@ public class AnswerCreatorFactoryTest {
     public void getAnswerCreatorHotTextSentence() {
         AnswerCreator creator = answerCreatorFactory.getAnswerCreator(QuestionTypeEnum.HotTextSentence);
 
-        assertThat(creator, instanceOf(HotTextHighlightAnswerCreator.class));
+        assertThat(creator, instanceOf(HotTextSentenceHighlightAnswerCreator.class));
     }
 
     @Test
     public void getAnswerCreatorHotTextWord() {
         AnswerCreator creator = answerCreatorFactory.getAnswerCreator(QuestionTypeEnum.HotTextWord);
 
-        assertThat(creator, instanceOf(HotTextHighlightAnswerCreator.class));
+        assertThat(creator, instanceOf(HotTextWordHighlightAnswerCreator.class));
     }
 
     @Test
