@@ -4,54 +4,47 @@ import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
 import com.quizzes.api.core.dtos.analytics.AnswerObject;
 import com.quizzes.api.core.factory.analytics.AnswerCreator;
-import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-public class HotTextHighlightAnswerCreator implements AnswerCreator {
+public class HotTextHighlightWordAnswerCreator implements AnswerCreator {
 
-    private final String bodyPartsSeparator;
-
-    public HotTextHighlightAnswerCreator(String bodyPartsSeparator) {
-        Assert.notNull(bodyPartsSeparator, "Body parts separator cannot be null");
-
-        this.bodyPartsSeparator = bodyPartsSeparator;
-    }
+    private static final Pattern answerPattern = Pattern.compile("(.*),(.*)");
+    protected String tokenSeparator = " ";
 
     @Override
     public List<AnswerObject> createAnswerObjects(PostRequestResourceDto answerResource, ResourceDto resource) {
         List<AnswerObject> answerObjects = new ArrayList<>();
 
-        List<Integer> optionsOrder = getOptionsOrder(resource.getMetadata().getBody());
         List<String> correctValues = getAnswerValues(resource.getMetadata().getCorrectAnswer());
         List<String> userAnswers = getAnswerValues(answerResource.getAnswer());
+        String body = resource.getMetadata().getBody();
 
         for (String answer : userAnswers) {
-            Pattern answerPattern = Pattern.compile("(.*),(.*)");
             Matcher answerMatcher = answerPattern.matcher(answer);
             answerMatcher.find();
+
+            Integer absoluteIndex = new Integer(answerMatcher.group(2));
+            String text = answerMatcher.group(1);
 
             answerObjects.add(AnswerObject.builder()
                     .answerId("0")
                     .timeStamp(answerResource.getTimeSpent())
-                    .order(optionsOrder.indexOf(new Integer(answerMatcher.group(2))) + 1)
+                    .order(getTokenIndex(body, absoluteIndex))
                     .status(isCorrectContains(answer, correctValues))
                     .skip(false)
-                    .text(answerMatcher.group(1))
+                    .text(text)
                     .build());
         }
 
         return answerObjects;
     }
 
-    protected List<Integer> getOptionsOrder(String body) {
-        List<String> parts = Arrays.asList(body.split(bodyPartsSeparator));
-
-        return parts.stream().map(part -> body.indexOf(part.trim())).collect(Collectors.toList());
+    protected int getTokenIndex(String body, int absoluteIndex) {
+        return StringUtils.countOccurrencesOf(body.substring(0, absoluteIndex), tokenSeparator) + 1;
     }
 }
