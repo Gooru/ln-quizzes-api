@@ -9,10 +9,10 @@ import static org.junit.Assert.assertEquals;
 import static org.powermock.api.mockito.PowerMockito.spy;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(HotTextWordHighlightAnswerCreator.class)
-public class HotTextWordHighlightAnswerCreatorTest {
+@PrepareForTest(HotTextHighlightWordAnswerCreator.class)
+public class HotTextHighlightWordAnswerCreatorTest {
 
-    private HotTextWordHighlightAnswerCreator creator = spy(new HotTextWordHighlightAnswerCreator());
+    private HotTextHighlightWordAnswerCreator creator = spy(new HotTextHighlightWordAnswerCreator());
 
     String text = "The big bad wolf blew down the big house";
 

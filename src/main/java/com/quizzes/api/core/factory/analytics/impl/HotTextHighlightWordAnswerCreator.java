@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class HotTextWordHighlightAnswerCreator implements AnswerCreator {
+public class HotTextHighlightWordAnswerCreator implements AnswerCreator {
 
     private static final Pattern answerPattern = Pattern.compile("(.*),(.*)");
     protected String tokenSeparator = " ";

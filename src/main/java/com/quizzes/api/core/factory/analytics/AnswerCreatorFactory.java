@@ -3,8 +3,8 @@ package com.quizzes.api.core.factory.analytics;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.factory.analytics.impl.FillInTheBlankAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.HotSpotAnswerCreator;
-import com.quizzes.api.core.factory.analytics.impl.HotTextWordHighlightAnswerCreator;
-import com.quizzes.api.core.factory.analytics.impl.HotTextSentenceHighlightAnswerCreator;
+import com.quizzes.api.core.factory.analytics.impl.HotTextHighlightWordAnswerCreator;
+import com.quizzes.api.core.factory.analytics.impl.HotTextHighlightSentenceAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.HotTextReorderAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.MultipleAnswerCreator;
 import com.quizzes.api.core.factory.analytics.impl.MultipleChoiceAnswerCreator;
@@ -30,9 +30,9 @@ public class AnswerCreatorFactory {
             case MultipleChoiceImage:
                 return new HotSpotAnswerCreator();
             case HotTextSentence:
-                return new HotTextSentenceHighlightAnswerCreator();
+                return new HotTextHighlightSentenceAnswerCreator();
             case HotTextWord:
-                return new HotTextWordHighlightAnswerCreator();
+                return new HotTextHighlightWordAnswerCreator();
             case ExtendedText:
                 return new OpenEndedAnswerCreator();
             default:
