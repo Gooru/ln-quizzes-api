@@ -253,9 +253,27 @@ public class ContextEventService {
         pendingContextProfileEvents.stream().forEach(event -> contextProfileEventService.save(event));
 
         if (!QuizzesUtils.isAnonymous(savedContextProfile.getProfileId())) {
+            pendingResources.stream().forEach(resource -> sendPendingResourceToAnalytics(contextId,
+                    savedContextProfile, resource, eventContext, token));
+
             sendFinishContextEventMessage(context.getContextId(), contextProfile.getProfileId(), eventSummary);
             analyticsContentService.collectionPlayStop(context, savedContextProfile, eventContext, token);
         }
+    }
+
+    private void sendPendingResourceToAnalytics(UUID contextId, ContextProfile savedContextProfile,
+                                                ResourceDto resource, EventContextDto eventContext, String token) {
+        PostRequestResourceDto resourceEventData = new PostRequestResourceDto();
+        resourceEventData.setResourceId(resource.getId());
+        resourceEventData.setIsResource(resource.getIsResource());
+        resourceEventData.setTimeSpent(0);
+        resourceEventData.setReaction(0);
+        resourceEventData.setAnswer(Collections.emptyList());
+        resourceEventData.setScore(0);
+        resourceEventData.setIsSkipped(true);
+
+        sendAnalyticsEvent(contextId, savedContextProfile, UUID.randomUUID(), resource,
+                        resourceEventData, eventContext, token);
     }
 
     private StartContextEventResponseDto createStartContextEvent(ContextEntity context, UUID profileId,
