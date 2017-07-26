@@ -4,12 +4,14 @@ import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.AnswerDto;
 import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.CollectionMetadataDto;
+import com.quizzes.api.core.dtos.EventContextDto;
 import com.quizzes.api.core.dtos.EventSummaryDataDto;
 import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostRequestResourceDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.ResourceDto;
+import com.quizzes.api.core.dtos.ResourceEventDto;
 import com.quizzes.api.core.dtos.ResourceMetadataDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
 import com.quizzes.api.core.dtos.TaxonomySummaryDto;
@@ -144,12 +146,35 @@ public class ContextEventServiceTest {
         startDate = new Timestamp(System.currentTimeMillis());
         createdAt = new Timestamp(System.currentTimeMillis());
         updatedAt = new Timestamp(System.currentTimeMillis());
+        token = UUID.randomUUID().toString();
     }
 
     // TODO Remove this temporal method
     @Test
     public void tmpTest() throws Exception {
         assertTrue(true);
+    }
+
+    @Test
+    public void sendPendingResourceToAnalytics() throws Exception {
+        ResourceDto resource = getResourceDto();
+        EventContextDto eventContext = new EventContextDto();
+        ContextProfile contextProfile = new ContextProfile();
+
+        WhiteboxImpl.invokeMethod(contextEventService, "sendPendingResourceToAnalytics",
+                contextId, contextProfile, resource, eventContext, token);
+
+        verifyPrivate(contextEventService, times(1)).invoke("sendAnalyticsEvent",
+                eq(contextId), eq(contextProfile), any(UUID.class), eq(resource), any(PostRequestResourceDto.class),
+                eq(eventContext), eq(token));
+    }
+
+    private ResourceDto getResourceDto() {
+        ResourceDto resourceDto = new ResourceDto();
+        resourceDto.setId(UUID.randomUUID());
+        resourceDto.setIsResource(false);
+
+        return  resourceDto;
     }
 
     /*
