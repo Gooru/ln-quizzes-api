@@ -1,6 +1,6 @@
 package com.quizzes.api.core.dtos;
 
-import com.quizzes.api.core.enums.RubricGrader;
+import com.quizzes.api.core.enums.GradingType;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -20,7 +20,7 @@ public class RubricDto {
     private String url;
     private String thumbnail;
 
-    private RubricGrader grader;
+    private GradingType gradingType;
     private String feedback;
     private UUID tenant;
     private UUID originalCreatorId;

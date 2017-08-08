@@ -6,7 +6,7 @@ import com.quizzes.api.core.dtos.RubricDto;
 import com.quizzes.api.core.dtos.content.RubricCategoryContentDto;
 import com.quizzes.api.core.dtos.content.RubricCategoryLevelContentDto;
 import com.quizzes.api.core.dtos.content.RubricContentDto;
-import com.quizzes.api.core.enums.RubricGrader;
+import com.quizzes.api.core.enums.GradingType;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +70,7 @@ public class RubricRestClient extends NucleusRestClient {
                 .thumbnail(rubricContentDto.getThumbnail())
                 .url(rubricContentDto.getUrl())
                 .metadata(rubricContentDto.getMetadata())
-                .publishStatus(rubricContentDto.getPublishStatus()) // enum
+                .publishStatus(rubricContentDto.getPublishStatus())
                 .publishDate(rubricContentDto.getPublishDate())
                 .isRemote(rubricContentDto.getIsRemote())
                 .feedback(rubricContentDto.getFeedback())
@@ -82,7 +82,7 @@ public class RubricRestClient extends NucleusRestClient {
                 .modifierId(rubricContentDto.getModifierId())
                 .updatedAt(rubricContentDto.getUpdatedAt())
                 .tenant(rubricContentDto.getTenant())
-                .grader(RubricGrader.fromString(rubricContentDto.getGrader()));
+                .gradingType(GradingType.fromString(rubricContentDto.getGrader()));
 
         rubricContentDto.getCategories().forEach(rubricCategoryContentDto -> {
             rubricDtoBuilder.category(toRubricCategoryDto(rubricCategoryContentDto));
