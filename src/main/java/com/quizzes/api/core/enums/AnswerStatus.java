@@ -12,7 +12,9 @@ public enum AnswerStatus {
     @SerializedName("correct")
     Correct("correct"),
     @SerializedName("incorrect")
-    Incorrect("incorrect");
+    Incorrect("incorrect"),
+    @SerializedName("attempted")
+    Attempted("attempted");
 
     @Getter
     private final String literal;

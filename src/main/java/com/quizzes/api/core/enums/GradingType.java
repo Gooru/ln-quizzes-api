@@ -5,12 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
-public enum RubricGrader {
+public enum GradingType {
+
+    @SerializedName("teacher")
+    Teacher("teacher"),
+
+    @SerializedName("system")
+    System("system"),
 
     @SerializedName("self")
-    Self("self"),
-    @SerializedName("teacher")
-    Teacher("teacher");
+    Self("self");
 
     @Getter
     private final String literal;
@@ -20,8 +24,8 @@ public enum RubricGrader {
         return getLiteral();
     }
 
-    public static RubricGrader fromString(String literal) {
-        for(RubricGrader value : values()) {
+    public static GradingType fromString(String literal) {
+        for(GradingType value : values()) {
             if (value.getLiteral().equalsIgnoreCase(literal)) {
                 return value;
             }

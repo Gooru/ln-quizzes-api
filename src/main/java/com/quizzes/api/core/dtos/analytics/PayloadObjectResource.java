@@ -1,6 +1,7 @@
 package com.quizzes.api.core.dtos.analytics;
 
 import com.quizzes.api.core.enums.AnswerStatus;
+import com.quizzes.api.core.enums.GradingType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,6 +13,8 @@ import java.util.Map;
 public class PayloadObjectResource {
 
     private AnswerStatus attemptStatus;
+
+    private GradingType gradingType;
 
     /**
      * MC/TF/FIB/MA/etc.
