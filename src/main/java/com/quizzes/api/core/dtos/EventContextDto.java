@@ -1,5 +1,6 @@
 package com.quizzes.api.core.dtos;
 
+import com.quizzes.api.core.enums.PlayerEventSource;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class EventContextDto {
 
-    private String eventSource;
+    private PlayerEventSource eventSource;
     private String sourceUrl;
     private Long pathId;
     private String timezone;
@@ -21,5 +22,9 @@ public class EventContextDto {
     private UUID unitId;
     private UUID lessonId;
     private UUID collectionId;
+
+    public Boolean isAttempt() {
+        return eventSource != null && eventSource.equals(PlayerEventSource.CourseMap);
+    }
 
 }

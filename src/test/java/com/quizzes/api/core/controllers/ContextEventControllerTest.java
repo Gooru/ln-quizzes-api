@@ -6,6 +6,7 @@ import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
 import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
 import com.quizzes.api.core.dtos.PostResponseResourceDto;
 import com.quizzes.api.core.dtos.StartContextEventResponseDto;
+import com.quizzes.api.core.enums.PlayerEventSource;
 import com.quizzes.api.core.services.ContextEventService;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class ContextEventControllerTest {
     private UUID profileId;
     private UUID anonymousId;
     private String token;
-    private String eventSource;
+    private PlayerEventSource eventSource;
 
     @Before
     public void before() throws Exception {
@@ -58,7 +59,7 @@ public class ContextEventControllerTest {
         profileId = UUID.randomUUID();
         anonymousId = UUID.fromString("00000000-0000-0000-0000-000000000000");
         token = UUID.randomUUID().toString();
-        eventSource = "dailyclassactivity";
+        eventSource = PlayerEventSource.DailyClass;
     }
 
     @Test
