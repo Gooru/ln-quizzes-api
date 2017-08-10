@@ -19,15 +19,4 @@ public enum PlayerEventSource {
     @Getter
     private final String literal;
 
-    public static PlayerEventSource fromString(String literal) {
-        if (literal != null) {
-            return null;
-        }
-        for(PlayerEventSource value : values()) {
-            if (value.getLiteral().equalsIgnoreCase(literal)) {
-                return value;
-            }
-        }
-        return null;
-    }
 }
