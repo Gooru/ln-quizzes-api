@@ -34,6 +34,7 @@ public class ContextService {
     private static final String COURSE_ID = "courseId";
     private static final String UNIT_ID = "unitId";
     private static final String LESSON_ID = "lessonId";
+    private static final String EVENT_SOURCE = "eventSource";
 
     @Autowired
     private ContextRepository contextRepository;
@@ -160,6 +161,10 @@ public class ContextService {
 
         if (contextMap.get(LESSON_ID) != null) {
             composedKey += "/" + LESSON_ID + ":" + contextMap.get(LESSON_ID);
+        }
+
+        if (contextMap.get(EVENT_SOURCE) != null) {
+            composedKey += "/" + EVENT_SOURCE + ":" + contextMap.get(EVENT_SOURCE);
         }
 
         return Base64.getEncoder().encodeToString(composedKey.getBytes(StandardCharsets.UTF_8));

@@ -6,6 +6,7 @@ import com.quizzes.api.core.dtos.CollectionDto;
 import com.quizzes.api.core.dtos.CollectionMetadataDto;
 import com.quizzes.api.core.dtos.MetadataDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
+import com.quizzes.api.core.enums.PlayerEventSource;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
@@ -74,6 +75,7 @@ public class ContextServiceTest {
     private UUID courseId;
     private UUID unitId;
     private UUID lessonId;
+    private PlayerEventSource eventSource;
     private String token;
     private UUID contextProfileId;
     private UUID currentContextProfileId;
@@ -88,6 +90,7 @@ public class ContextServiceTest {
         courseId = UUID.randomUUID();
         unitId = UUID.randomUUID();
         lessonId = UUID.randomUUID();
+        eventSource = PlayerEventSource.CourseMap;
         profileId = UUID.randomUUID();
         contextProfileId = UUID.randomUUID();
         currentContextProfileId = UUID.randomUUID();
@@ -271,13 +274,42 @@ public class ContextServiceTest {
         contextMap.put("courseId", courseId.toString());
         contextMap.put("unitId", unitId.toString());
         contextMap.put("lessonId", lessonId.toString());
-        String expectedContextMapKey = Base64.getEncoder().encodeToString(
-                String.format("profileId:%s/collectionId:%s/classId:%s/courseId:%s/unitId:%s/lessonId:%s",
-                        profileId, collectionId, classId, courseId, unitId, lessonId).getBytes(StandardCharsets.UTF_8));
-        String result =
-                WhiteboxImpl.invokeMethod(contextService, "generateContextMapKey", profileId, collectionId, classId,
-                        contextMap);
-        assertEquals("Wrong ContextMapKey value", expectedContextMapKey, result);
+        contextMap.put("eventSource", eventSource.getLiteral());
+
+        String mapKeyTemplate = "profileId:%s/collectionId:%s/classId:%s/courseId:%s/unitId:%s/lessonId:%s/eventSource:%s";
+        String mapKey = String.format(mapKeyTemplate, profileId, collectionId, classId, courseId, unitId, lessonId,
+                eventSource.getLiteral());
+        String encodedMapKey = Base64.getEncoder().encodeToString(mapKey.getBytes(StandardCharsets.UTF_8));
+        String result = WhiteboxImpl.invokeMethod(contextService, "generateContextMapKey",
+                profileId, collectionId, classId, contextMap);
+
+        assertEquals("Wrong ContextMapKey value", encodedMapKey, result);
+    }
+
+    @Test
+    public void generateContextMapKeyWithEmptyMap() throws Exception {
+        Map<String, String> contextMap = new HashMap();
+
+        String mapKeyTemplate = "profileId:%s/collectionId:%s/classId:%s";
+        String mapKey = String.format(mapKeyTemplate, profileId, collectionId, classId);
+        String encodedMapKey = Base64.getEncoder().encodeToString(mapKey.getBytes(StandardCharsets.UTF_8));
+        String result = WhiteboxImpl.invokeMethod(contextService, "generateContextMapKey",
+                profileId, collectionId, classId, contextMap);
+
+        assertEquals("Wrong ContextMapKey value", encodedMapKey, result);
+    }
+
+    @Test
+    public void generateContextMapKeyWithoutClass() throws Exception {
+        Map<String, String> contextMap = new HashMap();
+
+        String mapKeyTemplate = "profileId:%s/collectionId:%s";
+        String mapKey = String.format(mapKeyTemplate, profileId, collectionId, null);
+        String encodedMapKey = Base64.getEncoder().encodeToString(mapKey.getBytes(StandardCharsets.UTF_8));
+        String result = WhiteboxImpl.invokeMethod(contextService, "generateContextMapKey",
+                profileId, collectionId, null, contextMap);
+
+        assertEquals("Wrong ContextMapKey value", encodedMapKey, result);
     }
 
     @Test
