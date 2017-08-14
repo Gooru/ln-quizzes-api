@@ -62,11 +62,11 @@ To start up the server there are several options:
 * To see the RESTful API documentation you can access this url `http://localhost:8080/swagger-ui.html`
 
 ## Docker and Docker-Compose
-Docker and Docker-Compose can be use to run the application without installing its dependencies (PostgreSQL and ActiveMQ).
+Docker and Docker-Compose can be use to run the application without installing its dependencies (PostgreSQL, Memcached and ActiveMQ).
 
 ### Prerequisites
 
 - Docker ([Linux](https://docs.docker.com/engine/installation/linux/ubuntulinux/), [Mac](https://docs.docker.com/docker-for-mac/))
 - [Docker-Compose](https://docs.docker.com/compose/install/)
 
-`docker-compose up`
+`docker-compose -f docker-compose-dev.yml up`
