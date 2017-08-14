@@ -1,0 +1,17 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.5-alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=quizzes
+    ports:
+      - "5432:5432"
+  activemq:
+    image: rmohr/activemq:5.13.3
+    ports:
+      - "61616:61616"
+  memcached:
+    image: memcached:1.4-alpine
+    ports:
+      - "11211:11211"
