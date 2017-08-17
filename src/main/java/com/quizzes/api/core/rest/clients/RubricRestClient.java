@@ -84,9 +84,11 @@ public class RubricRestClient extends NucleusRestClient {
                 .tenant(rubricContentDto.getTenant())
                 .gradingType(GradingType.fromString(rubricContentDto.getGrader()));
 
-        rubricContentDto.getCategories().forEach(rubricCategoryContentDto -> {
-            rubricDtoBuilder.category(toRubricCategoryDto(rubricCategoryContentDto));
-        });
+        if (rubricContentDto.getCategories() != null) {
+            rubricContentDto.getCategories().forEach(rubricCategoryContentDto -> {
+                rubricDtoBuilder.category(toRubricCategoryDto(rubricCategoryContentDto));
+            });
+        }
 
         return rubricDtoBuilder.build();
     }
