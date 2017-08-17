@@ -27,6 +27,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.spy;
+import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(CollectionService.class)
@@ -58,6 +59,7 @@ public class CollectionServiceTest {
         CollectionDto result = collectionService.getAssessment(assessmentId, true, "token");
 
         verify(collectionRestClient, times(1)).getAssessmentWithCacheRefresh(any(UUID.class), anyString());
+        verifyPrivate(collectionService, times(1)).invoke("getQuestionRubrics", result, "token");
         assertEquals("Wrong Assessment ID", assessmentId.toString(), result.getId());
         assertFalse("Wrong IsCollection value", result.getIsCollection());
     }
