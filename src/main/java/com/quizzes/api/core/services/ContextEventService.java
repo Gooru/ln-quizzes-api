@@ -202,7 +202,7 @@ public class ContextEventService {
                 saveContextProfile(contextProfile, resourceId, contextProfile.getIsComplete(), eventSummary,
                         taxonomySummaries);
 
-        if (!QuizzesUtils.isAnonymous(contextProfileEntity.getProfileId())) {
+        if (!QuizzesUtils.isAnonymous(contextProfileEntity.getProfileId()) && eventContext.getEventSource() != null) {
             previousResourceEventData.setScore(score);
             previousResourceEventData.setIsSkipped(isSkipEvent);
             sendOnResourceEventMessage(savedContextProfile, previousResourceEventData, eventSummary);
@@ -252,7 +252,7 @@ public class ContextEventService {
         // Save pending ContextProfileEvents
         pendingContextProfileEvents.stream().forEach(event -> contextProfileEventService.save(event));
 
-        if (!QuizzesUtils.isAnonymous(savedContextProfile.getProfileId())) {
+        if (!QuizzesUtils.isAnonymous(savedContextProfile.getProfileId()) && eventContext.getEventSource() != null) {
             pendingResources.stream().forEach(resource -> sendPendingResourceToAnalytics(contextId,
                     savedContextProfile, resource, eventContext, token));
 
@@ -278,9 +278,11 @@ public class ContextEventService {
 
     private StartContextEventResponseDto createStartContextEvent(ContextEntity context, UUID profileId,
                                                                  EventContextDto eventContext, String token) {
-        validateProfileAttemptsLeft(context, profileId, token);
+        if (eventContext.isAttempt()) {
+            validateProfileAttemptsLeft(context, profileId, token);
+        }
         ContextProfile savedContextProfile = contextProfileService.save(buildContextProfile(context.getContextId(),
-                profileId));
+                profileId, eventContext));
         CurrentContextProfile currentContextProfile = buildCurrentContextProfile(context.getContextId(), profileId,
                 savedContextProfile.getId());
         currentContextProfileService.delete(currentContextProfile);
@@ -288,7 +290,7 @@ public class ContextEventService {
         StartContextEventResponseDto eventResponse = buildStartContextEventResponse(context.getContextId(),
                 context.getCollectionId(), savedContextProfile.getCurrentResourceId(), Collections.EMPTY_LIST);
 
-        if (!QuizzesUtils.isAnonymous(profileId)) {
+        if (!QuizzesUtils.isAnonymous(profileId) && eventContext.getEventSource() != null) {
             sendStartEventMessage(context.getContextId(), profileId, savedContextProfile.getCurrentResourceId(), true);
             analyticsContentService.collectionPlayStart(context, savedContextProfile, eventContext, token);
         }
@@ -367,7 +369,7 @@ public class ContextEventService {
         return response;
     }
 
-    private ContextProfile buildContextProfile(UUID contextId, UUID profileId) {
+    private ContextProfile buildContextProfile(UUID contextId, UUID profileId, EventContextDto eventContext) {
         ContextProfile contextProfile = new ContextProfile();
         contextProfile.setContextId(contextId);
         contextProfile.setProfileId(profileId);
@@ -631,8 +633,8 @@ public class ContextEventService {
     private void validateProfileAttemptsLeft(ContextEntity context, UUID profileId, String authToken) {
         CollectionDto collectionDto = collectionService.getCollectionOrAssessment(context.getCollectionId(),
                 context.getIsCollection(), authToken);
-        int allowedAttempts =
-                ((Double) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, -1.0)).intValue();
+        int allowedAttempts = ((Double) collectionDto.getMetadata()
+                .getSetting(CollectionSetting.AttemptsAllowed, -1.0)).intValue();
         int contextAttempts = contextProfileService.findContextProfileIdsByContextIdAndProfileId(context.getContextId(),
                 profileId).size();
         if (allowedAttempts != -1 && allowedAttempts <= contextAttempts) {
