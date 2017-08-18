@@ -87,8 +87,10 @@ public class CollectionService {
 
                     try {
                         QuestionContentDto questionContentDto = questionService.getQuestion(resourceDto.getId(), authToken);
-                        RubricDto rubricDto = rubricService.getRubric(questionContentDto.getRubric().getId(), authToken);
-                        resourceDto.setRubric(rubricDto);
+                        if (questionContentDto.getRubric() != null) {
+                            RubricDto rubricDto = rubricService.getRubric(questionContentDto.getRubric().getId(), authToken);
+                            resourceDto.setRubric(rubricDto);
+                        }
                     } catch (Exception exception) {
                         log.warn("Unable to retrieve rubric for question " + resourceDto.getId(), exception);
                     }

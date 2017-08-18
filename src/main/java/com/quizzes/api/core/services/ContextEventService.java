@@ -514,14 +514,14 @@ public class ContextEventService {
             }
 
             if (!eventDataDto.getIsResource() && (calculateSkipped || !eventDataDto.getIsSkipped())) {
-                //TODO: This code was commented by Gooru's requirements. It will be enabled again once Gooru notify us.
-                //String questionType = questionTypeMap.get(eventDataDto.getResourceId());
-                //QuestionTypeEnum questionTypeEnum = QuestionTypeEnum.getEnum(questionType);
-                //if (questionTypeEnum != ExtendedText) {
+
+                // OE validation was commented, but it was enabled again as a fix for NILE-1200 - 08/16/2017
+                String questionType = questionTypeMap.get(contextProfileEvent.getResourceId());
+                if (QuestionTypeEnum.getEnum(questionType) != QuestionTypeEnum.ExtendedText) {
                     sumScore += eventDataDto.getScore();
                     totalCorrect += eventDataDto.getScore() == 100 ? 1 : 0;
                     totalAnswered++;
-                //}
+                }
             }
         }
 
