@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class AuthenticationRestClient {
 
+    private static final String AUTH_TOKEN_API_URL = "/api/nucleus-token-server/v1";
     private static final String AUTH_API_URL = "/api/nucleus-auth/v2";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
 
@@ -41,7 +42,7 @@ public class AuthenticationRestClient {
     private Gson gson;
 
     public void verifyAccessToken(String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_API_URL + "/token";
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_TOKEN_API_URL + "/token";
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
