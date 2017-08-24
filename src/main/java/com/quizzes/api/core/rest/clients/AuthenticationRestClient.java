@@ -41,7 +41,7 @@ public class AuthenticationRestClient {
     @Autowired
     private Gson gson;
 
-    public void verifyAccessToken(String token) {
+    public boolean verifyAccessToken(String token) {
         String endpointUrl = configurationService.getContentApiUrl() + AUTH_TOKEN_API_URL + "/token";
 
         if (logger.isDebugEnabled()) {
@@ -67,6 +67,7 @@ public class AuthenticationRestClient {
             logger.error("Gooru Session Token " + token + " validation process failed.", e);
             throw new InternalServerException("Gooru Session Token " + token + " validation process failed.", e);
         }
+        return true;
     }
 
     public String generateAnonymousToken() {
