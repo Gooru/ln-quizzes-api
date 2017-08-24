@@ -1,7 +1,7 @@
 package com.quizzes.api.core.controllers.interceptor;
 
 import com.quizzes.api.core.exceptions.InvalidRequestException;
-import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.core.services.TokenService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.doNothing;
+import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 @RunWith(PowerMockRunner.class)
@@ -28,7 +28,7 @@ public class AuthorizationTokenInterceptorTest {
     private AuthorizationTokenInterceptor sessionInterceptor;
 
     @Mock
-    private AuthenticationRestClient authenticationRestClient;
+    private TokenService tokenService;
 
     private String authorization;
     private String token;
@@ -49,29 +49,21 @@ public class AuthorizationTokenInterceptorTest {
 
     @Test
     public void preHandleAuthorizationForAnonymous() throws Exception {
-        request.addHeader("Authorization", authorizationAnonymous);
-
-        doNothing().when(authenticationRestClient).verifyAccessToken(any(String.class));
-
-        boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
-
-        //TODO Enable this once Authorization endpoint is fixed
-        //verify(authenticationRestClient, times(1)).verifyAccessToken(any(String.class));
-
-        assertTrue("Result is false", result);
+        preHandleAuthorization(authorizationAnonymous);
     }
 
     @Test
     public void preHandleAuthorization() throws Exception {
-        request.addHeader("Authorization", authorization);
+        preHandleAuthorization(authorization);
+    }
 
-        doNothing().when(authenticationRestClient).verifyAccessToken(any(String.class));
+    private void preHandleAuthorization(String token) {
+        request.addHeader("Authorization", token);
+        when(tokenService.validate(any(String.class))).thenReturn(true);
 
         boolean result = sessionInterceptor.preHandle(request, new MockHttpServletResponse(), new Object());
 
-        //TODO Enable this once Authorization endpoint is fixed
-        //verify(authenticationRestClient, times(1)).verifyAccessToken(any(String.class));
-
+        verify(tokenService, times(1)).validate(any(String.class));
         assertTrue("Result is false", result);
     }
 
