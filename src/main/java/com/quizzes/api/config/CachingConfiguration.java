@@ -9,6 +9,7 @@ import com.google.code.ssm.providers.elasticache.MemcacheClientFactoryImpl;
 import com.google.code.ssm.spring.SSMCache;
 import com.google.code.ssm.spring.SSMCacheManager;
 import lombok.Getter;
+import lombok.Setter;
 import net.spy.memcached.ClientMode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 @Configuration
 @EnableCaching
 @ImportResource("simplesm-context.xml")
@@ -29,8 +31,8 @@ import java.util.List;
 @ConfigurationProperties(value = "spring.cache")
 public class CachingConfiguration {
 
-    private final String serverUrl = "localhost:11211";
-    private final int expiration = 86400;
+    private String serverUrl = "localhost:11211";
+    private int expiration = 86400;
 
     @Bean
     public CacheManager cacheManager() throws Exception {
