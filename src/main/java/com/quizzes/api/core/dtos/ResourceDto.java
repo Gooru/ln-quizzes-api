@@ -12,5 +12,6 @@ public class ResourceDto implements Serializable {
     private Boolean isResource;
     private int sequence;
     private ResourceMetadataDto metadata;
+    private RubricDto rubric;
 
 }

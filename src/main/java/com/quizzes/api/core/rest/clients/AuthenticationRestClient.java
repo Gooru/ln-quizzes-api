@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class AuthenticationRestClient {
 
+    private static final String AUTH_TOKEN_API_URL = "/api/nucleus-token-server/v1";
     private static final String AUTH_API_URL = "/api/nucleus-auth/v2";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
 
@@ -40,8 +41,8 @@ public class AuthenticationRestClient {
     @Autowired
     private Gson gson;
 
-    public void verifyAccessToken(String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_API_URL + "/token";
+    public boolean verifyAccessToken(String token) {
+        String endpointUrl = configurationService.getContentApiUrl() + AUTH_TOKEN_API_URL + "/token";
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
@@ -66,6 +67,7 @@ public class AuthenticationRestClient {
             logger.error("Gooru Session Token " + token + " validation process failed.", e);
             throw new InternalServerException("Gooru Session Token " + token + " validation process failed.", e);
         }
+        return true;
     }
 
     public String generateAnonymousToken() {

@@ -20,6 +20,7 @@ import com.quizzes.api.core.dtos.analytics.User;
 import com.quizzes.api.core.dtos.analytics.Version;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
 import com.quizzes.api.core.enums.AnswerStatus;
+import com.quizzes.api.core.enums.GradingType;
 import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.factory.analytics.AnswerCreator;
 import com.quizzes.api.core.factory.analytics.AnswerCreatorFactory;
@@ -225,7 +226,8 @@ public class AnalyticsContentService {
         }
         return PayloadObjectResource.builder()
                 .questionType(quizzesUtils.getGooruQuestionType(resource.getMetadata().getType()))
-                .attemptStatus(getAttemptStatus(answerResource))
+                .attemptStatus(getAttemptStatus(resource, answerResource))
+                .gradingType(getGradingType(resource))
                 .isStudent(true)
                 .taxonomyIds(getTaxonomyIds(resource))
                 .answerObject(createAnswerObject(answerResource, resource))
@@ -245,11 +247,21 @@ public class AnalyticsContentService {
         return taxonomies;
     }
 
-    private AnswerStatus getAttemptStatus(PostRequestResourceDto userAnswer) {
+    private AnswerStatus getAttemptStatus(ResourceDto resource, PostRequestResourceDto userAnswer) {
+        if (resource.getMetadata().getType().equals(QuestionTypeEnum.ExtendedText.getLiteral())) {
+            return AnswerStatus.Attempted;
+        }
         if (userAnswer.getIsSkipped()) {
             return AnswerStatus.Skipped;
         }
         return (userAnswer.getScore() == 100) ? AnswerStatus.Correct : AnswerStatus.Incorrect;
+    }
+
+    private GradingType getGradingType(ResourceDto resource) {
+        if (resource.getMetadata().getType().equals(QuestionTypeEnum.ExtendedText.getLiteral())) {
+            return GradingType.Teacher;
+        }
+        return GradingType.System;
     }
 
     private List<AnswerObject> createAnswerObject(PostRequestResourceDto answerResource,

@@ -1,7 +1,7 @@
 package com.quizzes.api.core.controllers.interceptor;
 
 import com.quizzes.api.core.exceptions.InvalidRequestException;
-import com.quizzes.api.core.rest.clients.AuthenticationRestClient;
+import com.quizzes.api.core.services.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,7 +21,7 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
     private static final String TOKEN_TYPE = "Token";
 
     @Autowired
-    private AuthenticationRestClient authenticationRestClient;
+    private TokenService tokenService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -34,7 +34,7 @@ public class AuthorizationTokenInterceptor extends HandlerInterceptorAdapter {
         String token = getToken(authorizationHeader);
         String[] decodedTokenValues = new String(Base64.getDecoder().decode(token)).split(":");
 
-        authenticationRestClient.verifyAccessToken(token);
+        tokenService.validate(token);
 
         request.setAttribute(PROFILE_ID_ATTRIBUTE, decodedTokenValues[2]);
         request.setAttribute(CLIENT_ID_ATTRIBUTE, decodedTokenValues[4]);
