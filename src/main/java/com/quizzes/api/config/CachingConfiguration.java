@@ -8,6 +8,8 @@ import com.google.code.ssm.providers.elasticache.ElastiCacheConfiguration;
 import com.google.code.ssm.providers.elasticache.MemcacheClientFactoryImpl;
 import com.google.code.ssm.spring.SSMCache;
 import com.google.code.ssm.spring.SSMCacheManager;
+import lombok.Getter;
+import lombok.Setter;
 import net.spy.memcached.ClientMode;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cache.CacheManager;
@@ -20,6 +22,8 @@ import org.springframework.context.annotation.ImportResource;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 @Configuration
 @EnableCaching
 @ImportResource("simplesm-context.xml")
@@ -29,22 +33,6 @@ public class CachingConfiguration {
 
     private String serverUrl = "localhost:11211";
     private int expiration = 86400;
-
-    public String getServerUrl() {
-        return this.serverUrl;
-    }
-
-    public void setServerUrl(String serverUrl) {
-        this.serverUrl = serverUrl;
-    }
-
-    public int getExpiration() {
-        return expiration;
-    }
-
-    public void setExpiration(int expiration) {
-        this.expiration = expiration;
-    }
 
     @Bean
     public CacheManager cacheManager() throws Exception {
