@@ -112,6 +112,7 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-actuator")
     compile("org.springframework.boot:spring-boot-starter-websocket")
     compile("org.springframework.boot:spring-boot-starter-data-rest")
+    compile("org.springframework:spring-aspects")
     compile("org.springframework.boot:spring-boot-starter-jooq:1.4.1.RELEASE")
 
     compile("org.springframework:spring-messaging")
