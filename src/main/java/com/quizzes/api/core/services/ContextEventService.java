@@ -34,6 +34,7 @@ import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
@@ -152,18 +153,17 @@ public class ContextEventService {
                                                          PostRequestResourceDto previousResourceEventData,
                                                          CollectionDto collectionDto, EventContextDto eventContext,
                                                          String token) {
+
         boolean isSkipEvent = isSkipEvent(previousResource.getIsResource(), previousResourceEventData);
         UUID contextProfileId = contextProfileEntity.getContextProfileId();
         UUID previousResourceId = previousResource.getId();
 
         ContextProfileEvent contextProfileEvent = contextProfileEventService
                 .findByContextProfileIdAndResourceId(contextProfileId, previousResourceId);
+
         if (contextProfileEvent == null) {
-            PostRequestResourceDto eventData = buildContextProfileEventData(isSkipEvent,
-                    previousResource.getIsResource(), 0, 0, 0, previousResourceEventData.getAnswer());
-            contextProfileEvent = buildContextProfileEvent(contextProfileId, previousResourceId, eventData);
             try {
-                contextProfileEvent = contextProfileEventService.save(contextProfileEvent);
+                contextProfileEvent = saveContextProfileEvent(previousResource, previousResourceEventData, isSkipEvent, contextProfileId, previousResourceId);
             } catch (DuplicateKeyException e) {
                 contextProfileEvent = contextProfileEventService
                         .findByContextProfileIdAndResourceId(contextProfileId, previousResourceId);
@@ -217,6 +217,20 @@ public class ContextEventService {
             return new OnResourceEventResponseDto(score);
         }
         return new OnResourceEventResponseDto();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private ContextProfileEvent saveContextProfileEvent(ResourceDto previousResource,
+                                                         PostRequestResourceDto previousResourceEventData,
+                                                         boolean isSkipEvent,
+                                                         UUID contextProfileId,
+                                                         UUID previousResourceId) {
+        ContextProfileEvent contextProfileEvent;
+        PostRequestResourceDto eventData = buildContextProfileEventData(isSkipEvent,
+                previousResource.getIsResource(), 0, 0, 0, previousResourceEventData.getAnswer());
+        contextProfileEvent = buildContextProfileEvent(contextProfileId, previousResourceId, eventData);
+        contextProfileEvent = contextProfileEventService.save(contextProfileEvent);
+        return contextProfileEvent;
     }
 
     private void doFinishContextEvent(UUID contextId, ContextProfileEntity contextProfileEntity,
