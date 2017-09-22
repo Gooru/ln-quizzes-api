@@ -462,12 +462,35 @@ public class ContextEventService {
         if (userAnswers.size() < correctAnswers.size()) {
             return 0;
         }
+        
         boolean isCorrect = IntStream.rangeClosed(0, correctAnswers.size() - 1)
-                .allMatch(i -> correctAnswers.get(i).getValue()
-                        .equalsIgnoreCase(userAnswers.get(i).getValue().trim()));
+                .allMatch(i -> isCorrect(userAnswers.get(i), correctAnswers.get(i)));
+            
+//        boolean isCorrect = IntStream.rangeClosed(0, correctAnswers.size() - 1)
+//                .allMatch(i -> correctAnswers.get(i).getValue()
+//                        .equalsIgnoreCase(userAnswers.get(i).getValue().trim()));
         return isCorrect ? CORRECT_SCORE : INCORRECT_SCORE;
     }
-
+    
+    private boolean isCorrect(AnswerDto userAnswer, AnswerDto correctAnswer) {
+        if (correctAnswer.getValue().equalsIgnoreCase(userAnswer.getValue().trim())) {
+        	return true;
+        } else {
+        	try{
+  			    Double correctVal =  Double.valueOf(correctAnswer.getValue());
+                Double userVal =  Double.valueOf(userAnswer.getValue().trim());
+                if (correctVal == userVal)
+                    return true;
+                else
+                   return false;                  
+      	  } catch (NumberFormatException nfe) {
+      	         return false;
+      	       } catch (NullPointerException npe) {
+      	         return false;
+      	       }        	
+        } 
+       }
+    
     /**
      * Compares user and correct answers, including the answer order
      * <p>
