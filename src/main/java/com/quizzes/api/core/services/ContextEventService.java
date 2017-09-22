@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -53,6 +54,7 @@ public class ContextEventService {
 
     private static final int CORRECT_SCORE = 100;
     private static final int INCORRECT_SCORE = 0;
+    private static final Pattern doubleDigits = Pattern.compile("(\\d*[\\.]\\d+)");
 
     @Autowired
     private ContextProfileService contextProfileService;
@@ -473,22 +475,25 @@ public class ContextEventService {
     }
     
     private boolean isCorrect(AnswerDto userAnswer, AnswerDto correctAnswer) {
+        
         if (correctAnswer.getValue().equalsIgnoreCase(userAnswer.getValue().trim())) {
-        	return true;
-        } else {
-        	try{
-  			    Double correctVal =  Double.valueOf(correctAnswer.getValue());
-                Double userVal =  Double.valueOf(userAnswer.getValue().trim());
-                if (correctVal == userVal)
-                    return true;
-                else
-                   return false;                  
-      	  } catch (NumberFormatException nfe) {
-      	         return false;
-      	       } catch (NullPointerException npe) {
-      	         return false;
-      	       }        	
-        } 
+          	return true;
+          } else if (doubleDigits.matcher(correctAnswer.getValue()).matches()) {
+        	  try{
+    			  Double correctVal =  Double.valueOf(correctAnswer.getValue().trim());    			  
+                  Double userVal =  Double.valueOf(userAnswer.getValue().trim());  
+                  if (Double.compare(userVal, correctVal) == 0) {                	  
+                      return true;
+                  } else
+                     return false;                  
+        	  } catch (NumberFormatException nfe) {
+        	         return false;
+        	       } catch (NullPointerException npe) {
+        	         return false;
+        	       }        	
+          } else {
+        	  return false;
+          }        
        }
     
     /**
