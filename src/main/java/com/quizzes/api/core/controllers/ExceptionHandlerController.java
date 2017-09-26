@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -194,6 +195,17 @@ public class ExceptionHandlerController {
     @ExceptionHandler(value = InternalServerException.class)
     public ExceptionMessageDto handleException(InternalServerException e) {
         return getExceptionMessageDto("Server processing error", HttpStatus.INTERNAL_SERVER_ERROR, e);
+    }
+
+    /**
+     * Handles the explicit HttpRequestMethodNotSupportedException
+     *
+     * @return Exception message with status code 405
+     */
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    public ExceptionMessageDto handleException(HttpRequestMethodNotSupportedException e) {
+        return getExceptionMessageDto("Invalid HTTP method", HttpStatus.METHOD_NOT_ALLOWED, e);
     }
 
     /**
