@@ -9,6 +9,15 @@ public class ConfigurationService {
     @Value("${content.api.url}")
     private String contentApiUrl;
 
+    @Value("${token.verification.api.url}")
+    private String tokenVerificationUrl;
+
+    @Value("${auth.signin.api.url}")
+    private String signinUrl;
+
+    @Value("${analytics.event.api.url}")
+    private String analyticsEventApiUrl;
+
     @Value("${content.api.client_key}")
     private String clientKey;
 
@@ -26,6 +35,18 @@ public class ConfigurationService {
 
     public String getContentApiUrl() {
         return contentApiUrl;
+    }
+
+    public String getTokenVerificationUrl() {
+        return tokenVerificationUrl;
+    }
+
+    public String getSigninUrl() {
+        return signinUrl;
+    }
+
+    public String getAnalyticsEventApiUrl() {
+        return analyticsEventApiUrl;
     }
 
     public String getClientKey() {

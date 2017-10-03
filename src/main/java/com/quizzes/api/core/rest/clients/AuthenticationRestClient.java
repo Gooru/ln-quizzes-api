@@ -1,13 +1,7 @@
 package com.quizzes.api.core.rest.clients;
 
-import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.content.TokenRequestDto;
-import com.quizzes.api.core.dtos.content.TokenResponseDto;
-import com.quizzes.api.core.exceptions.ContentProviderException;
-import com.quizzes.api.core.exceptions.InternalServerException;
-import com.quizzes.api.core.exceptions.InvalidSessionException;
-import com.quizzes.api.core.services.ConfigurationService;
-import com.quizzes.api.core.services.content.helpers.GooruHelper;
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +14,18 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import com.google.gson.Gson;
+import com.quizzes.api.core.dtos.content.TokenRequestDto;
+import com.quizzes.api.core.dtos.content.TokenResponseDto;
+import com.quizzes.api.core.exceptions.ContentProviderException;
+import com.quizzes.api.core.exceptions.InternalServerException;
+import com.quizzes.api.core.exceptions.InvalidSessionException;
+import com.quizzes.api.core.services.ConfigurationService;
+import com.quizzes.api.core.services.content.helpers.GooruHelper;
+
 @Component
 public class AuthenticationRestClient {
 
-    private static final String AUTH_TOKEN_API_URL = "/api/nucleus-token-server/v1";
-    private static final String AUTH_API_URL = "/api/nucleus-auth/v2";
     private static final String ANONYMOUS_GRANT_TYPE = "anonymous";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +43,8 @@ public class AuthenticationRestClient {
     private Gson gson;
 
     public boolean verifyAccessToken(String token) {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_TOKEN_API_URL + "/token";
+        String endpointUrl = configurationService.getTokenVerificationUrl();
+        Objects.requireNonNull(endpointUrl);
 
         if (logger.isDebugEnabled()) {
             logger.debug("GET Request to: " + endpointUrl);
@@ -71,7 +73,9 @@ public class AuthenticationRestClient {
     }
 
     public String generateAnonymousToken() {
-        String endpointUrl = configurationService.getContentApiUrl() + AUTH_API_URL + "/signin";
+        String endpointUrl = configurationService.getSigninUrl();
+        Objects.requireNonNull(endpointUrl);
+
         TokenRequestDto tokenRequest = new TokenRequestDto();
         tokenRequest.setClientId(configurationService.getClientId());
         tokenRequest.setClientKey(configurationService.getClientKey());
@@ -84,7 +88,7 @@ public class AuthenticationRestClient {
 
         try {
             TokenResponseDto tokenResponse =
-                    restTemplate.postForObject(endpointUrl, tokenRequest, TokenResponseDto.class);
+                restTemplate.postForObject(endpointUrl, tokenRequest, TokenResponseDto.class);
 
             if (logger.isDebugEnabled()) {
                 logger.debug("Response from: " + endpointUrl);
