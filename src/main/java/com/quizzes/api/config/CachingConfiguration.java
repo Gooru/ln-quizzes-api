@@ -44,7 +44,7 @@ public class CachingConfiguration {
     }
 
     @Bean
-    public CacheFactory cacheFactory() throws Exception {
+    public CacheFactory cacheFactory() {
         System.setProperty(CacheBase.DISABLE_CACHE_PROPERTY, "false");
         CacheFactory cacheFactory = new CacheFactory();
         cacheFactory.setCacheClientFactory(new MemcacheClientFactoryImpl());

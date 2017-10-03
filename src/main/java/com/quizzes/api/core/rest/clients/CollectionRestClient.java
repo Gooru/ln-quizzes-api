@@ -36,12 +36,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -57,10 +52,10 @@ public class CollectionRestClient {
     private final Pattern hotTextHighlightPattern = Pattern.compile("\\[(.*?)\\]");
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final Map<GooruQuestionTypeEnum, QuestionTypeEnum> questionTypeMap;
+    private static final EnumMap<GooruQuestionTypeEnum, QuestionTypeEnum> questionTypeMap;
 
     static {
-        questionTypeMap = new HashMap<>();
+        questionTypeMap = new EnumMap(GooruQuestionTypeEnum.class);
         questionTypeMap.put(GooruQuestionTypeEnum.TrueFalseQuestion, QuestionTypeEnum.TrueFalse);
         questionTypeMap.put(GooruQuestionTypeEnum.MultipleChoiceQuestion, QuestionTypeEnum.SingleChoice);
         questionTypeMap.put(GooruQuestionTypeEnum.HotTextReorderQuestion, QuestionTypeEnum.DragAndDrop);

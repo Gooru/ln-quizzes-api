@@ -28,7 +28,7 @@ public enum GooruQuestionTypeEnum {
 
     private final String literal;
 
-    private GooruQuestionTypeEnum(String literal) {
+    GooruQuestionTypeEnum(String literal) {
         this.literal = literal;
     }
 

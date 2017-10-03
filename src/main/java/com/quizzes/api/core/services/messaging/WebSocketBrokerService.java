@@ -16,7 +16,7 @@ public class WebSocketBrokerService {
      * @param destination the destination channel
      * @param message the message body
      */
-    public void sendMessage(String destination, String message) throws Exception {
+    public void sendMessage(String destination, String message) {
         messagingTemplate.send("/topic/" + destination, MessageBuilder.withPayload(message.getBytes()).build());
     }
 

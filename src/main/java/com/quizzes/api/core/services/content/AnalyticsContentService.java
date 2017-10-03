@@ -346,7 +346,7 @@ public class AnalyticsContentService {
 
     private ContextResource createSingleResourceEventContext(UUID resourceId, String eventType,
                                                              EventContextDto eventContext) {
-        ContextResource contextResource = ContextResource.builder()
+        return ContextResource.builder()
                 .contentGooruId(resourceId)
                 .type(eventType)
                 .collectionType(null)
@@ -363,7 +363,6 @@ public class AnalyticsContentService {
                 .lessonGooruId(eventContext.getLessonId())
                 .parentGooruId(eventContext.getCollectionId())
                 .build();
-        return contextResource;
     }
 
     private EventReaction createSingleResourceEventReaction(UUID eventId, UUID parentEventId, UUID resourceId,

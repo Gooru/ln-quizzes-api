@@ -30,7 +30,7 @@ public class PostgresJsonbStringBinding implements Binding<Object, String> {
 
             @Override
             public Object to(String u) {
-                return u == null ? null : u;
+                return u;
             }
 
             @Override

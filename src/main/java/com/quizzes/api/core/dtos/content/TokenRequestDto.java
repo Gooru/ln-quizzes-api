@@ -1,6 +1,5 @@
 package com.quizzes.api.core.dtos.content;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
 public class TokenRequestDto {
