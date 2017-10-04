@@ -29,7 +29,7 @@ public class GsonHttpMessageConverterConfig {
         return builder.create();
     }
 
-    private class SpringfoxJsonToGsonAdapter implements JsonSerializer<Json> {
+    private static class SpringfoxJsonToGsonAdapter implements JsonSerializer<Json> {
 
         @Override
         public JsonElement serialize(Json json, Type type, JsonSerializationContext context) {

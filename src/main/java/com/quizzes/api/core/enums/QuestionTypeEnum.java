@@ -39,7 +39,7 @@ public enum QuestionTypeEnum {
 
     private final String literal;
 
-    private QuestionTypeEnum(String literal) {
+    QuestionTypeEnum(String literal) {
         this.literal = literal;
     }
 

@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Component
 public class QuizzesUtils {
@@ -22,10 +19,10 @@ public class QuizzesUtils {
     public final static String RESOURCE = "resource";
     public final static String QUESTION = "question";
 
-    private static final Map<QuestionTypeEnum, String> quizzesQuestionType;
+    private static final EnumMap<QuestionTypeEnum, String> quizzesQuestionType;
 
     static {
-        quizzesQuestionType = new HashMap<>();
+        quizzesQuestionType = new EnumMap<>(QuestionTypeEnum.class);
         quizzesQuestionType.put(QuestionTypeEnum.TrueFalse, "T/F");
         quizzesQuestionType.put(QuestionTypeEnum.SingleChoice, "MC");
         quizzesQuestionType.put(QuestionTypeEnum.DragAndDrop, "HT_RO");

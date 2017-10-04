@@ -18,7 +18,7 @@ public class ContextProfileService {
     public ContextProfile findById(UUID contextProfileId) throws ContentNotFoundException {
         ContextProfile contextProfile = contextProfileRepository.findById(contextProfileId);
         if (contextProfile == null) {
-            throw new ContentNotFoundException("Not Found ContextProfile Id: " + contextProfile);
+            throw new ContentNotFoundException("Not Found ContextProfile Id: " + contextProfileId);
         }
         return contextProfile;
     }
