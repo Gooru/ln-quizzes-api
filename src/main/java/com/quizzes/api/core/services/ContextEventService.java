@@ -1,6 +1,13 @@
 package com.quizzes.api.core.services;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -12,7 +19,17 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
-import com.quizzes.api.core.dtos.*;
+import com.quizzes.api.core.dtos.AnswerDto;
+import com.quizzes.api.core.dtos.CollectionDto;
+import com.quizzes.api.core.dtos.EventContextDto;
+import com.quizzes.api.core.dtos.EventSummaryDataDto;
+import com.quizzes.api.core.dtos.OnResourceEventPostRequestDto;
+import com.quizzes.api.core.dtos.OnResourceEventResponseDto;
+import com.quizzes.api.core.dtos.PostRequestResourceDto;
+import com.quizzes.api.core.dtos.PostResponseResourceDto;
+import com.quizzes.api.core.dtos.ResourceDto;
+import com.quizzes.api.core.dtos.StartContextEventResponseDto;
+import com.quizzes.api.core.dtos.TaxonomySummaryDto;
 import com.quizzes.api.core.dtos.messaging.FinishContextEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.OnResourceEventMessageDto;
 import com.quizzes.api.core.dtos.messaging.StartContextEventMessageDto;

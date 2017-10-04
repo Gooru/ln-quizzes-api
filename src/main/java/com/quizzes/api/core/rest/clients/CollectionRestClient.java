@@ -1,5 +1,26 @@
 package com.quizzes.api.core.rest.clients;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
 import com.google.code.ssm.api.ParameterValueKeyProvider;
 import com.google.code.ssm.api.ReadThroughSingleCache;
 import com.google.code.ssm.api.ReturnDataUpdateContent;
@@ -24,22 +45,6 @@ import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import com.quizzes.api.util.QuizzesUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 public class CollectionRestClient {
@@ -93,7 +98,7 @@ public class CollectionRestClient {
             HttpHeaders headers = gooruHelper.setupHttpHeaders(authToken);
             HttpEntity entity = new HttpEntity(headers);
             ResponseEntity<CollectionContentDto> responseEntity =
-                    restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, CollectionContentDto.class);
+                restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, CollectionContentDto.class);
             CollectionContentDto collection = responseEntity.getBody();
             collection.setIsCollection(true);
 
@@ -133,7 +138,7 @@ public class CollectionRestClient {
             HttpHeaders headers = gooruHelper.setupHttpHeaders(authToken);
             HttpEntity requestEntity = new HttpEntity(headers);
             ResponseEntity<AssessmentContentDto> responseEntity =
-                    restTemplate.exchange(endpointUrl, HttpMethod.GET, requestEntity, AssessmentContentDto.class);
+                restTemplate.exchange(endpointUrl, HttpMethod.GET, requestEntity, AssessmentContentDto.class);
             AssessmentContentDto assessment = responseEntity.getBody();
             assessment.setIsCollection(false);
 
@@ -194,28 +199,27 @@ public class CollectionRestClient {
     private List<ResourceDto> mapResources(List<ResourceContentDto> resourceContentDtos) {
         List<ResourceDto> resourceDtos = new ArrayList<>();
         if (resourceContentDtos != null) {
-            resourceDtos = resourceContentDtos.stream()
-                    .sorted(Comparator.comparingInt(ResourceContentDto::getSequence))
-                    .map(resourceContentDto -> {
-                        ResourceDto resourceDto = new ResourceDto();
-                        resourceDto.setId(resourceContentDto.getId());
-                        resourceDto.setSequence((short) resourceContentDto.getSequence());
+            resourceDtos = resourceContentDtos.stream().sorted(Comparator.comparingInt(ResourceContentDto::getSequence))
+                .map(resourceContentDto -> {
+                    ResourceDto resourceDto = new ResourceDto();
+                    resourceDto.setId(resourceContentDto.getId());
+                    resourceDto.setSequence((short) resourceContentDto.getSequence());
 
-                        ResourceMetadataDto metadata;
-                        boolean isResource = false;
-                        if (resourceContentDto.getContentFormat() == null ||
-                                !resourceContentDto.getContentFormat().equals("resource")) {
-                            metadata = mapQuestionResource(resourceContentDto);
-                        } else {
-                            metadata = mapResource(resourceContentDto);
-                            isResource = true;
-                        }
+                    ResourceMetadataDto metadata;
+                    boolean isResource = false;
+                    if (resourceContentDto.getContentFormat() == null || !resourceContentDto.getContentFormat()
+                        .equals("resource")) {
+                        metadata = mapQuestionResource(resourceContentDto);
+                    } else {
+                        metadata = mapResource(resourceContentDto);
+                        isResource = true;
+                    }
 
-                        resourceDto.setIsResource(isResource);
-                        resourceDto.setMetadata(metadata);
+                    resourceDto.setIsResource(isResource);
+                    resourceDto.setMetadata(metadata);
 
-                        return resourceDto;
-                    }).collect(Collectors.toList());
+                    return resourceDto;
+                }).collect(Collectors.toList());
         }
         return resourceDtos;
     }
@@ -336,9 +340,8 @@ public class CollectionRestClient {
         GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
         if (resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion)) {
             // remove content for evey pair of brackets, except for those preceded for sqrt
-            return resourceContentDto.getDescription()
-                    .replaceAll("(?<!sqrt\\[)(?<=\\[)(.*?)(?=\\])", "")
-                    .replaceAll("(_______)", "[]");
+            return resourceContentDto.getDescription().replaceAll("(?<!sqrt\\[)(?<=\\[)(.*?)(?=\\])", "")
+                .replaceAll("(_______)", "[]");
         } else {
             return resourceContentDto.getDescription();
         }
@@ -347,9 +350,9 @@ public class CollectionRestClient {
     private InteractionDto createInteraction(ResourceContentDto resourceContentDto) {
         String contentSubformat = resourceContentDto.getContentSubformat();
         GooruQuestionTypeEnum resourceQuestionType = GooruQuestionTypeEnum.getEnum(contentSubformat);
-        if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion) ||
-                resourceQuestionType.equals(GooruQuestionTypeEnum.FillInTheBlankQuestion) ||
-                resourceQuestionType.equals(GooruQuestionTypeEnum.OpenEndedQuestion)) {
+        if (resourceQuestionType.equals(GooruQuestionTypeEnum.HotTextHighlightQuestion) || resourceQuestionType
+            .equals(GooruQuestionTypeEnum.FillInTheBlankQuestion) || resourceQuestionType
+            .equals(GooruQuestionTypeEnum.OpenEndedQuestion)) {
             return null;
         }
 
