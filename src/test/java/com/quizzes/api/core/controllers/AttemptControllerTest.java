@@ -57,6 +57,7 @@ public class AttemptControllerTest {
     private UUID ownerId;
     private UUID profileId;
     private UUID currentResourceId;
+    private final String token = "TOKEN";
 
     @Before
     public void before() throws Exception {
@@ -89,12 +90,13 @@ public class AttemptControllerTest {
         contextEvents.setCollectionId(collectionId);
         contextEvents.setProfileAttempts(profileEvents);
 
-        when(attemptService.getCurrentAttemptByProfile(any(UUID.class), any(UUID.class))).thenReturn(contextEvents);
+        when(attemptService.getCurrentAttemptByProfile(any(UUID.class), any(UUID.class), eq(token))).thenReturn
+            (contextEvents);
 
         ResponseEntity<ContextAttemptsResponseDto> result = controller.getCurrentAttemptByProfile(contextId,
-                ownerId.toString());
+                ownerId.toString(), token);
 
-        verify(attemptService, times(1)).getCurrentAttemptByProfile(contextId, ownerId);
+        verify(attemptService, times(1)).getCurrentAttemptByProfile(contextId, ownerId, token);
 
         assertNotNull("Response is Null", result);
         assertEquals("Invalid status code:", HttpStatus.OK, result.getStatusCode());
@@ -127,16 +129,16 @@ public class AttemptControllerTest {
 
     @Test
     public void getAttemptIds() throws Exception {
-        when(contextService.findCreatedContext(eq(contextId), eq(ownerId))).thenReturn(null);
+        when(contextService.findCreatedContext(eq(contextId), eq(ownerId), eq(token))).thenReturn(null);
 
         AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
         when(contextProfileService.findContextProfileIdsByContextIdAndProfileId(eq(contextId), any(UUID.class))).
                 thenReturn(new ArrayList<UUID>());
 
         ResponseEntity<AttemptIdsResponseDto> response = controller.
-                getAttemptIds(contextId, UUID.randomUUID().toString(), ownerId.toString());
+                getAttemptIds(contextId, UUID.randomUUID().toString(), ownerId.toString(), token);
 
-        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class), eq(token));
 
         verify(contextProfileService, times(1)).findContextProfileIdsByContextIdAndProfileId(any(UUID.class),
                 any(UUID.class));
@@ -145,7 +147,7 @@ public class AttemptControllerTest {
     @Test(expected = InvalidOwnerException.class)
     public void getContextProfileAttemptIdsWithDifferentOwner() throws Exception {
 
-        when(contextService.findCreatedContext(eq(contextId), not(eq(ownerId))))
+        when(contextService.findCreatedContext(eq(contextId), not(eq(ownerId)), eq(token)))
                 .thenThrow(new InvalidOwnerException("Invalid owner"));
 
         AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
@@ -153,9 +155,9 @@ public class AttemptControllerTest {
                 thenReturn(new ArrayList<UUID>());
 
         ResponseEntity<AttemptIdsResponseDto> response = controller.
-                getAttemptIds(contextId, UUID.randomUUID().toString(), UUID.randomUUID().toString());
+                getAttemptIds(contextId, UUID.randomUUID().toString(), UUID.randomUUID().toString(), token);
 
-        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class), eq(token));
 
         verify(contextProfileService, times(1)).findContextProfileIdsByContextIdAndProfileId(any(UUID.class),
                 any(UUID.class));
@@ -164,7 +166,7 @@ public class AttemptControllerTest {
     @Test(expected = ContentNotFoundException.class)
     public void getContextProfileAttemptIdsWithNoContext() throws Exception {
 
-        when(contextService.findCreatedContext(not(eq(contextId)), eq(ownerId)))
+        when(contextService.findCreatedContext(not(eq(contextId)), eq(ownerId), eq(token)))
                 .thenThrow(new ContentNotFoundException("Context not found"));
 
         AttemptIdsResponseDto attemptIdsResponseDto = new AttemptIdsResponseDto();
@@ -172,9 +174,9 @@ public class AttemptControllerTest {
                 thenReturn(new ArrayList<UUID>());
 
         ResponseEntity<AttemptIdsResponseDto> response =
-                controller.getAttemptIds(UUID.randomUUID(), UUID.randomUUID().toString(), ownerId.toString());
+                controller.getAttemptIds(UUID.randomUUID(), UUID.randomUUID().toString(), ownerId.toString(), token);
 
-        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class), eq(token));
 
         verify(contextProfileService, times(1)).findContextProfileIdsByContextIdAndProfileId(any(UUID.class),
                 any(UUID.class));

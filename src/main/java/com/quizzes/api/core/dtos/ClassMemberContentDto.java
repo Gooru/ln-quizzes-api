@@ -13,6 +13,9 @@ public class ClassMemberContentDto {
     @SerializedName("owner")
     private List<UUID> ownerIds;
 
+    @SerializedName("collaborator")
+    private List<UUID> collaborators;
+
     public List<UUID> getMemberIds() {
         return memberIds;
     }
@@ -29,4 +32,11 @@ public class ClassMemberContentDto {
         return ownerIds;
     }
 
+    public List<UUID> getCollaborators() {
+        return collaborators;
+    }
+
+    public void setCollaborators(List<UUID> collaborators) {
+        this.collaborators = collaborators;
+    }
 }

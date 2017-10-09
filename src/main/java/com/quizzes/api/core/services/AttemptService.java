@@ -34,8 +34,8 @@ public class AttemptService {
     @Autowired
     private Gson gson;
 
-    public ContextAttemptsResponseDto getCurrentAttemptByProfile(UUID contextId, UUID ownerId) {
-        ContextEntity context = contextService.findCreatedContext(contextId, ownerId);
+    public ContextAttemptsResponseDto getCurrentAttemptByProfile(UUID contextId, UUID ownerId, String token) {
+        ContextEntity context = contextService.findCreatedContext(contextId, ownerId, token);
         Map<UUID, List<AssigneeEventEntity>> assigneeEvents = contextProfileEventService.findByContextId(contextId);
 
         List<ProfileAttemptsResponseDto> profileEvents = mapProfileAttempts(assigneeEvents);
