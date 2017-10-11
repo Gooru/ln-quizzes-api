@@ -53,9 +53,10 @@ public class AttemptController {
     public ResponseEntity<ContextAttemptsResponseDto> getCurrentAttemptByProfile(
             @ApiParam(value = "Context ID", required = true, name = "contextId")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") String profileId) {
+            @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "token") String token) {
         ContextAttemptsResponseDto contextEvents =
-                attemptService.getCurrentAttemptByProfile(contextId, UUID.fromString(profileId));
+                attemptService.getCurrentAttemptByProfile(contextId, UUID.fromString(profileId), token);
         return new ResponseEntity<>(contextEvents, HttpStatus.OK);
     }
 
@@ -75,13 +76,14 @@ public class AttemptController {
             @PathVariable UUID contextId,
             @ApiParam(value = "Assignee Profile ID", required = true, name = "profileId")
             @PathVariable(name = "profileId") String profileId,
-            @RequestAttribute(value = "profileId") String authProfileId) {
+            @RequestAttribute(value = "profileId") String authProfileId,
+            @RequestAttribute(value="token") String token) {
         UUID resolvedProfileId = QuizzesUtils.resolveProfileId(profileId);
         UUID resolvedAuthProfileId = QuizzesUtils.resolveProfileId(authProfileId);
         if (!resolvedAuthProfileId.equals(resolvedProfileId)) {
             // Checks that exists a Context ID owned by the AuthProfile ID. This means that the Context owner will
             // fetch Assignee (ProfileId) attempt events
-            contextService.findCreatedContext(contextId, resolvedAuthProfileId);
+            contextService.findCreatedContext(contextId, resolvedAuthProfileId, token);
         }
         List<UUID> attemptIds =
                 contextProfileService.findContextProfileIdsByContextIdAndProfileId(contextId, resolvedProfileId);
