@@ -19,7 +19,9 @@ public class FillInTheBlankAnswerCreator implements AnswerCreator {
         List<String> correctValues = getAnswerValues(resource.getMetadata().getCorrectAnswer());
         List<String> userAnswers = getAnswerValues(answerResource.getAnswer());
 
-        for (int i = 0; i < userAnswers.size(); i++) {
+        int answersSize = userAnswers.size() > correctValues.size() ? correctValues.size() : userAnswers.size();
+
+        for (int i = 0; i < answersSize; i++) {
             String userAnswer = userAnswers.get(i);
 
             answerObjects.add(AnswerObject.builder()
