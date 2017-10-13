@@ -42,6 +42,7 @@ import com.quizzes.api.core.enums.QuestionTypeEnum;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
 import com.quizzes.api.core.exceptions.InternalServerException;
+import com.quizzes.api.core.exceptions.InvalidSessionException;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.core.services.content.helpers.GooruHelper;
 import com.quizzes.api.util.QuizzesUtils;
@@ -112,6 +113,8 @@ public class CollectionRestClient {
             logger.error("Gooru Collection '" + collectionId + "' could not be retrieved.", hcee);
             if (hcee.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
                 throw new ContentNotFoundException("Collection " + collectionId + " could not be found.");
+            } else if (hcee.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+                throw new InvalidSessionException("Invalid session. Could not fetch Collection " + collectionId);
             }
             throw new ContentProviderException("Collection " + collectionId + " could not be retrieved.", hcee);
         } catch (Exception e) {
