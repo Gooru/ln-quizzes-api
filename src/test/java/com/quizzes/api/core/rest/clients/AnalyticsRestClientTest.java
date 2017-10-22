@@ -60,14 +60,14 @@ public class AnalyticsRestClientTest {
         EventCollection eventCollectionContentDto = EventCollection.builder().build();
 
         doReturn(null).when(asyncRestTemplate).postForEntity(anyString(), any(HttpEntity.class), eq(Void.class));
-        doReturn(url).when(configurationService).getContentApiUrl();
+        doReturn(url).when(configurationService).getAnalyticsEventApiUrl();
         doReturn(apiKey).when(configurationService).getApiKey();
         doReturn(new HttpHeaders()).when(gooruHelper).setupAnalyticsHttpHeaders(token);
 
         analyticsRestClient.notifyEvent(eventCollectionContentDto, token);
 
         verify(asyncRestTemplate, times(1)).postForEntity(anyString(), any(HttpEntity.class), eq(Void.class));
-        verify(configurationService, times(1)).getContentApiUrl();
+        verify(configurationService, times(1)).getAnalyticsEventApiUrl();
         verify(gooruHelper, times(1)).setupAnalyticsHttpHeaders(token);
         verify(configurationService, times(1)).getApiKey();
     }

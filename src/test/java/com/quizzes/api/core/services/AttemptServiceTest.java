@@ -92,6 +92,7 @@ public class AttemptServiceTest {
     private UUID contextProfileId;
     private UUID ownerId;
     private UUID profileId;
+    private final String token = "TOKEN";
 
     @Before
     public void beforeEachTest() {
@@ -115,14 +116,14 @@ public class AttemptServiceTest {
         List<ProfileAttemptsResponseDto> profileAttempts = Arrays.asList(profileAttempt);
         ContextEntity contextEntity = createAssignedContextEntity();
 
-        when(contextService.findCreatedContext(contextId, ownerId)).thenReturn(contextEntity);
+        when(contextService.findCreatedContext(contextId, ownerId, token)).thenReturn(contextEntity);
         when(contextProfileEventService.findByContextId(contextId)).thenReturn(contextEventsMap);
         doReturn(profileAttempts).when(attemptService, "mapProfileAttempts",
                 contextEventsMap);
 
-        ContextAttemptsResponseDto result = attemptService.getCurrentAttemptByProfile(contextId, ownerId);
+        ContextAttemptsResponseDto result = attemptService.getCurrentAttemptByProfile(contextId, ownerId, token);
 
-        verify(contextService, times(1)).findCreatedContext(contextId, ownerId);
+        verify(contextService, times(1)).findCreatedContext(contextId, ownerId, token);
         verify(contextProfileEventService, times(1)).findByContextId(contextId);
         verifyPrivate(attemptService, times(1)).invoke("mapProfileAttempts", contextEventsMap);
 

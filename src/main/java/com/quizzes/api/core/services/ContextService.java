@@ -1,5 +1,15 @@
 package com.quizzes.api.core.services;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.stereotype.Service;
+
 import com.google.gson.Gson;
 import com.quizzes.api.core.dtos.ClassMemberContentDto;
 import com.quizzes.api.core.dtos.controller.ContextDataDto;
@@ -15,15 +25,6 @@ import com.quizzes.api.core.repositories.ContextRepository;
 import com.quizzes.api.core.services.content.ClassMemberService;
 import com.quizzes.api.core.services.content.CollectionService;
 import com.quizzes.api.util.QuizzesUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class ContextService {
@@ -55,10 +56,11 @@ public class ContextService {
         if (classId != null) {
             QuizzesUtils.rejectAnonymous(profileId, "Anonymous users cannot create Contexts mapped to a Class");
             ClassMemberContentDto classMemberContent = classMemberService.getClassMemberContent(classId, authToken);
-            if (!classMemberContent.getMemberIds().contains(profileId) &&
-                    !classMemberContent.getOwnerIds().contains(profileId)) {
-                throw new InvalidClassMemberException("Profile Id: " + profileId +
-                        " is not a valid member (Assignee or Owner) of the Class Id: " + classId);
+            if (!classMemberContent.getMemberIds().contains(profileId) && !classMemberContent.getOwnerIds()
+                .contains(profileId) && !classMemberContent.getCollaborators().contains(profileId)) {
+                throw new InvalidClassMemberException(
+                    "Profile Id: " + profileId + " is not a valid member (Assignee or Owner) of the Class Id: "
+                        + classId);
             }
             profileId = classMemberContent.getOwnerIds().get(0);
         }
@@ -106,11 +108,15 @@ public class ContextService {
         return contextRepository.findCreatedContextsByProfileId(profileId);
     }
 
-    public ContextEntity findCreatedContext(UUID contextId, UUID profileId) throws ContentNotFoundException {
+    public ContextEntity findCreatedContext(UUID contextId, UUID profileId, String token)
+        throws ContentNotFoundException {
         ContextEntity context = contextRepository.findCreatedContextByContextIdAndProfileId(contextId, profileId);
         if (context == null) {
-            throw new ContentNotFoundException("Context not found for Context ID: " + contextId
-                    + " and Owner Profile ID: " + profileId);
+            context = findCreatedContextForCollaborator(contextId, profileId, token);
+        }
+        if (context == null) {
+            throw new ContentNotFoundException(
+                "Context not found for Context ID: " + contextId + " and Owner/Collaborator Profile ID: " + profileId);
         }
         return context;
     }
@@ -128,6 +134,19 @@ public class ContextService {
                     "(member of the Class Id: " + context.getClassId() + ")");
         }
         return context;
+    }
+
+    private ContextEntity findCreatedContextForCollaborator(UUID contextId, UUID profileId, String token) {
+        ContextEntity context = findById(contextId);
+        if (context.getClassId() != null) {
+            ClassMemberContentDto classMemberContent =
+                classMemberService.getClassMemberContent(context.getClassId(), token);
+            if (classMemberContent.getOwnerIds().contains(profileId) || classMemberContent.getCollaborators()
+                .contains(profileId)) {
+                return context;
+            }
+        }
+        return null;
     }
 
     private Context buildContext(UUID profileId, UUID collectionId, boolean isCollection, UUID classId,

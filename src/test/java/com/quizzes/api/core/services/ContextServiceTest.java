@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -353,7 +354,7 @@ public class ContextServiceTest {
         when(contextRepository.findCreatedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(contextEntity);
 
-        ContextEntity result = contextService.findCreatedContext(contextId, profileId);
+        ContextEntity result = contextService.findCreatedContext(contextId, profileId, token);
 
         verify(contextRepository, times(1))
                 .findCreatedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class));
@@ -365,7 +366,7 @@ public class ContextServiceTest {
     public void findCreatedContextWhenThrowsContentNotFoundException() throws Exception {
         when(contextRepository.findCreatedContextByContextIdAndProfileId(any(UUID.class), any(UUID.class)))
                 .thenReturn(null);
-        contextService.findCreatedContext(contextId, profileId);
+        contextService.findCreatedContext(contextId, profileId, token);
     }
 
     @Test
@@ -479,6 +480,7 @@ public class ContextServiceTest {
         classMemberContent.setMemberIds(new ArrayList<>());
         classMemberContent.setOwnerIds(new ArrayList<>());
         classMemberContent.getOwnerIds().add(profileId);
+        classMemberContent.setCollaborators(Collections.emptyList());
         return classMemberContent;
     }
 

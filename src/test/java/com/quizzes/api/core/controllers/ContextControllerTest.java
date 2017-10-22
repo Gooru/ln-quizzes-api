@@ -26,9 +26,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -151,12 +149,12 @@ public class ContextControllerTest {
     public void getCreatedContext() throws Exception {
         ContextEntity contextEntity = createContextEntityMock();
 
-        when(contextService.findCreatedContext(any(UUID.class), any(UUID.class))).thenReturn(contextEntity);
+        when(contextService.findCreatedContext(any(UUID.class), any(UUID.class), eq(token))).thenReturn(contextEntity);
 
         ResponseEntity<ContextGetResponseDto> response =
-                controller.getCreatedContext(UUID.randomUUID(), UUID.randomUUID().toString());
+                controller.getCreatedContext(UUID.randomUUID(), UUID.randomUUID().toString(), token);
 
-        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class));
+        verify(contextService, times(1)).findCreatedContext(any(UUID.class), any(UUID.class), eq(token));
         assertNotNull("Response is null", response);
         assertNotNull("Body is null", response.getBody());
         assertEquals("Invalid status code", HttpStatus.OK, response.getStatusCode());

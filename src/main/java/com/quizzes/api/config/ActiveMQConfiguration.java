@@ -28,9 +28,7 @@ public class ActiveMQConfiguration {
 
     @Bean
     public ConnectionFactory connectionFactory() {
-        ConnectionFactory connectionFactory =
-                new CachingConnectionFactory(new ActiveMQConnectionFactory(getBrokerURL()));
-        return connectionFactory;
+        return new CachingConnectionFactory(new ActiveMQConnectionFactory(getBrokerURL()));
     }
 
     @Bean

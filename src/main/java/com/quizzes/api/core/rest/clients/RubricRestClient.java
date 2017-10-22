@@ -1,5 +1,14 @@
 package com.quizzes.api.core.rest.clients;
 
+import java.util.UUID;
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+
 import com.quizzes.api.core.dtos.RubricCategoryDto;
 import com.quizzes.api.core.dtos.RubricCategoryLevelDto;
 import com.quizzes.api.core.dtos.RubricDto;
@@ -9,15 +18,9 @@ import com.quizzes.api.core.dtos.content.RubricContentDto;
 import com.quizzes.api.core.enums.GradingType;
 import com.quizzes.api.core.exceptions.ContentNotFoundException;
 import com.quizzes.api.core.exceptions.ContentProviderException;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
+import com.quizzes.api.core.exceptions.InvalidSessionException;
 
-import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -30,18 +33,14 @@ public class RubricRestClient extends NucleusRestClient {
     }
 
     public RubricDto getRubric(UUID rubricId, String authToken) {
-        String endpointUrl = configurationService.getContentApiUrl() +
-                String.format(RUBRICS_PATH, rubricId);
+        String endpointUrl = configurationService.getContentApiUrl() + String.format(RUBRICS_PATH, rubricId);
 
         logRequest(endpointUrl);
 
         try {
             HttpEntity entity = setupHttpHeaders(authToken);
-            ResponseEntity<RubricContentDto> responseEntity = restTemplate.exchange(
-                    endpointUrl,
-                    HttpMethod.GET,
-                    entity,
-                    RubricContentDto.class);
+            ResponseEntity<RubricContentDto> responseEntity =
+                restTemplate.exchange(endpointUrl, HttpMethod.GET, entity, RubricContentDto.class);
 
             RubricContentDto rubricContentDto = responseEntity.getBody();
             logResponse(endpointUrl, gsonPretty.toJson(rubricContentDto));
@@ -51,10 +50,13 @@ public class RubricRestClient extends NucleusRestClient {
             if (httpException.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
                 log.error("Rubric " + rubricId + " not found in Gooru.", httpException);
                 throw new ContentNotFoundException("Question " + rubricId + " not found in Gooru.");
+            } else if (httpException.getStatusCode().equals(HttpStatus.UNAUTHORIZED)) {
+                log.error("Invalid session. Cannot fetch Rubric " + rubricId, httpException);
+                throw new InvalidSessionException("Invalid session. Cannot fetch Rubric " + rubricId, httpException);
             } else {
                 log.error("Rubric '" + rubricId + "' could not be retrieved.", httpException);
                 throw new ContentProviderException("Question " + rubricId + " could not be retrieved from Gooru.",
-                        httpException);
+                    httpException);
             }
         } catch (Exception e) {
             log.error("Rubric '" + rubricId + "' could not be retrieved.", e);
@@ -63,25 +65,17 @@ public class RubricRestClient extends NucleusRestClient {
     }
 
     private RubricDto toRubricDto(RubricContentDto rubricContentDto) {
-        RubricDto.RubricDtoBuilder rubricDtoBuilder = RubricDto.builder()
-                .id(rubricContentDto.getId())
-                .title(rubricContentDto.getTitle())
-                .description(rubricContentDto.getDescription())
-                .thumbnail(rubricContentDto.getThumbnail())
-                .url(rubricContentDto.getUrl())
-                .metadata(rubricContentDto.getMetadata())
-                .publishStatus(rubricContentDto.getPublishStatus())
-                .publishDate(rubricContentDto.getPublishDate())
-                .isRemote(rubricContentDto.getIsRemote())
-                .feedback(rubricContentDto.getFeedback())
+        RubricDto.RubricDtoBuilder rubricDtoBuilder =
+            RubricDto.builder().id(rubricContentDto.getId()).title(rubricContentDto.getTitle())
+                .description(rubricContentDto.getDescription()).thumbnail(rubricContentDto.getThumbnail())
+                .url(rubricContentDto.getUrl()).metadata(rubricContentDto.getMetadata())
+                .publishStatus(rubricContentDto.getPublishStatus()).publishDate(rubricContentDto.getPublishDate())
+                .isRemote(rubricContentDto.getIsRemote()).feedback(rubricContentDto.getFeedback())
                 .taxonomy(rubricContentDto.getTaxonomy())
                 .overallFeedbackRequired(rubricContentDto.getOverallFeedbackRequired())
-                .isRubric(rubricContentDto.getIsRubric())
-                .creatorId(rubricContentDto.getCreatorId())
-                .createdAt(rubricContentDto.getCreatedAt())
-                .modifierId(rubricContentDto.getModifierId())
-                .updatedAt(rubricContentDto.getUpdatedAt())
-                .tenant(rubricContentDto.getTenant())
+                .isRubric(rubricContentDto.getIsRubric()).creatorId(rubricContentDto.getCreatorId())
+                .createdAt(rubricContentDto.getCreatedAt()).modifierId(rubricContentDto.getModifierId())
+                .updatedAt(rubricContentDto.getUpdatedAt()).tenant(rubricContentDto.getTenant())
                 .gradingType(GradingType.fromString(rubricContentDto.getGrader()));
 
         if (rubricContentDto.getCategories() != null) {
@@ -94,10 +88,9 @@ public class RubricRestClient extends NucleusRestClient {
     }
 
     private RubricCategoryDto toRubricCategoryDto(RubricCategoryContentDto rubricCategoryContentDto) {
-        RubricCategoryDto.RubricCategoryDtoBuilder rubricCategoryDtoBuilder = RubricCategoryDto.builder()
-                .level(rubricCategoryContentDto.getLevel())
-                .scoring(rubricCategoryContentDto.getScoring())
-                .title(rubricCategoryContentDto.getTitle())
+        RubricCategoryDto.RubricCategoryDtoBuilder rubricCategoryDtoBuilder =
+            RubricCategoryDto.builder().level(rubricCategoryContentDto.getLevel())
+                .scoring(rubricCategoryContentDto.getScoring()).title(rubricCategoryContentDto.getTitle())
                 .feedback(rubricCategoryContentDto.getFeedback())
                 .requiredFeedback(rubricCategoryContentDto.getRequiredFeedback());
 
@@ -108,10 +101,9 @@ public class RubricRestClient extends NucleusRestClient {
         return rubricCategoryDtoBuilder.build();
     }
 
-    private RubricCategoryLevelDto toRubricCategoryLevelDto(RubricCategoryLevelContentDto rubricCategoryLevelContentDto) {
-        return RubricCategoryLevelDto.builder()
-                .name(rubricCategoryLevelContentDto.getName())
-                .score(rubricCategoryLevelContentDto.getScore())
-                .build();
+    private RubricCategoryLevelDto toRubricCategoryLevelDto(
+        RubricCategoryLevelContentDto rubricCategoryLevelContentDto) {
+        return RubricCategoryLevelDto.builder().name(rubricCategoryLevelContentDto.getName())
+            .score(rubricCategoryLevelContentDto.getScore()).build();
     }
 }

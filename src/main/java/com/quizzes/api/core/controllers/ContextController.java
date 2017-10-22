@@ -94,10 +94,11 @@ public class ContextController {
             @ApiParam(name = "ContextID", required = true,
                     value = "The ID of the context you want to get from the set of created contexts.")
             @PathVariable UUID contextId,
-            @RequestAttribute(value = "profileId") String profileId) throws Exception {
+            @RequestAttribute(value = "profileId") String profileId,
+            @RequestAttribute(value = "token") String token) {
 
         QuizzesUtils.rejectAnonymous(profileId);
-        ContextEntity context = contextService.findCreatedContext(contextId, UUID.fromString(profileId));
+        ContextEntity context = contextService.findCreatedContext(contextId, UUID.fromString(profileId), token);
         return new ResponseEntity<>(entityMapper.mapContextEntityToContextGetResponseDto(context), HttpStatus.OK);
     }
 

@@ -1,7 +1,9 @@
 package com.quizzes.api.core.rest.clients;
 
-import com.quizzes.api.core.services.ConfigurationService;
-import com.quizzes.api.core.services.content.helpers.GooruHelper;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,13 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.testng.AssertJUnit.assertTrue;
-
+import com.quizzes.api.core.services.ConfigurationService;
+import com.quizzes.api.core.services.content.helpers.GooruHelper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationRestClientTest {
@@ -40,19 +37,21 @@ public class AuthenticationRestClientTest {
 
     @Test
     public void verifyUserToken() throws Exception {
-        doReturn("http://nile-dev.gooru.org").when(configurationService).getContentApiUrl();
+        doReturn("http://nile-dev.gooru.org/api/nucleus-token-server/v1/token").when(configurationService)
+            .getTokenVerificationUrl();
 
         HttpHeaders headers = new HttpHeaders();
         doReturn(headers).when(gooruHelper).setupHttpHeaders(any(String.class));
 
         doReturn(new ResponseEntity<>(Void.class, HttpStatus.OK)).when(restTemplate)
-                .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(Void.class));
+            .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(Void.class));
 
         boolean result = authenticationRestClient.verifyAccessToken("ANY_TOKEN");
 
-        verify(configurationService, times(1)).getContentApiUrl();
+        verify(configurationService, times(1)).getTokenVerificationUrl();
         verify(gooruHelper, times(1)).setupHttpHeaders(any(String.class));
-        verify(restTemplate, times(1)).exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(Void.class));
+        verify(restTemplate, times(1))
+            .exchange(any(String.class), eq(HttpMethod.GET), any(HttpEntity.class), eq(Void.class));
 
         assertTrue("Wrong return value", result);
     }
