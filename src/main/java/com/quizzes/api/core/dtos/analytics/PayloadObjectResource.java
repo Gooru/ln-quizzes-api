@@ -10,8 +10,8 @@ import java.util.Map;
 
 @Data
 @Builder
-public class PayloadObjectResource {
 
+public class PayloadObjectResource {
     private AnswerStatus attemptStatus;
 
     private GradingType gradingType;
@@ -29,5 +29,7 @@ public class PayloadObjectResource {
     private List<AnswerObject> answerObject;
 
     private boolean isStudent;
+    
+    private String sourceId;
 
 }

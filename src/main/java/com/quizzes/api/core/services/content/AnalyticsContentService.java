@@ -142,7 +142,7 @@ public class AnalyticsContentService {
                 .context(createContextCollection(context, collection, type, eventContext))
                 .version(new Version(configurationService.getAnalyticsVersion()))
                 .metrics(Collections.emptyMap())
-                .payLoadObject(new PayloadObjectCollection(true))
+                .payLoadObject(new PayloadObjectCollection(true, eventContext.getSourceId()))
                 .timezone(eventContext.getTimezone())
                 .startTime(startTime)
                 .endTime(endTime)
@@ -191,7 +191,7 @@ public class AnalyticsContentService {
                         eventContext))
                 .version(new Version(configurationService.getAnalyticsVersion()))
                 .metrics(Collections.emptyMap())
-                .payLoadObject(createPayloadObjectResource(type, resource, answerResource))
+                .payLoadObject(createPayloadObjectResource(type, resource, answerResource, eventContext.getSourceId()))
                 .timezone(eventContext.getTimezone())
                 .startTime(startTime)
                 .endTime(endTime)
@@ -218,10 +218,10 @@ public class AnalyticsContentService {
     }
 
     private PayloadObjectResource createPayloadObjectResource(String type, ResourceDto resource,
-                                                              PostRequestResourceDto answerResource) {
+                                                              PostRequestResourceDto answerResource, String sourceId) {
         if (type.equals(START)) {
             return PayloadObjectResource.builder()
-                    .questionType(quizzesUtils.getGooruQuestionType(resource.getMetadata().getType()))
+                    .questionType(quizzesUtils.getGooruQuestionType(resource.getMetadata().getType())).sourceId(sourceId)
                     .build();
         }
         return PayloadObjectResource.builder()
@@ -229,6 +229,7 @@ public class AnalyticsContentService {
                 .attemptStatus(getAttemptStatus(resource, answerResource))
                 .gradingType(getGradingType(resource))
                 .isStudent(true)
+                .sourceId(sourceId)
                 .taxonomyIds(getTaxonomyIds(resource))
                 .answerObject(createAnswerObject(answerResource, resource))
                 .build();
@@ -337,7 +338,7 @@ public class AnalyticsContentService {
                 .context(createSingleResourceEventContext(resourceId, eventType, eventContext))
                 .version(new Version(configurationService.getAnalyticsVersion()))
                 .metrics(Collections.emptyMap())
-                .payLoadObject(PayloadObjectResource.builder().isStudent(true).build())
+                .payLoadObject(PayloadObjectResource.builder().isStudent(true).sourceId(eventContext.getSourceId()).build())
                 .timezone(eventContext.getTimezone())
                 .startTime(startTime)
                 .endTime(endTime)
