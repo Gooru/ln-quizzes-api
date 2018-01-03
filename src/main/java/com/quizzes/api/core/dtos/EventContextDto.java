@@ -22,6 +22,7 @@ public class EventContextDto {
     private UUID unitId;
     private UUID lessonId;
     private UUID collectionId;
+    private String sourceId;
 
     public Boolean isAttempt() {
         return eventSource != null && eventSource.equals(PlayerEventSource.CourseMap);
