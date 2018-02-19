@@ -55,7 +55,8 @@ public class ContextEventService {
 
     private static final int CORRECT_SCORE = 100;
     private static final int INCORRECT_SCORE = 0;
-    private static final Pattern doubleDigits = Pattern.compile("(\\d*[\\.]\\d+)");
+    private static final Pattern doubleDigits = Pattern.compile("(^(\\-|\\+)?(\\d+)|^(\\-|\\+)?(\\d*\\.\\d+))");
+    
 
     @Autowired
     private ContextProfileService contextProfileService;
@@ -559,8 +560,8 @@ public class ContextEventService {
         }
 
         result.setTotalTimeSpent(totalTimeSpent);
-        result.setAverageReaction(totalReactions > 0 ? (short) Math.round(sumReaction / totalReactions) : 0);
-        result.setAverageScore(totalAnswered > 0 ? (short) Math.round(sumScore / totalAnswered) : 0);
+        result.setAverageReaction(totalReactions > 0 ? (short) Math.round((double) sumReaction / totalReactions) : 0);
+        result.setAverageScore(totalAnswered > 0 ? (short) Math.round((double) sumScore / totalAnswered) : 0);
         result.setTotalCorrect(totalCorrect);
         result.setTotalAnswered(totalAnswered);
 
