@@ -31,9 +31,9 @@ public class ContextReaction extends ContextCommon {
                             String collectionSubType, UUID courseGooruId, UUID classGooruId,
                             UUID unitGooruId, UUID lessonGooruId, String clientSource, String source,
                             UUID appId, UUID partnerId, UUID tenantId, UUID parentGooruId,
-                            UUID parentEventId, String reactionType, Long pathId, String contentSource) {
+                            UUID parentEventId, String reactionType, Long pathId, String pathType, String contentSource) {
         super(contentGooruId, type, collectionType, collectionSubType, courseGooruId, classGooruId, unitGooruId,
-                lessonGooruId, clientSource, source, appId, partnerId, tenantId, pathId, contentSource);
+                lessonGooruId, clientSource, source, appId, partnerId, tenantId, pathId, pathType, contentSource);
         this.parentGooruId = parentGooruId;
         this.parentEventId = parentEventId;
         this.reactionType = reactionType;

@@ -13,6 +13,7 @@ public class EventContextDto {
     private PlayerEventSource eventSource;
     private String sourceUrl;
     private Long pathId;
+    private String pathType;
     private String timezone;
     private String gradingType;
     private UUID partnerId;
