@@ -32,6 +32,7 @@ public class ContextCommon {
     private UUID partnerId;
     private UUID tenantId;
     private Long pathId;
+    private String pathType;
     private String contentSource;
 
 }
