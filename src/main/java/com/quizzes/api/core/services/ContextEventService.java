@@ -205,7 +205,7 @@ public class ContextEventService {
             saveContextProfile(contextProfile, resourceId, contextProfile.getIsComplete(), eventSummary,
                 taxonomySummaries);
 
-        if (!QuizzesUtils.isAnonymous(contextProfileEntity.getProfileId())) {
+        if (!QuizzesUtils.isAnonymous(contextProfileEntity.getProfileId()) && eventContext.getEventSource() != null) {
             previousResourceEventData.setScore(score);
             previousResourceEventData.setIsSkipped(isSkipEvent);
             sendOnResourceEventMessage(savedContextProfile, previousResourceEventData, eventSummary);
@@ -266,7 +266,7 @@ public class ContextEventService {
         // Save pending ContextProfileEvents
         pendingContextProfileEvents.forEach(event -> contextProfileEventService.save(event));
 
-        if (!QuizzesUtils.isAnonymous(savedContextProfile.getProfileId())) {
+        if (!QuizzesUtils.isAnonymous(savedContextProfile.getProfileId()) && eventContext.getEventSource() != null) {
             pendingResources.forEach(
                 resource -> sendPendingResourceToAnalytics(contextId, savedContextProfile, resource, eventContext,
                     token));
@@ -306,7 +306,7 @@ public class ContextEventService {
             buildStartContextEventResponse(context.getContextId(), context.getCollectionId(),
                 savedContextProfile.getCurrentResourceId(), Collections.emptyList());
 
-        if (!QuizzesUtils.isAnonymous(profileId)) {
+        if (!QuizzesUtils.isAnonymous(profileId) && eventContext.getEventSource() != null) {
             sendStartEventMessage(context.getContextId(), profileId, savedContextProfile.getCurrentResourceId(), true);
             analyticsContentService.collectionPlayStart(context, savedContextProfile, eventContext, token);
         }
