@@ -26,7 +26,9 @@ public class EventContextDto {
     private String sourceId;
 
     public Boolean isAttempt() {
-        return eventSource != null && eventSource.equals(PlayerEventSource.CourseMap);
+        return eventSource != null && 
+            (eventSource.equals(PlayerEventSource.CourseMap) || 
+             eventSource.equals(PlayerEventSource.CompetencyMastery) );
     }
 
 }
