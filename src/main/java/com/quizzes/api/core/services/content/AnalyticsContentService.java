@@ -29,7 +29,6 @@ import com.quizzes.api.core.model.jooq.tables.pojos.ContextProfile;
 import com.quizzes.api.core.rest.clients.AnalyticsRestClient;
 import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.util.QuizzesUtils;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Slf4j
 @Service
 public class AnalyticsContentService {
 
@@ -75,17 +73,11 @@ public class AnalyticsContentService {
                                     String token) {
         EventCollection playEvent = createEventCollection(context, contextProfile, START,
                 contextProfile.getCreatedAt().getTime(), contextProfile.getCreatedAt().getTime(), eventContext, token);
-
-        log.debug("collectionPlayStart eventSource: " +  eventContext.getEventSource().getLiteral());
-        log.debug("collectionPlayStart user: " +  contextProfile.getProfileId());
-        log.debug("collectionPlayStart collectionId: " +  context.getCollectionId());
-
         analyticsRestClient.notifyEvent(playEvent, token);
     }
 
     public void collectionPlayStop(ContextEntity context, ContextProfile contextProfile, EventContextDto eventContext,
                                    String token) {
-        log.debug("collectionPlayStop " + eventContext.toString());
         EventCollection stopEvent = createEventCollection(context, contextProfile, STOP,
                 contextProfile.getCreatedAt().getTime(), quizzesUtils.getCurrentTimestamp(), eventContext, token);
         analyticsRestClient.notifyEvent(stopEvent, token);
@@ -140,12 +132,8 @@ public class AnalyticsContentService {
     private EventCollection createEventCollection(ContextEntity context, ContextProfile contextProfile, String type,
                                                   long startTime, long endTime, EventContextDto eventContext,
                                                   String token) {
-        log.debug("createEventCollection " + eventContext.toString());
         CollectionDto collection = collectionService.getCollectionOrAssessment(context.getCollectionId(),
                 context.getIsCollection(), token);
-        
-        log.debug("createEventCollection " + collection.getId());
-
         return EventCollection.builder()
                 .eventId(contextProfile.getId())
                 .eventName(COLLECTION_PLAY)
