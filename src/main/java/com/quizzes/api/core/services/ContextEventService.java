@@ -475,10 +475,10 @@ public class ContextEventService {
 
         if (correctAnswer.getValue().equalsIgnoreCase(userAnswer.getValue().trim())) {
             return true;
-        } else if (doubleDigits.matcher(correctAnswer.getValue()).matches()) {
+        } else if (doubleDigits.matcher(correctAnswer.getValue().trim().replaceAll(",", "")).matches()) {
             try {
-                Double correctVal = Double.valueOf(correctAnswer.getValue().trim());
-                Double userVal = Double.valueOf(userAnswer.getValue().trim());
+                Double correctVal = Double.valueOf(correctAnswer.getValue().trim().replaceAll(",", ""));
+                Double userVal = Double.valueOf(userAnswer.getValue().trim().replaceAll(",", ""));
                 return Double.compare(userVal, correctVal) == 0;
             } catch (NumberFormatException | NullPointerException nfe) {
                 return false;
