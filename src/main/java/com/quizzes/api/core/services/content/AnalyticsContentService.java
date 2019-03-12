@@ -31,7 +31,6 @@ import com.quizzes.api.core.services.ConfigurationService;
 import com.quizzes.api.util.QuizzesUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +48,7 @@ public class AnalyticsContentService {
     private static final String COURSE_ID = "courseId";
     private static final String UNIT_ID = "unitId";
     private static final String LESSON_ID = "lessonId";
+    private static final String CONTEXT_INFO = "contextInfo";
 
 
     @Autowired
@@ -163,6 +163,7 @@ public class AnalyticsContentService {
                 .pathId(eventContext.getPathId())
                 .pathType(eventContext.getPathType())
                 .contentSource(eventContext.getEventSource().getLiteral())
+                .additionalContext(contextData.getContextMap().get(CONTEXT_INFO))
                 .source(eventContext.getSourceUrl())
                 .appId(UUID.fromString(configurationService.getAnalyticsAppId()))
                 .partnerId(eventContext.getPartnerId())
