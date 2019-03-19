@@ -17,7 +17,10 @@ public enum PlayerEventSource {
     IndependentActivity("ILActivity"),
 
     @SerializedName("competencyMastery")
-    CompetencyMastery("competencyMastery");
+    CompetencyMastery("competencyMastery"),
+
+    @SerializedName("diagnostic")
+    Diagnostic("diagnostic");
 
     @Getter
     private final String literal;
