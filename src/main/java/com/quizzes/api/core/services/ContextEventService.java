@@ -55,8 +55,8 @@ public class ContextEventService {
 
     private static final int CORRECT_SCORE = 100;
     private static final int INCORRECT_SCORE = 0;
-    private static final Pattern doubleDigits = Pattern.compile("(^(\\-|\\+)?(\\d+)|^(\\-|\\+)?(\\d*\\.\\d+))");
-    
+    private static final Pattern DOUBLEDIGITS = Pattern.compile("(^(\\-|\\+)?(\\d+)|^(\\-|\\+)?(\\d*\\.\\d+))");
+    private static final Pattern COMMA = Pattern.compile(",");
 
     @Autowired
     private ContextProfileService contextProfileService;
@@ -471,14 +471,16 @@ public class ContextEventService {
         return isCorrect ? CORRECT_SCORE : INCORRECT_SCORE;
     }
 
-    private boolean isCorrect(AnswerDto userAnswer, AnswerDto correctAnswer) {
+    private boolean isCorrect(AnswerDto ipUserAnswer, AnswerDto ipCorrectAnswer) {
+        String userAnswer = ipUserAnswer.getValue().trim();
+        String correctAnswer = ipCorrectAnswer.getValue().trim();
 
-        if (correctAnswer.getValue().equalsIgnoreCase(userAnswer.getValue().trim())) {
+        if (correctAnswer.equalsIgnoreCase(userAnswer)) {
             return true;
-        } else if (doubleDigits.matcher(correctAnswer.getValue().trim().replaceAll(",", "")).matches()) {
+        } else if (DOUBLEDIGITS.matcher(COMMA.matcher(correctAnswer).replaceAll("")).matches()) {
             try {
-                Double correctVal = Double.valueOf(correctAnswer.getValue().trim().replaceAll(",", ""));
-                Double userVal = Double.valueOf(userAnswer.getValue().trim().replaceAll(",", ""));
+                Double correctVal = Double.valueOf(COMMA.matcher(correctAnswer).replaceAll(""));
+                Double userVal = Double.valueOf(COMMA.matcher(userAnswer).replaceAll(""));
                 return Double.compare(userVal, correctVal) == 0;
             } catch (NumberFormatException | NullPointerException nfe) {
                 return false;
