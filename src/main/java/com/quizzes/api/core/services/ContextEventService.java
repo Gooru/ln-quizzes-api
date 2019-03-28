@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.quizzes.api.util.NbspTrimmer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -472,8 +473,8 @@ public class ContextEventService {
     }
 
     private boolean isCorrect(AnswerDto ipUserAnswer, AnswerDto ipCorrectAnswer) {
-        String userAnswer = ipUserAnswer.getValue().trim();
-        String correctAnswer = ipCorrectAnswer.getValue().trim();
+        String userAnswer = NbspTrimmer.trim(ipUserAnswer.getValue());
+        String correctAnswer = NbspTrimmer.trim(ipCorrectAnswer.getValue());
 
         if (correctAnswer.equalsIgnoreCase(userAnswer)) {
             return true;
