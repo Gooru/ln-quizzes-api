@@ -664,6 +664,10 @@ public class ContextEventService {
     private void validateProfileAttemptsLeft(ContextEntity context, UUID profileId, String authToken) {
         CollectionDto collectionDto = collectionService
             .getCollectionOrAssessment(context.getCollectionId(), context.getIsCollection(), authToken);
+        if (collectionDto.getIsCollection()) {
+            return; // if this is a collection, no need to worry about number of attempts.
+        }
+
         int allowedAttempts =
             ((Double) collectionDto.getMetadata().getSetting(CollectionSetting.AttemptsAllowed, -1.0)).intValue();
         int contextAttempts =
