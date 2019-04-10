@@ -39,7 +39,7 @@ public class ContextService {
     private static final String LESSON_ID = "lessonId";
     private static final String EVENT_SOURCE = "eventSource";
     private static final String VERSION = "version";
-    private static final String[] SUPPORTED_VERSIONS = {"1"};
+    private static final List<String> SUPPORTED_VERSIONS = Arrays.asList( "1" );
 
     @Autowired
     private ContextRepository contextRepository;
@@ -208,7 +208,7 @@ public class ContextService {
 
     private boolean isVersionSupported(Map<String, String> contextMap) {
         if (contextMap.get(VERSION) != null) {
-            return Arrays.asList(SUPPORTED_VERSIONS).contains(contextMap.get(VERSION));
+            return SUPPORTED_VERSIONS.contains(contextMap.get(VERSION));
         } else {
             return true;    // this older structure we support for backward compatibility
         }
