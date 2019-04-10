@@ -1,6 +1,7 @@
 package com.quizzes.api.core.services;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import com.quizzes.api.core.exceptions.InternalServerException;
 import com.quizzes.api.core.exceptions.InvalidAssigneeException;
 import com.quizzes.api.core.exceptions.InvalidClassMemberException;
 import com.quizzes.api.core.exceptions.InvalidOwnerException;
+import com.quizzes.api.core.exceptions.InvalidRequestException;
 import com.quizzes.api.core.model.entities.AssignedContextEntity;
 import com.quizzes.api.core.model.entities.ContextEntity;
 import com.quizzes.api.core.model.jooq.tables.pojos.Context;
@@ -36,6 +38,8 @@ public class ContextService {
     private static final String UNIT_ID = "unitId";
     private static final String LESSON_ID = "lessonId";
     private static final String EVENT_SOURCE = "eventSource";
+    private static final String VERSION = "version";
+    private static final List<String> SUPPORTED_VERSIONS = Arrays.asList( "1" );
 
     @Autowired
     private ContextRepository contextRepository;
@@ -51,7 +55,16 @@ public class ContextService {
 
     public UUID createContext(UUID profileId, UUID collectionId, Boolean isCollection, UUID classId,
                               ContextDataDto contextDataDto, String authToken)
-            throws InvalidAssigneeException, InvalidOwnerException, InternalServerException {
+            throws InvalidRequestException, InvalidAssigneeException, InvalidOwnerException, InternalServerException {
+
+        //
+        // check if version of the context create request supported
+        // 
+        if (!isVersionSupported(contextDataDto.getContextMap())) {
+            // throw unsupported exception and quit
+            throw new InvalidRequestException(
+                "Version of context object requested is unsupported!");
+        }
 
         if (classId != null) {
             QuizzesUtils.rejectAnonymous(profileId, "Anonymous users cannot create Contexts mapped to a Class");
@@ -186,7 +199,19 @@ public class ContextService {
             composedKey += "/" + EVENT_SOURCE + ":" + contextMap.get(EVENT_SOURCE);
         }
 
+        if (contextMap.get(VERSION) != null) {
+            composedKey += "/" + VERSION + ":" + contextMap.get(VERSION);
+        }
+
         return Base64.getEncoder().encodeToString(composedKey.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private boolean isVersionSupported(Map<String, String> contextMap) {
+        if (contextMap.get(VERSION) != null) {
+            return SUPPORTED_VERSIONS.contains(contextMap.get(VERSION));
+        } else {
+            return true;    // this older structure we support for backward compatibility
+        }
     }
 
 }
